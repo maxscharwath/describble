@@ -1,6 +1,4 @@
 module.exports = {
-  extends: ["next", "turbo", "prettier"],
-  rules: {
-    "@next/next/no-html-link-for-pages": "off",
-  },
-};
+  extends: ['xo', 'xo-typescript', 'turbo', 'plugin:react/recommended', 'plugin:tailwindcss/recommended'],
+  rules: {},
+}

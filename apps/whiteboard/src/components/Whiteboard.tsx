@@ -1,5 +1,5 @@
 import style from './Whiteboard.module.scss'
-import React, { PointerEvent, useMemo, useState } from 'react'
+import React, { type PointerEvent, useMemo, useState } from 'react'
 import { getStroke } from 'perfect-freehand'
 import { Toolbar } from './Toolbar'
 
@@ -15,14 +15,17 @@ type Layer = {
  * @param stroke - A stroke as an array of [x, y, pressure] points
  */
 function strokeToPath (stroke: Point[]) {
-  if (!stroke.length) return ''
+  if (!stroke.length) {
+    return ''
+  }
+
   const d = stroke.reduce(
     (acc, [x0, y0], i, arr) => {
       const [x1, y1] = arr[(i + 1) % arr.length]
       acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2)
       return acc
     },
-    ['M', ...stroke[0], 'Q']
+    ['M', ...stroke[0], 'Q'],
   )
 
   return [...d, 'Z'].join(' ')
@@ -48,7 +51,10 @@ export default function Whiteboard () {
   }
 
   function handlePointerMove (e: PointerEvent<SVGElement>) {
-    if (e.buttons !== 1) return
+    if (e.buttons !== 1) {
+      return
+    }
+
     setPoints([...points, [e.pageX, e.pageY, e.pressure]])
   }
 
@@ -70,10 +76,14 @@ export default function Whiteboard () {
         ))}
         {points && <path d={pathData} fill={color}/>}
       </svg>
-      <div className="absolute top-0 left-0 right-0 flex justify-center pointer-events-none">
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
         <Toolbar
-          onDelete={() => setLayers([])}
-          onSelectedColorChange={(color) => setColor(color)}
+          onDelete={() => {
+            setLayers([])
+          }}
+          onSelectedColorChange={color => {
+            setColor(color)
+          }}
         />
       </div>
     </div>
