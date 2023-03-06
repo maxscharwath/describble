@@ -1,14 +1,14 @@
 import style from './Whiteboard.module.scss'
 import React, { PointerEvent, useMemo, useState } from 'react'
 import { getStroke } from 'perfect-freehand'
-import { Toolbar, useToolbar } from './Toolbar'
+import { Toolbar } from './Toolbar'
 
-type Point = number[]
+type Point = number[];
 
 type Layer = {
-  path: string
-  color: string
-}
+  path: string;
+  color: string;
+};
 
 /**
  * Convert a stroke to a path string with quadratic curves
@@ -29,9 +29,9 @@ function strokeToPath (stroke: Point[]) {
 }
 
 export default function Whiteboard () {
-  const toolbar = useToolbar()
   const [layers, setLayers] = useState<Layer[]>([])
   const [points, setPoints] = useState<Point[]>([])
+  const [color, setColor] = useState<string>('black')
   const pathData = useMemo(() => {
     const stroke = getStroke(points, {
       size: 16,
@@ -53,7 +53,6 @@ export default function Whiteboard () {
   }
 
   function handlePointerUp () {
-    const color = toolbar.selectedColor
     setLayers([...layers, { path: pathData, color }])
     setPoints([])
   }
@@ -69,10 +68,13 @@ export default function Whiteboard () {
         {layers.map((layer, i) => (
           <path key={i} d={layer.path} fill={layer.color}/>
         ))}
-        {points && <path d={pathData} fill={toolbar.selectedColor}/>}
+        {points && <path d={pathData} fill={color}/>}
       </svg>
-      <div className="absolute top-0 left-0 right-0 flex justify-center">
-        <Toolbar/>
+      <div className="absolute top-0 left-0 right-0 flex justify-center pointer-events-none">
+        <Toolbar
+          onDelete={() => setLayers([])}
+          onSelectedColorChange={(color) => setColor(color)}
+        />
       </div>
     </div>
   )
