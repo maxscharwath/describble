@@ -1,0 +1,24 @@
+import { Cursor } from 'ui'
+import { Canvas, Meta, Story } from '@storybook/blocks'
+
+<Meta
+  title="Components/Cursor"
+  component={Cursor}
+/>
+
+export const Template = (args) => <Cursor {...args} />
+
+# Cursor
+
+Cursor component is used to display a cursor on the screen.
+
+<Canvas>
+  <Story
+    name="Default"
+    args={{
+      color: 'red',
+      label: 'Cursor',
+    }}>
+    {Template.bind({})}
+  </Story>
+</Canvas>

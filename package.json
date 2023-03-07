@@ -1,9 +1,9 @@
 {
   "name": "condensation",
-  "author": "Maxime Scharwath <maxime@scharwath.ch>",
-  "license": "Apache-2.0",
   "version": "0.0.0",
   "private": true,
+  "license": "Apache-2.0",
+  "author": "Maxime Scharwath <maxime@scharwath.ch>",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -11,16 +11,16 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "turbo run format"
+    "format": "turbo run format",
+    "lint": "turbo run lint"
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
     "prettier": "^2.8.4",
     "turbo": "^1.8.3"
   },
+  "packageManager": "pnpm@7.27.1",
   "engines": {
     "node": ">=16.0.0"
-  },
-  "packageManager": "pnpm@7.27.1"
+  }
 }

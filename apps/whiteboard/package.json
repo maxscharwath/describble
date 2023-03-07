@@ -1,22 +1,23 @@
 {
   "name": "whiteboard",
-  "author": "Maxime Scharwath <maxime@scharwath.ch>",
-  "license": "Apache-2.0",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Maxime Scharwath <maxime@scharwath.ch>",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
     "build": "tsc && vite build",
-    "preview": "vite preview",
+    "dev": "vite --host",
+    "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src",
-    "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix"
+    "preview": "vite preview"
   },
   "dependencies": {
     "clsx": "^1.2.1",
     "perfect-freehand": "^1.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "ui": "workspace:*",
     "zustand": "^4.3.5"
   },
   "devDependencies": {
