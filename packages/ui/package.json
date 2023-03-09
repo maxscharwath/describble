@@ -13,7 +13,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "cva": "npm:class-variance-authority@^0.4.0"
+    "cva": "npm:class-variance-authority@^0.4.0",
+    "framer-motion": "^10.2.3"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",

@@ -3,6 +3,9 @@ import { Canvas, Meta, Story } from '@storybook/blocks'
 
 <Meta
   title="Components/Cursor"
+  parameters={{
+    layout: 'centered',
+  }}
   component={Cursor}
 />
 
@@ -18,6 +21,11 @@ Cursor component is used to display a cursor on the screen.
     args={{
       color: 'red',
       label: 'Cursor',
+      x: 0,
+      y: 0,
+      size: 32,
+      clicked: false,
+      interpolate: false,
     }}>
     {Template.bind({})}
   </Story>

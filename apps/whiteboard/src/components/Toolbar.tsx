@@ -18,16 +18,11 @@ const colors = [
 
 type Color = (typeof colors)[number];
 
-type ToolbarProps = {
-	onDelete: () => void;
-	onSelectedColorChange: (color: Color) => void;
-};
-
-export function Toolbar (props: ToolbarProps) {
+export function Toolbar () {
 	const [selectedColor, setSelectedColor] = useState<Color>('black')
+
 	const handleColorChange = (color: Color) => {
 		setSelectedColor(color)
-		props.onSelectedColorChange(color)
 	}
 
 	return (
@@ -55,7 +50,6 @@ export function Toolbar (props: ToolbarProps) {
 			<div className="mx-2 h-full w-px rounded-full bg-gray-200"/>
 			<button
 				type="button"
-				onClick={props.onDelete}
 				className="rounded-full bg-gray-200 p-2 text-red-900 transition-all hover:scale-110 active:scale-90"
 			>
 				<svg

@@ -1,91 +1,37 @@
-import style from './Whiteboard.module.scss'
-import React, { type PointerEvent, useMemo, useState } from 'react'
-import { getStroke } from 'perfect-freehand'
+import React, { useState } from 'react'
 import { Toolbar } from './Toolbar'
+import { Cursor } from 'ui'
+import { Canvas } from './Canvas'
 
-type Point = number[];
+const useMousePosition = () => {
+	const [state, setState] = useState({ x: 0, y: 0, clicked: false })
+	React.useEffect(() => {
+		const handleMouse = (e: MouseEvent) => {
+			setState({ x: e.pageX, y: e.pageY, clicked: e.buttons > 0 })
+		}
 
-type Layer = {
-  path: string;
-  color: string;
-};
-
-/**
- * Convert a stroke to a path string with quadratic curves
- * @param stroke - A stroke as an array of [x, y, pressure] points
- */
-function strokeToPath (stroke: Point[]) {
-  if (!stroke.length) {
-    return ''
-  }
-
-  const d = stroke.reduce(
-    (acc, [x0, y0], i, arr) => {
-      const [x1, y1] = arr[(i + 1) % arr.length]
-      acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2)
-      return acc
-    },
-    ['M', ...stroke[0], 'Q'],
-  )
-
-  return [...d, 'Z'].join(' ')
+		window.addEventListener('pointermove', handleMouse)
+		window.addEventListener('pointerdown', handleMouse)
+		window.addEventListener('pointerup', handleMouse)
+		return () => {
+			window.removeEventListener('pointermove', handleMouse)
+			window.removeEventListener('pointerdown', handleMouse)
+			window.removeEventListener('pointerup', handleMouse)
+		}
+	}, [])
+	return state
 }
 
 export default function Whiteboard () {
-  const [layers, setLayers] = useState<Layer[]>([])
-  const [points, setPoints] = useState<Point[]>([])
-  const [color, setColor] = useState<string>('black')
-  const pathData = useMemo(() => {
-    const stroke = getStroke(points, {
-      size: 16,
-      thinning: 0.5,
-      smoothing: 0.5,
-      streamline: 0.5,
-    })
-    return strokeToPath(stroke)
-  }, [points])
-
-  function handlePointerDown (e: PointerEvent<SVGElement>) {
-    (e.target as SVGElement).setPointerCapture(e.pointerId)
-    setPoints([[e.pageX, e.pageY, e.pressure]])
-  }
-
-  function handlePointerMove (e: PointerEvent<SVGElement>) {
-    if (e.buttons !== 1) {
-      return
-    }
-
-    setPoints([...points, [e.pageX, e.pageY, e.pressure]])
-  }
-
-  function handlePointerUp () {
-    setLayers([...layers, { path: pathData, color }])
-    setPoints([])
-  }
-
-  return (
-    <div className="relative">
-      <svg
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        onPointerMove={handlePointerMove}
-        className={style.whiteboard}
-      >
-        {layers.map((layer, i) => (
-          <path key={i} d={layer.path} fill={layer.color}/>
-        ))}
-        {points && <path d={pathData} fill={color}/>}
-      </svg>
-      <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
-        <Toolbar
-          onDelete={() => {
-            setLayers([])
-          }}
-          onSelectedColorChange={color => {
-            setColor(color)
-          }}
-        />
-      </div>
-    </div>
-  )
+	const { x, y, clicked } = useMousePosition()
+	return (
+		<div className="relative cursor-none">
+			<Canvas/>
+			<div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
+				<Toolbar/>
+			</div>
+			<Cursor color="red" label="User 1" x={x} y={y} clicked={clicked}/>
+			<Cursor color="blue" label="User 2" x={x + 100} y={y} clicked={clicked} interpolate/>
+		</div>
+	)
 }
