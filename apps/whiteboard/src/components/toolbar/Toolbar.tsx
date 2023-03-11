@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { clsx } from 'clsx'
+import React from 'react'
+import { ColorButton } from './ColorButton'
 
 const colors = [
 	'red',
@@ -18,32 +18,23 @@ const colors = [
 
 type Color = (typeof colors)[number];
 
-export function Toolbar () {
-	const [selectedColor, setSelectedColor] = useState<Color>('black')
+type ToolbarProps = {
+	selectedColor?: string;
+	onSelectColor?: (color: string) => void;
+	onDeleteAll?: () => void;
+};
 
-	const handleColorChange = (color: Color) => {
-		setSelectedColor(color)
-	}
-
+export function Toolbar ({ selectedColor, onSelectColor, onDeleteAll }: ToolbarProps) {
 	return (
 		<div
 			className="pointer-events-auto m-2 flex items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur">
 			<div className="grid grid-cols-6 gap-2">
 				{colors.map(color => (
-					<button
-						type="button"
-						className={clsx(
-							'h-6 w-6 rounded-full border border-black/20 bg-gray-200 transition-all',
-							'hover:scale-110',
-							'active:scale-90',
-							selectedColor === color
-							&& 'ring-2 ring-black/20 ring-offset-2',
-						)}
-						style={{ backgroundColor: color }}
+					<ColorButton
 						key={color}
-						onClick={() => {
-							handleColorChange(color)
-						}}
+						selected={color === selectedColor}
+						color={color}
+						onClick={() => onSelectColor?.(color)}
 					/>
 				))}
 			</div>
@@ -51,6 +42,7 @@ export function Toolbar () {
 			<button
 				type="button"
 				className="rounded-full bg-gray-200 p-2 text-red-900 transition-all hover:scale-110 active:scale-90"
+				onClick={onDeleteAll}
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"

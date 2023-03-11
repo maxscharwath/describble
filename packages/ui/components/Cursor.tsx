@@ -75,5 +75,5 @@ export const Cursor: React.FC<CursorProps> = ({ color, size = 32, label, ...prop
 				{label}
 			</div>}
 		</motion.div>
-	)
-}
+	);
+};
