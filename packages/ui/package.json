@@ -20,7 +20,6 @@
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
     "autoprefixer": "^10.4.13",
-    "eslint": "^8.35.0",
     "eslint-config-custom": "workspace:*",
     "postcss": "^8.4.21",
     "react": "^18.2.0",

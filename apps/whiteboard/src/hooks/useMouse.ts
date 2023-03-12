@@ -1,21 +1,21 @@
-import { useEffect, useState } from 'react'
+import {useEffect, useState} from 'react';
 
 export const useMouseState = () => {
-	const [state, setState] = useState({ x: 0, y: 0, clicked: false })
+	const [state, setState] = useState({x: 0, y: 0, clicked: false});
 	useEffect(() => {
 		const handleMouse = (e: MouseEvent) => {
-			setState({ x: e.pageX, y: e.pageY, clicked: e.buttons > 0 })
-		}
+			setState({x: e.pageX, y: e.pageY, clicked: e.buttons > 0});
+		};
 
-		const events = ['pointermove', 'pointerdown', 'pointerup'] as const
+		const events = ['pointermove', 'pointerdown', 'pointerup'] as const;
 		events.forEach(e => {
-			window.addEventListener(e, handleMouse)
-		})
+			window.addEventListener(e, handleMouse);
+		});
 		return () => {
 			events.forEach(e => {
-				window.removeEventListener(e, handleMouse)
-			})
-		}
-	}, [])
-	return state
-}
+				window.removeEventListener(e, handleMouse);
+			});
+		};
+	}, []);
+	return state;
+};
