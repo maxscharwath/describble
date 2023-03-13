@@ -1,13 +1,9 @@
 import style from './Canvas.module.scss';
 import React, {type PointerEvent, useEffect, useMemo, useState, type WheelEvent} from 'react';
 import {getStroke} from 'perfect-freehand';
+import {type Layer, useWhiteboard} from './WhiteboardContext';
 
 type Point = number[];
-
-type Layer = {
-	path: string;
-	color: string;
-};
 
 type Mode = 'draw' | 'pan';
 
@@ -32,14 +28,10 @@ function strokeToPath(stroke: Point[]) {
 	return [...d, 'Z'].join(' ');
 }
 
-type CanvasProps = {
-	color: string;
-};
-
-export const Canvas = ({color}: CanvasProps) => {
+export const Canvas = () => {
+	const {selectedColor, layers} = useWhiteboard();
 	const [mode, setMode] = useState<Mode>('draw');
-	const [camera, setCamera] = useState({x: 0, y: 0, scale: 0.5});
-	const [layers, setLayers] = useState<Layer[]>([]);
+	const [camera, setCamera] = useState({x: 0, y: 0, scale: 1});
 	const [points, setPoints] = useState<Point[]>([]);
 	const pathData = useMemo(() => {
 		const stroke = getStroke(points, {
@@ -79,12 +71,17 @@ export const Canvas = ({color}: CanvasProps) => {
 			return;
 		}
 
-		setLayers([...layers, {path: pathData, color}]);
+		const layer = {
+			zIndex: 0,
+			component: ({transform}) => (
+				<path d={pathData} fill={selectedColor.value} transform={transform}/>
+			),
+		} satisfies Layer;
+		layers.set(layers => [...layers, layer]);
 		setPoints([]);
 	}
 
 	function handleWheel(e: WheelEvent<SVGElement>) {
-		e.preventDefault();
 		const scale = Math.min(Math.max(camera.scale + (e.deltaY * 0.01), 0.1), 20);
 		const x = e.clientX - ((e.clientX - camera.x) * scale / camera.scale);
 		const y = e.clientY - ((e.clientY - camera.y) * scale / camera.scale);
@@ -96,11 +93,11 @@ export const Canvas = ({color}: CanvasProps) => {
 			switch (e.key) {
 				case 'Backspace':
 					if (e.metaKey) {
-						setLayers([]);
+						layers.value = [];
 						break;
 					}
 
-					setLayers(layers => layers.slice(0, -1));
+					layers.set(layers => layers.slice(0, -1));
 					break;
 				case ' ':
 					setMode(mode === 'draw' ? 'pan' : 'draw');
@@ -124,12 +121,18 @@ export const Canvas = ({color}: CanvasProps) => {
 			onPointerMove={handlePointerMove}
 			className={style.whiteboard}
 		>
-			{layers.map((layer, i) => (
-				<path key={i} d={layer.path} fill={layer.color}
-					transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}/>
-			))}
+			{layers.value.map((layer, i) =>
+				<layer.component
+					key={i}
+					transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}
+				/>,
+			)}
 			{points
-				&& <path d={pathData} fill={color} transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}/>}
+				&& <path
+					d={pathData}
+					fill={selectedColor.value}
+					transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}
+				/>}
 		</svg>
 	);
 };

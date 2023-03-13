@@ -5,5 +5,8 @@ module.exports = {
       version: 'detect',
     }
   },
-  rules: {},
+  rules: {
+    '@typescript-eslint/consistent-type-definitions': 'off',
+    '@typescript-eslint/ban-types': 'off',
+  },
 }
