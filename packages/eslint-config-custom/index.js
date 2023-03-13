@@ -8,5 +8,7 @@ module.exports = {
   rules: {
     '@typescript-eslint/consistent-type-definitions': 'off',
     '@typescript-eslint/ban-types': 'off',
+    '@typescript-eslint/no-confusing-void-expression': 'off',
+    'react/prop-types': 'off',
   },
 }

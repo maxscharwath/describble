@@ -1,88 +1,117 @@
 import style from './Canvas.module.scss';
-import React, {type PointerEvent, useEffect, useMemo, useState, type WheelEvent} from 'react';
-import {getStroke} from 'perfect-freehand';
-import {type Layer, useWhiteboard} from './WhiteboardContext';
-
-type Point = number[];
-
-type Mode = 'draw' | 'pan';
-
-/**
- * Convert a stroke to a path string with quadratic curves
- * @param stroke - A stroke as an array of [x, y, pressure] points
- */
-function strokeToPath(stroke: Point[]) {
-	if (!stroke.length) {
-		return '';
-	}
-
-	const d = stroke.reduce(
-		(acc, [x0, y0], i, arr) => {
-			const [x1, y1] = arr[(i + 1) % arr.length];
-			acc.push(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2);
-			return acc;
-		},
-		['M', ...stroke[0], 'Q'],
-	);
-
-	return [...d, 'Z'].join(' ');
-}
+import React, {type PointerEvent, useEffect, useState, type WheelEvent} from 'react';
+import {useWhiteboardContext, whiteboardStore} from './WhiteboardContext';
+import {Layer, type LayerData} from './layers/Layer';
 
 export const Canvas = () => {
-	const {selectedColor, layers} = useWhiteboard();
-	const [mode, setMode] = useState<Mode>('draw');
+	const store = whiteboardStore;
+	const context = useWhiteboardContext();
+
 	const [camera, setCamera] = useState({x: 0, y: 0, scale: 1});
-	const [points, setPoints] = useState<Point[]>([]);
-	const pathData = useMemo(() => {
-		const stroke = getStroke(points, {
-			size: 16,
-			thinning: 0.5,
-			smoothing: 0.5,
-			streamline: 0.5,
-		});
-		return strokeToPath(stroke);
-	}, [points]);
+
+	const [data, setData] = useState<LayerData | null>(null);
 
 	function handlePointerMove(e: PointerEvent<SVGElement>) {
 		if (e.buttons !== 1) {
 			return;
 		}
 
-		switch (mode) {
-			case 'draw': {
-				const x = (e.clientX - camera.x) / camera.scale;
-				const y = (e.clientY - camera.y) / camera.scale;
-				setPoints([...points, [x, y, e.pressure]]);
+		const x = (e.clientX - camera.x) / camera.scale;
+		const y = (e.clientY - camera.y) / camera.scale;
+
+		switch (context.currentTool) {
+			case 'path': {
+				setData(d => {
+					if (d && d.type === 'path') {
+						return {
+							...d,
+							points: [...d.points, [x, y, e.pressure]],
+						};
+					}
+
+					return {
+						type: 'path',
+						points: [[x, y, e.pressure]],
+						color: context.selectedColor,
+						strokeOptions: {
+							size: 16,
+							thinning: 0.5,
+							smoothing: 0.5,
+							roundness: 0.5,
+						},
+					};
+				});
 				break;
 			}
 
-			case 'pan': {
+			case 'rectangle': {
+				setData(d => {
+					if (d && d.type === 'rectangle') {
+						return {
+							...d,
+							width: x - d.x,
+							height: y - d.y,
+						};
+					}
+
+					return {
+						type: 'rectangle',
+						color: context.selectedColor,
+						x,
+						y,
+						width: 0,
+						height: 0,
+					};
+				});
+				break;
+			}
+
+			case 'circle': {
+				setData(d => {
+					if (d && d.type === 'circle') {
+						return {
+							...d,
+							width: x - d.x,
+							height: y - d.y,
+						};
+					}
+
+					return {
+						type: 'circle',
+						color: context.selectedColor,
+						x,
+						y,
+						width: 0,
+						height: 0,
+					};
+				});
+				break;
+			}
+
+			case 'move': {
 				setCamera({x: camera.x + e.movementX, y: camera.y + e.movementY, scale: camera.scale});
 				break;
 			}
 
 			default:
-				throw new Error('Invalid mode');
+				throw new Error('Invalid tool');
 		}
 	}
 
 	function handlePointerUp() {
-		if (mode !== 'draw') {
+		if (!data) {
 			return;
 		}
 
-		const layer = {
-			zIndex: 0,
-			component: ({transform}) => (
-				<path d={pathData} fill={selectedColor.value} transform={transform}/>
-			),
-		} satisfies Layer;
-		layers.set(layers => [...layers, layer]);
-		setPoints([]);
+		store.setState(l => ({
+			layers: [...l.layers, data],
+		}));
+
+		setData(null);
 	}
 
 	function handleWheel(e: WheelEvent<SVGElement>) {
-		const scale = Math.min(Math.max(camera.scale + (e.deltaY * 0.01), 0.1), 20);
+		const scale = Math.max(0.1, Math.min(10, camera.scale + ((e.deltaY > 0 ? -0.1 : 0.1) * camera.scale)));
 		const x = e.clientX - ((e.clientX - camera.x) * scale / camera.scale);
 		const y = e.clientY - ((e.clientY - camera.y) * scale / camera.scale);
 		setCamera({x, y, scale});
@@ -90,20 +119,12 @@ export const Canvas = () => {
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
-			switch (e.key) {
-				case 'Backspace':
-					if (e.metaKey) {
-						layers.value = [];
-						break;
-					}
-
-					layers.set(layers => layers.slice(0, -1));
-					break;
-				case ' ':
-					setMode(mode === 'draw' ? 'pan' : 'draw');
-					break;
-				default:
-					break;
+			if (e.key === 'Backspace') {
+				if (e.metaKey || e.ctrlKey) {
+					store.setState({layers: []});
+				} else {
+					store.setState(l => ({layers: l.layers.slice(0, -1)}));
+				}
 			}
 		};
 
@@ -111,28 +132,20 @@ export const Canvas = () => {
 		return () => {
 			document.removeEventListener('keydown', handleKeyDown);
 		};
-	}, [mode]);
+	}, []);
 
 	return (
 		<svg
-			onWheel={handleWheel}
+			onWheelCapture={handleWheel}
 			onPointerDown={handlePointerMove}
 			onPointerUp={handlePointerUp}
 			onPointerMove={handlePointerMove}
 			className={style.whiteboard}
 		>
-			{layers.value.map((layer, i) =>
-				<layer.component
-					key={i}
-					transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}
-				/>,
+			{context.layers.map((layer, i) =>
+				<Layer key={i} data={layer} transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`} />,
 			)}
-			{points
-				&& <path
-					d={pathData}
-					fill={selectedColor.value}
-					transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}
-				/>}
+			{data && <Layer data={data} transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`} />}
 		</svg>
 	);
 };

@@ -1,31 +1,26 @@
-import React, {createContext, type ReactElement, type ReactNode, useContext} from 'react';
-import {useValue, type Value} from '../hooks/useValue';
+import React from 'react';
+import {useStore} from 'zustand';
+import {createStore} from 'zustand/vanilla';
+import {shallow} from 'zustand/shallow';
+import {type LayerData} from './layers/Layer';
+import {persist} from 'zustand/middleware';
 
-export type Layer = {
-	zIndex: number;
-	component: (props: {transform: string}) => ReactElement;
+export type WhiteboardContext = {
+	selectedColor: string;
+	currentTool: 'path' | 'rectangle' | 'circle' | 'move';
+	layers: LayerData[];
+	currentLayer: LayerData | null;
 };
 
-const WhiteboardContext = createContext<{
-	selectedColor: Value<string>;
-	layers: Value<Layer[]>;
-} | null>(null);
+export const whiteboardStore = createStore<WhiteboardContext>()(persist((_set, _get) => ({
+	selectedColor: '#000000',
+	layers: [],
+	currentLayer: null,
+	currentTool: 'path',
+}), {name: 'whiteboard'}));
 
-export const useWhiteboard = () => {
-	const context = useContext(WhiteboardContext);
-	if (!context) {
-		throw new Error('useWhiteboard() must be used inside Whiteboard component');
-	}
-
-	return context;
-};
-
-export const WhiteboardProvider = ({children}: {children: ReactNode}) => {
-	const selectedColor = useValue('red');
-	const layers = useValue<Layer[]>([]);
-	return (
-		<WhiteboardContext.Provider value={{selectedColor, layers}}>
-			{children}
-		</WhiteboardContext.Provider>
-	);
-};
+export function useWhiteboardContext(): WhiteboardContext;
+export function useWhiteboardContext<T>(selector: (state: WhiteboardContext) => T): T;
+export function useWhiteboardContext<T>(selector?: (state: WhiteboardContext) => T): T {
+	return useStore(whiteboardStore, selector!, shallow);
+}
