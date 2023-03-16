@@ -105,6 +105,7 @@ export const Canvas = () => {
 
 		store.setState(l => ({
 			layers: [...l.layers, data],
+			history: [],
 		}));
 
 		setData(null);
