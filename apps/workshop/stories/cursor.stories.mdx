@@ -1,5 +1,5 @@
-import { Cursor } from 'ui'
-import { Canvas, Meta, Story } from '@storybook/blocks'
+import { Cursor } from 'ui/components/Cursor'
+import { ArgsTable, Canvas, Meta, Story } from "@storybook/blocks";
 
 <Meta
   title="Components/Cursor"
@@ -14,6 +14,9 @@ export const Template = (args) => <Cursor {...args} />
 # Cursor
 
 Cursor component is used to display a cursor on the screen.
+
+<ArgsTable of={Cursor}/>
+
 
 <Canvas>
   <Story
