@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc && vite build",
-    "dev": "vite --host",
+    "dev": "vite --host --port 3000",
     "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src",
     "preview": "vite preview"

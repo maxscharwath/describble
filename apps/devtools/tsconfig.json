@@ -1,0 +1,12 @@
+{
+  "extends": "tsconfig/react-library.json",
+  "compilerOptions": {
+    "isolatedModules": false,
+    "baseUrl": "./",
+    "paths": {
+      "~/*": ["src/*"]
+    },
+  },
+  "include": ["."],
+  "exclude": ["dist", "build", "node_modules"]
+}
