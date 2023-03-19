@@ -36,8 +36,8 @@ export const Cursor: React.FC<CursorProps> = ({color, size = 32, label, ...props
 	let x = useMotionValue(props.x ?? 0);
 	let y = useMotionValue(props.y ?? 0);
 	if (props.interpolate) {
-		x = useSpring(x, {stiffness: 200, damping: 20}) as MotionValue<number>;
-		y = useSpring(y, {stiffness: 200, damping: 20}) as MotionValue<number>;
+		x = useSpring(x, {stiffness: 1000, damping: 50}) as MotionValue<number>;
+		y = useSpring(y, {stiffness: 1000, damping: 50}) as MotionValue<number>;
 	}
 
 	React.useEffect(() => {

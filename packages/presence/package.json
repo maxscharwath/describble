@@ -1,0 +1,34 @@
+{
+  "name": "presence",
+  "version": "0.0.0",
+  "private": true,
+  "description": "",
+  "license": "Apache-2.0",
+  "author": "Maxime Scharwath <maxime@scharwath.ch>",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src",
+    "test": "vite"
+  },
+  "dependencies": {
+    "deepmerge": "^4.3.1",
+    "emittery": "^1.0.1",
+    "nanoid": "^4.0.1",
+    "object-hash": "^3.0.0",
+    "peerjs": "^1.4.8-rc.1"
+  },
+  "devDependencies": {
+    "@types/deepmerge": "^2.2.0",
+    "@types/object-hash": "^3.0.2",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "eslint-config-custom": "workspace:*",
+    "react": "^18.2.0",
+    "tsconfig": "workspace:*",
+    "typescript": "^5.0.2",
+    "vite": "^4.2.0"
+  }
+}
