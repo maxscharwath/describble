@@ -11,5 +11,6 @@ module.exports = {
     '@typescript-eslint/no-confusing-void-expression': 'off',
     '@typescript-eslint/naming-convention': 'off',
     'react/prop-types': 'off',
+    'no-bitwise': 'off',
   },
 }
