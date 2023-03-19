@@ -9,6 +9,10 @@ export const CircleComponent = createLayerComponent('circle')<{
 	color: string;
 }>(({data, ...props}) => {
 	const {x, y, width, height, color} = data;
-	return <ellipse cx={x} cy={y} rx={Math.abs(width)} ry={Math.abs(height)} fill={color} {...props} />;
+	const cx = x + (width / 2);
+	const cy = y + (height / 2);
+	const rx = Math.abs(width / 2);
+	const ry = Math.abs(height / 2);
+	return <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={color} {...props} />;
 });
 export type CircleData = InferLayerData<typeof CircleComponent>;

@@ -51,6 +51,7 @@ importers:
       autoprefixer: ^10.4.14
       clsx: ^1.2.1
       eslint-config-custom: workspace:*
+      hello-wasm: workspace:*
       perfect-freehand: ^1.2.0
       postcss: ^8.4.21
       presence: workspace:*
@@ -62,9 +63,11 @@ importers:
       typescript: ^5.0.2
       ui: workspace:*
       vite: ^4.2.0
+      vite-plugin-wasm: ^3.2.2
       zustand: ^4.3.6
     dependencies:
       clsx: 1.2.1
+      hello-wasm: link:../../packages/hello-wasm
       perfect-freehand: 1.2.0
       presence: link:../../packages/presence
       react: 18.2.0
@@ -83,6 +86,7 @@ importers:
       tsconfig: link:../../packages/tsconfig
       typescript: 5.0.2
       vite: 4.2.0_sass@1.59.3
+      vite-plugin-wasm: 3.2.2_vite@4.2.0
 
   apps/workshop:
     specifiers:
@@ -152,6 +156,9 @@ importers:
       eslint-plugin-react: 7.32.2_eslint@8.36.0
       eslint-plugin-tailwindcss: 3.10.1_tailwindcss@3.2.7
       typescript: 5.0.2
+
+  packages/hello-wasm:
+    specifiers: {}
 
   packages/presence:
     specifiers:
@@ -9948,6 +9955,14 @@ packages:
       assert-plus: 1.0.0
       core-util-is: 1.0.2
       extsprintf: 1.3.0
+    dev: true
+
+  /vite-plugin-wasm/3.2.2_vite@4.2.0:
+    resolution: {integrity: sha512-cdbBUNR850AEoMd5nvLmnyeq63CSfoP1ctD/L2vLk/5+wsgAPlAVAzUK5nGKWO/jtehNlrSSHLteN+gFQw7VOA==}
+    peerDependencies:
+      vite: ^2 || ^3 || ^4
+    dependencies:
+      vite: 4.2.0_sass@1.59.3
     dev: true
 
   /vite/4.2.0:
