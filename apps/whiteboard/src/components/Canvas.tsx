@@ -143,10 +143,12 @@ export const Canvas = () => {
 			onPointerMove={handlePointerMove}
 			className={style.whiteboard}
 		>
-			{context.layers.map((layer, i) =>
-				<Layer key={i} data={layer} transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`} />,
-			)}
-			{data && <Layer data={data} transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`} />}
+			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}>
+				{context.layers.map((layer, i) =>
+					<Layer key={i} data={layer} />,
+				)}
+				{data && <Layer data={data} />}
+			</g>
 		</svg>
 	);
 };
