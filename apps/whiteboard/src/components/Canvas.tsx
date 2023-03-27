@@ -1,15 +1,17 @@
 import style from './Canvas.module.scss';
 import React, {type PointerEvent, useEffect, useState, type WheelEvent} from 'react';
-import {useWhiteboardContext, whiteboardStore} from './WhiteboardContext';
+import {useCamera, useWhiteboardContext, whiteboardStore} from './WhiteboardContext';
 import {Layer, type LayerData} from './layers/Layer';
+import {Selection, type SelectionBox} from './Selection';
 
 export const Canvas = () => {
 	const store = whiteboardStore;
 	const context = useWhiteboardContext();
-
-	const [camera, setCamera] = useState({x: 0, y: 0, scale: 1});
+	const {camera, setCamera} = useCamera();
 
 	const [data, setData] = useState<LayerData | null>(null);
+
+	const [selection, setSelection] = useState<SelectionBox | null>(null);
 
 	function handlePointerMove(e: PointerEvent<SVGElement>) {
 		if (e.buttons !== 1) {
@@ -88,8 +90,50 @@ export const Canvas = () => {
 				break;
 			}
 
+			case 'image': {
+				setData(d => {
+					if (d && d.type === 'image') {
+						return {
+							...d,
+							width: x - d.x,
+							height: y - d.y,
+						};
+					}
+
+					return {
+						type: 'image',
+						src: 'https://f.hellowork.com/blogdumoderateur/2013/02/nyan-cat-gif-1.gif',
+						x,
+						y,
+						width: 0,
+						height: 0,
+					};
+				});
+				break;
+			}
+
 			case 'move': {
 				setCamera({x: camera.x + e.movementX, y: camera.y + e.movementY, scale: camera.scale});
+				break;
+			}
+
+			case 'select': {
+				setSelection(s => {
+					if (s) {
+						return {
+							...s,
+							x2: e.clientX,
+							y2: e.clientY,
+						};
+					}
+
+					return {
+						x1: e.clientX,
+						y1: e.clientY,
+						x2: e.clientX,
+						y2: e.clientY,
+					};
+				});
 				break;
 			}
 
@@ -99,15 +143,16 @@ export const Canvas = () => {
 	}
 
 	function handlePointerUp() {
-		if (!data) {
-			return;
+		console.log('Pointer up');
+		if (data) {
+			console.log('Adding layer');
+			store.setState(l => ({
+				layers: [...l.layers, data],
+				history: [],
+			}));
 		}
 
-		store.setState(l => ({
-			layers: [...l.layers, data],
-			history: [],
-		}));
-
+		setSelection(null);
 		setData(null);
 	}
 
@@ -142,6 +187,7 @@ export const Canvas = () => {
 			onPointerUp={handlePointerUp}
 			onPointerMove={handlePointerMove}
 			className={style.whiteboard}
+			ref={context.canvasRef}
 		>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}>
 				{context.layers.map((layer, i) =>
@@ -149,6 +195,7 @@ export const Canvas = () => {
 				)}
 				{data && <Layer data={data} />}
 			</g>
+			{selection && <Selection box={selection} />}
 		</svg>
 	);
 };

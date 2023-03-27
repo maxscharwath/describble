@@ -7,10 +7,12 @@ import {persist} from 'zustand/middleware';
 
 export type WhiteboardContext = {
 	selectedColor: string;
-	currentTool: 'path' | 'rectangle' | 'circle' | 'move';
+	currentTool: 'path' | 'rectangle' | 'circle' | 'image' | 'move' | 'select';
 	layers: LayerData[];
 	history: LayerData[];
 	currentLayer: LayerData | null;
+	camera: {x: number; y: number; scale: number};
+	canvasRef: React.RefObject<SVGSVGElement>;
 };
 
 export const whiteboardStore = createStore<WhiteboardContext>()(persist((_set, _get) => ({
@@ -19,7 +21,9 @@ export const whiteboardStore = createStore<WhiteboardContext>()(persist((_set, _
 	history: [],
 	currentLayer: null,
 	currentTool: 'path',
-}), {name: 'whiteboard'}));
+	camera: {x: 0, y: 0, scale: 1},
+	canvasRef: React.createRef(),
+}), {name: 'whiteboard', partialize: ({layers, history, camera}) => ({layers, history, camera})}));
 
 export function useWhiteboardContext(): WhiteboardContext;
 export function useWhiteboardContext<T>(selector: (state: WhiteboardContext) => T): T;
@@ -69,5 +73,18 @@ export const useHistory = () => {
 		redo,
 		canUndo: history.length > 0,
 		canRedo: layers.length > 0,
+	};
+};
+
+export const useCamera = () => {
+	const {camera} = useWhiteboardContext(({camera}) => ({camera}));
+
+	const setCamera = (camera: WhiteboardContext['camera']) => {
+		whiteboardStore.setState({camera});
+	};
+
+	return {
+		camera,
+		setCamera,
 	};
 };

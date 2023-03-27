@@ -67,7 +67,7 @@ export const Toolbar = () => {
 			</div>
 
 			<Separator/>
-			<div className='grid grid-cols-4 gap-2'>
+			<div className='grid grid-cols-3 gap-2'>
 				<Button
 					active={context.currentTool === 'path'}
 					onClick={() => {
@@ -107,6 +107,15 @@ export const Toolbar = () => {
 				</Button>
 
 				<Button
+					active={context.currentTool === 'image'}
+					onClick={() => {
+						store.setState({currentTool: 'image'});
+					}}
+				>
+					<svg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'><path fill='currentColor' d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/></svg>
+				</Button>
+
+				<Button
 					active={context.currentTool === 'move'}
 					onClick={() => {
 						store.setState({currentTool: 'move'});
@@ -116,6 +125,15 @@ export const Toolbar = () => {
 						<path fill='currentColor'
 							d='M13 6v5h5V7.75L22.25 12L18 16.25V13h-5v5h3.25L12 22.25L7.75 18H11v-5H6v3.25L1.75 12L6 7.75V11h5V6H7.75L12 1.75L16.25 6H13Z'/>
 					</svg>
+				</Button>
+
+				<Button
+					active={context.currentTool === 'select'}
+					onClick={() => {
+						store.setState({currentTool: 'select'});
+					}}
+				>
+					<svg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24'><path fill='currentColor' d='M15.15 21.375q-.575.275-1.15.063t-.85-.788l-3-6.45l-2.325 3.25q-.425.6-1.125.375t-.7-.95V4.05q0-.625.563-.9t1.062.125l10.1 7.95q.575.425.338 1.1T17.1 13h-4.2l2.975 6.375q.275.575.063 1.15t-.788.85Z'/></svg>
 				</Button>
 			</div>
 			<Separator/>

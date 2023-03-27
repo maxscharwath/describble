@@ -2,6 +2,7 @@ import React, {memo} from 'react';
 import {PathComponent} from './Path';
 import {RectangleComponent} from './Rectangle';
 import {CircleComponent} from './Circle';
+import {ImageComponent} from './Image';
 
 type LayerComponent<D = any, T = string> = React.FC<React.SVGProps<any> & {data: D}> & {type: T};
 
@@ -28,6 +29,7 @@ const layerComponents = new LayerComponentsManager(
 	PathComponent,
 	RectangleComponent,
 	CircleComponent,
+	ImageComponent,
 );
 
 type LayerComponentType = typeof layerComponents extends LayerComponentsManager<infer T> ? T[number] : never;
