@@ -4,16 +4,22 @@ import {RectangleComponent} from './Rectangle';
 import {CircleComponent} from './Circle';
 import {ImageComponent} from './Image';
 
-type LayerComponent<D = any, T = string> = React.FC<React.SVGProps<any> & {data: D}> & {type: T};
+type BaseLayerData<T = string> = {
+	type: T;
+	uuid: string;
+};
+
+type BaseLayerComponent<D = any, T = string> = React.FC<React.SVGProps<any> & {data: D & BaseLayerData<T>}>;
+type LayerComponent<D = any, T = string> = BaseLayerComponent<D, T> & {type: T};
 
 type Prettify<T> = {
 	[K in keyof T]: T[K];
 } & Record<string, any>;
 
-export type InferLayerData<T> = Prettify<T extends LayerComponent<infer D, any> ? {type: T['type']} & D : never>;
+export type InferLayerData<T> = Prettify<T extends LayerComponent<infer D, any> ? D & BaseLayerData<T['type']> : never>;
 
 export function createLayerComponent<Type extends string>(type: Type) {
-	return <D extends Record<string, any>> (Component: React.FC<React.SVGProps<any> & {data: D}>) =>
+	return <D extends Record<string, any>> (Component: BaseLayerComponent<D, Type>) =>
 		Object.assign(Component, {type}) as LayerComponent<D, Type>;
 }
 

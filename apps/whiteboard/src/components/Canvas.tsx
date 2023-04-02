@@ -3,6 +3,7 @@ import React, {type PointerEvent, useEffect, useState, type WheelEvent} from 're
 import {useCamera, useWhiteboardContext, whiteboardStore} from './WhiteboardContext';
 import {Layer, type LayerData} from './layers/Layer';
 import {Selection, type SelectionBox} from './Selection';
+import {nanoid} from 'nanoid';
 
 export const Canvas = () => {
 	const store = whiteboardStore;
@@ -33,6 +34,7 @@ export const Canvas = () => {
 
 					return {
 						type: 'path',
+						uuid: nanoid(),
 						points: [[x, y, e.pressure]],
 						color: context.selectedColor,
 						strokeOptions: {
@@ -58,6 +60,7 @@ export const Canvas = () => {
 
 					return {
 						type: 'rectangle',
+						uuid: nanoid(),
 						color: context.selectedColor,
 						x,
 						y,
@@ -80,6 +83,7 @@ export const Canvas = () => {
 
 					return {
 						type: 'circle',
+						uuid: nanoid(),
 						color: context.selectedColor,
 						x,
 						y,
@@ -102,6 +106,7 @@ export const Canvas = () => {
 
 					return {
 						type: 'image',
+						uuid: nanoid(),
 						src: 'https://f.hellowork.com/blogdumoderateur/2013/02/nyan-cat-gif-1.gif',
 						x,
 						y,
@@ -190,8 +195,8 @@ export const Canvas = () => {
 			ref={context.canvasRef}
 		>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}>
-				{context.layers.map((layer, i) =>
-					<Layer key={i} data={layer} />,
+				{context.layers.map(layer =>
+					<Layer key={layer.uuid} data={layer} />,
 				)}
 				{data && <Layer data={data} />}
 			</g>
