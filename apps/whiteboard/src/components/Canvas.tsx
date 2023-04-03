@@ -4,6 +4,7 @@ import {useCamera, useWhiteboardContext, whiteboardStore} from './WhiteboardCont
 import {Layer, type LayerData} from './layers/Layer';
 import {Selection, type SelectionBox} from './Selection';
 import {nanoid} from 'nanoid';
+import {simplify} from '../utils/simplify-path';
 
 export const Canvas = () => {
 	const store = whiteboardStore;
@@ -28,7 +29,7 @@ export const Canvas = () => {
 					if (d && d.type === 'path') {
 						return {
 							...d,
-							points: [...d.points, [x, y, e.pressure]],
+							points: simplify([...d.points, [x, y, e.pressure]], 0.2, true),
 						};
 					}
 

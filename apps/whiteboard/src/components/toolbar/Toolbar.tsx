@@ -38,7 +38,7 @@ const Button = ({
 	</button>
 );
 
-const Separator = () => <div className='mx-2 h-full w-px rounded-full bg-gray-200'/>;
+const Separator = () => <div className='m-2 h-px w-full rounded-full bg-gray-200 sm:h-full sm:w-px'/>;
 
 export const Toolbar = () => {
 	const context = useWhiteboardContext(state => ({
@@ -52,7 +52,8 @@ export const Toolbar = () => {
 
 	return (
 		<div
-			className='pointer-events-auto m-2 flex items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur'>
+			className='pointer-events-auto m-2 flex flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur sm:flex-row'
+		>
 			<div className='grid grid-cols-6 gap-2'>
 				{colors.map(color => (
 					<ColorButton

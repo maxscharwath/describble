@@ -19,7 +19,7 @@ const SwitchIconButton = ({active, disabled, activeSlot, inactiveSlot, ...props}
 	</button>
 );
 
-const Separator = () => <div className='h-px bg-gray-300 my-2'/>;
+const Separator = () => <div className='my-2 h-px bg-gray-300'/>;
 
 const DeleteButton = (props: React.ComponentProps<'button'>) => (
 	<button
@@ -67,9 +67,9 @@ export const Sidebar = () => {
 
 	return (
 		<div
-			className='pointer-events-auto m-2 flex flex-col max-h-96 w-52 overflow-y-auto rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur'
+			className='pointer-events-auto m-2 flex max-h-96 w-52 flex-col overflow-y-auto rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur'
 		>
-			<h2 className='text-md font-bold gray-900'>Layers</h2>
+			<h2 className='text-base font-bold text-gray-800'>Layers</h2>
 			<Separator/>
 			<Reorder.Group
 				axis='y'
