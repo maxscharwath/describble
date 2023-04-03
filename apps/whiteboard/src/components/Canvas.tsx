@@ -35,6 +35,7 @@ export const Canvas = () => {
 					return {
 						type: 'path',
 						uuid: nanoid(),
+						visible: true,
 						points: [[x, y, e.pressure]],
 						color: context.selectedColor,
 						strokeOptions: {
@@ -61,6 +62,7 @@ export const Canvas = () => {
 					return {
 						type: 'rectangle',
 						uuid: nanoid(),
+						visible: true,
 						color: context.selectedColor,
 						x,
 						y,
@@ -84,6 +86,7 @@ export const Canvas = () => {
 					return {
 						type: 'circle',
 						uuid: nanoid(),
+						visible: true,
 						color: context.selectedColor,
 						x,
 						y,
@@ -107,6 +110,7 @@ export const Canvas = () => {
 					return {
 						type: 'image',
 						uuid: nanoid(),
+						visible: true,
 						src: 'https://f.hellowork.com/blogdumoderateur/2013/02/nyan-cat-gif-1.gif',
 						x,
 						y,
@@ -148,9 +152,7 @@ export const Canvas = () => {
 	}
 
 	function handlePointerUp() {
-		console.log('Pointer up');
 		if (data) {
-			console.log('Adding layer');
 			store.setState(l => ({
 				layers: [...l.layers, data],
 				history: [],
@@ -195,9 +197,9 @@ export const Canvas = () => {
 			ref={context.canvasRef}
 		>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}>
-				{context.layers.map(layer =>
-					<Layer key={layer.uuid} data={layer} />,
-				)}
+				{context.layers.filter(layer => layer.visible).map(layer => (
+					<Layer key={layer.uuid} data={layer} />
+				))}
 				{data && <Layer data={data} />}
 			</g>
 			{selection && <Selection box={selection} />}

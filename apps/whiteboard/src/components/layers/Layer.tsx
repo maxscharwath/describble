@@ -7,6 +7,7 @@ import {ImageComponent} from './Image';
 type BaseLayerData<T = string> = {
 	type: T;
 	uuid: string;
+	visible: boolean;
 };
 
 type BaseLayerComponent<D = any, T = string> = React.FC<React.SVGProps<any> & {data: D & BaseLayerData<T>}>;

@@ -47,7 +47,7 @@ export const Cursor: React.FC<CursorProps> = ({color, size = 32, label, ...props
 
 	return (
 		<motion.div
-			className='pointer-events-none absolute drop-shadow-md'
+			className='pointer-events-none fixed drop-shadow-md'
 			style={{x, y, perspective: 1000}}
 		>
 			<motion.svg
@@ -71,7 +71,7 @@ export const Cursor: React.FC<CursorProps> = ({color, size = 32, label, ...props
 					d='M7.407 2.486c-.917-.612-2.251.046-2.152 1.238l.029.347a86.016 86.016 0 0 0 2.79 15.693c.337 1.224 2.03 1.33 2.544.195l2.129-4.697c.203-.449.697-.737 1.234-.68l5.266.564c1.209.13 2.063-1.346 1.094-2.281A90.863 90.863 0 0 0 7.703 2.684l-.296-.198Z'/>
 			</motion.svg>
 			{label && <div
-				className='absolute right-2/3 bottom-1/2 translate-y-full translate-x-full whitespace-nowrap rounded-3xl border-2 border-white px-2 py-1 text-xs text-white'
+				className='absolute bottom-1/2 right-2/3 translate-x-full translate-y-full whitespace-nowrap rounded-3xl border-2 border-white px-2 py-1 text-xs text-white'
 				style={{backgroundColor: color}}>
 				{label}
 			</div>}

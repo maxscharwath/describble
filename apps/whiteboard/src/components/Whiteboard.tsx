@@ -4,6 +4,7 @@ import {Cursor} from 'ui';
 import {Canvas} from './Canvas';
 import {useMouseState} from '../hooks/useMouse';
 import {useRoom} from 'presence';
+import {Sidebar} from './sidebar/Sidebar';
 
 type RoomState = {
 	mouses: Record<string, {x: number; y: number; clicked: boolean}>;
@@ -46,10 +47,13 @@ const Cursors = () => {
 
 export default function Whiteboard() {
 	return (
-		<div className='relative cursor-none'>
+		<div className='cursor-none'>
 			<Canvas />
 			<div className='pointer-events-none absolute inset-x-0 top-0 flex justify-center'>
 				<Toolbar />
+			</div>
+			<div className='pointer-events-none absolute inset-y-0 right-0 flex flex-col justify-center'>
+				<Sidebar />
 			</div>
 			<Cursors />
 		</div>
