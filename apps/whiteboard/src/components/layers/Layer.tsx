@@ -1,55 +1,44 @@
-import React, {memo} from 'react';
-import {PathComponent} from './Path';
-import {RectangleComponent} from './Rectangle';
-import {CircleComponent} from './Circle';
-import {ImageComponent} from './Image';
+import type React from 'react';
+import {memo} from 'react';
+import {PathFactory} from './factory/PathFactory';
+import {RectangleFactory} from './factory/RectangleFactory';
+import {CircleFactory} from './factory/CircleFactory';
+import {ImageFactory} from './factory/ImageFactory';
+import {LayerFactoryManager, type LayerFactoryManagerData} from './LayerFactoryManager';
+import {type LayerFactory} from './factory/LayerFactory';
 
-type BaseLayerData<T = string> = {
-	type: T;
-	uuid: string;
-	visible: boolean;
-};
-
-type BaseLayerComponent<D = any, T = string> = React.FC<React.SVGProps<any> & {data: D & BaseLayerData<T>}>;
-type LayerComponent<D = any, T = string> = BaseLayerComponent<D, T> & {type: T};
-
-type Prettify<T> = {
-	[K in keyof T]: T[K];
-} & Record<string, any>;
-
-export type InferLayerData<T> = Prettify<T extends LayerComponent<infer D, any> ? D & BaseLayerData<T['type']> : never>;
-
-export function createLayerComponent<Type extends string>(type: Type) {
-	return <D extends Record<string, any>> (Component: BaseLayerComponent<D, Type>) =>
-		Object.assign(Component, {type}) as LayerComponent<D, Type>;
-}
-
-// List of all available layer components
-class LayerComponentsManager<T extends LayerComponent[]> extends Map<string, LayerComponent> {
-	constructor(...Layers: T) {
-		super(
-			Layers.map(layer => [layer.type, layer]),
-		);
-	}
-}
-const layerComponents = new LayerComponentsManager(
-	PathComponent,
-	RectangleComponent,
-	CircleComponent,
-	ImageComponent,
+/**
+ * List of all layer factories available
+ */
+export const Layers = new LayerFactoryManager(
+	new PathFactory(),
+	new RectangleFactory(),
+	new CircleFactory(),
+	new ImageFactory(),
 );
 
-type LayerComponentType = typeof layerComponents extends LayerComponentsManager<infer T> ? T[number] : never;
+/**
+ * The schema for all layer data
+ */
+export type LayerData = LayerFactoryManagerData<typeof Layers>;
 
-export type LayerData = InferLayerData<LayerComponentType>;
-export type LayerType = LayerData['type'];
-
-export const Layer = memo(({data, ...props}: React.SVGProps<any> & {data: LayerData}) => {
-	const Component = layerComponents.get(data.type);
-	if (!Component) {
+/**
+ * A generic layer component that uses a factory to create the appropriate layer component
+ */
+export const Layer = memo((props: LayerData) => {
+	const factory = Layers.getFactory(props.type) as LayerFactory | undefined;
+	if (!factory) {
+		console.error(`Unknown layer type: ${props.type}`);
 		return null;
 	}
 
-	return <Component data={data} {...props} />;
+	const parsed = factory.schema.safeParse(props);
+
+	if (parsed.success) {
+		return factory.createComponent(parsed.data);
+	}
+
+	console.error(parsed.error);
+	return null;
 });
 Layer.displayName = 'Layer';

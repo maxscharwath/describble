@@ -1,7 +1,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import RefreshRuntime from '/@react-refresh';
+import RefreshRuntime from '/@react-refresh'
 
 if (import.meta.hot) {
 	RefreshRuntime.injectIntoGlobalHook(window);

@@ -1,10 +1,10 @@
 import style from './Canvas.module.scss';
 import React, {type PointerEvent, useEffect, useState, type WheelEvent} from 'react';
 import {useCamera, useWhiteboardContext, whiteboardStore} from './WhiteboardContext';
-import {Layer, type LayerData} from './layers/Layer';
 import {Selection, type SelectionBox} from './Selection';
 import {nanoid} from 'nanoid';
 import {simplify} from '../utils/simplify-path';
+import {Layer, type LayerData} from './layers/Layer';
 
 export const Canvas = () => {
 	const store = whiteboardStore;
@@ -199,9 +199,9 @@ export const Canvas = () => {
 		>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}>
 				{context.layers.filter(layer => layer.visible).map(layer => (
-					<Layer key={layer.uuid} data={layer} />
+					<Layer key={layer.uuid} {...layer} />
 				))}
-				{data && <Layer data={data} />}
+				{data && <Layer {...data} />}
 			</g>
 			{selection && <Selection box={selection} />}
 		</svg>

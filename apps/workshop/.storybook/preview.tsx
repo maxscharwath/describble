@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/react'
-import { Title, Subtitle, Description, Primary, Controls, Stories } from '@storybook/blocks';
+import { Controls, Description, Primary, Stories, Subtitle, Title } from '@storybook/blocks'
 import 'tailwindcss/tailwind.css'
 
 const preview: Preview = {

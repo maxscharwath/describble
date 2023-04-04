@@ -1,16 +1,21 @@
 import React, {useCallback, useEffect} from 'react';
 import ReactFlow, {
-	MiniMap,
-	Controls,
+	addEdge,
 	Background,
-	useNodesState,
+	BackgroundVariant,
+	ConnectionLineType,
+	Controls,
+	type Edge,
+	MiniMap,
+	type Node,
+	type OnConnect,
 	useEdgesState,
-	addEdge, BackgroundVariant, ConnectionLineType, type OnConnect, type Node, type Edge, Position,
+	useNodesState,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {generateHashTree} from '~/entries/devtools/utils';
 
-import ELK, {ElkNode} from 'elkjs';
+import ELK from 'elkjs';
 
 const tree = generateHashTree(3, 2);
 
