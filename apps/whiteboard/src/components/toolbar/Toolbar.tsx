@@ -4,20 +4,20 @@ import {ColorButton} from './ColorButton';
 import {useHistory, useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
 import {greet} from 'hello-wasm';
 
-const colors = [
-	'red',
-	'orange',
-	'yellow',
-	'green',
-	'blue',
-	'indigo',
-	'violet',
-	'purple',
-	'pink',
-	'black',
-	'gray',
-	'white',
-] as const;
+const colors = {
+	red: '#FF0000',
+	orange: '#FFA500',
+	yellow: '#FFFF00',
+	green: '#008000',
+	blue: '#0000FF',
+	indigo: '#4B0082',
+	violet: '#EE82EE',
+	purple: '#800080',
+	pink: '#FFC0CB',
+	black: '#000000',
+	gray: '#808080',
+	white: '#FFFFFF',
+} as const;
 
 const Button = ({
 	active,
@@ -55,13 +55,13 @@ export const Toolbar = () => {
 			className='pointer-events-auto m-2 flex flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur sm:flex-row'
 		>
 			<div className='grid grid-cols-6 gap-2'>
-				{colors.map(color => (
+				{Object.entries(colors).map(([color, value]) => (
 					<ColorButton
 						key={color}
-						selected={color === context.selectedColor}
-						color={color}
+						selected={context.selectedColor === value || context.selectedColor === color}
+						color={value}
 						onClick={() => {
-							store.setState({selectedColor: color});
+							store.setState({selectedColor: value});
 						}}
 					/>
 				))}

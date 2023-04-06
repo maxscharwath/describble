@@ -1,18 +1,17 @@
 import React from 'react';
+import {type Point} from '../utils/types';
 
 export type SelectionBox = {
-	x1: number;
-	y1: number;
-	x2: number;
-	y2: number;
+	p1: Point;
+	p2: Point;
 };
 
-function getRect({x1, y1, x2, y2}: SelectionBox) {
+function getRect({p1, p2}: SelectionBox) {
 	return {
-		x: Math.min(x1, x2),
-		y: Math.min(y1, y2),
-		width: Math.abs(x1 - x2),
-		height: Math.abs(y1 - y2),
+		x: Math.min(p1.x, p2.x),
+		y: Math.min(p1.y, p2.y),
+		width: Math.abs(p1.x - p2.x),
+		height: Math.abs(p1.y - p2.y),
 	};
 }
 

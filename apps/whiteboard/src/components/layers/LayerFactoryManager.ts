@@ -47,4 +47,4 @@ export type LayerFactoryManagerSchema<T extends LayerFactoryManager<LayerFactory
 /**
  * The data of a layer factory manager.
  */
-export type LayerFactoryManagerData<T extends LayerFactoryManager<LayerFactory[]>> = z.infer<LayerFactoryManagerSchema<T>>;
+export type LayerFactoryManagerData<T extends LayerFactoryManager<LayerFactory[]>> = T extends LayerFactoryManager<infer U> ? z.infer<U[number]['schema']> : never;

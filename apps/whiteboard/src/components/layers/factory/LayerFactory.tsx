@@ -1,4 +1,3 @@
-// Define a generic factory class for creating layer components
 import {z} from 'zod';
 import type React from 'react';
 

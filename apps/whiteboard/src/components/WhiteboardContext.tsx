@@ -5,13 +5,19 @@ import {shallow} from 'zustand/shallow';
 import {type LayerData} from './layers/Layer';
 import {persist} from 'zustand/middleware';
 
+export type Camera = {
+	x: number;
+	y: number;
+	scale: number;
+};
+
 export type WhiteboardContext = {
 	selectedColor: string;
 	currentTool: 'path' | 'rectangle' | 'circle' | 'image' | 'move' | 'select';
 	layers: LayerData[];
 	history: LayerData[];
 	currentLayer: LayerData | null;
-	camera: {x: number; y: number; scale: number};
+	camera: Camera;
 	canvasRef: React.RefObject<SVGSVGElement>;
 };
 
