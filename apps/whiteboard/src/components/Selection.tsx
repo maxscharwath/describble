@@ -17,5 +17,6 @@ function getRect({p1, p2}: SelectionBox) {
 
 export const Selection = ({box}: {box: SelectionBox}) => {
 	const {x, y, width, height} = getRect(box);
-	return <rect x={x} y={y} width={width} height={height} fill='rgba(0,0,255,0.1)' stroke='black' strokeWidth='1' strokeDasharray='5,5' />;
+	return <rect x={x} y={y} width={width} height={height} fill='rgba(0,0,255,0.1)' stroke='black' strokeWidth='1'
+		strokeDasharray='5,5'/>;
 };

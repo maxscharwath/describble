@@ -28,6 +28,6 @@ export class ImageFactory extends LayerFactory<typeof ImageSchema> {
 			height = -height;
 		}
 
-		return <image x={x} y={y} width={width} height={height} href={src} preserveAspectRatio='none' />;
+		return <image x={x} y={y} width={width} height={height} href={src} preserveAspectRatio='none'/>;
 	}
 }

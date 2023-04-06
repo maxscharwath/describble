@@ -1,6 +1,6 @@
-import {useEffect, type RefObject, type PointerEventHandler, type EventHandler} from 'react';
+import {type EventHandler, type PointerEventHandler, type RefObject, useEffect} from 'react';
 
-export const useEvent = <E extends EventTarget, T extends EventHandler<any>>(ref: RefObject<E>, event: string, handler: T | undefined) => {
+export const useEvent = <E extends EventTarget, T extends EventHandler<any>> (ref: RefObject<E>, event: string, handler: T | undefined) => {
 	useEffect(() => {
 		const element = ref.current;
 		if (!handler || !element) {
@@ -15,7 +15,7 @@ export const useEvent = <E extends EventTarget, T extends EventHandler<any>>(ref
 	}, [ref, event, handler]);
 };
 
-export const usePointerEvents = <T extends EventTarget>(
+export const usePointerEvents = <T extends EventTarget> (
 	ref: RefObject<T>,
 	events: {
 		onPointerDown?: PointerEventHandler<T>;

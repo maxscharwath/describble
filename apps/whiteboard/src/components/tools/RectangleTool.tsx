@@ -7,7 +7,11 @@ import {nanoid} from 'nanoid';
 import {Layer} from '../layers/Layer';
 import {computePointerPosition} from './Tools';
 
-export const RectangleTool = () => {
+/**
+ * This tool allows the user to add a rectangle to the canvas.
+ * @constructor
+ */
+export const RectangleTool: React.FC = () => {
 	const {selectedColor, camera, canvasRef} = useWhiteboardContext();
 	const store = whiteboardStore;
 	const [rectangleData, setRectangleData] = useState<z.infer<typeof RectangleSchema> | null>(null);

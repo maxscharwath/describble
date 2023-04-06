@@ -8,7 +8,11 @@ import {simplify} from '../../utils/simplify-path';
 import {Layer} from '../layers/Layer';
 import {computePointerPosition} from './Tools';
 
-export const PathTool = () => {
+/**
+ * This tool allows the user to add a path to the canvas.
+ * @constructor
+ */
+export const PathTool: React.FC = () => {
 	const {selectedColor, camera, canvasRef} = useWhiteboardContext();
 	const store = whiteboardStore;
 	const [pathData, setPathData] = useState<z.infer<typeof PathSchema> | null>(null);

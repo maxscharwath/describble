@@ -1,4 +1,4 @@
-import React, {type PointerEvent, type WheelEvent} from 'react';
+import React, {type WheelEvent} from 'react';
 import {type Camera, useCamera, useWhiteboardContext} from '../WhiteboardContext';
 import {useEvent} from '../../hooks/usePointerEvents';
 import {type Point} from '../../utils/types';
@@ -9,7 +9,12 @@ import {ImageTool} from './ImageTool';
 import {MoveTool} from './MoveTool';
 import {SelectedTool} from './SelectedTool';
 
-export const computePointerPosition = (event: PointerEvent, camera: Camera): Point => ({
+type ClientEvent = {
+	clientX: number;
+	clientY: number;
+};
+
+export const computePointerPosition = (event: ClientEvent, camera: Camera): Point => ({
 	x: (event.clientX - camera.x) / camera.scale,
 	y: (event.clientY - camera.y) / camera.scale,
 });
@@ -19,6 +24,9 @@ export const invertPointerPosition = (point: Point, camera: Camera): Point => ({
 	y: (point.y * camera.scale) + camera.y,
 });
 
+/**
+ * This hook allows the user to zoom in and out of the canvas.
+ */
 export const useZoomTool = () => {
 	const {canvasRef} = useWhiteboardContext();
 	const {camera, setCamera} = useCamera();
@@ -30,29 +38,37 @@ export const useZoomTool = () => {
 	});
 };
 
+/**
+ * This component renders the correct tool based on the current tool.
+ * @constructor
+ */
 export const LayerTools = () => {
 	const {currentTool} = useWhiteboardContext();
 	switch (currentTool) {
 		case 'path':
-			return <PathTool />;
+			return <PathTool/>;
 		case 'rectangle':
-			return <RectangleTool />;
+			return <RectangleTool/>;
 		case 'circle':
-			return <CircleTool />;
+			return <CircleTool/>;
 		case 'image':
-			return <ImageTool />;
+			return <ImageTool/>;
 		default:
 			return null;
 	}
 };
 
+/**
+ * This component renders the correct tool based on the current tool.
+ * @constructor
+ */
 export const GlobalTools = () => {
 	const {currentTool} = useWhiteboardContext();
 	switch (currentTool) {
 		case 'move':
-			return <MoveTool />;
+			return <MoveTool/>;
 		case 'select':
-			return <SelectedTool />;
+			return <SelectedTool/>;
 		default:
 			return null;
 	}

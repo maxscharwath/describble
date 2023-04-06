@@ -28,6 +28,6 @@ export class RectangleFactory extends LayerFactory<typeof RectangleSchema> {
 			height = -height;
 		}
 
-		return <rect x={x} y={y} width={width} height={height} fill={color} />;
+		return <rect x={x} y={y} width={width} height={height} fill={color}/>;
 	}
 }

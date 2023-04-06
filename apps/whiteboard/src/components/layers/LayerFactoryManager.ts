@@ -34,9 +34,9 @@ export class LayerFactoryManager<T extends LayerFactory[]> {
 	}
 
 	/**
-	 * Get a factory by its type.
-	 * @param type - The type of the factory.
-	 */
+   * Get a factory by its type.
+   * @param type - The type of the factory.
+   */
 	public getFactory<U extends string>(type: U) {
 		return this.records[type] as U extends T[number]['type'] ? LayerFactories<T>[U] : undefined;
 	}

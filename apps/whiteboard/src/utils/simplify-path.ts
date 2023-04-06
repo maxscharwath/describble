@@ -73,7 +73,13 @@ function simplifyRadialDist(points: Point[], sqTolerance: number): Point[] {
  * Simplification using optimized Douglas-Peucker algorithm with recursion elimination
  * @param options
  */
-function simplifyDPStep(options: {points: Point[]; first: number; last: number; sqTolerance: number; simplified: Point[]}): void {
+function simplifyDPStep(options: {
+	points: Point[];
+	first: number;
+	last: number;
+	sqTolerance: number;
+	simplified: Point[];
+}): void {
 	let maxSqDist = options.sqTolerance;
 	let index: number;
 

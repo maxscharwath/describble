@@ -3,12 +3,14 @@ import React, {useEffect} from 'react';
 import {useWhiteboardContext, whiteboardStore} from './WhiteboardContext';
 import {Layer} from './layers/Layer';
 import {GlobalTools, LayerTools, useZoomTool} from './tools/Tools';
+import {useDropImageTool} from './tools/ImageTool';
 
 export const Canvas = () => {
 	const store = whiteboardStore;
 	const {camera, canvasRef, layers} = useWhiteboardContext();
 
 	useZoomTool();
+	useDropImageTool();
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -36,9 +38,9 @@ export const Canvas = () => {
 				{layers.filter(layer => layer.visible).map(layer => (
 					<Layer key={layer.uuid} {...layer} />
 				))}
-				<LayerTools />
+				<LayerTools/>
 			</g>
-			<GlobalTools />
+			<GlobalTools/>
 		</svg>
 	);
 };

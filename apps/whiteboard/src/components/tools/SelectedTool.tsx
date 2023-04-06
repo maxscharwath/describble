@@ -4,7 +4,11 @@ import {Selection, type SelectionBox} from '../Selection';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {computePointerPosition, invertPointerPosition} from './Tools';
 
-export const SelectedTool = () => {
+/**
+ * This tool allows the user to select a region of the canvas.
+ * @constructor
+ */
+export const SelectedTool: React.FC = () => {
 	const {canvasRef} = useWhiteboardContext();
 	const {camera} = useWhiteboardContext();
 	const [selection, setSelection] = useState<SelectionBox | null>(null);

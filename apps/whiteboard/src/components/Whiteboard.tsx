@@ -21,8 +21,7 @@ const randomColor = (id: string) => {
 const Cursors = () => {
 	const {x, y, clicked} = useMouseState();
 	const {data, updateData, room} = useRoom<RoomState>('condensation-whiteboard', {
-		mouses: {
-		},
+		mouses: {},
 	});
 
 	if (!room.current) {
@@ -39,7 +38,8 @@ const Cursors = () => {
 		<>
 			{Object.entries(data.mouses)
 				.map(([id, mouse]) => (
-					<Cursor key={id} x={mouse.x} y={mouse.y} clicked={mouse.clicked} color={randomColor(id)} label={id} interpolate={id !== room.current?.id} />
+					<Cursor key={id} x={mouse.x} y={mouse.y} clicked={mouse.clicked} color={randomColor(id)} label={id}
+						interpolate={id !== room.current?.id}/>
 				))}
 		</>
 	);
@@ -48,14 +48,14 @@ const Cursors = () => {
 export default function Whiteboard() {
 	return (
 		<div className='cursor-none'>
-			<Canvas />
+			<Canvas/>
 			<div className='pointer-events-none absolute inset-x-0 top-0 flex justify-center'>
-				<Toolbar />
+				<Toolbar/>
 			</div>
 			<div className='pointer-events-none absolute inset-y-0 right-0 flex flex-col justify-center'>
-				<Sidebar />
+				<Sidebar/>
 			</div>
-			<Cursors />
+			<Cursors/>
 		</div>
 	);
 }

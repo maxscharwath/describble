@@ -47,6 +47,6 @@ export class PathFactory extends LayerFactory<typeof PathSchema> {
 			const stroke = getStroke(points, strokeOptions);
 			return strokeToPath(stroke);
 		}, [points, strokeOptions]);
-		return <path d={path} fill={color} />;
+		return <path d={path} fill={color}/>;
 	}
 }

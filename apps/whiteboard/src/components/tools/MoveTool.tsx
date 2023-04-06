@@ -1,7 +1,12 @@
 import {useCamera, useWhiteboardContext} from '../WhiteboardContext';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
+import type React from 'react';
 
-export const MoveTool = () => {
+/**
+ * Tool to move the camera around the canvas
+ * @constructor
+ */
+export const MoveTool: React.FC = () => {
 	const {canvasRef} = useWhiteboardContext();
 	const {camera, setCamera} = useCamera();
 	usePointerEvents(canvasRef, {

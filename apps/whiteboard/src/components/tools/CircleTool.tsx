@@ -7,7 +7,11 @@ import {nanoid} from 'nanoid';
 import {Layer} from '../layers/Layer';
 import {computePointerPosition} from './Tools';
 
-export const CircleTool = () => {
+/**
+ * This tool allows the user to add a circle to the canvas.
+ * @constructor
+ */
+export const CircleTool: React.FC = () => {
 	const {selectedColor, camera, canvasRef} = useWhiteboardContext();
 	const store = whiteboardStore;
 	const [circleData, setCircleData] = useState<z.infer<typeof CircleSchema> | null>(null);

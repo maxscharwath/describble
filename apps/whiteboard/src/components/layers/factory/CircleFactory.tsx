@@ -22,6 +22,6 @@ export class CircleFactory extends LayerFactory<typeof CircleSchema> {
 		const cy = y + (height / 2);
 		const rx = Math.abs(width / 2);
 		const ry = Math.abs(height / 2);
-		return <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={color} />;
+		return <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={color}/>;
 	}
 }
