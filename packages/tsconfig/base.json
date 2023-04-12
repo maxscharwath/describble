@@ -13,7 +13,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "preserveWatchOutput": true,
-    "skipLibCheck": true,
     "strict": true,
     "resolveJsonModule": true,
     "target": "esNext"

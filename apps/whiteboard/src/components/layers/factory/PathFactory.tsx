@@ -26,7 +26,7 @@ function strokeToPath(stroke: number[][]) {
 
 export const PathSchema = BaseLayerSchema.extend({
 	type: z.literal('path'),
-	points: z.array(z.array(z.number())),
+	points: z.array(z.array(z.number())).refine(value => value.length > 1, 'Path must have at least 2 points'),
 	color: z.string(),
 	strokeOptions: z.object({
 		size: z.number(),

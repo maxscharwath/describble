@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import type React from 'react';
+import {nanoid} from 'nanoid';
 
 export const BaseLayerSchema = z.object({
 	type: z.string(),

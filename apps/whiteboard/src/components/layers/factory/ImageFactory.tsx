@@ -6,8 +6,8 @@ export const ImageSchema = BaseLayerSchema.extend({
 	type: z.literal('image'),
 	x: z.number(),
 	y: z.number(),
-	width: z.number(),
-	height: z.number(),
+	width: z.number().refine(value => value !== 0, 'Width cannot be 0'),
+	height: z.number().refine(value => value !== 0, 'Height cannot be 0'),
 	src: z.string(),
 });
 

@@ -13,11 +13,14 @@ import {computePointerPosition} from './Tools';
  * @constructor
  */
 export const PathTool: React.FC = () => {
-	const {selectedColor, camera, canvasRef} = useWhiteboardContext();
-	const store = whiteboardStore;
+	const {selectedColor, camera, canvasRef, addLayer} = useWhiteboardContext();
 	const [pathData, setPathData] = useState<z.infer<typeof PathSchema> | null>(null);
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
+			if (event.buttons !== 1) {
+				return;
+			}
+
 			const {x, y} = computePointerPosition(event, camera);
 			setPathData({
 				type: 'path',
@@ -34,27 +37,21 @@ export const PathTool: React.FC = () => {
 			});
 		},
 		onPointerMove(event) {
-			if (event.buttons !== 1) {
+			if (event.buttons !== 1 || !pathData) {
 				return;
 			}
 
 			const {x, y} = computePointerPosition(event, camera);
-			if (pathData) {
-				setPathData({
-					...pathData,
-					points: simplify([...pathData.points, [x, y, event.pressure]], 0.2, true),
-				});
-			}
+			setPathData({
+				...pathData,
+				points: simplify([...pathData.points, [x, y, event.pressure]], 0.2, true),
+			});
 		},
 		onPointerUp() {
 			if (pathData) {
-				store.setState(l => ({
-					layers: [...l.layers, pathData],
-					history: [],
-				}));
+				addLayer(pathData);
+				setPathData(null);
 			}
-
-			setPathData(null);
 		},
 	});
 

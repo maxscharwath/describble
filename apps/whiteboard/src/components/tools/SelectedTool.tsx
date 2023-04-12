@@ -15,6 +15,10 @@ export const SelectedTool: React.FC = () => {
 
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
+			if (event.buttons !== 1) {
+				return;
+			}
+
 			const point = computePointerPosition(event, camera);
 			setSelection({
 				p1: point,

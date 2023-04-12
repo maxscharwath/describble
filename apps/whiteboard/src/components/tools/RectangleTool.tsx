@@ -12,11 +12,14 @@ import {computePointerPosition} from './Tools';
  * @constructor
  */
 export const RectangleTool: React.FC = () => {
-	const {selectedColor, camera, canvasRef} = useWhiteboardContext();
-	const store = whiteboardStore;
+	const {selectedColor, camera, canvasRef, addLayer} = useWhiteboardContext();
 	const [rectangleData, setRectangleData] = useState<z.infer<typeof RectangleSchema> | null>(null);
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
+			if (event.buttons !== 1) {
+				return;
+			}
+
 			const {x, y} = computePointerPosition(event, camera);
 			setRectangleData({
 				type: 'rectangle',
@@ -30,28 +33,22 @@ export const RectangleTool: React.FC = () => {
 			});
 		},
 		onPointerMove(event) {
-			if (event.buttons !== 1) {
+			if (event.buttons !== 1 || !rectangleData) {
 				return;
 			}
 
 			const {x, y} = computePointerPosition(event, camera);
-			if (rectangleData) {
-				setRectangleData({
-					...rectangleData,
-					width: x - rectangleData.x,
-					height: y - rectangleData.y,
-				});
-			}
+			setRectangleData({
+				...rectangleData,
+				width: x - rectangleData.x,
+				height: y - rectangleData.y,
+			});
 		},
 		onPointerUp() {
 			if (rectangleData) {
-				store.setState(l => ({
-					layers: [...l.layers, rectangleData],
-					history: [],
-				}));
+				addLayer(rectangleData);
+				setRectangleData(null);
 			}
-
-			setRectangleData(null);
 		},
 	});
 

@@ -11,11 +11,14 @@ import {computePointerPosition} from './Tools';
  * This tool allows the user to add an image to the canvas.
  */
 export const ImageTool: React.FC = () => {
-	const {camera, canvasRef} = useWhiteboardContext();
-	const store = whiteboardStore;
+	const {camera, canvasRef, addLayer} = useWhiteboardContext();
 	const [imageData, setImageData] = useState<z.infer<typeof ImageSchema> | null>(null);
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
+			if (event.buttons !== 1) {
+				return;
+			}
+
 			const {x, y} = computePointerPosition(event, camera);
 			setImageData({
 				type: 'image',
@@ -29,28 +32,22 @@ export const ImageTool: React.FC = () => {
 			});
 		},
 		onPointerMove(event) {
-			if (event.buttons !== 1) {
+			if (event.buttons !== 1 || !imageData) {
 				return;
 			}
 
 			const {x, y} = computePointerPosition(event, camera);
-			if (imageData) {
-				setImageData({
-					...imageData,
-					width: x - imageData.x,
-					height: y - imageData.y,
-				});
-			}
+			setImageData({
+				...imageData,
+				width: x - imageData.x,
+				height: y - imageData.y,
+			});
 		},
 		onPointerUp() {
 			if (imageData) {
-				store.setState(l => ({
-					layers: [...l.layers, imageData],
-					history: [],
-				}));
+				addLayer(imageData);
+				setImageData(null);
 			}
-
-			setImageData(null);
 		},
 	});
 

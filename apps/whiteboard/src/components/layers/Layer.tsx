@@ -38,7 +38,6 @@ export const Layer = memo((props: LayerData) => {
 		return factory.createComponent(parsed.data);
 	}
 
-	console.error(parsed.error);
 	return null;
 });
 Layer.displayName = 'Layer';

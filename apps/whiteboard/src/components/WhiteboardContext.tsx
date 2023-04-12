@@ -1,9 +1,8 @@
 import React from 'react';
-import {useStore} from 'zustand';
-import {createStore} from 'zustand/vanilla';
+import {useStore, create, type StateCreator} from 'zustand';
 import {shallow} from 'zustand/shallow';
-import {type LayerData} from './layers/Layer';
 import {persist} from 'zustand/middleware';
+import {type LayerData, Layers} from './layers/Layer';
 
 export type Camera = {
 	x: number;
@@ -11,29 +10,56 @@ export type Camera = {
 	scale: number;
 };
 
-export type WhiteboardContext = {
+type Tool = {
 	selectedColor: string;
 	currentTool: 'path' | 'rectangle' | 'circle' | 'image' | 'move' | 'select';
-	layers: LayerData[];
-	history: LayerData[];
-	currentLayer: LayerData | null;
-	camera: Camera;
-	canvasRef: React.RefObject<SVGSVGElement>;
 };
 
-export const whiteboardStore = createStore<WhiteboardContext>()(persist((_set, _get) => ({
+type Canvas = {
+	layers: LayerData[];
+	history: LayerData[];
+	camera: Camera;
+	canvasRef: React.RefObject<SVGSVGElement>;
+	addLayer: (layer: LayerData) => void;
+};
+
+const createToolSlice: StateCreator<Tool & Canvas, [], [], Tool> = () => ({
 	selectedColor: '#000000',
+	currentTool: 'path',
+});
+
+const createCanvasSlice: StateCreator<Canvas> = set => ({
 	layers: [],
 	history: [],
-	currentLayer: null,
-	currentTool: 'path',
 	camera: {x: 0, y: 0, scale: 1},
 	canvasRef: React.createRef(),
-}), {name: 'whiteboard', partialize: ({layers, history, camera}) => ({layers, history, camera})}));
+	addLayer(layer: LayerData) {
+		const parsedLayer = Layers.getFactory(layer.type)?.schema.safeParse(layer);
+		if (!parsedLayer?.success) {
+			console.error('Invalid layer', layer);
+			return;
+		}
 
-export function useWhiteboardContext(): WhiteboardContext;
-export function useWhiteboardContext<T>(selector: (state: WhiteboardContext) => T): T;
-export function useWhiteboardContext<T>(selector?: (state: WhiteboardContext) => T): T {
+		set(state => ({
+			layers: [...state.layers, parsedLayer.data],
+			history: [],
+		}));
+	},
+});
+
+export const whiteboardStore = create<Tool & Canvas>()((...a) => ({
+	...createToolSlice(...a),
+	...persist(
+		createCanvasSlice, {
+			name: 'whiteboard',
+			partialize: ({layers, history, camera}) => ({layers, history, camera}),
+		})(...a),
+}));
+
+// Whiteboard context
+export function useWhiteboardContext(): Tool & Canvas;
+export function useWhiteboardContext<T>(selector: (state: Tool & Canvas) => T): T;
+export function useWhiteboardContext<T>(selector?: (state: Tool & Canvas) => T): T {
 	return useStore(whiteboardStore, selector!, shallow);
 }
 
@@ -85,7 +111,7 @@ export const useHistory = () => {
 export const useCamera = () => {
 	const {camera} = useWhiteboardContext(({camera}) => ({camera}));
 
-	const setCamera = (camera: WhiteboardContext['camera']) => {
+	const setCamera = (camera: Camera) => {
 		whiteboardStore.setState({camera});
 	};
 

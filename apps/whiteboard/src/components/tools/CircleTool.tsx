@@ -1,4 +1,4 @@
-import {useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
+import {useWhiteboardContext} from '../WhiteboardContext';
 import React, {useState} from 'react';
 import {type z} from 'zod';
 import {type CircleSchema} from '../layers/factory/CircleFactory';
@@ -12,11 +12,15 @@ import {computePointerPosition} from './Tools';
  * @constructor
  */
 export const CircleTool: React.FC = () => {
-	const {selectedColor, camera, canvasRef} = useWhiteboardContext();
-	const store = whiteboardStore;
+	const {selectedColor, camera, canvasRef, addLayer} = useWhiteboardContext();
+
 	const [circleData, setCircleData] = useState<z.infer<typeof CircleSchema> | null>(null);
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
+			if (event.buttons !== 1) {
+				return;
+			}
+
 			const {x, y} = computePointerPosition(event, camera);
 			setCircleData({
 				type: 'circle',
@@ -30,28 +34,22 @@ export const CircleTool: React.FC = () => {
 			});
 		},
 		onPointerMove(event) {
-			if (event.buttons !== 1) {
+			if (event.buttons !== 1 || !circleData) {
 				return;
 			}
 
 			const {x, y} = computePointerPosition(event, camera);
-			if (circleData) {
-				setCircleData({
-					...circleData,
-					width: x - circleData.x,
-					height: y - circleData.y,
-				});
-			}
+			setCircleData({
+				...circleData,
+				width: x - circleData.x,
+				height: y - circleData.y,
+			});
 		},
 		onPointerUp() {
 			if (circleData) {
-				store.setState(l => ({
-					layers: [...l.layers, circleData],
-					history: [],
-				}));
+				addLayer(circleData);
+				setCircleData(null);
 			}
-
-			setCircleData(null);
 		},
 	});
 
