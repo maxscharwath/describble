@@ -1,5 +1,4 @@
-import type React from 'react';
-import {memo} from 'react';
+import React, {memo} from 'react';
 import {PathFactory} from './factory/PathFactory';
 import {RectangleFactory} from './factory/RectangleFactory';
 import {CircleFactory} from './factory/CircleFactory';
@@ -35,7 +34,7 @@ export const Layer = memo((props: LayerData) => {
 	const parsed = factory.schema.safeParse(props);
 
 	if (parsed.success) {
-		return factory.createComponent(parsed.data);
+		return <factory.component {...parsed.data} />;
 	}
 
 	return null;

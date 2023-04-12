@@ -23,12 +23,12 @@
   "devDependencies": {
     "@types/deepmerge": "^2.2.0",
     "@types/object-hash": "^3.0.2",
-    "@types/react": "^18.0.32",
+    "@types/react": "^18.0.35",
     "@types/react-dom": "^18.0.11",
     "eslint-config-custom": "workspace:*",
     "react": "^18.2.0",
     "tsconfig": "workspace:*",
-    "typescript": "^5.0.3",
+    "typescript": "^5.0.4",
     "vite": "^4.2.1"
   }
 }

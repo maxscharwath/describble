@@ -41,12 +41,12 @@ export class PathFactory extends LayerFactory<typeof PathSchema> {
 		super('path', PathSchema);
 	}
 
-	createComponent(props: z.infer<typeof PathSchema>): React.ReactElement {
+	component: React.FC<z.infer<typeof PathSchema>> = props => {
 		const {points, strokeOptions, color} = props;
 		const path = useMemo(() => {
 			const stroke = getStroke(points, strokeOptions);
 			return strokeToPath(stroke);
 		}, [points, strokeOptions]);
-		return <path d={path} fill={color}/>;
-	}
+		return <path d={path} fill={color} />;
+	};
 }

@@ -16,7 +16,7 @@ export class RectangleFactory extends LayerFactory<typeof RectangleSchema> {
 		super('rectangle', RectangleSchema);
 	}
 
-	createComponent(props: z.infer<typeof RectangleSchema>): React.ReactElement {
+	component: React.FC<z.infer<typeof RectangleSchema>> = props => {
 		let {x, y, width, height, color} = props;
 		if (width < 0) {
 			x += width;
@@ -29,5 +29,5 @@ export class RectangleFactory extends LayerFactory<typeof RectangleSchema> {
 		}
 
 		return <rect x={x} y={y} width={width} height={height} fill={color}/>;
-	}
+	};
 }

@@ -16,7 +16,7 @@ export class ImageFactory extends LayerFactory<typeof ImageSchema> {
 		super('image', ImageSchema);
 	}
 
-	createComponent(props: z.infer<typeof ImageSchema>): React.ReactElement {
+	component: React.FC<z.infer<typeof ImageSchema>> = props => {
 		let {x, y, width, height, src} = props;
 		if (width < 0) {
 			x += width;
@@ -29,5 +29,5 @@ export class ImageFactory extends LayerFactory<typeof ImageSchema> {
 		}
 
 		return <image x={x} y={y} width={width} height={height} href={src} preserveAspectRatio='none'/>;
-	}
+	};
 }

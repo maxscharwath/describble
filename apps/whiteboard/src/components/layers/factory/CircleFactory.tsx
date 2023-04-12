@@ -16,12 +16,12 @@ export class CircleFactory extends LayerFactory<typeof CircleSchema> {
 		super('circle', CircleSchema);
 	}
 
-	createComponent(props: z.infer<typeof CircleSchema>): React.ReactElement {
+	component: React.FC<z.infer<typeof CircleSchema>> = props => {
 		const {x, y, width, height, color} = props;
 		const cx = x + (width / 2);
 		const cy = y + (height / 2);
 		const rx = Math.abs(width / 2);
 		const ry = Math.abs(height / 2);
 		return <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={color}/>;
-	}
+	};
 }

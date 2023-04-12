@@ -15,18 +15,18 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@samrum/vite-plugin-web-extension": "^3.1.1",
-    "@types/chrome": "^0.0.227",
+    "@samrum/vite-plugin-web-extension": "^4.0.0",
+    "@types/chrome": "^0.0.231",
     "@types/dagre": "^0.7.48",
-    "@types/react": "^18.0.32",
+    "@types/react": "^18.0.35",
     "@types/react-dom": "^18.0.11",
     "@types/webextension-polyfill": "^0.10.0",
     "@vitejs/plugin-react": "^3.1.0",
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",
-    "typescript": "^5.0.3",
+    "typescript": "^5.0.4",
     "vite": "~4.2.1",
-    "web-ext": "^7.6.0",
+    "web-ext": "^7.6.1",
     "web-worker": "^1.2.0"
   },
   "dependencies": {
