@@ -1,6 +1,6 @@
 import {useCamera, useWhiteboardContext} from '../WhiteboardContext';
-import {usePointerEvents} from '../../hooks/usePointerEvents';
 import type React from 'react';
+import {usePointerEvents} from '../../hooks/usePointerEvents';
 
 /**
  * Tool to move the camera around the canvas

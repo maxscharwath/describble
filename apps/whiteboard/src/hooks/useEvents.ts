@@ -1,6 +1,6 @@
-import {type EventHandler, type PointerEventHandler, type RefObject, type SyntheticEvent, useEffect} from 'react';
+import {type EventHandler, type RefObject, type SyntheticEvent, useEffect} from 'react';
 
-type Elements = Element | Document | Window;
+export type Elements = Element | Document | Window;
 
 export const useEvent = <E extends Elements, H extends EventHandler<any>> (ref: RefObject<E>, event: string, handler: H | undefined) => {
 	useEffect(() => {
@@ -17,29 +17,21 @@ export const useEvent = <E extends Elements, H extends EventHandler<any>> (ref: 
 	}, [ref, event, handler]);
 };
 
+type EventHandlerWithType<T extends Event> = (event: T) => void;
+
+type EventHandlers<T, E extends Elements> = {
+	[K in keyof T]: EventHandlerWithType<T[K] extends EventHandlerWithType<infer U> ? U : never> | undefined;
+};
+
 export const useEvents = <
 	E extends Elements,
-	H extends Partial<Record<string, EventHandler<SyntheticEvent<E>>>>,
+	H extends EventHandlers<H, E>,
 >(
 	ref: RefObject<E>,
 	events: H,
 ) => {
 	for (const [event, handler] of Object.entries(events)) {
-		useEvent(ref, event, handler);
+		useEvent(ref, event, handler as EventHandler<SyntheticEvent<E>>);
 	}
 };
 
-export const usePointerEvents = <E extends Elements> (
-	ref: RefObject<E>,
-	events: {
-		onPointerDown?: PointerEventHandler<E>;
-		onPointerMove?: PointerEventHandler<E>;
-		onPointerUp?: PointerEventHandler<E>;
-	},
-) => {
-	useEvents(ref, {
-		pointerdown: events.onPointerDown,
-		pointermove: events.onPointerMove,
-		pointerup: events.onPointerUp,
-	});
-};

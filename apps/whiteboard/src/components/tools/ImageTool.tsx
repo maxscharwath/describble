@@ -2,10 +2,11 @@ import {useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
 import React, {useState} from 'react';
 import {type z} from 'zod';
 import {type ImageSchema} from '../layers/factory/ImageFactory';
-import {useEvent, usePointerEvents} from '../../hooks/usePointerEvents';
+import {useEvent} from '../../hooks/useEvents';
 import {nanoid} from 'nanoid';
 import {Layer} from '../layers/Layer';
 import {computePointerPosition} from './Tools';
+import {usePointerEvents} from '../../hooks/usePointerEvents';
 
 /**
  * This tool allows the user to add an image to the canvas.

@@ -2,11 +2,11 @@ import {useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
 import React, {useState} from 'react';
 import {type z} from 'zod';
 import {type PathSchema} from '../layers/factory/PathFactory';
-import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {nanoid} from 'nanoid';
 import {simplify} from '../../utils/simplify-path';
 import {Layer} from '../layers/Layer';
 import {computePointerPosition} from './Tools';
+import {usePointerEvents} from '../../hooks/usePointerEvents';
 
 /**
  * This tool allows the user to add a path to the canvas.

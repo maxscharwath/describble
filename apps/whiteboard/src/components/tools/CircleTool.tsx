@@ -2,10 +2,10 @@ import {useWhiteboardContext} from '../WhiteboardContext';
 import React, {useState} from 'react';
 import {type z} from 'zod';
 import {type CircleSchema} from '../layers/factory/CircleFactory';
-import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {nanoid} from 'nanoid';
 import {Layer} from '../layers/Layer';
 import {computePointerPosition} from './Tools';
+import {usePointerEvents} from '../../hooks/usePointerEvents';
 
 /**
  * This tool allows the user to add a circle to the canvas.

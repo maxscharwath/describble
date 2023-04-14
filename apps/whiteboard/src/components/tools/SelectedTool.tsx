@@ -1,8 +1,8 @@
 import {useWhiteboardContext} from '../WhiteboardContext';
 import React, {useMemo, useState} from 'react';
 import {Selection, type SelectionBox} from '../Selection';
-import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {computePointerPosition, invertPointerPosition} from './Tools';
+import {usePointerEvents} from '../../hooks/usePointerEvents';
 
 /**
  * This tool allows the user to select a region of the canvas.

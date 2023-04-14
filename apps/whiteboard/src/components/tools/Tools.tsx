@@ -1,6 +1,6 @@
 import React, {type WheelEvent} from 'react';
 import {type Camera, useCamera, useWhiteboardContext} from '../WhiteboardContext';
-import {useEvent} from '../../hooks/usePointerEvents';
+import {useEvent} from '../../hooks/useEvents';
 import {type Point} from '../../utils/types';
 import {PathTool} from './PathTool';
 import {CircleTool} from './CircleTool';
