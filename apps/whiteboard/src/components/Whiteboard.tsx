@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {Toolbar} from './toolbar/Toolbar';
 import {Cursor} from 'ui';
 import {Canvas} from './Canvas';
@@ -24,23 +24,33 @@ const Cursors = () => {
 		mouses: {},
 	});
 
+	useEffect(() => {
+		if (room.current) {
+			updateData({
+				mouses: {
+					[room.current.id]: {x, y, clicked},
+				},
+			});
+		}
+	}, [x, y, clicked, room, updateData]);
+
 	if (!room.current) {
 		return null;
 	}
 
-	updateData({
-		mouses: {
-			[room.current?.id]: {x, y, clicked},
-		},
-	});
-
 	return (
 		<>
-			{Object.entries(data.mouses)
-				.map(([id, mouse]) => (
-					<Cursor key={id} x={mouse.x} y={mouse.y} clicked={mouse.clicked} color={randomColor(id)} label={id}
-						interpolate={id !== room.current?.id}/>
-				))}
+			{Object.entries(data.mouses).map(([id, mouse]) => (
+				<Cursor
+					key={id}
+					x={mouse.x}
+					y={mouse.y}
+					clicked={mouse.clicked}
+					color={randomColor(id)}
+					label={id}
+					interpolate={id !== room.current?.id}
+				/>
+			))}
 		</>
 	);
 };

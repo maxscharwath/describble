@@ -1,5 +1,5 @@
 import {motion, type MotionValue, useMotionValue, useSpring} from 'framer-motion';
-import * as React from 'react';
+import React from 'react';
 
 export type CursorProps = {
 	/**
@@ -32,7 +32,7 @@ export type CursorProps = {
 	interpolate?: boolean;
 };
 
-export const Cursor: React.FC<CursorProps> = ({color, size = 32, label, ...props}: CursorProps) => {
+export const Cursor: React.FC<CursorProps> = React.memo(({color, size = 32, label, ...props}: CursorProps) => {
 	let x = useMotionValue(props.x ?? 0);
 	let y = useMotionValue(props.y ?? 0);
 	if (props.interpolate) {
@@ -77,4 +77,6 @@ export const Cursor: React.FC<CursorProps> = ({color, size = 32, label, ...props
 			</div>}
 		</motion.div>
 	);
-};
+});
+
+Cursor.displayName = 'Cursor';
