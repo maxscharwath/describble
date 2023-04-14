@@ -97,7 +97,8 @@ const LayerItem = (({layer}: {layer: LayerData}) => {
 
 	return (
 		<>
-			<PreviewLayer layer={layer} className='h-8 w-8 shrink-0 rounded-lg border border-gray-300 bg-gray-100/50 p-0.5 shadow-sm'/>
+			<PreviewLayer layer={layer}
+				className='h-8 w-8 shrink-0 rounded-lg border border-gray-300 bg-gray-100/50 p-0.5 shadow-sm'/>
 			<span className='overflow-hidden text-ellipsis whitespace-nowrap text-sm'
 				title={layer.uuid}>
 				{layer.type}

@@ -12,7 +12,7 @@ export type Camera = {
 
 type Tool = {
 	selectedColor: string;
-	currentTool: 'path' | 'rectangle' | 'circle' | 'image' | 'move' | 'select';
+	currentTool: 'path' | 'rectangle' | 'circle' | 'image' | 'move' | 'select' | null;
 };
 
 type Canvas = {

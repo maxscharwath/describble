@@ -1,9 +1,12 @@
 import style from './Canvas.module.scss';
-import React, {useEffect} from 'react';
-import {type Camera, useWhiteboardContext, whiteboardStore} from './WhiteboardContext';
+import React from 'react';
+import {type Camera, useWhiteboardContext} from './WhiteboardContext';
 import {Layer} from './layers/Layer';
-import {GlobalTools, LayerTools, useZoomTool} from './tools/Tools';
+import {GlobalTools, LayerTools} from './tools/Tools';
 import {useDropImageTool} from './tools/ImageTool';
+import {useTouchZoom} from '../hooks/useTouchZoom';
+import {useWheelZoom} from '../hooks/useWheelZoom';
+import {useWheelPan} from '../hooks/useWheelPan';
 
 const GridBackground = ({camera}: {camera: Camera}) => (
 	<>
@@ -44,7 +47,7 @@ const GridBackground = ({camera}: {camera: Camera}) => (
 			</pattern>
 		</defs>
 
-		<rect width='100%' height='100%' fill='url(#grid)' />
+		<rect width='100%' height='100%' fill='url(#grid)'/>
 	</>
 );
 
@@ -67,33 +70,17 @@ const DottedGridBackground = ({camera}: {camera: Camera}) => (
 			</pattern>
 		</defs>
 
-		<rect width='100%' height='100%' fill='url(#dottedGrid)' />
+		<rect width='100%' height='100%' fill='url(#dottedGrid)'/>
 	</>
 );
 
 export const Canvas = () => {
-	const store = whiteboardStore;
 	const {camera, canvasRef, layers} = useWhiteboardContext();
 
-	useZoomTool();
+	useTouchZoom();
+	useWheelZoom(canvasRef);
+	useWheelPan(canvasRef);
 	useDropImageTool();
-
-	useEffect(() => {
-		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === 'Backspace') {
-				if (e.metaKey || e.ctrlKey) {
-					store.setState({layers: []});
-				} else {
-					store.setState(l => ({layers: l.layers.slice(0, -1)}));
-				}
-			}
-		};
-
-		document.addEventListener('keydown', handleKeyDown);
-		return () => {
-			document.removeEventListener('keydown', handleKeyDown);
-		};
-	}, []);
 
 	return (
 		<svg
