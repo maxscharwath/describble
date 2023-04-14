@@ -40,3 +40,24 @@ export const Layer = memo((props: LayerData) => {
 	return null;
 });
 Layer.displayName = 'Layer';
+
+export const PreviewLayer = memo(({layer, ...props}: {layer: LayerData} & React.SVGProps<SVGSVGElement>) => {
+	const factory = Layers.getFactory(layer.type) as LayerFactory | undefined;
+	if (!factory) {
+		return null;
+	}
+
+	const parsed = factory.schema.safeParse(layer);
+
+	if (parsed.success) {
+		const {x, y, width, height} = factory.getBounds(parsed.data);
+		return (
+			<svg {...props} viewBox={`${x} ${y} ${width} ${height}`}>
+				<factory.component {...parsed.data} />
+			</svg>
+		);
+	}
+
+	return null;
+});
+PreviewLayer.displayName = 'PreviewLayer';

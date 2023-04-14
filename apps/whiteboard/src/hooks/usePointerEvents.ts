@@ -1,12 +1,12 @@
 import {type PointerEventHandler, type RefObject} from 'react';
-import {type Elements, useEvents} from './useEvents';
+import {type EventElement, useEvents} from './useEvents';
 
-export const usePointerEvents = <E extends Elements> (
-	ref: RefObject<E>,
+export const usePointerEvents = <TElement extends EventElement> (
+	ref: RefObject<TElement>,
 	events: {
-		onPointerDown?: PointerEventHandler<E>;
-		onPointerMove?: PointerEventHandler<E>;
-		onPointerUp?: PointerEventHandler<E>;
+		onPointerDown?: PointerEventHandler<TElement>;
+		onPointerMove?: PointerEventHandler<TElement>;
+		onPointerUp?: PointerEventHandler<TElement>;
 	},
 ) => {
 	useEvents(ref, {

@@ -1,5 +1,5 @@
 import React from 'react';
-import {useStore, create, type StateCreator} from 'zustand';
+import {create, type StateCreator, useStore} from 'zustand';
 import {shallow} from 'zustand/shallow';
 import {persist} from 'zustand/middleware';
 import {type LayerData, Layers} from './layers/Layer';
@@ -56,7 +56,6 @@ export const whiteboardStore = create<Tool & Canvas>()((...a) => ({
 		})(...a),
 }));
 
-// Whiteboard context
 export function useWhiteboardContext(): Tool & Canvas;
 export function useWhiteboardContext<T>(selector: (state: Tool & Canvas) => T): T;
 export function useWhiteboardContext<T>(selector?: (state: Tool & Canvas) => T): T {
@@ -112,7 +111,13 @@ export const useCamera = () => {
 	const {camera} = useWhiteboardContext(({camera}) => ({camera}));
 
 	const setCamera = (camera: Camera) => {
-		whiteboardStore.setState({camera});
+		whiteboardStore.setState({
+			camera: {
+				x: Math.round(camera.x),
+				y: Math.round(camera.y),
+				scale: camera.scale,
+			},
+		});
 	};
 
 	return {

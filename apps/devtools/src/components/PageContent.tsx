@@ -9,7 +9,7 @@ function PageContent(props: {children: React.ReactNode}) {
 
 	return (
 		<div>
-			<img src={imageUrl} height='45' alt='' />
+			<img src={imageUrl} height='45' alt=''/>
 			<h1>{props.children}</h1>
 			<button type='button' onClick={() => setCount(count => count + 1)}>
         Count: {count}

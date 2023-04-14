@@ -4,9 +4,17 @@
     "isolatedModules": false,
     "baseUrl": "./",
     "paths": {
-      "~/*": ["src/*"]
-    },
+      "~/*": [
+        "src/*"
+      ]
+    }
   },
-  "include": ["."],
-  "exclude": ["dist", "build", "node_modules"]
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "dist",
+    "build",
+    "node_modules"
+  ]
 }

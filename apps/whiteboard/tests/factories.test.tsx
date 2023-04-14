@@ -8,9 +8,9 @@ import {describe} from 'vitest';
 import {type z} from 'zod';
 
 describe('Factory components tests', () => {
-	function testComponent<Props extends Record<string, unknown>>(
-		Component: React.FC<Props>,
-		props: Props,
+	function testComponent<TProps extends Record<string, unknown>>(
+		Component: React.FC<TProps>,
+		props: TProps,
 		query: string,
 		testAttributes: Record<string, string>,
 	) {
@@ -24,18 +24,19 @@ describe('Factory components tests', () => {
 	}
 
 	describe('Circle component', () => {
+		const circleProps = {
+			type: 'circle',
+			uuid: 'test-uuid',
+			visible: true,
+			x: 30,
+			y: 50,
+			width: 100,
+			height: 80,
+			color: 'red',
+		} satisfies z.infer<typeof CircleSchema>;
+
 		test('should render Circle component', () => {
 			const circleFactory = new CircleFactory();
-			const circleProps = {
-				type: 'circle',
-				uuid: 'test-uuid',
-				visible: true,
-				x: 30,
-				y: 50,
-				width: 100,
-				height: 80,
-				color: 'red',
-			} satisfies z.infer<typeof CircleSchema>;
 
 			testComponent(circleFactory.component, circleProps, 'ellipse', {
 				cx: '80',
@@ -45,21 +46,33 @@ describe('Factory components tests', () => {
 				fill: 'red',
 			});
 		});
+
+		test('should get bounds for Circle component', () => {
+			const circleFactory = new CircleFactory();
+
+			expect(circleFactory.getBounds(circleProps)).toEqual({
+				x: 30,
+				y: 50,
+				width: 100,
+				height: 80,
+			});
+		});
 	});
 
 	describe('Image component', () => {
+		const imageProps = {
+			type: 'image',
+			uuid: 'test-uuid',
+			visible: true,
+			x: 50,
+			y: 50,
+			width: 100,
+			height: 100,
+			src: 'https://example.com/image.png',
+		} satisfies z.infer<typeof ImageSchema>;
+
 		test('should render Image component', () => {
 			const imageFactory = new ImageFactory();
-			const imageProps = {
-				type: 'image',
-				uuid: 'test-uuid',
-				visible: true,
-				x: 50,
-				y: 50,
-				width: 100,
-				height: 100,
-				src: 'https://example.com/image.png',
-			} satisfies z.infer<typeof ImageSchema>;
 
 			testComponent(imageFactory.component, imageProps, 'image', {
 				x: '50',
@@ -72,18 +85,15 @@ describe('Factory components tests', () => {
 
 		test('should render Image component with negative dimensions', () => {
 			const imageFactory = new ImageFactory();
-			const imageProps = {
-				type: 'image',
-				uuid: 'test-uuid',
-				visible: true,
+			const imagePropsWithNegativeDimensions = {
+				...imageProps,
 				x: 50,
 				y: 50,
 				width: -100,
 				height: -100,
-				src: 'https://example.com/image.png',
 			} satisfies z.infer<typeof ImageSchema>;
 
-			testComponent(imageFactory.component, imageProps, 'image', {
+			testComponent(imageFactory.component, imagePropsWithNegativeDimensions, 'image', {
 				x: '-50',
 				y: '-50',
 				width: '100',
@@ -91,28 +101,39 @@ describe('Factory components tests', () => {
 				href: 'https://example.com/image.png',
 			});
 		});
+
+		test('should get bounds for Image component', () => {
+			const imageFactory = new ImageFactory();
+
+			expect(imageFactory.getBounds(imageProps)).toEqual({
+				x: 50,
+				y: 50,
+				width: 100,
+				height: 100,
+			});
+		});
 	});
 
 	describe('Path component', () => {
+		const pathProps = {
+			type: 'path',
+			uuid: 'test-uuid',
+			visible: true,
+			points: [
+				[50, 50, 0.5],
+				[100, 100, 0.5],
+			],
+			color: 'blue',
+			strokeOptions: {
+				size: 5,
+				thinning: 0.5,
+				smoothing: 0.5,
+				roundness: 1,
+			},
+		} satisfies z.infer<typeof PathSchema>;
+
 		test('should render Path component', () => {
 			const pathFactory = new PathFactory();
-			const pathProps = {
-				type: 'path',
-				uuid: 'test-uuid',
-				visible: true,
-				points: [
-					[50, 50, 0.5],
-					[100, 100, 0.5],
-				],
-				color: 'blue',
-				strokeOptions: {
-					size: 5,
-					thinning: 0.5,
-					smoothing: 0.5,
-					roundness: 1,
-				},
-			} satisfies z.infer<typeof PathSchema>;
-
 			const {container} = render(<svg>{<pathFactory.component {...pathProps}/>}</svg>);
 			const path = container.querySelector('path');
 			expect(path).toBeInTheDocument();
@@ -122,41 +143,44 @@ describe('Factory components tests', () => {
 
 		test('should render Path component with no points', () => {
 			const pathFactory = new PathFactory();
-			const pathProps = {
-				type: 'path',
-				uuid: 'test-uuid',
-				visible: true,
+			const pathPropsWithNoPoints = {
+				...pathProps,
 				points: [],
-				color: 'blue',
-				strokeOptions: {
-					size: 5,
-					thinning: 0.5,
-					smoothing: 0.5,
-					roundness: 1,
-				},
 			} satisfies z.infer<typeof PathSchema>;
 
-			const {container} = render(<svg>{<pathFactory.component {...pathProps}/>}</svg>);
+			const {container} = render(<svg>{<pathFactory.component {...pathPropsWithNoPoints}/>}</svg>);
 			const path = container.querySelector('path');
 			expect(path).toBeInTheDocument();
 			expect(path).toHaveAttribute('d');
 			expect(path).toHaveAttribute('fill', 'blue');
 		});
+
+		test('should get bounds for Path component', () => {
+			const pathFactory = new PathFactory();
+
+			expect(pathFactory.getBounds(pathProps)).toEqual({
+				x: 50,
+				y: 50,
+				width: 50,
+				height: 50,
+			});
+		});
 	});
 
 	describe('Rectangle component', () => {
+		const rectangleProps = {
+			type: 'rectangle',
+			uuid: 'test-uuid',
+			visible: true,
+			x: 10,
+			y: 50,
+			width: 80,
+			height: 100,
+			color: 'red',
+		} satisfies z.infer<typeof RectangleSchema>;
+
 		test('should render Rectangle component', () => {
 			const rectangleFactory = new RectangleFactory();
-			const rectangleProps = {
-				type: 'rectangle',
-				uuid: 'test-uuid',
-				visible: true,
-				x: 10,
-				y: 50,
-				width: 80,
-				height: 100,
-				color: 'red',
-			} satisfies z.infer<typeof RectangleSchema>;
 
 			testComponent(rectangleFactory.component, rectangleProps, 'rect', {
 				x: '10',
@@ -169,18 +193,15 @@ describe('Factory components tests', () => {
 
 		test('should render Rectangle component with negative dimensions', () => {
 			const rectangleFactory = new RectangleFactory();
-			const rectangleProps = {
-				type: 'rectangle',
-				uuid: 'test-uuid',
-				visible: true,
+			const rectanglePropsWithNegativeDimensions = {
+				...rectangleProps,
 				x: 10,
 				y: 50,
 				width: -80,
 				height: -100,
-				color: 'red',
 			} satisfies z.infer<typeof RectangleSchema>;
 
-			testComponent(rectangleFactory.component, rectangleProps, 'rect', {
+			testComponent(rectangleFactory.component, rectanglePropsWithNegativeDimensions, 'rect', {
 				x: '-70',
 				y: '-50',
 				width: '80',

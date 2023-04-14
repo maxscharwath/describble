@@ -17,6 +17,7 @@ export class Room<T> extends Emittery<{
 	private isHost = false;
 	private readonly peer: Promise<Peer>;
 	private readonly connections = new Set<DataConnection>();
+
 	constructor(roomId: string) {
 		super();
 		this.peer = this.createPeer(roomId);
@@ -83,7 +84,10 @@ export class Room<T> extends Emittery<{
 
 export function useRoom<T extends Record<string, any>>(roomId: string, defaultData: T) {
 	const room = React.useRef<Room<Partial<T>>>();
-	const [data, setData] = React.useState<{value: T; hash: string}>({value: defaultData, hash: objectHash(defaultData)});
+	const [data, setData] = React.useState<{value: T; hash: string}>({
+		value: defaultData,
+		hash: objectHash(defaultData),
+	});
 	const [peers, setPeers] = React.useState<string[]>([]);
 
 	React.useEffect(() => {

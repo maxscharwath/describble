@@ -15,8 +15,8 @@ type ClientEvent = {
 };
 
 export const computePointerPosition = (event: ClientEvent, camera: Camera): Point => ({
-	x: (event.clientX - camera.x) / camera.scale,
-	y: (event.clientY - camera.y) / camera.scale,
+	x: Math.round((event.clientX - camera.x) / camera.scale),
+	y: Math.round((event.clientY - camera.y) / camera.scale),
 });
 
 export const invertPointerPosition = (point: Point, camera: Camera): Point => ({

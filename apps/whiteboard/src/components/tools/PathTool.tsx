@@ -1,4 +1,4 @@
-import {useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
+import {useWhiteboardContext} from '../WhiteboardContext';
 import React, {useState} from 'react';
 import {type z} from 'zod';
 import {type PathSchema} from '../layers/factory/PathFactory';
@@ -44,7 +44,7 @@ export const PathTool: React.FC = () => {
 			const {x, y} = computePointerPosition(event, camera);
 			setPathData({
 				...pathData,
-				points: simplify([...pathData.points, [x, y, event.pressure]], 0.2, true),
+				points: simplify([...pathData.points, [x, y, event.pressure]], 0.4, true),
 			});
 		},
 		onPointerUp() {

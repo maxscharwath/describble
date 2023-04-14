@@ -1,4 +1,4 @@
-import {describe, type Mock, vi} from 'vitest';
+import {describe, vi} from 'vitest';
 import {renderHook} from '@testing-library/react';
 import {type PointerEventHandler} from 'react';
 import {usePointerEvents} from '../../src/hooks/usePointerEvents';

@@ -1,8 +1,12 @@
-import {renderHook, act} from '@testing-library/react';
+import {act, renderHook} from '@testing-library/react';
 import {useMouseState} from '../../src/hooks/useMouse';
 
 describe('useMouseState', () => {
-	const fireEventAndUpdateState = (eventType: string, eventInit: PointerEventInit, expectedState: {x: number; y: number; clicked: boolean}) => {
+	const fireEventAndUpdateState = (eventType: string, eventInit: PointerEventInit, expectedState: {
+		x: number;
+		y: number;
+		clicked: boolean;
+	}) => {
 		const {result} = renderHook(() => useMouseState());
 
 		expect(result.current).toEqual({x: 0, y: 0, clicked: false});

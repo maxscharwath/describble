@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 import {getStroke} from 'perfect-freehand';
 import {z} from 'zod';
-import {BaseLayerSchema, LayerFactory} from './LayerFactory';
+import {BaseLayerSchema, type Bounds, LayerFactory} from './LayerFactory';
 
 /**
  * Convert a stroke to a path string with quadratic curves
@@ -37,16 +37,34 @@ export const PathSchema = BaseLayerSchema.extend({
 });
 
 export class PathFactory extends LayerFactory<typeof PathSchema> {
-	constructor() {
+	public constructor() {
 		super('path', PathSchema);
 	}
 
-	component: React.FC<z.infer<typeof PathSchema>> = props => {
+	public getBounds(data: z.infer<typeof PathSchema>): Bounds {
+		const {minX, maxX, minY, maxY} = data.points.reduce(
+			(acc, [x, y]) => ({
+				minX: Math.min(acc.minX, x),
+				maxX: Math.max(acc.maxX, x),
+				minY: Math.min(acc.minY, y),
+				maxY: Math.max(acc.maxY, y),
+			}),
+			{
+				minX: Infinity,
+				maxX: -Infinity,
+				minY: Infinity,
+				maxY: -Infinity,
+			},
+		);
+		return {x: minX, y: minY, width: maxX - minX, height: maxY - minY};
+	}
+
+	public component: React.FC<z.infer<typeof PathSchema>> = props => {
 		const {points, strokeOptions, color} = props;
 		const path = useMemo(() => {
 			const stroke = getStroke(points, strokeOptions);
 			return strokeToPath(stroke);
 		}, [points, strokeOptions]);
-		return <path d={path} fill={color} />;
+		return <path d={path} fill={color}/>;
 	};
 }

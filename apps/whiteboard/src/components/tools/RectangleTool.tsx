@@ -1,4 +1,4 @@
-import {useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
+import {useWhiteboardContext} from '../WhiteboardContext';
 import React, {useState} from 'react';
 import {type z} from 'zod';
 import {type RectangleSchema} from '../layers/factory/RectangleFactory';

@@ -7,12 +7,21 @@ export const BaseLayerSchema = z.object({
 	visible: z.boolean(),
 });
 
-export abstract class LayerFactory<T extends z.ZodSchema = z.ZodSchema, P = z.infer<T>> {
-	public abstract component: React.FC<P>;
+export type Bounds = {
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+};
+
+export abstract class LayerFactory<T extends z.ZodSchema<z.infer<typeof BaseLayerSchema>> = z.ZodSchema> {
+	public abstract component: React.FC<z.infer<T>>;
 
 	protected constructor(public readonly type: z.infer<T>['type'], protected readonly _schema: T) {}
 
 	get schema(): T {
 		return this._schema;
 	}
+
+	public abstract getBounds(data: z.infer<T>): Bounds;
 }

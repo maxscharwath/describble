@@ -5,9 +5,9 @@ import 'tailwindcss/tailwind.css'
 const preview: Preview = {
   parameters: {
     backgrounds: {
-      default: "light",
+      default: 'light',
     },
-    actions: { argTypesRegex: "^on[A-Z].*" },
+    actions: { argTypesRegex: '^on[A-Z].*' },
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -17,16 +17,16 @@ const preview: Preview = {
     docs: {
       page: () => (
         <>
-          <Title />
-          <Subtitle />
-          <Description />
-          <Primary />
-          <Controls />
-          <Stories />
+          <Title/>
+          <Subtitle/>
+          <Description/>
+          <Primary/>
+          <Controls/>
+          <Stories/>
         </>
       ),
     },
   },
-};
+}
 
-export default preview;
+export default preview

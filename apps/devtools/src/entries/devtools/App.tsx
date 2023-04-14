@@ -22,7 +22,13 @@ const tree = generateHashTree(3, 2);
 const [initialNodes, initialEdges] = Object.entries(tree).reduce<[Node[], Edge[]]>(
 	([nodes, edges], [hash, links]) => {
 		nodes.push({id: hash, data: {label: hash}, position: {x: 0, y: 0}});
-		links.forEach(link => edges.push({id: `${hash}-${link}`, source: hash, target: link, type: 'smoothstep', animated: true}));
+		links.forEach(link => edges.push({
+			id: `${hash}-${link}`,
+			source: hash,
+			target: link,
+			type: 'smoothstep',
+			animated: true,
+		}));
 		return [nodes, edges];
 	}, [[], []]);
 
@@ -42,8 +48,18 @@ const elkLayout = async () => {
 	});
 
 	return {
-		nodes: layout.children?.map(node => ({id: node.id, data: {label: node.id}, position: {x: node.x ?? 0, y: node.y ?? 0}})) ?? [],
-		edges: layout.edges?.map(edge => ({id: edge.id, source: edge.sources[0], target: edge.targets[0], type: 'smoothstep', animated: true})) ?? [],
+		nodes: layout.children?.map(node => ({
+			id: node.id,
+			data: {label: node.id},
+			position: {x: node.x ?? 0, y: node.y ?? 0},
+		})) ?? [],
+		edges: layout.edges?.map(edge => ({
+			id: edge.id,
+			source: edge.sources[0],
+			target: edge.targets[0],
+			type: 'smoothstep',
+			animated: true,
+		})) ?? [],
 	};
 };
 
@@ -72,9 +88,9 @@ export default function App() {
 				onConnect={onConnect}
 				connectionLineType={ConnectionLineType.SmoothStep}
 			>
-				<Controls />
-				<MiniMap />
-				<Background variant={BackgroundVariant.Dots} gap={12} size={1} />
+				<Controls/>
+				<MiniMap/>
+				<Background variant={BackgroundVariant.Dots} gap={12} size={1}/>
 			</ReactFlow>
 		</div>
 	);

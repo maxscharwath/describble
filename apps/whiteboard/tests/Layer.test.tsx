@@ -1,7 +1,7 @@
 import React from 'react';
 import {cleanup, render} from '@testing-library/react';
 import {CircleSchema} from '../src/components/layers/factory/CircleFactory';
-import {Layer} from '../src/components/layers/Layer';
+import {Layer, PreviewLayer} from '../src/components/layers/Layer';
 import {RectangleSchema} from '../src/components/layers/factory/RectangleFactory';
 import {PathSchema} from '../src/components/layers/factory/PathFactory';
 import {ImageSchema} from '../src/components/layers/factory/ImageFactory';
@@ -145,5 +145,55 @@ describe('Layer', () => {
 		expect(circle).toHaveAttribute('cx', '175');
 		expect(circle).toHaveAttribute('cy', '-50');
 		expect(circle).toHaveAttribute('fill', 'blue');
+	});
+});
+
+describe('PreviewLayer', () => {
+	it('should create an svg element', () => {
+		const layer = CircleSchema.parse({
+			type: 'circle',
+			uuid: 'test-uuid',
+			visible: true,
+			x: 50,
+			y: 50,
+			width: 100,
+			height: 100,
+			color: 'red',
+		});
+
+		const {container} = render(<PreviewLayer layer={layer}/>);
+		const svg = container.querySelector('svg');
+		expect(svg).toBeInTheDocument();
+	});
+
+	it('should not create an svg element if layer is not valid', () => {
+		const layer = {
+			type: 'circle',
+			uuid: 'test-uuid',
+			visible: true,
+			x: 50,
+			y: 50,
+			width: 'invalid', // Invalid width value
+			height: 100,
+			color: 'red',
+		};
+
+		// @ts-expect-error - We're testing invalid data
+		const {container} = render(<PreviewLayer layer={layer}/>);
+		const svg = container.querySelector('svg');
+		expect(svg).not.toBeInTheDocument();
+	});
+
+	it('should not create an svg element if layer type is unknown', () => {
+		const layer = {
+			type: 'unknown',
+			uuid: 'test-uuid',
+			visible: true,
+		};
+
+		// @ts-expect-error - We're testing invalid data
+		const {container} = render(<PreviewLayer layer={layer}/>);
+		const svg = container.querySelector('svg');
+		expect(svg).not.toBeInTheDocument();
 	});
 });

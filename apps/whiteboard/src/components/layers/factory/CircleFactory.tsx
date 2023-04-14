@@ -1,22 +1,18 @@
 import React from 'react';
 import {z} from 'zod';
-import {BaseLayerSchema, LayerFactory} from './LayerFactory';
+import {BaseShapeFactory, BaseShapeSchema} from './BaseShapeFactory';
 
-export const CircleSchema = BaseLayerSchema.extend({
+export const CircleSchema = BaseShapeSchema.extend({
 	type: z.literal('circle'),
-	x: z.number(),
-	y: z.number(),
-	width: z.number().refine(value => value !== 0, 'Width cannot be 0'),
-	height: z.number().refine(value => value !== 0, 'Height cannot be 0'),
 	color: z.string(),
 });
 
-export class CircleFactory extends LayerFactory<typeof CircleSchema> {
-	constructor() {
+export class CircleFactory extends BaseShapeFactory<typeof CircleSchema> {
+	public constructor() {
 		super('circle', CircleSchema);
 	}
 
-	component: React.FC<z.infer<typeof CircleSchema>> = props => {
+	public component: React.FC<z.infer<typeof CircleSchema>> = props => {
 		const {x, y, width, height, color} = props;
 		const cx = x + (width / 2);
 		const cy = y + (height / 2);
