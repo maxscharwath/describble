@@ -15,7 +15,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@samrum/vite-plugin-web-extension": "^4.0.0",
+    "@samrum/vite-plugin-web-extension": "^4.1.0",
     "@types/chrome": "^0.0.231",
     "@types/dagre": "^0.7.48",
     "@types/react": "^18.0.35",

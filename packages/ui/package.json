@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "cva": "npm:class-variance-authority@^0.5.2",
-    "framer-motion": "^10.11.6"
+    "framer-motion": "^10.12.2"
   },
   "devDependencies": {
     "@types/react": "^18.0.35",

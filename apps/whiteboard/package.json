@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "clsx": "^1.2.1",
+    "framer-motion": "^10.12.2",
     "hello-wasm": "workspace:*",
     "perfect-freehand": "^1.2.0",
     "presence": "workspace:*",
