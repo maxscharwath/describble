@@ -1,6 +1,7 @@
 import React from 'react';
 import {z} from 'zod';
 import {BaseShapeFactory, BaseShapeSchema} from './BaseShapeFactory';
+import {type LayerComponent} from './LayerFactory';
 
 export const CircleSchema = BaseShapeSchema.extend({
 	type: z.literal('circle'),
@@ -12,12 +13,12 @@ export class CircleFactory extends BaseShapeFactory<typeof CircleSchema> {
 		super('circle', CircleSchema);
 	}
 
-	public component: React.FC<z.infer<typeof CircleSchema>> = props => {
-		const {x, y, width, height, color} = props;
+	public component: LayerComponent<z.infer<typeof CircleSchema>> = ({data, ...props}) => {
+		const {x, y, width, height, color} = data;
 		const cx = x + (width / 2);
 		const cy = y + (height / 2);
 		const rx = Math.abs(width / 2);
 		const ry = Math.abs(height / 2);
-		return <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={color}/>;
+		return <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={color} {...props}/>;
 	};
 }

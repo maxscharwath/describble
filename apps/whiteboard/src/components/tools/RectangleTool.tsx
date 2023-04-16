@@ -52,5 +52,5 @@ export const RectangleTool: React.FC = () => {
 		},
 	});
 
-	return rectangleData ? <Layer {...rectangleData} /> : null;
+	return rectangleData ? <Layer layer={rectangleData}/> : null;
 };

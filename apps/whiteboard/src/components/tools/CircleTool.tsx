@@ -53,5 +53,5 @@ export const CircleTool: React.FC = () => {
 		},
 	});
 
-	return circleData ? <Layer {...circleData} /> : null;
+	return circleData ? <Layer layer={circleData}/> : null;
 };

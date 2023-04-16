@@ -1,6 +1,7 @@
 import React from 'react';
 import {z} from 'zod';
 import {BaseShapeFactory, BaseShapeSchema} from './BaseShapeFactory';
+import {type LayerComponent} from './LayerFactory';
 
 export const RectangleSchema = BaseShapeSchema.extend({
 	type: z.literal('rectangle'),
@@ -12,10 +13,10 @@ export class RectangleFactory extends BaseShapeFactory<typeof RectangleSchema> {
 		super('rectangle', RectangleSchema);
 	}
 
-	public component: React.FC<z.infer<typeof RectangleSchema>> = props => {
-		const {color} = props;
-		const {x, y, width, height} = this.getBounds(props);
+	public component: LayerComponent<z.infer<typeof RectangleSchema>> = ({data, ...props}) => {
+		const {color} = data;
+		const {x, y, width, height} = this.getBounds(data);
 
-		return <rect x={x} y={y} width={width} height={height} fill={color}/>;
+		return <rect x={x} y={y} width={width} height={height} fill={color} {...props}/>;
 	};
 }

@@ -1,7 +1,7 @@
 import style from './Canvas.module.scss';
 import React from 'react';
 import {type Camera, useWhiteboardContext} from './WhiteboardContext';
-import {Layer} from './layers/Layer';
+import {Layer, type LayerData, Layers} from './layers/Layer';
 import {GlobalTools, LayerTools} from './tools/Tools';
 import {useDropImageTool} from './tools/ImageTool';
 import {useTouchZoom} from '../hooks/useTouchZoom';
@@ -75,25 +75,59 @@ const DottedGridBackground = ({camera}: {camera: Camera}) => (
 );
 
 export const Canvas = () => {
-	const {camera, canvasRef, layers} = useWhiteboardContext();
+	const {camera, canvasRef, layers, currentTool} = useWhiteboardContext();
 
 	useTouchZoom();
 	useWheelZoom(canvasRef);
 	useWheelPan(canvasRef);
 	useDropImageTool();
 
+	const [selectedLayer, setSelectedLayer] = React.useState<LayerData | null>(null);
+
+	const boundingBox = React.useMemo(() => {
+		if (!selectedLayer) {
+			return null;
+		}
+
+		const bound = Layers.getFactory(selectedLayer.type).getBounds(selectedLayer as never);
+		return {
+			x: (bound.x * camera.scale) + camera.x,
+			y: (bound.y * camera.scale) + camera.y,
+			width: bound.width * camera.scale,
+			height: bound.height * camera.scale,
+		};
+	}, [selectedLayer, camera]);
+
 	return (
 		<svg
 			className={style.whiteboard}
 			ref={canvasRef}
+			onPointerDown={() => {
+				setSelectedLayer(null);
+			}}
 		>
 			<DottedGridBackground camera={camera}/>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}>
 				{layers.filter(layer => layer.visible).map(layer => (
-					<Layer key={layer.uuid} {...layer} />
+					<Layer key={layer.uuid} layer={layer} onPointerDown={e => {
+						e.stopPropagation();
+						if (currentTool === 'select') {
+							setSelectedLayer(layer);
+						}
+					}}/>
 				))}
 				<LayerTools/>
 			</g>
+			{boundingBox && (
+				<rect x={boundingBox.x}
+					y={boundingBox.y}
+					width={boundingBox.width}
+					height={boundingBox.height}
+					fill='rgba(0,0,255,0.1)'
+					stroke='black'
+					strokeWidth='2'
+					strokeDasharray='5,5'/>
+			)}
 			<GlobalTools/>
 		</svg>
 	);

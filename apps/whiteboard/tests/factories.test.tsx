@@ -4,17 +4,17 @@ import {CircleFactory, type CircleSchema} from '../src/components/layers/factory
 import {ImageFactory, type ImageSchema} from '../src/components/layers/factory/ImageFactory';
 import {PathFactory, type PathSchema} from '../src/components/layers/factory/PathFactory';
 import {RectangleFactory, type RectangleSchema} from '../src/components/layers/factory/RectangleFactory';
-import {describe} from 'vitest';
 import {type z} from 'zod';
+import {type LayerComponent} from '../src/components/layers/factory/LayerFactory';
 
 describe('Factory components tests', () => {
 	function testComponent<TProps extends Record<string, unknown>>(
-		Component: React.FC<TProps>,
+		Component: LayerComponent<TProps>,
 		props: TProps,
 		query: string,
 		testAttributes: Record<string, string>,
 	) {
-		const {container} = render(<svg>{<Component {...props}/>}</svg>);
+		const {container} = render(<svg>{<Component data={props} />}</svg>);
 		const element = container.querySelector(query);
 		expect(element).toBeInTheDocument();
 
@@ -134,7 +134,7 @@ describe('Factory components tests', () => {
 
 		test('should render Path component', () => {
 			const pathFactory = new PathFactory();
-			const {container} = render(<svg>{<pathFactory.component {...pathProps}/>}</svg>);
+			const {container} = render(<svg>{<pathFactory.component data={pathProps} />}</svg>);
 			const path = container.querySelector('path');
 			expect(path).toBeInTheDocument();
 			expect(path).toHaveAttribute('d');
@@ -148,7 +148,7 @@ describe('Factory components tests', () => {
 				points: [],
 			} satisfies z.infer<typeof PathSchema>;
 
-			const {container} = render(<svg>{<pathFactory.component {...pathPropsWithNoPoints}/>}</svg>);
+			const {container} = render(<svg>{<pathFactory.component data={pathPropsWithNoPoints}/>}</svg>);
 			const path = container.querySelector('path');
 			expect(path).toBeInTheDocument();
 			expect(path).toHaveAttribute('d');

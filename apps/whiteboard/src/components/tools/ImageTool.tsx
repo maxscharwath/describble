@@ -52,7 +52,7 @@ export const ImageTool: React.FC = () => {
 		},
 	});
 
-	return imageData ? <Layer {...imageData} /> : null;
+	return imageData ? <Layer layer={imageData}/> : null;
 };
 
 /**

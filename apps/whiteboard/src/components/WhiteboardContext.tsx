@@ -1,8 +1,9 @@
 import React from 'react';
 import {create, type StateCreator, useStore} from 'zustand';
 import {shallow} from 'zustand/shallow';
-import {persist} from 'zustand/middleware';
+import {createJSONStorage, persist, type StateStorage} from 'zustand/middleware';
 import {type LayerData, Layers} from './layers/Layer';
+import {del, get, set} from 'idb-keyval';
 
 export type Camera = {
 	x: number;
@@ -23,7 +24,7 @@ type Canvas = {
 	addLayer: (layer: LayerData) => void;
 };
 
-const createToolSlice: StateCreator<Tool & Canvas, [], [], Tool> = () => ({
+const createToolSlice: StateCreator<Tool> = () => ({
 	selectedColor: '#000000',
 	currentTool: 'path',
 });
@@ -47,13 +48,29 @@ const createCanvasSlice: StateCreator<Canvas> = set => ({
 	},
 });
 
+const indexDbStorage: StateStorage = {
+	async getItem(name: string): Promise<string | null> {
+		return (await get(name)) ?? null;
+	},
+	async setItem(name: string, value: string): Promise<void> {
+		await set(name, value);
+	},
+	async removeItem(name: string): Promise<void> {
+		await del(name);
+	},
+};
+
 export const whiteboardStore = create<Tool & Canvas>()((...a) => ({
 	...createToolSlice(...a),
-	...persist(
+	...persist(persist(
 		createCanvasSlice, {
 			name: 'whiteboard',
-			partialize: ({layers, history, camera}) => ({layers, history, camera}),
-		})(...a),
+			storage: createJSONStorage(() => indexDbStorage),
+			partialize: ({layers, history}) => ({layers, history}),
+		}), {
+		name: 'whiteboard',
+		partialize: ({camera}) => ({camera}),
+	})(...a),
 }));
 
 export function useWhiteboardContext(): Tool & Canvas;
@@ -65,7 +82,7 @@ export function useWhiteboardContext<T>(selector?: (state: Tool & Canvas) => T):
 export const useHistory = () => {
 	const {layers, history} = useWhiteboardContext(({layers, history}) => ({layers, history}));
 
-	const undo = () => {
+	const redo = () => {
 		whiteboardStore.setState(state => {
 			const history = [...state.history];
 			const layers = [...state.layers];
@@ -82,7 +99,7 @@ export const useHistory = () => {
 		});
 	};
 
-	const redo = () => {
+	const undo = () => {
 		whiteboardStore.setState(state => {
 			const history = [...state.history];
 			const layers = [...state.layers];
@@ -102,8 +119,8 @@ export const useHistory = () => {
 	return {
 		undo,
 		redo,
-		canUndo: history.length > 0,
-		canRedo: layers.length > 0,
+		canUndo: layers.length > 0,
+		canRedo: history.length > 0,
 	};
 };
 

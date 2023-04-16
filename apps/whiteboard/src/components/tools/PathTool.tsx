@@ -55,5 +55,5 @@ export const PathTool: React.FC = () => {
 		},
 	});
 
-	return pathData ? <Layer {...pathData} /> : null;
+	return pathData ? <Layer layer={pathData}/> : null;
 };

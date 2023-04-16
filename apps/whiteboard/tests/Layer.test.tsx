@@ -21,7 +21,7 @@ describe('Layer', () => {
 			color: 'red',
 		});
 
-		const {container} = render(<svg><Layer {...circleProps} /></svg>);
+		const {container} = render(<svg><Layer layer={circleProps} /></svg>);
 		const circle = container.querySelector('ellipse');
 		expect(circle).toBeInTheDocument();
 	});
@@ -38,7 +38,7 @@ describe('Layer', () => {
 			color: 'red',
 		});
 
-		const {container} = render(<svg><Layer {...rectangleProps} /></svg>);
+		const {container} = render(<svg><Layer layer={rectangleProps} /></svg>);
 		const rectangle = container.querySelector('rect');
 		expect(rectangle).toBeInTheDocument();
 	});
@@ -61,7 +61,7 @@ describe('Layer', () => {
 			},
 		});
 
-		const {container} = render(<svg><Layer {...pathProps} /></svg>);
+		const {container} = render(<svg><Layer layer={pathProps} /></svg>);
 		const path = container.querySelector('path');
 		expect(path).toBeInTheDocument();
 	});
@@ -78,7 +78,7 @@ describe('Layer', () => {
 			src: 'https://example.com/image.png',
 		});
 
-		const {container} = render(<svg><Layer {...imageProps} /></svg>);
+		const {container} = render(<svg><Layer layer={imageProps} /></svg>);
 		const image = container.querySelector('image');
 		expect(image).toBeInTheDocument();
 	});
@@ -91,7 +91,7 @@ describe('Layer', () => {
 		};
 
 		// @ts-expect-error - We're testing invalid data
-		const {container} = render(<svg><Layer {...unknownProps} /></svg>);
+		const {container} = render(<svg><Layer layer={unknownProps} /></svg>);
 		expect(container.querySelector('svg')?.children.length).toBe(0);
 	});
 
@@ -107,7 +107,7 @@ describe('Layer', () => {
 			color: 'red',
 		};
 		// @ts-expect-error - We're testing invalid data
-		const {container} = render(<svg><Layer {...invalidCircleProps} /></svg>);
+		const {container} = render(<svg><Layer layer={invalidCircleProps} /></svg>);
 		expect(container.querySelector('ellipse')).not.toBeInTheDocument();
 	});
 
@@ -130,7 +130,7 @@ describe('Layer', () => {
 			color: 'blue',
 		});
 
-		const {rerender, container} = render(<svg><Layer {...initialCircleProps} /></svg>);
+		const {rerender, container} = render(<svg><Layer layer={initialCircleProps} /></svg>);
 		const circle = container.querySelector('ellipse');
 
 		// Check initial attributes
@@ -139,7 +139,7 @@ describe('Layer', () => {
 		expect(circle).toHaveAttribute('fill', 'red');
 
 		// Update the component
-		rerender(<svg><Layer {...updatedCircleProps} /></svg>);
+		rerender(<svg><Layer layer={updatedCircleProps} /></svg>);
 
 		// Check updated attributes
 		expect(circle).toHaveAttribute('cx', '175');
