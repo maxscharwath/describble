@@ -56,7 +56,7 @@ export const PreviewLayer = memo(({layer, ...props}: {layer: LayerData} & React.
 		const {x, y, width, height} = factory.getBounds(parsed.data);
 		return (
 			<svg {...props} viewBox={`${x} ${y} ${width} ${height}`}>
-				<factory.component data={parsed.data} />
+				<factory.component data={parsed.data}/>
 			</svg>
 		);
 	}

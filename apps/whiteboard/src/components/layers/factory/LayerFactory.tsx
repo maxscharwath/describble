@@ -1,18 +1,12 @@
 import {z} from 'zod';
 import type React from 'react';
+import {type Bounds} from '../../../utils/types';
 
 export const BaseLayerSchema = z.object({
 	type: z.string(),
 	uuid: z.string(),
 	visible: z.boolean(),
 });
-
-export type Bounds = {
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-};
 
 export type LayerComponent<T> = React.FC<{
 	data: T;

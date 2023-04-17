@@ -70,7 +70,7 @@ export const Toolbar = () => {
 						store.setState({currentTool: 'path'});
 					}}
 				>
-					<PathIcon />
+					<PathIcon/>
 				</Button>
 
 				<Button
@@ -80,7 +80,7 @@ export const Toolbar = () => {
 						store.setState({currentTool: 'rectangle'});
 					}}
 				>
-					<RectangleIcon />
+					<RectangleIcon/>
 				</Button>
 
 				<Button
@@ -90,7 +90,7 @@ export const Toolbar = () => {
 						store.setState({currentTool: 'circle'});
 					}}
 				>
-					<CircleIcon />
+					<CircleIcon/>
 				</Button>
 
 				<Button
@@ -100,7 +100,7 @@ export const Toolbar = () => {
 						store.setState({currentTool: 'image'});
 					}}
 				>
-					<ImageIcon />
+					<ImageIcon/>
 				</Button>
 
 				<Button
@@ -110,7 +110,7 @@ export const Toolbar = () => {
 						store.setState({currentTool: 'move'});
 					}}
 				>
-					<MoveIcon />
+					<MoveIcon/>
 				</Button>
 
 				<Button
@@ -120,7 +120,7 @@ export const Toolbar = () => {
 						store.setState({currentTool: 'select'});
 					}}
 				>
-					<SelectIcon />
+					<SelectIcon/>
 				</Button>
 			</div>
 			<Separator/>
@@ -130,14 +130,14 @@ export const Toolbar = () => {
 					disabled={!history.canUndo}
 					onClick={history.undo}
 				>
-					<RedoIcon />
+					<RedoIcon/>
 				</Button>
 				<Button
 					aria-label='Redo action'
 					disabled={!history.canRedo}
 					onClick={history.redo}
 				>
-					<UndoIcon />
+					<UndoIcon/>
 				</Button>
 			</div>
 			<Separator/>
@@ -157,7 +157,7 @@ export const Toolbar = () => {
 						greet('from the button');
 					}}
 				>
-					<WASMIcon />
+					<WASMIcon/>
 				</Button>
 			</div>
 		</div>

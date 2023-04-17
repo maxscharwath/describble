@@ -2,7 +2,15 @@ import React from 'react';
 import clsx from 'clsx';
 import {twMerge} from 'tailwind-merge';
 
-export const Button = ({active, disabled, activeSlot, inactiveSlot, children, className, ...props}: React.ComponentProps<'button'> & {
+export const Button = ({
+	active,
+	disabled,
+	activeSlot,
+	inactiveSlot,
+	children,
+	className,
+	...props
+}: React.ComponentProps<'button'> & {
 	active?: boolean;
 	activeSlot?: React.ReactNode;
 	inactiveSlot?: React.ReactNode;

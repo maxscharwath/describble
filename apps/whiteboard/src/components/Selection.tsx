@@ -1,33 +1,40 @@
 import React from 'react';
-import {type Point} from '../utils/types';
+import {type Bounds} from '../utils/types';
+import style from './Selection.module.scss';
 
-export type SelectionBox = {
-	p1: Point;
-	p2: Point;
+const normalizeBounds = (
+	{x, y, width, height}: Bounds,
+	padding = 0,
+): Bounds => ({
+	x: (width < 0 ? x + width : x) - padding,
+	y: (height < 0 ? y + height : y) - padding,
+	width: Math.abs(width) + (padding * 2),
+	height: Math.abs(height) + (padding * 2),
+});
+
+type SelectionProps = {
+	bounds: Bounds;
+	padding?: number;
+	radius?: number;
 };
 
-function getRect({p1, p2}: SelectionBox) {
-	return {
-		x: Math.min(p1.x, p2.x),
-		y: Math.min(p1.y, p2.y),
-		width: Math.abs(p1.x - p2.x),
-		height: Math.abs(p1.y - p2.y),
-	};
-}
-
-export const Selection = ({box}: {box: SelectionBox}) => {
-	const {x, y, width, height} = getRect(box);
-	return <>
+/**
+ * This component renders a selection rectangle.
+ * @param bounds - The bounds of the selection.
+ * @param padding - The padding around the selection.
+ * @param radius - The radius of the corners.
+ * @constructor
+ */
+export const Selection = ({bounds, padding = 0, radius = 10}: SelectionProps) => {
+	const bound = normalizeBounds(bounds, padding);
+	return (
 		<rect
-			x={x}
-			y={y}
-			width={width}
-			height={height}
-			fill='rgba(0,0,255,0.1)'
-			rx={10}
-			stroke='black'
-			strokeWidth='2'
-			strokeDasharray='5,5'
+			{...bound}
+			fill='rgba(128,128,128,0.3)'
+			rx={radius}
+			stroke='rgba(128,128,128,0.9)'
+			strokeWidth={5}
+			className={style.strokeAnimation}
 		/>
-	</>;
+	);
 };

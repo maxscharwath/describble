@@ -4,8 +4,8 @@ import {type z} from 'zod';
 import {type RectangleSchema} from '../layers/factory/RectangleFactory';
 import {nanoid} from 'nanoid';
 import {Layer} from '../layers/Layer';
-import {computePointerPosition} from './Tools';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
+import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 
 /**
  * This tool allows the user to add a rectangle to the canvas.
@@ -20,7 +20,7 @@ export const RectangleTool: React.FC = () => {
 				return;
 			}
 
-			const {x, y} = computePointerPosition(event, camera);
+			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setRectangleData({
 				type: 'rectangle',
 				uuid: nanoid(),
@@ -37,7 +37,7 @@ export const RectangleTool: React.FC = () => {
 				return;
 			}
 
-			const {x, y} = computePointerPosition(event, camera);
+			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setRectangleData({
 				...rectangleData,
 				width: x - rectangleData.x,

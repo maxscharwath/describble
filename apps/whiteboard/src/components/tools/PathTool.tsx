@@ -5,8 +5,8 @@ import {type PathSchema} from '../layers/factory/PathFactory';
 import {nanoid} from 'nanoid';
 import {simplify} from '../../utils/simplify-path';
 import {Layer} from '../layers/Layer';
-import {computePointerPosition} from './Tools';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
+import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 
 /**
  * This tool allows the user to add a path to the canvas.
@@ -21,7 +21,7 @@ export const PathTool: React.FC = () => {
 				return;
 			}
 
-			const {x, y} = computePointerPosition(event, camera);
+			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setPathData({
 				type: 'path',
 				uuid: nanoid(),
@@ -41,7 +41,7 @@ export const PathTool: React.FC = () => {
 				return;
 			}
 
-			const {x, y} = computePointerPosition(event, camera);
+			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setPathData({
 				...pathData,
 				points: simplify([...pathData.points, [x, y, event.pressure]], 0.4, true),

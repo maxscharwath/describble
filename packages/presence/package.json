@@ -21,9 +21,8 @@
     "peerjs": "^1.4.8-rc.1"
   },
   "devDependencies": {
-    "@types/deepmerge": "^2.2.0",
     "@types/object-hash": "^3.0.2",
-    "@types/react": "^18.0.35",
+    "@types/react": "^18.0.37",
     "@types/react-dom": "^18.0.11",
     "eslint-config-custom": "workspace:*",
     "react": "^18.2.0",

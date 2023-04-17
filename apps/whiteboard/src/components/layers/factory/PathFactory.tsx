@@ -1,7 +1,8 @@
 import React, {useMemo} from 'react';
 import {getStroke} from 'perfect-freehand';
 import {z} from 'zod';
-import {BaseLayerSchema, type Bounds, type LayerComponent, LayerFactory} from './LayerFactory';
+import {BaseLayerSchema, type LayerComponent, LayerFactory} from './LayerFactory';
+import {type Bounds} from '../../../utils/types';
 
 /**
  * Convert a stroke to a path string with quadratic curves

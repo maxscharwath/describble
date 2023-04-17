@@ -1,5 +1,6 @@
-import {BaseLayerSchema, type Bounds, LayerFactory} from './LayerFactory';
+import {BaseLayerSchema, LayerFactory} from './LayerFactory';
 import {z} from 'zod';
+import {type Bounds} from '../../../utils/types';
 
 export const BaseShapeSchema = BaseLayerSchema.extend({
 	x: z.number(),

@@ -1,8 +1,9 @@
 import {useWhiteboardContext} from '../WhiteboardContext';
 import React, {useMemo, useState} from 'react';
-import {Selection, type SelectionBox} from '../Selection';
-import {computePointerPosition, invertPointerPosition} from './Tools';
+import {Selection} from '../Selection';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
+import {type Bounds} from '../../utils/types';
+import {boundsToClientCoords, mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 
 /**
  * This tool allows the user to select a region of the canvas.
@@ -11,7 +12,7 @@ import {usePointerEvents} from '../../hooks/usePointerEvents';
 export const SelectedTool: React.FC = () => {
 	const {canvasRef} = useWhiteboardContext();
 	const {camera} = useWhiteboardContext();
-	const [selection, setSelection] = useState<SelectionBox | null>(null);
+	const [selection, setSelection] = useState<Bounds | null>(null);
 
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
@@ -19,10 +20,11 @@ export const SelectedTool: React.FC = () => {
 				return;
 			}
 
-			const point = computePointerPosition(event, camera);
+			const point = mouseEventToCanvasPoint(event, camera);
 			setSelection({
-				p1: point,
-				p2: point,
+				...point,
+				width: 0,
+				height: 0,
 			});
 		},
 		onPointerUp() {
@@ -33,11 +35,12 @@ export const SelectedTool: React.FC = () => {
 				return;
 			}
 
-			const point = computePointerPosition(event, camera);
+			const point = mouseEventToCanvasPoint(event, camera);
 			if (selection) {
 				setSelection({
 					...selection,
-					p2: point,
+					width: point.x - selection.x,
+					height: point.y - selection.y,
 				});
 			}
 		},
@@ -45,13 +48,9 @@ export const SelectedTool: React.FC = () => {
 
 	const remappedSelection = useMemo(() => {
 		if (selection) {
-			const {p1, p2} = selection;
-			return {
-				p1: invertPointerPosition(p1, camera),
-				p2: invertPointerPosition(p2, camera),
-			};
+			return boundsToClientCoords(selection, camera);
 		}
 	}, [selection, camera]);
 
-	return remappedSelection ? <Selection box={remappedSelection}/> : null;
+	return remappedSelection ? <Selection bounds={remappedSelection}/> : null;
 };

@@ -5,8 +5,8 @@ import {type ImageSchema} from '../layers/factory/ImageFactory';
 import {useEvent} from '../../hooks/useEvents';
 import {nanoid} from 'nanoid';
 import {Layer} from '../layers/Layer';
-import {computePointerPosition} from './Tools';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
+import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 
 /**
  * This tool allows the user to add an image to the canvas.
@@ -20,7 +20,7 @@ export const ImageTool: React.FC = () => {
 				return;
 			}
 
-			const {x, y} = computePointerPosition(event, camera);
+			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setImageData({
 				type: 'image',
 				uuid: nanoid(),
@@ -37,7 +37,7 @@ export const ImageTool: React.FC = () => {
 				return;
 			}
 
-			const {x, y} = computePointerPosition(event, camera);
+			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setImageData({
 				...imageData,
 				width: x - imageData.x,
@@ -63,10 +63,10 @@ export const useDropImageTool = () => {
 	const {camera} = useWhiteboardContext();
 	const store = whiteboardStore;
 
-	useEvent(canvasRef, 'drop', (e: DragEvent) => {
-		e.preventDefault();
-		const {x, y} = computePointerPosition(e, camera);
-		const {dataTransfer} = e;
+	useEvent(canvasRef, 'drop', (event: DragEvent) => {
+		event.preventDefault();
+		const {x, y} = mouseEventToCanvasPoint(event, camera);
+		const {dataTransfer} = event;
 
 		if (dataTransfer) {
 			const file = dataTransfer.files[0];

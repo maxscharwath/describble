@@ -7,6 +7,8 @@ import {useDropImageTool} from './tools/ImageTool';
 import {useTouchZoom} from '../hooks/useTouchZoom';
 import {useWheelZoom} from '../hooks/useWheelZoom';
 import {useWheelPan} from '../hooks/useWheelPan';
+import {Selection} from './Selection';
+import {boundsToClientCoords} from '../utils/coordinateUtils';
 
 const GridBackground = ({camera}: {camera: Camera}) => (
 	<>
@@ -90,12 +92,7 @@ export const Canvas = () => {
 		}
 
 		const bound = Layers.getFactory(selectedLayer.type).getBounds(selectedLayer as never);
-		return {
-			x: (bound.x * camera.scale) + camera.x,
-			y: (bound.y * camera.scale) + camera.y,
-			width: bound.width * camera.scale,
-			height: bound.height * camera.scale,
-		};
+		return boundsToClientCoords(bound, camera);
 	}, [selectedLayer, camera]);
 
 	return (
@@ -118,16 +115,7 @@ export const Canvas = () => {
 				))}
 				<LayerTools/>
 			</g>
-			{boundingBox && (
-				<rect x={boundingBox.x}
-					y={boundingBox.y}
-					width={boundingBox.width}
-					height={boundingBox.height}
-					fill='rgba(0,0,255,0.1)'
-					stroke='black'
-					strokeWidth='2'
-					strokeDasharray='5,5'/>
-			)}
+			{boundingBox && <Selection bounds={boundingBox} padding={10}/>}
 			<GlobalTools/>
 		</svg>
 	);

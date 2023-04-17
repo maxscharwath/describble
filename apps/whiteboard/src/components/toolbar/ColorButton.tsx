@@ -7,7 +7,12 @@ type ColorButtonProps = {
 	onClick: (color: string) => void;
 };
 
-export const ColorButton = ({color, onClick, selected, ...props}: ColorButtonProps & React.ComponentProps<'button'>) => (
+export const ColorButton = ({
+	color,
+	onClick,
+	selected,
+	...props
+}: ColorButtonProps & React.ComponentProps<'button'>) => (
 	<button
 		type='button'
 		className={clsx(

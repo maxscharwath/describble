@@ -4,8 +4,8 @@ import {type z} from 'zod';
 import {type CircleSchema} from '../layers/factory/CircleFactory';
 import {nanoid} from 'nanoid';
 import {Layer} from '../layers/Layer';
-import {computePointerPosition} from './Tools';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
+import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 
 /**
  * This tool allows the user to add a circle to the canvas.
@@ -21,7 +21,7 @@ export const CircleTool: React.FC = () => {
 				return;
 			}
 
-			const {x, y} = computePointerPosition(event, camera);
+			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setCircleData({
 				type: 'circle',
 				uuid: nanoid(),
@@ -38,7 +38,7 @@ export const CircleTool: React.FC = () => {
 				return;
 			}
 
-			const {x, y} = computePointerPosition(event, camera);
+			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setCircleData({
 				...circleData,
 				width: x - circleData.x,
