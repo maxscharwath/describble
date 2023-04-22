@@ -32,6 +32,12 @@ export const boundsToClientCoords = (bounds: Bounds, camera: Camera): Bounds => 
 	height: bounds.height * camera.scale,
 });
 
+export const boundsToCanvasCoords = (bounds: Bounds, camera: Camera): Bounds => ({
+	...clientCoordsToCanvasPoint(bounds, camera),
+	width: bounds.width / camera.scale,
+	height: bounds.height / camera.scale,
+});
+
 type MouseEvent = {
 	clientX: number;
 	clientY: number;
@@ -47,5 +53,31 @@ export const mouseEventToCanvasPoint = (event: MouseEvent, camera: Camera): Poin
 	return {
 		x: Math.round(point.x),
 		y: Math.round(point.y),
+	};
+};
+
+/**
+ * Merges two bounds into one
+ * @param bounds - bounds to merge
+ */
+export const mergeBounds = (...bounds: Bounds[]): Bounds => {
+	const x = Math.min(...bounds.map(b => b.x));
+	const y = Math.min(...bounds.map(b => b.y));
+	const width = Math.max(...bounds.map(b => b.x + b.width)) - x;
+	const height = Math.max(...bounds.map(b => b.y + b.height)) - y;
+	return {x, y, width, height};
+};
+
+/**
+ * Normalizes a bounds object so that the width and height are positive
+ * @param bounds
+ */
+export const normalizeBounds = (bounds: Bounds): Bounds => {
+	const {x, y, width, height} = bounds;
+	return {
+		x: width < 0 ? x + width : x,
+		y: height < 0 ? y + height : y,
+		width: Math.abs(width),
+		height: Math.abs(height),
 	};
 };

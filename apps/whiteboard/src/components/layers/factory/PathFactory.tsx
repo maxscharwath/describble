@@ -27,6 +27,8 @@ function strokeToPath(stroke: number[][]) {
 
 export const PathSchema = BaseLayerSchema.extend({
 	type: z.literal('path'),
+	x: z.number(),
+	y: z.number(),
 	points: z.array(z.array(z.number())).refine(value => value.length > 1, 'Path must have at least 2 points'),
 	color: z.string(),
 	strokeOptions: z.object({
@@ -42,8 +44,8 @@ export class PathFactory extends LayerFactory<typeof PathSchema> {
 		super('path', PathSchema);
 	}
 
-	public getBounds(data: z.infer<typeof PathSchema>): Bounds {
-		const {minX, maxX, minY, maxY} = data.points.reduce(
+	public getBounds({points, x, y}: z.infer<typeof PathSchema>): Bounds {
+		const {minX, maxX, minY, maxY} = points.reduce(
 			(acc, [x, y]) => ({
 				minX: Math.min(acc.minX, x),
 				maxX: Math.max(acc.maxX, x),
@@ -57,15 +59,15 @@ export class PathFactory extends LayerFactory<typeof PathSchema> {
 				maxY: -Infinity,
 			},
 		);
-		return {x: minX, y: minY, width: maxX - minX, height: maxY - minY};
+		return {x: x + minX, y: y + minY, width: maxX - minX, height: maxY - minY};
 	}
 
 	public component: LayerComponent<z.infer<typeof PathSchema>> = ({data, ...props}) => {
-		const {points, strokeOptions, color} = data;
+		const {points, strokeOptions, color, x, y} = data;
 		const path = useMemo(() => {
 			const stroke = getStroke(points, strokeOptions);
 			return strokeToPath(stroke);
 		}, [points, strokeOptions]);
-		return <path d={path} fill={color} {...props}/>;
+		return <path d={path} fill={color} transform={`translate(${x},${y})`} {...props}/>;
 	};
 }

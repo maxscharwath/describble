@@ -2,6 +2,7 @@ import {useCamera, useWhiteboardContext} from '../WhiteboardContext';
 import type React from 'react';
 import {useRef} from 'react';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
+import {type Point} from '../../utils/types';
 
 /**
  * Tool to move the camera around the canvas
@@ -10,7 +11,7 @@ import {usePointerEvents} from '../../hooks/usePointerEvents';
 export const MoveTool: React.FC = () => {
 	const {canvasRef} = useWhiteboardContext();
 	const {camera, setCamera} = useCamera();
-	const lastPosition = useRef({x: 0, y: 0});
+	const lastPosition = useRef<Point | null>(null);
 
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
@@ -19,6 +20,10 @@ export const MoveTool: React.FC = () => {
 		onPointerMove(event) {
 			if (event.buttons !== 1) {
 				return;
+			}
+
+			if (!lastPosition.current) {
+				lastPosition.current = {x: event.pageX, y: event.pageY};
 			}
 
 			const movementX = event.pageX - lastPosition.current.x;

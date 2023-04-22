@@ -1,18 +1,29 @@
-import {useWhiteboardContext} from '../WhiteboardContext';
+import {useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
 import React, {useMemo, useState} from 'react';
-import {Selection} from '../Selection';
+import {Selection} from '../ui/Selection';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {type Bounds} from '../../utils/types';
 import {boundsToClientCoords, mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
+import {type LayerData, Layers} from '../layers/Layer';
+import {QuadTree} from '../../utils/QuadTree';
 
 /**
  * This tool allows the user to select a region of the canvas.
  * @constructor
  */
 export const SelectedTool: React.FC = () => {
-	const {canvasRef} = useWhiteboardContext();
+	const {canvasRef, layers} = useWhiteboardContext();
 	const {camera} = useWhiteboardContext();
 	const [selection, setSelection] = useState<Bounds | null>(null);
+
+	const quadTree = useMemo(() => {
+		const tree = new QuadTree<LayerData>();
+		layers.forEach(layer => {
+			const layerBounds = Layers.getFactory(layer.type).getBounds(layer as never);
+			tree.insert({bounds: layerBounds, data: layer});
+		});
+		return tree;
+	}, [layers]);
 
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
@@ -27,7 +38,26 @@ export const SelectedTool: React.FC = () => {
 				height: 0,
 			});
 		},
-		onPointerUp() {
+		onPointerUp(event) {
+			if (selection) {
+				const selectedLayers = quadTree.query(selection);
+				if (selectedLayers.length > 0) {
+					whiteboardStore.setState(state => {
+						if (event.ctrlKey) {
+							const selectedLayerIds = new Set(state.selectedLayers.map(layer => layer.uuid));
+							const newSelectedLayers = selectedLayers.filter(layer => !selectedLayerIds.has(layer.uuid));
+							return {
+								selectedLayers: [...state.selectedLayers, ...newSelectedLayers],
+							};
+						}
+
+						return {
+							selectedLayers,
+						};
+					});
+				}
+			}
+
 			setSelection(null);
 		},
 		onPointerMove(event) {

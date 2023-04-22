@@ -1,6 +1,7 @@
 import {BaseLayerSchema, LayerFactory} from './LayerFactory';
 import {z} from 'zod';
 import {type Bounds} from '../../../utils/types';
+import {normalizeBounds} from '../../../utils/coordinateUtils';
 
 export const BaseShapeSchema = BaseLayerSchema.extend({
 	x: z.number(),
@@ -13,17 +14,6 @@ export abstract class BaseShapeFactory<
 	T extends z.ZodSchema<z.infer<typeof BaseShapeSchema>>,
 > extends LayerFactory<T> {
 	public getBounds(data: z.infer<T>): Bounds {
-		let {x, y, width, height} = data;
-		if (width < 0) {
-			x += width;
-			width = -width;
-		}
-
-		if (height < 0) {
-			y += height;
-			height = -height;
-		}
-
-		return {x, y, width, height};
+		return normalizeBounds(data);
 	}
 }

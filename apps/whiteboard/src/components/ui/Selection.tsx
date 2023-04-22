@@ -1,6 +1,7 @@
 import React from 'react';
-import {type Bounds} from '../utils/types';
-import style from './Selection.module.scss';
+import clsx from 'clsx';
+import {type Bounds} from '../../utils/types';
+import style from '../Selection.module.scss';
 
 const normalizeBounds = (
 	{x, y, width, height}: Bounds,
@@ -34,7 +35,7 @@ export const Selection = ({bounds, padding = 0, radius = 10}: SelectionProps) =>
 			rx={radius}
 			stroke='rgba(128,128,128,0.9)'
 			strokeWidth={5}
-			className={style.strokeAnimation}
+			className={clsx(style.strokeAnimation, 'pointer-events-none')}
 		/>
 	);
 };

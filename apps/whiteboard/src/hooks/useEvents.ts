@@ -1,4 +1,4 @@
-import {type EventHandler, type RefObject, type SyntheticEvent, useEffect} from 'react';
+import {type EventHandler, type RefObject, useEffect} from 'react';
 
 export type EventElement = Element | Document | Window;
 
@@ -37,7 +37,7 @@ type EventHandlers<T, E extends EventElement> = {
 export const useEvents = <
 	TEvent extends EventElement,
 	THandlers extends EventHandlers<THandlers, TEvent>,
->(
+> (
 	ref: RefObject<TEvent>,
 	events: THandlers,
 ) => {

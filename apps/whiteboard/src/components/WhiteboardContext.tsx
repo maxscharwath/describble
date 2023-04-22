@@ -14,6 +14,7 @@ export type Camera = {
 type Tool = {
 	selectedColor: string;
 	currentTool: 'path' | 'rectangle' | 'circle' | 'image' | 'move' | 'select' | null;
+	selectedLayers: LayerData[];
 };
 
 type Canvas = {
@@ -24,9 +25,10 @@ type Canvas = {
 	addLayer: (layer: LayerData) => void;
 };
 
-const createToolSlice: StateCreator<Tool> = () => ({
+const createToolSlice: StateCreator<Tool> = set => ({
 	selectedColor: '#000000',
 	currentTool: 'path',
+	selectedLayers: [],
 });
 
 const createCanvasSlice: StateCreator<Canvas> = set => ({

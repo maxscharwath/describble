@@ -26,7 +26,9 @@ export const PathTool: React.FC = () => {
 				type: 'path',
 				uuid: nanoid(),
 				visible: true,
-				points: [[x, y, event.pressure]],
+				x,
+				y,
+				points: [[0, 0, event.pressure]],
 				color: selectedColor,
 				strokeOptions: {
 					size: 16,
@@ -44,7 +46,7 @@ export const PathTool: React.FC = () => {
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setPathData({
 				...pathData,
-				points: simplify([...pathData.points, [x, y, event.pressure]], 0.4, true),
+				points: simplify([...pathData.points, [x - pathData.x, y - pathData.y, event.pressure]], 0.4, true),
 			});
 		},
 		onPointerUp() {
