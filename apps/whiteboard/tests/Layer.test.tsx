@@ -48,6 +48,8 @@ describe('Layer', () => {
 			type: 'path',
 			uuid: 'test-uuid',
 			visible: true,
+			x: 50,
+			y: 50,
 			points: [
 				[50, 50, 0.5],
 				[100, 100, 0.5],

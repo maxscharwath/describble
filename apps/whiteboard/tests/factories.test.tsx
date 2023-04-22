@@ -119,6 +119,8 @@ describe('Factory components tests', () => {
 			type: 'path',
 			uuid: 'test-uuid',
 			visible: true,
+			x: 0,
+			y: 0,
 			points: [
 				[50, 50, 0.5],
 				[100, 100, 0.5],
