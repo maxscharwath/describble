@@ -80,6 +80,9 @@ importers:
       clsx:
         specifier: ^1.2.1
         version: 1.2.1
+      fast-equals:
+        specifier: ^5.0.1
+        version: 5.0.1
       framer-motion:
         specifier: ^10.12.4
         version: 10.12.4(react-dom@18.2.0)(react@18.2.0)
@@ -113,9 +116,15 @@ importers:
       zod:
         specifier: ^3.21.4
         version: 3.21.4
+      zundo:
+        specifier: 2.0.0-beta.15
+        version: 2.0.0-beta.15(zustand@4.3.7)
       zustand:
         specifier: ^4.3.7
         version: 4.3.7(react@18.2.0)
+      zustand-computed:
+        specifier: ^1.3.3
+        version: 1.3.3(react@18.2.0)(zustand@4.3.7)
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^5.16.5
@@ -6452,6 +6461,11 @@ packages:
     resolution: {integrity: sha512-xJuoT5+L99XlZ8twedaRf6Ax2TgQVxvgZOYoPKqZufmJib0tL2tegPBOZb1pVNgIhlqDlA0eO0c3wBvQcmzx4w==}
     dev: true
 
+  /fast-equals@5.0.1:
+    resolution: {integrity: sha512-WF1Wi8PwwSY7/6Kx0vKXtw8RwuSGoM1bvDaJbu7MxDlR1vovZjIAKrnzyrThgAjm6JDTu0fVgWXDlMGspodfoQ==}
+    engines: {node: '>=6.0.0'}
+    dev: false
+
   /fast-glob@3.2.12:
     resolution: {integrity: sha512-DVj4CQIYYow0BlaelwK1pHl5n5cRSJfM60UA0zK891sVInoPri2Ekj7+e1CT3/3qxXenpI+nBBmQAcJPJgaj4w==}
     engines: {node: '>=8.6.0'}
@@ -11583,6 +11597,25 @@ packages:
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+    dev: false
+
+  /zundo@2.0.0-beta.15(zustand@4.3.7):
+    resolution: {integrity: sha512-1mdzONJNOfX4h1UhO3HlAYFDrR59rE35V29MpfbDGShyCWC81rWuoeEJ1VNtMeHPO359g9FYpRsL/3NKQLmNow==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      zustand: ^4.3.0
+    dependencies:
+      zustand: 4.3.7(react@18.2.0)
+    dev: false
+
+  /zustand-computed@1.3.3(react@18.2.0)(zustand@4.3.7):
+    resolution: {integrity: sha512-SXhjuH/scwA6T31xsqaqUzPVBoumgCK/PWi8YZXGmuU86HPrqVFxjI6TxLvYw8hGpScZkjFUKBAi1ThO0B6Tng==}
+    peerDependencies:
+      react: ^18.2.0
+      zustand: ^4.1.4
+    dependencies:
+      react: 18.2.0
+      zustand: 4.3.7(react@18.2.0)
     dev: false
 
   /zustand@4.3.7(react@18.2.0):

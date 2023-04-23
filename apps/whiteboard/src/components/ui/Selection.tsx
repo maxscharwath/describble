@@ -1,7 +1,7 @@
-import React from 'react';
+import React, {memo} from 'react';
 import clsx from 'clsx';
 import {type Bounds} from '../../utils/types';
-import style from '../Selection.module.scss';
+import style from './Selection.module.scss';
 
 const normalizeBounds = (
 	{x, y, width, height}: Bounds,
@@ -26,7 +26,7 @@ type SelectionProps = {
  * @param radius - The radius of the corners.
  * @constructor
  */
-export const Selection = ({bounds, padding = 0, radius = 10}: SelectionProps) => {
+export const Selection = memo(({bounds, padding = 0, radius = 10}: SelectionProps) => {
 	const bound = normalizeBounds(bounds, padding);
 	return (
 		<rect
@@ -38,4 +38,6 @@ export const Selection = ({bounds, padding = 0, radius = 10}: SelectionProps) =>
 			className={clsx(style.strokeAnimation, 'pointer-events-none')}
 		/>
 	);
-};
+});
+
+Selection.displayName = 'Selection';

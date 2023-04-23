@@ -1,10 +1,9 @@
-import {useCamera, useWhiteboardContext, whiteboardStore} from '../components/WhiteboardContext';
+import {useWhiteboardStore, whiteboardStore} from '../store/WhiteboardStore';
 import {type TouchEvent, useRef} from 'react';
 import {useEvents} from './useEvents';
 
 export const useTouchZoom = () => {
-	const {canvasRef, currentTool} = useWhiteboardContext();
-	const {camera, setCamera} = useCamera();
+	const {canvasRef, currentTool} = useWhiteboardStore(({canvasRef, currentTool}) => ({canvasRef, currentTool}));
 	const initialDistance = useRef(0);
 	const initialCurrentTool = useRef(currentTool);
 	const lastPosition = useRef<{x: number; y: number} | null>(null);
@@ -14,7 +13,7 @@ export const useTouchZoom = () => {
 			if (e.touches.length === 2) {
 				const currentX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
 				const currentY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-
+				const {camera, setCamera} = whiteboardStore.getState();
 				let {x} = camera;
 				let {y} = camera;
 

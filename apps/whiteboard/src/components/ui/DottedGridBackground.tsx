@@ -1,4 +1,4 @@
-import {type Camera} from '../WhiteboardContext';
+import {type Camera} from '../../store/WhiteboardStore';
 import React from 'react';
 
 export const DottedGridBackground = ({camera}: {camera: Camera}) => (

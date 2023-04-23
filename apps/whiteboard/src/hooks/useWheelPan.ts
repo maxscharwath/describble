@@ -1,9 +1,8 @@
-import {useCamera} from '../components/WhiteboardContext';
+import {whiteboardStore} from '../store/WhiteboardStore';
 import {type EventElement, useEvents} from './useEvents';
 import {type MouseEvent, type RefObject, useRef} from 'react';
 
 export const useWheelPan = (canvasRef: RefObject<EventElement>) => {
-	const {camera, setCamera} = useCamera();
 	const initialWheelPosition = useRef<{x: number; y: number} | null>(null);
 
 	useEvents(canvasRef, {
@@ -14,6 +13,8 @@ export const useWheelPan = (canvasRef: RefObject<EventElement>) => {
 		},
 		mousemove(e: MouseEvent) {
 			if (initialWheelPosition.current) {
+				const {camera, setCamera} = whiteboardStore.getState();
+
 				const deltaX = e.clientX - initialWheelPosition.current.x;
 				const deltaY = e.clientY - initialWheelPosition.current.y;
 

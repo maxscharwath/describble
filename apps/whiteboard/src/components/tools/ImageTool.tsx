@@ -1,4 +1,4 @@
-import {useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
+import {useWhiteboardStore, whiteboardStore} from '../../store/WhiteboardStore';
 import React, {useState} from 'react';
 import {type z} from 'zod';
 import {type ImageSchema} from '../layers/factory/ImageFactory';
@@ -7,18 +7,22 @@ import {nanoid} from 'nanoid';
 import {Layer} from '../layers/Layer';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
+import {useLayersStore} from '../../store/CanvasStore';
 
 /**
  * This tool allows the user to add an image to the canvas.
  */
 export const ImageTool: React.FC = () => {
-	const {camera, canvasRef, addLayer} = useWhiteboardContext();
+	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
+	const {addLayer} = useLayersStore(({addLayer}) => ({addLayer}));
 	const [imageData, setImageData] = useState<z.infer<typeof ImageSchema> | null>(null);
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
 			if (event.buttons !== 1) {
 				return;
 			}
+
+			const {camera} = whiteboardStore.getState();
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setImageData({
@@ -36,6 +40,8 @@ export const ImageTool: React.FC = () => {
 			if (event.buttons !== 1 || !imageData) {
 				return;
 			}
+
+			const {camera} = whiteboardStore.getState();
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setImageData({
@@ -59,12 +65,12 @@ export const ImageTool: React.FC = () => {
  * This hook allows you to drop an image onto the canvas
  */
 export const useDropImageTool = () => {
-	const {canvasRef} = useWhiteboardContext();
-	const {camera} = useWhiteboardContext();
-	const store = whiteboardStore;
+	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
+	const {addLayer} = useLayersStore(({addLayer}) => ({addLayer}));
 
 	useEvent(canvasRef, 'drop', (event: DragEvent) => {
 		event.preventDefault();
+		const {camera} = whiteboardStore.getState();
 		const {x, y} = mouseEventToCanvasPoint(event, camera);
 		const {dataTransfer} = event;
 
@@ -89,10 +95,7 @@ export const useDropImageTool = () => {
 						src: imageSrc,
 					} satisfies z.infer<typeof ImageSchema>;
 
-					store.setState(l => ({
-						layers: [...l.layers, newImageData],
-						history: [],
-					}));
+					addLayer(newImageData);
 				};
 			};
 

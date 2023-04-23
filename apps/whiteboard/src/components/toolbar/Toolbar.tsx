@@ -1,6 +1,6 @@
 import React from 'react';
 import {ColorButton} from './ColorButton';
-import {useHistory, useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
+import {useWhiteboardStore, whiteboardStore} from '../../store/WhiteboardStore';
 import {greet} from 'hello-wasm';
 import {
 	CircleIcon,
@@ -15,6 +15,7 @@ import {
 	WASMIcon,
 } from 'ui/components/Icons';
 import {Button} from '../ui/Buttons';
+import {useHistory, useLayersStore} from '../../store/CanvasStore';
 
 const colors = {
 	red: '#FF0000',
@@ -34,10 +35,12 @@ const colors = {
 const Separator = () => <div className='m-2 h-px w-full rounded-full bg-gray-200 sm:h-full sm:w-px'/>;
 
 export const Toolbar = () => {
-	const context = useWhiteboardContext(state => ({
+	const context = useWhiteboardStore(state => ({
 		selectedColor: state.selectedColor,
 		currentTool: state.currentTool,
 	}));
+
+	const {clearLayers} = useLayersStore(({clearLayers}) => ({clearLayers}));
 
 	const store = whiteboardStore;
 
@@ -127,15 +130,15 @@ export const Toolbar = () => {
 			<div className='grid grid-cols-2 gap-2'>
 				<Button
 					aria-label='Undo action'
-					disabled={!history.canUndo}
-					onClick={history.undo}
+					disabled={!history.pastStates.length}
+					onClick={() => history.undo(1)}
 				>
 					<RedoIcon/>
 				</Button>
 				<Button
 					aria-label='Redo action'
-					disabled={!history.canRedo}
-					onClick={history.redo}
+					disabled={!history.futureStates.length}
+					onClick={() => history.redo(1)}
 				>
 					<UndoIcon/>
 				</Button>
@@ -146,7 +149,7 @@ export const Toolbar = () => {
 					aria-label='Clear canvas'
 					className='text-red-900'
 					onClick={() => {
-						store.setState({layers: []});
+						clearLayers();
 					}}
 				>
 					<TrashIcon/>

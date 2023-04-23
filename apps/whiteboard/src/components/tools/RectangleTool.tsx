@@ -1,4 +1,4 @@
-import {useWhiteboardContext} from '../WhiteboardContext';
+import {useWhiteboardStore, whiteboardStore} from '../../store/WhiteboardStore';
 import React, {useState} from 'react';
 import {type z} from 'zod';
 import {type RectangleSchema} from '../layers/factory/RectangleFactory';
@@ -6,19 +6,24 @@ import {nanoid} from 'nanoid';
 import {Layer} from '../layers/Layer';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
+import {useLayersStore} from '../../store/CanvasStore';
 
 /**
  * This tool allows the user to add a rectangle to the canvas.
  * @constructor
  */
 export const RectangleTool: React.FC = () => {
-	const {selectedColor, camera, canvasRef, addLayer} = useWhiteboardContext();
+	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
+	const {addLayer} = useLayersStore(({addLayer}) => ({addLayer}));
+
 	const [rectangleData, setRectangleData] = useState<z.infer<typeof RectangleSchema> | null>(null);
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
 			if (event.buttons !== 1) {
 				return;
 			}
+
+			const {selectedColor, camera} = whiteboardStore.getState();
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setRectangleData({
@@ -36,6 +41,8 @@ export const RectangleTool: React.FC = () => {
 			if (event.buttons !== 1 || !rectangleData) {
 				return;
 			}
+
+			const {camera} = whiteboardStore.getState();
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setRectangleData({

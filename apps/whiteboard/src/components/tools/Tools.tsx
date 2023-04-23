@@ -1,5 +1,5 @@
 import React from 'react';
-import {useWhiteboardContext} from '../WhiteboardContext';
+import {useWhiteboardStore} from '../../store/WhiteboardStore';
 import {PathTool} from './PathTool';
 import {CircleTool} from './CircleTool';
 import {RectangleTool} from './RectangleTool';
@@ -12,7 +12,7 @@ import {SelectedTool} from './SelectedTool';
  * @constructor
  */
 export const LayerTools = () => {
-	const {currentTool} = useWhiteboardContext();
+	const {currentTool} = useWhiteboardStore(({currentTool}) => ({currentTool}));
 	switch (currentTool) {
 		case 'path':
 			return <PathTool/>;
@@ -32,7 +32,7 @@ export const LayerTools = () => {
  * @constructor
  */
 export const GlobalTools = () => {
-	const {currentTool} = useWhiteboardContext();
+	const {currentTool} = useWhiteboardStore(({currentTool}) => ({currentTool}));
 	switch (currentTool) {
 		case 'move':
 			return <MoveTool/>;

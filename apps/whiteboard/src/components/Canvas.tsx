@@ -1,7 +1,7 @@
 import style from './Canvas.module.scss';
-import React from 'react';
-import {useWhiteboardContext} from './WhiteboardContext';
-import {Layer} from './layers/Layer';
+import React, {useMemo} from 'react';
+import {useWhiteboardStore} from '../store/WhiteboardStore';
+import {SelectableLayer} from './layers/Layer';
 import {GlobalTools, LayerTools} from './tools/Tools';
 import {useDropImageTool} from './tools/ImageTool';
 import {useTouchZoom} from '../hooks/useTouchZoom';
@@ -9,36 +9,37 @@ import {useWheelZoom} from '../hooks/useWheelZoom';
 import {useWheelPan} from '../hooks/useWheelPan';
 import {Selections, useSelection} from './ui/Selections';
 import {DottedGridBackground} from './ui/DottedGridBackground';
+import {useLayersStore} from '../store/CanvasStore';
 
 export const Canvas = () => {
-	const {camera, canvasRef, layers, currentTool} = useWhiteboardContext();
+	const {camera, canvasRef} = useWhiteboardStore(({camera, canvasRef, currentTool}) => ({
+		camera,
+		canvasRef,
+	}));
+
+	const {layers} = useLayersStore(({layers}) => ({layers}));
 
 	useTouchZoom();
 	useWheelZoom(canvasRef);
 	useWheelPan(canvasRef);
 	useDropImageTool();
-	const {handleLayerSelect} = useSelection();
+	useSelection();
+
+	const visibleLayers = useMemo(
+		() => layers.filter(layer => layer.visible),
+		[layers],
+	);
 
 	return (
-		<svg
-			className={style.whiteboard}
-			ref={canvasRef}
-		>
+		<svg className={style.whiteboard} ref={canvasRef}>
 			<DottedGridBackground camera={camera}/>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}>
-				{layers
-					.filter(layer => layer.visible)
-					.map(layer => (
-						<Layer
-							key={layer.uuid}
-							layer={layer}
-							onPointerDown={e => {
-								if (currentTool === 'select') {
-									handleLayerSelect(e, layer);
-								}
-							}}
-						/>
-					))}
+				{visibleLayers.map(layer => (
+					<SelectableLayer
+						key={layer.uuid}
+						layer={layer}
+					/>
+				))}
 				<LayerTools/>
 			</g>
 			<Selections/>

@@ -1,4 +1,4 @@
-import {type Camera} from '../components/WhiteboardContext';
+import {type Camera} from '../store/WhiteboardStore';
 import {type Bounds, type Point} from './types';
 
 /**

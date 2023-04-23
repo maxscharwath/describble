@@ -1,19 +1,20 @@
-import {useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
-import React from 'react';
+import React, {memo} from 'react';
 import {Reorder} from 'framer-motion';
 import {type LayerData, Layers, PreviewLayer} from '../layers/Layer';
 import {type LayerFactory} from '../layers/factory/LayerFactory';
 import {ClosedEyeIcon, OpenEyeIcon, TargetIcon, TrashIcon} from 'ui/components/Icons';
 import {Button} from '../ui/Buttons';
 import {Spacer} from '../ui/Utils';
+import {useLayersStore} from '../../store/CanvasStore';
+import {whiteboardStore} from '../../store/WhiteboardStore';
 
 const Separator = () => <div className='my-2 h-px bg-gray-300'/>;
 
 export const Sidebar = () => {
-	const context = useWhiteboardContext(({layers}) => ({layers}));
+	const context = useLayersStore(({layers, setOrder}) => ({layers, setOrder}));
 
 	function handleLayerReorder(layers: LayerData[]) {
-		whiteboardStore.setState({layers});
+		context.setOrder(layers);
 	}
 
 	if (context.layers.length === 0) {
@@ -44,27 +45,21 @@ export const Sidebar = () => {
 	);
 };
 
-const LayerItem = (({layer}: {layer: LayerData}) => {
-	function handleLayerVisibilityChange() {
-		whiteboardStore.setState(state => ({
-			layers: state.layers.map(l => {
-				if (l.uuid === layer.uuid) {
-					l.visible = !l.visible;
-				}
+const LayerItem = memo(({layer}: {layer: LayerData}) => {
+	const {setLayer, removeLayer} = useLayersStore(({setLayer, removeLayer}) => ({setLayer, removeLayer}));
 
-				return l;
-			}),
-		}));
+	function handleLayerVisibilityChange() {
+		setLayer({
+			...layer,
+			visible: !layer.visible,
+		});
 	}
 
 	function handleLayerDelete() {
-		whiteboardStore.setState(state => ({
-			layers: state.layers.filter(l => l.uuid !== layer.uuid),
-		}));
+		removeLayer(layer.uuid);
 	}
 
 	function handleTargetLayer() {
-		// Set camera target to layer
 		whiteboardStore.setState(state => {
 			const factory = Layers.getFactory(layer.type) as LayerFactory;
 			const bound = factory.getBounds(layer);
@@ -113,6 +108,8 @@ const LayerItem = (({layer}: {layer: LayerData}) => {
 		</>
 	);
 });
+
+LayerItem.displayName = 'LayerItem';
 
 function objectToStorageSize(obj: any): number {
 	return new Blob([JSON.stringify(obj)]).size / 1024;

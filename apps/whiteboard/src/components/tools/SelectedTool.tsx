@@ -1,4 +1,4 @@
-import {useWhiteboardContext, whiteboardStore} from '../WhiteboardContext';
+import {useWhiteboardStore, whiteboardStore} from '../../store/WhiteboardStore';
 import React, {useMemo, useState} from 'react';
 import {Selection} from '../ui/Selection';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
@@ -6,14 +6,16 @@ import {type Bounds} from '../../utils/types';
 import {boundsToClientCoords, mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 import {type LayerData, Layers} from '../layers/Layer';
 import {QuadTree} from '../../utils/QuadTree';
+import {useLayersStore} from '../../store/CanvasStore';
 
 /**
  * This tool allows the user to select a region of the canvas.
  * @constructor
  */
 export const SelectedTool: React.FC = () => {
-	const {canvasRef, layers} = useWhiteboardContext();
-	const {camera} = useWhiteboardContext();
+	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
+	const {layers} = useLayersStore(({layers}) => ({layers}));
+	const {camera} = useWhiteboardStore();
 	const [selection, setSelection] = useState<Bounds | null>(null);
 
 	const quadTree = useMemo(() => {

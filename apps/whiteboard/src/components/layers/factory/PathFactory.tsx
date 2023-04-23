@@ -1,7 +1,7 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import {getStroke} from 'perfect-freehand';
 import {z} from 'zod';
-import {BaseLayerSchema, type LayerComponent, LayerFactory} from './LayerFactory';
+import {BaseLayerSchema, createLayerComponent, LayerFactory} from './LayerFactory';
 import {type Bounds} from '../../../utils/types';
 
 /**
@@ -40,6 +40,12 @@ export const PathSchema = BaseLayerSchema.extend({
 });
 
 export class PathFactory extends LayerFactory<typeof PathSchema> {
+	public component = createLayerComponent<z.infer<typeof PathSchema>>(({data, ...props}) => {
+		const {points, strokeOptions, color, x, y} = data;
+		const path = strokeToPath(getStroke(points, strokeOptions));
+		return <path d={path} fill={color} transform={`translate(${x},${y})`} {...props}/>;
+	});
+
 	public constructor() {
 		super('path', PathSchema);
 	}
@@ -61,13 +67,4 @@ export class PathFactory extends LayerFactory<typeof PathSchema> {
 		);
 		return {x: x + minX, y: y + minY, width: maxX - minX, height: maxY - minY};
 	}
-
-	public component: LayerComponent<z.infer<typeof PathSchema>> = ({data, ...props}) => {
-		const {points, strokeOptions, color, x, y} = data;
-		const path = useMemo(() => {
-			const stroke = getStroke(points, strokeOptions);
-			return strokeToPath(stroke);
-		}, [points, strokeOptions]);
-		return <path d={path} fill={color} transform={`translate(${x},${y})`} {...props}/>;
-	};
 }

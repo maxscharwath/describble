@@ -1,4 +1,4 @@
-import {useCamera, useWhiteboardContext} from '../WhiteboardContext';
+import {useWhiteboardStore, whiteboardStore} from '../../store/WhiteboardStore';
 import type React from 'react';
 import {useRef} from 'react';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
@@ -9,8 +9,7 @@ import {type Point} from '../../utils/types';
  * @constructor
  */
 export const MoveTool: React.FC = () => {
-	const {canvasRef} = useWhiteboardContext();
-	const {camera, setCamera} = useCamera();
+	const {canvasRef} = useWhiteboardStore();
 	const lastPosition = useRef<Point | null>(null);
 
 	usePointerEvents(canvasRef, {
@@ -18,6 +17,7 @@ export const MoveTool: React.FC = () => {
 			lastPosition.current = {x: event.pageX, y: event.pageY};
 		},
 		onPointerMove(event) {
+			const {camera, setCamera} = whiteboardStore.getState();
 			if (event.buttons !== 1) {
 				return;
 			}
