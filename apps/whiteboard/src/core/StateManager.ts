@@ -1,6 +1,6 @@
 import {createStore, type StoreApi} from 'zustand/vanilla';
 import deepcopy from 'deepcopy';
-import {create, type UseBoundStore} from 'zustand';
+import {create, type UseBoundStore, useStore} from 'zustand';
 import * as idb from 'idb-keyval';
 
 export type Patch<T> = Partial<{[P in keyof T]: Patch<T[P]>}>;
@@ -10,6 +10,8 @@ export interface Command<T extends Record<string, any>> {
 	before: Patch<T>;
 	after: Patch<T>;
 }
+
+const createUseStore = <T>(store: StoreApi<T>) => ((selector, equalityFn) => useStore(store, selector, equalityFn)) as UseBoundStore<StoreApi<T>>;
 
 export function deepmerge<T>(target: T, patch: Patch<T>): T {
 	const result: T = {...target};
@@ -51,13 +53,13 @@ export class StateManager<T extends Record<string, any>> {
 		this.initialState = deepcopy(initialState);
 		this._state = deepcopy(initialState);
 		this.store = createStore(() => this._state);
-		this.useStore = create(this.store);
+		this.useStore = createUseStore(this.store);
 		this.ready = this.init().then(() => this.onReady?.());
 	}
 
 	public patchState(patch: Patch<T>, id?: string): this {
-		this.applyPatch(patch);
-		this.onPatch?.(patch);
+		this.applyPatch(patch, id);
+		this.onPatch?.(patch, id);
 		return this;
 	}
 
