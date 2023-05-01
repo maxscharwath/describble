@@ -17,7 +17,7 @@ export interface ComponentProps<T extends BaseLayer, E = any> {
 	ref?: React.Ref<E>;
 }
 
-export abstract class LayerUtil<T extends BaseLayer> {
+export abstract class BaseLayerUtil<T extends BaseLayer> {
 	abstract Component: React.ForwardRefExoticComponent<ComponentProps<T>>;
 	abstract type: T['type'];
 	abstract getLayer(props: Partial<T>): T;
@@ -30,17 +30,17 @@ export abstract class LayerUtil<T extends BaseLayer> {
 
 // ---UTILS---
 export type LayerUtils<U extends BaseLayer> = {
-	[K in U['type']]: LayerUtil<Extract<U, {type: K}>>;
+	[K in U['type']]: BaseLayerUtil<Extract<U, {type: K}>>;
 };
 
 export type LayerUtilsKey<T extends LayerUtils<any>> = keyof T & string;
 export type LayerUtilsType<T extends LayerUtils<any>> = {
-	[K in LayerUtilsKey<T>]: T[K] extends LayerUtil<infer U> ? U : never;
+	[K in LayerUtilsKey<T>]: T[K] extends BaseLayerUtil<infer U> ? U : never;
 }[LayerUtilsKey<T>];
 
-type InferLayer<T extends string, M extends LayerUtils<any>> = M[T] extends LayerUtil<infer U> ? U : never;
+type InferLayer<T extends string, M extends LayerUtils<any>> = M[T] extends BaseLayerUtil<infer U> ? U : never;
 type TypedPartial<T extends string, M extends LayerUtils<any>> = Partial<InferLayer<T, M>> & {type: T};
-type LayerUtilsFromInstances<T extends Array<LayerUtil<any>>> = {
+type LayerUtilsFromInstances<T extends Array<BaseLayerUtil<any>>> = {
 	[K in T[number]['type']]: Extract<T[number], {type: K}>
 };
 
@@ -58,7 +58,7 @@ export const makeGetLayerUtil = <T extends LayerUtils<any>>(layerUtils: T) => <K
  * @param layerUtils - An array of LayerUtils
  * @returns A Record of LayerUtils keyed by their type
  */
-export function createLayerUtils<T extends Array<LayerUtil<any>>>(...layerUtils: T): LayerUtilsFromInstances<T> {
+export function createLayerUtils<T extends Array<BaseLayerUtil<any>>>(...layerUtils: T): LayerUtilsFromInstances<T> {
 	return layerUtils.reduce<Partial<LayerUtilsFromInstances<T>>>((acc, util) => {
 		(acc as any)[util.type] = util;
 		return acc;

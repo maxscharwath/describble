@@ -16,6 +16,8 @@ import {
 } from 'ui/components/Icons';
 import {Button} from '../ui/Buttons';
 import {useHistory, useLayersStore} from '../../store/CanvasStore';
+import {useWhiteboard} from '../../core/useWhiteboard';
+import {shallow} from 'zustand/shallow';
 
 const colors = {
 	red: '#FF0000',
@@ -35,17 +37,15 @@ const colors = {
 const Separator = () => <div className='m-2 h-px w-full rounded-full bg-gray-200 sm:h-full sm:w-px'/>;
 
 export const Toolbar = () => {
-	const context = useWhiteboardStore(state => ({
-		selectedColor: state.selectedColor,
-		currentTool: state.currentTool,
-	}));
-
 	const {clearLayers} = useLayersStore(({clearLayers}) => ({clearLayers}));
-
-	const store = whiteboardStore;
 
 	const history = useHistory();
 
+	const app = useWhiteboard();
+	const {selectedTool, selectedColor} = app.useStore(state => ({
+		selectedTool: state.appState.currentTool,
+		selectedColor: state.appState.currentStyle.color,
+	}), shallow);
 	return (
 		<div
 			className='pointer-events-auto m-2 flex flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur sm:flex-row'
@@ -54,11 +54,17 @@ export const Toolbar = () => {
 				{Object.entries(colors).map(([color, value]) => (
 					<ColorButton
 						key={color}
-						selected={context.selectedColor === value || context.selectedColor === color}
+						selected={selectedColor === value || selectedColor === color}
 						color={value}
 						aria-label={color}
 						onClick={() => {
-							store.setState({selectedColor: value});
+							app.patchState({
+								appState: {
+									currentStyle: {
+										color: value,
+									},
+								},
+							}, `set_style_color_${color}`);
 						}}
 					/>
 				))}
@@ -68,9 +74,9 @@ export const Toolbar = () => {
 			<div className='grid grid-cols-3 gap-2'>
 				<Button
 					aria-label='Path tool'
-					active={context.currentTool === 'path'}
+					active={selectedTool === 'path'}
 					onClick={() => {
-						store.setState({currentTool: 'path'});
+						app.setTool('path');
 					}}
 				>
 					<PathIcon/>
@@ -78,9 +84,9 @@ export const Toolbar = () => {
 
 				<Button
 					aria-label='Rectangle tool'
-					active={context.currentTool === 'rectangle'}
+					active={selectedTool === 'rectangle'}
 					onClick={() => {
-						store.setState({currentTool: 'rectangle'});
+						app.setTool('rectangle');
 					}}
 				>
 					<RectangleIcon/>
@@ -88,9 +94,9 @@ export const Toolbar = () => {
 
 				<Button
 					aria-label='Circle tool'
-					active={context.currentTool === 'circle'}
+					active={selectedTool === 'circle'}
 					onClick={() => {
-						store.setState({currentTool: 'circle'});
+						app.setTool('circle');
 					}}
 				>
 					<CircleIcon/>
@@ -98,9 +104,9 @@ export const Toolbar = () => {
 
 				<Button
 					aria-label='Image tool'
-					active={context.currentTool === 'image'}
+					active={selectedTool === 'image'}
 					onClick={() => {
-						store.setState({currentTool: 'image'});
+						app.setTool('image');
 					}}
 				>
 					<ImageIcon/>
@@ -108,9 +114,9 @@ export const Toolbar = () => {
 
 				<Button
 					aria-label='Move tool'
-					active={context.currentTool === 'move'}
+					active={selectedTool === 'move'}
 					onClick={() => {
-						store.setState({currentTool: 'move'});
+						app.setTool('move');
 					}}
 				>
 					<MoveIcon/>
@@ -118,9 +124,9 @@ export const Toolbar = () => {
 
 				<Button
 					aria-label='Select tool'
-					active={context.currentTool === 'select'}
+					active={selectedTool === 'select'}
 					onClick={() => {
-						store.setState({currentTool: 'select'});
+						app.setTool('select');
 					}}
 				>
 					<SelectIcon/>

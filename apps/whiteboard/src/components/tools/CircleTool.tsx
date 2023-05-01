@@ -7,6 +7,8 @@ import {Layer} from '../layers/Layer';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 import {useLayersStore} from '../../store/CanvasStore';
+import {useWhiteboard} from '../../core/useWhiteboard';
+import {shallow} from 'zustand/shallow';
 
 /**
  * This tool allows the user to add a circle to the canvas.
@@ -15,7 +17,7 @@ import {useLayersStore} from '../../store/CanvasStore';
 export const CircleTool: React.FC = () => {
 	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
 	const {addLayer} = useLayersStore(({addLayer}) => ({addLayer}));
-
+	const app = useWhiteboard();
 	const [circleData, setCircleData] = useState<z.infer<typeof CircleSchema> | null>(null);
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
@@ -23,7 +25,8 @@ export const CircleTool: React.FC = () => {
 				return;
 			}
 
-			const {selectedColor, camera} = whiteboardStore.getState();
+			const {camera} = whiteboardStore.getState();
+			const selectedColor = app.state.appState.currentStyle.color;
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setCircleData({

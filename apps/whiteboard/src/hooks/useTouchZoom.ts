@@ -1,9 +1,15 @@
 import {useWhiteboardStore, whiteboardStore} from '../store/WhiteboardStore';
 import {type TouchEvent, useRef} from 'react';
 import {useEvents} from './useEvents';
+import {shallow} from 'zustand/shallow';
+import {useWhiteboard} from '../core/useWhiteboard';
 
 export const useTouchZoom = () => {
-	const {canvasRef, currentTool} = useWhiteboardStore(({canvasRef, currentTool}) => ({canvasRef, currentTool}));
+	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
+	const app = useWhiteboard();
+	const {currentTool} = app.useStore(state => ({
+		currentTool: state.appState.currentTool,
+	}), shallow);
 	const initialDistance = useRef(0);
 	const initialCurrentTool = useRef(currentTool);
 	const lastPosition = useRef<{x: number; y: number} | null>(null);
@@ -51,13 +57,13 @@ export const useTouchZoom = () => {
 
 				if (currentTool !== null) {
 					initialCurrentTool.current = currentTool;
-					whiteboardStore.setState({currentTool: null});
+					app.setTool(null);
 				}
 			}
 		},
 		touchend(e: TouchEvent) {
 			if (e.touches.length < 2 && currentTool === null) {
-				whiteboardStore.setState({currentTool: initialCurrentTool.current});
+				app.setTool(initialCurrentTool.current ?? null);
 			}
 
 			lastPosition.current = null;

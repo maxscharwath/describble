@@ -7,6 +7,7 @@ import {Layer} from '../layers/Layer';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 import {useLayersStore} from '../../store/CanvasStore';
+import {useWhiteboard} from '../../core/useWhiteboard';
 
 /**
  * This tool allows the user to add a rectangle to the canvas.
@@ -15,7 +16,7 @@ import {useLayersStore} from '../../store/CanvasStore';
 export const RectangleTool: React.FC = () => {
 	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
 	const {addLayer} = useLayersStore(({addLayer}) => ({addLayer}));
-
+	const app = useWhiteboard();
 	const [rectangleData, setRectangleData] = useState<z.infer<typeof RectangleSchema> | null>(null);
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
@@ -23,7 +24,8 @@ export const RectangleTool: React.FC = () => {
 				return;
 			}
 
-			const {selectedColor, camera} = whiteboardStore.getState();
+			const {camera} = whiteboardStore.getState();
+			const selectedColor = app.state.appState.currentStyle.color;
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setRectangleData({

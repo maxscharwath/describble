@@ -8,12 +8,15 @@ import {Layer} from '../layers/Layer';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 import {useLayersStore} from '../../store/CanvasStore';
+import {useWhiteboard} from '../../core/useWhiteboard';
+import {shallow} from 'zustand/shallow';
 
 /**
  * This tool allows the user to add a path to the canvas.
  * @constructor
  */
 export const PathTool: React.FC = () => {
+	const app = useWhiteboard();
 	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
 	const {addLayer} = useLayersStore(({addLayer}) => ({addLayer}));
 	const [pathData, setPathData] = useState<z.infer<typeof PathSchema> | null>(null);
@@ -23,7 +26,8 @@ export const PathTool: React.FC = () => {
 				return;
 			}
 
-			const {selectedColor, camera} = whiteboardStore.getState();
+			const {camera} = whiteboardStore.getState();
+			const selectedColor = app.state.appState.currentStyle.color;
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setPathData({

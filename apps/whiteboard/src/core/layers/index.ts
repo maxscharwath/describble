@@ -3,7 +3,7 @@ import {
 	type LayerUtilsKey,
 	type LayerUtilsType,
 	makeGetLayerUtil,
-} from './LayerUtil';
+} from './BaseLayerUtil';
 import {RectangleLayerUtil} from './Rectangle';
 import {CircleLayerUtil} from './Circle';
 import {PathLayerUtil} from './Path';

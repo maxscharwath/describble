@@ -6,13 +6,19 @@ import {RectangleTool} from './RectangleTool';
 import {ImageTool} from './ImageTool';
 import {MoveTool} from './MoveTool';
 import {SelectedTool} from './SelectedTool';
+import {shallow} from 'zustand/shallow';
+import {useWhiteboard} from '../../core/useWhiteboard';
 
 /**
  * This component renders the correct tool based on the current tool.
  * @constructor
  */
 export const LayerTools = () => {
-	const {currentTool} = useWhiteboardStore(({currentTool}) => ({currentTool}));
+	const app = useWhiteboard();
+	const {currentTool} = app.useStore(state => ({
+		currentTool: state.appState.currentTool,
+	}), shallow);
+
 	switch (currentTool) {
 		case 'path':
 			return <PathTool/>;
@@ -32,7 +38,10 @@ export const LayerTools = () => {
  * @constructor
  */
 export const GlobalTools = () => {
-	const {currentTool} = useWhiteboardStore(({currentTool}) => ({currentTool}));
+	const app = useWhiteboard();
+	const {currentTool} = app.useStore(state => ({
+		currentTool: state.appState.currentTool,
+	}), shallow);
 	switch (currentTool) {
 		case 'move':
 			return <MoveTool/>;

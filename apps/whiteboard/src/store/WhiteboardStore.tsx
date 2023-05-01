@@ -11,8 +11,6 @@ export type Camera = {
 };
 
 type Whiteboard = {
-	selectedColor: string;
-	currentTool: 'path' | 'rectangle' | 'circle' | 'image' | 'move' | 'select' | null;
 	selectedLayers: LayerData[];
 	camera: Camera;
 	setCamera: (camera: Camera) => void;
@@ -22,8 +20,6 @@ type Whiteboard = {
 export const whiteboardStore = create<Whiteboard>()(
 	persist(
 		(set, get) => ({
-			selectedColor: '#000000',
-			currentTool: 'path',
 			selectedLayers: [],
 			camera: {x: 0, y: 0, scale: 1},
 			setCamera(camera) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import {deepmerge} from '../../utils';
-import {type BaseLayer, LayerUtil} from '../LayerUtil';
+import {type BaseLayer, BaseLayerUtil} from '../BaseLayerUtil';
 import {type Bounds, type Dimension} from '../../types';
 import {defaultLayerStyle} from '../shared';
 
@@ -13,10 +13,10 @@ export interface RectangleLayer extends BaseLayer {
 	dimensions: Dimension;
 }
 
-export class RectangleLayerUtil extends LayerUtil<TLayer> {
+export class RectangleLayerUtil extends BaseLayerUtil<TLayer> {
 	type = type;
 
-	Component = LayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
+	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
 		<rect
 			ref={ref}
 			x={layer.position.x}

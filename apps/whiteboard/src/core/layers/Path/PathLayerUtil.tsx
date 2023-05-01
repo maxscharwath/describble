@@ -1,6 +1,6 @@
 import React from 'react';
 import {deepmerge} from '../../utils';
-import {type BaseLayer, LayerUtil} from '../LayerUtil';
+import {type BaseLayer, BaseLayerUtil} from '../BaseLayerUtil';
 import {type Bounds} from '../../types';
 import {defaultLayerStyle} from '../shared';
 import {strokeToPath, toStroke} from './PathHelpers';
@@ -14,9 +14,9 @@ export interface PathLayer extends BaseLayer {
 	path: number[][];
 }
 
-export class PathLayerUtil extends LayerUtil<TLayer> {
+export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 	type = type;
-	Component = LayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
+	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
 		<path
 			ref={ref}
 			x={layer.position.x}
