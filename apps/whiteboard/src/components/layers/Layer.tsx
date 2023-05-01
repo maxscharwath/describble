@@ -9,6 +9,7 @@ import {type ZodSchema} from 'zod';
 import {deepEqual} from 'fast-equals';
 import {whiteboardStore} from '../../store/WhiteboardStore';
 import {handleLayerSelect} from '../ui/Selections';
+import {useWhiteboard} from '../../core/useWhiteboard';
 
 /**
  * List of all layer factories available
@@ -74,16 +75,19 @@ PreviewLayer.displayName = 'PreviewLayer';
 /**
  * A layer that can be selected
  */
-export const SelectableLayer = memo(({layer}: {layer: LayerData}) => (
-	<Layer
-		layer={layer}
-		onPointerDown={e => {
-			const {currentTool} = whiteboardStore.getState();
-			if (currentTool === 'select') {
-				handleLayerSelect(e, layer);
-			}
-		}}
-	/>
-), (prevProps, nextProps) => deepEqual(prevProps.layer, nextProps.layer));
+export const SelectableLayer = memo(({layer}: {layer: LayerData}) => {
+	const app = useWhiteboard();
+	return (
+		<Layer
+			layer={layer}
+			onPointerDown={e => {
+				const {currentTool} = app.state.appState;
+				if (currentTool === 'select') {
+					handleLayerSelect(e, layer);
+				}
+			}}
+		/>
+	);
+}, (prevProps, nextProps) => deepEqual(prevProps.layer, nextProps.layer));
 
 SelectableLayer.displayName = 'SelectableLayer';

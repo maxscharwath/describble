@@ -1,5 +1,4 @@
 import React from 'react';
-import {useWhiteboardStore} from '../../store/WhiteboardStore';
 import {PathTool} from './PathTool';
 import {CircleTool} from './CircleTool';
 import {RectangleTool} from './RectangleTool';

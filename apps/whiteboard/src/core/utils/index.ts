@@ -21,5 +21,5 @@ export function deepcopy<T>(target: T): T {
 	return structuredClone(target);
 }
 
-export const createUseStore = <T>(store: StoreApi<T>) => ((selector, equalityFn) => useStore(store, selector, equalityFn)) as UseBoundStore<StoreApi<T>>;
+export const createUseStore = <T> (store: StoreApi<T>) => ((selector, equalityFn) => useStore(store, selector, equalityFn)) as UseBoundStore<StoreApi<T>>;
 

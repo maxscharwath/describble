@@ -9,6 +9,7 @@ export enum Status {
 export abstract class BaseTool<TStatus extends string = any> {
 	abstract type: string;
 	protected status: Status | TStatus = Status.Idle;
+
 	public constructor(protected app: WhiteboardApp) {}
 
 	onPointerDown: PointerEventHandler = () => {

@@ -4,6 +4,7 @@ import {type BaseActivity} from '../tools/BaseActivity';
 
 export class ActivityManager {
 	activity?: BaseActivity;
+
 	constructor(private readonly app: WhiteboardApp) {}
 
 	public startActivity<T extends Class<T, typeof BaseActivity>>(Activity: T, ...args: OmitFirst<ConstructorParameters<T>>) {

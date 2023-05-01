@@ -1,6 +1,5 @@
 import React from 'react';
 import {ColorButton} from './ColorButton';
-import {useWhiteboardStore, whiteboardStore} from '../../store/WhiteboardStore';
 import {greet} from 'hello-wasm';
 import {
 	CircleIcon,

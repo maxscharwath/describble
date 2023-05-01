@@ -36,6 +36,7 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 	}
 
 	abstract getLayer(props: Partial<T>): T;
+
 	abstract getBounds(layer: T): Bounds;
 
 	protected static makeComponent<T extends BaseLayer, E extends Element = any>(component: (props: ComponentProps<T, E>, ref: React.Ref<E>) => React.ReactElement) {
@@ -63,7 +64,7 @@ type LayerUtilsFromInstances<T extends Array<BaseLayerUtil<any>>> = {
  * Create a function to get a LayerUtil from a Layer
  * @param layerUtils
  */
-export const makeGetLayerUtil = <T extends LayerUtils<any>>(layerUtils: T) => {
+export const makeGetLayerUtil = <T extends LayerUtils<any>> (layerUtils: T) => {
 	function getLayerUtil<K extends LayerUtilsKey<T>>(layer: K): T[K];
 	function getLayerUtil<K extends LayerUtilsKey<T>>(layer: TypedPartial<K, T>): T[K];
 	function getLayerUtil<K extends LayerUtilsKey<T>>(layer: LayerUtilsType<T>): T[K];

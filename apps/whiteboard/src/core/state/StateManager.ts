@@ -2,7 +2,7 @@ import {createStore, type StoreApi} from 'zustand/vanilla';
 import {type UseBoundStore} from 'zustand';
 import * as idb from 'idb-keyval';
 import {type Command, type Patch} from '../types';
-import {createUseStore, deepmerge, deepcopy} from '../utils';
+import {createUseStore, deepcopy, deepmerge} from '../utils';
 
 /**
  * State manager
@@ -19,20 +19,19 @@ export class StateManager<T extends Record<string, any>> {
 	protected onRedo?: (state: T) => void;
 	protected onStateWillChange?: (state: T, id?: string) => void;
 	protected onStateDidChange?: (state: T, id?: string) => void;
-
-	private _state: T;
 	private readonly store: StoreApi<T>;
 	private readonly initialState: T;
 	private readonly idbId?: string;
 	private readonly ready: Promise<void>;
 	private stack: Array<Command<T>> = [];
 	private stackIndex = 0;
+	private _state: T;
 
 	/**
-	 * Initialize the state manager
-	 * @param initialState - The initial state
-	 * @param id - The id of the state manager
-	 */
+   * Initialize the state manager
+   * @param initialState - The initial state
+   * @param id - The id of the state manager
+   */
 	public constructor(initialState: T, id?: string) {
 		this.idbId = id;
 		this.initialState = deepcopy(initialState);
@@ -43,10 +42,31 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-	 * Patch without persisting
-	 * @param patch - The patch to apply
-	 * @param id - The id of the patch
-	 */
+   * Get the current state
+   */
+	public get state(): T {
+		return this._state;
+	}
+
+	/**
+   * Check if there is a command to undo
+   */
+	public get canUndo(): boolean {
+		return this.stackIndex > -1;
+	}
+
+	/**
+   * Check if there is a command to redo
+   */
+	public get canRedo(): boolean {
+		return this.stackIndex < this.stack.length - 1;
+	}
+
+	/**
+   * Patch without persisting
+   * @param patch - The patch to apply
+   * @param id - The id of the patch
+   */
 	public patchState(patch: Patch<T>, id?: string): this {
 		this.applyPatch(patch, id);
 		this.onPatch?.(patch, id);
@@ -54,11 +74,11 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-	 * Apply Command to state and persist
-	 * @param command - The command to apply
-	 * @param id - The id of the mutation
-	 * @protected
-	 */
+   * Apply Command to state and persist
+   * @param command - The command to apply
+   * @param id - The id of the mutation
+   * @protected
+   */
 	public setState(command: Command<T>, id = command.id): this {
 		if (this.stackIndex < this.stack.length - 1) {
 			this.stack = this.stack.slice(0, this.stackIndex + 1);
@@ -73,37 +93,16 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-	 * Force updating Zustand store
-	 */
+   * Force updating Zustand store
+   */
 	public forceUpdate(): this {
 		this.store.setState(this._state, true);
 		return this;
 	}
 
 	/**
-	 * Get the current state
-	 */
-	public get state(): T {
-		return this._state;
-	}
-
-	/**
-	 * Check if there is a command to undo
-	 */
-	public get canUndo(): boolean {
-		return this.stackIndex > -1;
-	}
-
-	/**
-	 * Check if there is a command to redo
-	 */
-	public get canRedo(): boolean {
-		return this.stackIndex < this.stack.length - 1;
-	}
-
-	/**
-	 * Undo the last command
-	 */
+   * Undo the last command
+   */
 	public undo(): this {
 		if (this.canUndo) {
 			const command = this.stack[this.stackIndex];
@@ -117,8 +116,8 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-	 * Redo the last command
-	 */
+   * Redo the last command
+   */
 	public redo(): this {
 		if (this.canRedo) {
 			this.stackIndex++;
@@ -132,8 +131,8 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-	 * Reset the state to the initial state, clearing the history and persisting
-	 */
+   * Reset the state to the initial state, clearing the history and persisting
+   */
 	public reset(): this {
 		this.onStateWillChange?.(this.initialState, 'reset');
 		this._state = this.initialState;
@@ -145,8 +144,8 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-	 * Reset all history stacks
-	 */
+   * Reset all history stacks
+   */
 	public resetHistory(): this {
 		this.stack = [];
 		this.stackIndex = -1;
@@ -154,11 +153,11 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-	 * Apply a patch without persisting
-	 * @param patch - The patch to apply
-	 * @param id - The id of the patch
-	 * @protected
-	 */
+   * Apply a patch without persisting
+   * @param patch - The patch to apply
+   * @param id - The id of the patch
+   * @protected
+   */
 	protected applyPatch(patch: Patch<T>, id?: string): this {
 		const prevState = this._state;
 		const nextState = deepmerge(this._state, patch);
@@ -171,11 +170,11 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-	 * Replace state with new state without persisting
-	 * @param state - The new state
-	 * @param id - The id of the mutation
-	 * @protected
-	 */
+   * Replace state with new state without persisting
+   * @param state - The new state
+   * @param id - The id of the mutation
+   * @protected
+   */
 	protected replaceState(state: T, id?: string): this {
 		const newState = this.cleanup(state, this._state, state, id);
 		this.onStateWillChange?.(newState, id);
@@ -186,11 +185,11 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-	 * Persist state to IndexedDB
-	 * @param patch - The patch that was applied
-	 * @param id - The id of the patch
-	 * @protected
-	 */
+   * Persist state to IndexedDB
+   * @param patch - The patch that was applied
+   * @param id - The id of the patch
+   * @protected
+   */
 	protected async persist(patch: Patch<T>, id?: string) {
 		this.onPersist?.(this._state, patch, id);
 		if (this.idbId) {
@@ -199,31 +198,31 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-	 * Migrate state from previous version
-	 * @param state - The state to migrate
-	 * @protected
-	 */
+   * Migrate state from previous version
+   * @param state - The state to migrate
+   * @protected
+   */
 	protected migrate(state: T): T {
 		return state;
 	}
 
 	/**
-	 * Cleanup state before updating
-	 * @param nextState - The next state
-	 * @param prevState - The previous state
-	 * @param patch - The patch that was applied
-	 * @param id - The id of the patch
-	 * @protected
-	 */
+   * Cleanup state before updating
+   * @param nextState - The next state
+   * @param prevState - The previous state
+   * @param patch - The patch that was applied
+   * @param id - The id of the patch
+   * @protected
+   */
 	protected cleanup(nextState: T, prevState: T, patch: Patch<T>, id?: string): T {
 		return nextState;
 	}
 
 	/**
-	 * Initialize StateManager
-	 * @returns Promise that resolves when ready
-	 * @private
-	 */
+   * Initialize StateManager
+   * @returns Promise that resolves when ready
+   * @private
+   */
 	private async init() {
 		if (this.idbId) {
 			let state = await idb.get<T>(this.idbId);

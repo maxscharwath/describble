@@ -1,9 +1,4 @@
-import {
-	createLayerUtils,
-	type LayerUtilsKey,
-	type LayerUtilsType,
-	makeGetLayerUtil,
-} from './BaseLayerUtil';
+import {createLayerUtils, type LayerUtilsKey, type LayerUtilsType, makeGetLayerUtil} from './BaseLayerUtil';
 import {RectangleLayerUtil} from './Rectangle';
 import {CircleLayerUtil} from './Circle';
 import {PathLayerUtil} from './Path';

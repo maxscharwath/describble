@@ -8,7 +8,6 @@ import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 import {useLayersStore} from '../../store/CanvasStore';
 import {useWhiteboard} from '../../core/useWhiteboard';
-import {shallow} from 'zustand/shallow';
 
 /**
  * This tool allows the user to add a circle to the canvas.
