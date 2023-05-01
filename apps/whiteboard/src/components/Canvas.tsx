@@ -10,12 +10,15 @@ import {useWheelPan} from '../hooks/useWheelPan';
 import {Selections, useSelection} from './ui/Selections';
 import {DottedGridBackground} from './ui/DottedGridBackground';
 import {useLayersStore} from '../store/CanvasStore';
+import {useWhiteboard} from '../core/useWhiteboard';
 
 export const Canvas = () => {
-	const {camera, canvasRef} = useWhiteboardStore(({camera, canvasRef, currentTool}) => ({
+	const {camera, canvasRef} = useWhiteboardStore(({camera, canvasRef}) => ({
 		camera,
 		canvasRef,
 	}));
+
+	const app = useWhiteboard();
 
 	const {layers} = useLayersStore(({layers}) => ({layers}));
 
@@ -31,7 +34,13 @@ export const Canvas = () => {
 	);
 
 	return (
-		<svg className={style.whiteboard} ref={canvasRef}>
+		<svg
+			className={style.whiteboard}
+			ref={canvasRef}
+			onPointerDown={app.pointerEvent.onPointerDown}
+			onPointerMove={app.pointerEvent.onPointerMove}
+			onPointerUp={app.pointerEvent.onPointerUp}
+		>
 			<DottedGridBackground camera={camera}/>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.scale})`}>
 				{visibleLayers.map(layer => (

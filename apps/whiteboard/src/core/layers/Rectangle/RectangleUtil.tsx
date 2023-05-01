@@ -49,4 +49,17 @@ export class RectangleLayerUtil extends BaseLayerUtil<TLayer> {
 			...dimensions,
 		};
 	}
+
+	resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+		return {
+			position: {
+				x: bounds.x,
+				y: bounds.y,
+			},
+			dimensions: {
+				width: bounds.width,
+				height: bounds.height,
+			},
+		};
+	}
 }

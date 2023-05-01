@@ -1,5 +1,5 @@
 import {StateManager} from './state/StateManager';
-import {type Camera, type Patch} from './types';
+import {type Camera, type Class, type Command, type OmitFirst, type Patch, type Point, type Pointer} from './types';
 import {type Layer} from './layers';
 import {
 	type BaseTool,
@@ -13,12 +13,20 @@ import {
 	type ToolsKey,
 } from './tools';
 import {defaultLayerStyle, type LayerStyle} from './layers/shared';
+import {type BaseActivity} from './tools/BaseActivity';
+import {createLayersCommand} from './tools/Commands/CreateLayersCommand';
+import {PointerEventManager} from './managers/PointerEventManager';
+import {ActivityManager} from './managers/ActivityManager';
 
 type Tools = ToolsKey<typeof WhiteboardApp.prototype.tools>;
 
+export enum Status {
+	Idle = 'idle',
+}
+
 type Document = {
 	id: string;
-	layers: Layer[];
+	layers: Record<string, Layer>;
 	camera: Camera;
 };
 
@@ -49,10 +57,16 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		new MoveTool(this),
 	);
 
-	currentTool?: BaseTool;
+	public currentTool?: BaseTool;
+	public currentPoint: Pointer = {id: 0, x: 0, y: 0, pressure: 0};
+
+	public readonly pointerEvent: PointerEventManager;
+	public readonly activity: ActivityManager;
 
 	constructor(id: string, private readonly callbacks: WhiteboardCallbacks = {}) {
 		super(WhiteboardApp.defaultState, id);
+		this.pointerEvent = new PointerEventManager(this);
+		this.activity = new ActivityManager(this);
 	}
 
 	public get documentState() {
@@ -87,6 +101,42 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		return this;
 	}
 
+	public getLayer<TLayer extends Layer>(id: string): TLayer | undefined {
+		return this.state.document.layers[id] as TLayer | undefined;
+	}
+
+	public addLayer(...layers: Layer[]) {
+		if (!layers.length) {
+			return this;
+		}
+
+		this.setState(createLayersCommand(this, layers));
+	}
+
+	public patchLayer(...layers: Layer[]) {
+		if (!layers.length) {
+			return this;
+		}
+
+		this.patchState(createLayersCommand(this, layers).after, 'patch_layer');
+	}
+
+	public updateInput(event: React.PointerEvent) {
+		this.currentPoint = {
+			id: event.pointerId,
+			...this.getCanvasPoint({x: event.clientX, y: event.clientY}),
+			pressure: event.pressure,
+		};
+	}
+
+	public getCanvasPoint(point: Point) {
+		const {x, y, zoom} = this.camera;
+		return {
+			x: (point.x / zoom) - x,
+			y: (point.y / zoom) - y,
+		};
+	}
+
 	protected onReady = () => {
 		this.callbacks.onMount?.(this);
 	};
@@ -95,13 +145,9 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.callbacks.onChange?.(state, id ?? 'unknown');
 	};
 
-	protected onPatch = (patch: Patch<WhiteboardState>, id?: string) => {
-		console.log('patch', patch, id);
-	};
-
 	static defaultDocument: Document = {
 		id: '',
-		layers: [],
+		layers: {},
 		camera: {x: 0, y: 0, zoom: 1},
 	};
 
@@ -110,9 +156,12 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			theme: 'light',
 		},
 		appState: {
-			status: 'idle',
+			status: Status.Idle,
 			currentStyle: defaultLayerStyle,
 		},
 		document: WhiteboardApp.defaultDocument,
 	};
 }
+
+export type WhiteboardPatch = Patch<WhiteboardState>;
+export type WhiteboardCommand = Command<WhiteboardState>;

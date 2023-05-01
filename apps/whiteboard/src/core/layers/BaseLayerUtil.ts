@@ -20,6 +20,21 @@ export interface ComponentProps<T extends BaseLayer, E = any> {
 export abstract class BaseLayerUtil<T extends BaseLayer> {
 	abstract Component: React.ForwardRefExoticComponent<ComponentProps<T>>;
 	abstract type: T['type'];
+
+	public create(props: Partial<T> & {id: string}): T {
+		return this.getLayer(props);
+	}
+
+	public resize(layer: T, bounds: Bounds): Partial<T> {
+		return {
+			...layer,
+			position: {
+				x: bounds.x,
+				y: bounds.y,
+			},
+		};
+	}
+
 	abstract getLayer(props: Partial<T>): T;
 	abstract getBounds(layer: T): Bounds;
 
@@ -48,9 +63,16 @@ type LayerUtilsFromInstances<T extends Array<BaseLayerUtil<any>>> = {
  * Create a function to get a LayerUtil from a Layer
  * @param layerUtils
  */
-export const makeGetLayerUtil = <T extends LayerUtils<any>>(layerUtils: T) => <K extends LayerUtilsKey<T>>(layer: K | TypedPartial<K, T>): T[K] => {
-	const type = typeof layer === 'string' ? layer : layer.type;
-	return layerUtils[type];
+export const makeGetLayerUtil = <T extends LayerUtils<any>>(layerUtils: T) => {
+	function getLayerUtil<K extends LayerUtilsKey<T>>(layer: K): T[K];
+	function getLayerUtil<K extends LayerUtilsKey<T>>(layer: TypedPartial<K, T>): T[K];
+	function getLayerUtil<K extends LayerUtilsKey<T>>(layer: LayerUtilsType<T>): T[K];
+	function getLayerUtil<K extends LayerUtilsKey<T>>(layer: K | TypedPartial<K, T> | LayerUtilsType<T>): T[K] {
+		const type = typeof layer === 'string' ? layer : layer.type;
+		return layerUtils[type as K];
+	}
+
+	return getLayerUtil;
 };
 
 /**

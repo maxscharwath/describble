@@ -1,8 +1,14 @@
 import {type WhiteboardApp} from '../WhiteboardApp';
 import {type PointerEventHandler} from 'react';
 
-export abstract class BaseTool {
+export enum Status {
+	Idle = 'idle',
+	Creating = 'creating',
+}
+
+export abstract class BaseTool<TStatus extends string = any> {
 	abstract type: string;
+	protected status: Status | TStatus = Status.Idle;
 	public constructor(protected app: WhiteboardApp) {}
 
 	onPointerDown: PointerEventHandler = () => {
@@ -10,22 +16,29 @@ export abstract class BaseTool {
 	};
 
 	onPointerMove: PointerEventHandler = () => {
-		//
+		if (this.status === Status.Creating) {
+			this.app.activity.updateActivity();
+		}
 	};
 
 	onPointerUp: PointerEventHandler = () => {
-		//
+		if (this.status === Status.Creating) {
+			this.app.activity.completeActivity();
+		}
+
+		this.setStatus(Status.Idle);
 	};
 
 	onActivate(): void {
-		//
+		this.setStatus(Status.Idle);
 	}
 
 	onDeactivate(): void {
-		//
+		this.setStatus(Status.Idle);
 	}
 
-	protected setStatus(status: string) {
+	protected setStatus(status: Status | TStatus) {
 		this.app.setStatus(status);
+		this.status = status;
 	}
 }

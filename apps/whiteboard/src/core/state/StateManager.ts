@@ -54,6 +54,25 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
+	 * Apply Command to state and persist
+	 * @param command - The command to apply
+	 * @param id - The id of the mutation
+	 * @protected
+	 */
+	public setState(command: Command<T>, id = command.id): this {
+		if (this.stackIndex < this.stack.length - 1) {
+			this.stack = this.stack.slice(0, this.stackIndex + 1);
+		}
+
+		this.stack.push({...command, id});
+		this.stackIndex = this.stack.length - 1;
+		this.applyPatch(command.after, id);
+		this.onCommand?.(this._state, command, id);
+		void this.persist(command.after, id);
+		return this;
+	}
+
+	/**
 	 * Force updating Zustand store
 	 */
 	public forceUpdate(): this {
@@ -163,25 +182,6 @@ export class StateManager<T extends Record<string, any>> {
 		this._state = newState;
 		this.store.setState(newState, true);
 		this.onStateDidChange?.(newState, id);
-		return this;
-	}
-
-	/**
-	 * Apply Command to state and persist
-	 * @param command - The command to apply
-	 * @param id - The id of the mutation
-	 * @protected
-	 */
-	protected setState(command: Command<T>, id = command.id): this {
-		if (this.stackIndex < this.stack.length - 1) {
-			this.stack = this.stack.slice(0, this.stackIndex + 1);
-		}
-
-		this.stack.push({...command, id});
-		this.stackIndex = this.stack.length - 1;
-		this.applyPatch(command.after, id);
-		this.onCommand?.(this._state, command, id);
-		void this.persist(command.after, id);
 		return this;
 	}
 

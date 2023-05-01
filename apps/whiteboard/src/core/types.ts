@@ -18,8 +18,14 @@ export type Dimension = {
 
 export type Bounds = Point & Dimension;
 
+export type Pointer = Point & {id: number; pressure: number};
+
 export type Camera = {
 	x: number;
 	y: number;
 	zoom: number;
 };
+
+export type OmitFirst<T extends any[]> = T extends [first: any, ...rest: infer R] ? R : never;
+
+export type Class<T extends U, U extends abstract new (...args: any) => any> = new (...args: any[]) => InstanceType<T> & InstanceType<U>;

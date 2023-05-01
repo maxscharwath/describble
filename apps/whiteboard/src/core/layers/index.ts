@@ -8,10 +8,14 @@ import {RectangleLayerUtil} from './Rectangle';
 import {CircleLayerUtil} from './Circle';
 import {PathLayerUtil} from './Path';
 
+export const Circle = new CircleLayerUtil();
+export const Rectangle = new RectangleLayerUtil();
+export const Path = new PathLayerUtil();
+
 export const layerUtils = createLayerUtils(
-	new RectangleLayerUtil(),
-	new CircleLayerUtil(),
-	new PathLayerUtil(),
+	Circle,
+	Rectangle,
+	Path,
 );
 
 export type LayerType = LayerUtilsKey<typeof layerUtils>;

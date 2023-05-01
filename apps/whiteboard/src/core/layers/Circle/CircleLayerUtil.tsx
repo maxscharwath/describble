@@ -52,4 +52,15 @@ export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
 			height: ry * 2,
 		};
 	}
+
+	resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+		return {
+			position: {
+				x: bounds.x + (bounds.width / 2),
+				y: bounds.y + (bounds.height / 2),
+			},
+			rx: bounds.width / 2,
+			ry: bounds.height / 2,
+		};
+	}
 }
