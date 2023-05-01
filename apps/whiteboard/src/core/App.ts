@@ -1,13 +1,11 @@
-import {StateManager} from './StateManager';
+import {StateManager} from './state/StateManager';
+import {type Camera} from './types';
+import {type Layer} from './layers';
 
 type Document = {
 	id: string;
-	layers: [];
-	camera: {
-		x: number;
-		y: number;
-		zoom: number;
-	};
+	layers: Layer[];
+	camera: Camera;
 };
 
 export type AppState = {
@@ -21,7 +19,7 @@ export type AppState = {
 };
 
 export type AppCallback = {
-	onMount?: () => void;
+	onMount?: (app: App) => void;
 	onChange?: (state: AppState, reason: string) => void;
 };
 
@@ -39,7 +37,7 @@ export class App extends StateManager<AppState> {
 	}
 
 	protected onReady = () => {
-		this.callbacks.onMount?.();
+		this.callbacks.onMount?.(this);
 	};
 
 	protected onStateDidChange = (state: AppState, id?: string) => {
