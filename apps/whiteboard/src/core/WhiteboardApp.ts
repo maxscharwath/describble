@@ -18,13 +18,13 @@ export type AppState = {
 	document: Document;
 };
 
-export type AppCallback = {
+export type AppCallbacks = {
 	onMount?: (app: App) => void;
 	onChange?: (state: AppState, reason: string) => void;
 };
 
 export class App extends StateManager<AppState> {
-	constructor(id: string, private readonly callbacks: AppCallback = {}) {
+	constructor(id: string, private readonly callbacks: AppCallbacks = {}) {
 		super(App.defaultState, id);
 	}
 

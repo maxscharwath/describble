@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './components/Whiteboard';
 import './index.css';
+import MainApp from './App';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
-		<App/>
+		<MainApp id='new-whiteboard' />
 	</React.StrictMode>,
 );
