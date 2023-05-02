@@ -1,5 +1,5 @@
-import {type Camera} from '../store/WhiteboardStore';
 import {type Bounds, type Point} from './types';
+import {type Camera} from '../core/types';
 
 /**
  * Converts a point from client coordinates to canvas coordinates
@@ -7,8 +7,8 @@ import {type Bounds, type Point} from './types';
  * @param camera - camera object
  */
 export const clientCoordsToCanvasPoint = (point: Point, camera: Camera): Point => ({
-	x: (point.x - camera.x) / camera.scale,
-	y: (point.y - camera.y) / camera.scale,
+	x: (point.x - camera.x) / camera.zoom,
+	y: (point.y - camera.y) / camera.zoom,
 });
 
 /**
@@ -17,8 +17,8 @@ export const clientCoordsToCanvasPoint = (point: Point, camera: Camera): Point =
  * @param camera
  */
 export const canvasPointToClientCoords = (point: Point, camera: Camera): Point => ({
-	x: (point.x * camera.scale) + camera.x,
-	y: (point.y * camera.scale) + camera.y,
+	x: (point.x * camera.zoom) + camera.x,
+	y: (point.y * camera.zoom) + camera.y,
 });
 
 /**
@@ -28,14 +28,14 @@ export const canvasPointToClientCoords = (point: Point, camera: Camera): Point =
  */
 export const boundsToClientCoords = (bounds: Bounds, camera: Camera): Bounds => ({
 	...canvasPointToClientCoords(bounds, camera),
-	width: bounds.width * camera.scale,
-	height: bounds.height * camera.scale,
+	width: bounds.width * camera.zoom,
+	height: bounds.height * camera.zoom,
 });
 
 export const boundsToCanvasCoords = (bounds: Bounds, camera: Camera): Bounds => ({
 	...clientCoordsToCanvasPoint(bounds, camera),
-	width: bounds.width / camera.scale,
-	height: bounds.height / camera.scale,
+	width: bounds.width / camera.zoom,
+	height: bounds.height / camera.zoom,
 });
 
 type MouseEvent = {

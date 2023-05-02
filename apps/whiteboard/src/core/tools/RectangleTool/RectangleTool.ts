@@ -14,6 +14,7 @@ export class RectangleTool extends BaseTool {
 		const layer = Rectangle.create({
 			id: nanoid(),
 			position: initPoint,
+			style: this.app.state.appState.currentStyle,
 		});
 		this.app.patchLayer(layer);
 		this.app.activity.startActivity(ResizeActivity, layer.id, true);

@@ -1,4 +1,4 @@
-import {useWhiteboardStore, whiteboardStore} from '../store/WhiteboardStore';
+import {useWhiteboardStore} from '../store/WhiteboardStore';
 import {type TouchEvent, useRef} from 'react';
 import {useEvents} from './useEvents';
 import {shallow} from 'zustand/shallow';
@@ -19,9 +19,7 @@ export const useTouchZoom = () => {
 			if (e.touches.length === 2) {
 				const currentX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
 				const currentY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-				const {camera, setCamera} = whiteboardStore.getState();
-				let {x} = camera;
-				let {y} = camera;
+				let {x, y} = app.camera;
 
 				if (lastPosition.current) {
 					x += currentX - lastPosition.current.x;
@@ -33,12 +31,12 @@ export const useTouchZoom = () => {
 				const distance = Math.hypot(dx, dy);
 
 				const scaleFactor = distance / initialDistance.current;
-				const newScale = Math.max(0.1, Math.min(10, camera.scale * scaleFactor));
+				const newScale = Math.max(0.1, Math.min(10, app.camera.zoom * scaleFactor));
 
-				x = currentX - ((currentX - x) * newScale / camera.scale);
-				y = currentY - ((currentY - y) * newScale / camera.scale);
+				x = currentX - ((currentX - x) * newScale / app.camera.zoom);
+				y = currentY - ((currentY - y) * newScale / app.camera.zoom);
 
-				setCamera({x, y, scale: newScale});
+				app.patchState({document: {camera: {x, y, zoom: newScale}}}, 'zoom');
 
 				initialDistance.current = distance;
 				lastPosition.current = {x: currentX, y: currentY};

@@ -1,5 +1,5 @@
 import {type WhiteboardApp} from '../WhiteboardApp';
-import {type PointerEventHandler} from 'react';
+import {type KeyboardEventHandler, type PointerEventHandler} from 'react';
 
 export enum Status {
 	Idle = 'idle',
@@ -25,9 +25,20 @@ export abstract class BaseTool<TStatus extends string = any> {
 	onPointerUp: PointerEventHandler = () => {
 		if (this.status === Status.Creating) {
 			this.app.activity.completeActivity();
+			this.app.setTool('select');
 		}
 
 		this.setStatus(Status.Idle);
+	};
+
+	onKeyDown: (e: KeyboardEvent) => void = ({key}) => {
+		if (key === 'Escape') {
+			this.onAbort();
+		}
+	};
+
+	onKeyUp: (e: KeyboardEvent) => void = () => {
+		//
 	};
 
 	onActivate(): void {
@@ -36,6 +47,16 @@ export abstract class BaseTool<TStatus extends string = any> {
 
 	onDeactivate(): void {
 		this.setStatus(Status.Idle);
+	}
+
+	onAbort(): void {
+		if (this.status === Status.Idle) {
+			this.app.setTool('select');
+		} else {
+			this.setStatus(Status.Idle);
+		}
+
+		this.app.activity.abortActivity();
 	}
 
 	protected setStatus(status: Status | TStatus) {

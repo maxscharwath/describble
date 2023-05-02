@@ -8,6 +8,7 @@ import {Layer} from '../layers/Layer';
 import {usePointerEvents} from '../../hooks/usePointerEvents';
 import {mouseEventToCanvasPoint} from '../../utils/coordinateUtils';
 import {useLayersStore} from '../../store/CanvasStore';
+import {useWhiteboard} from '../../core/useWhiteboard';
 
 /**
  * This tool allows the user to add an image to the canvas.
@@ -15,6 +16,7 @@ import {useLayersStore} from '../../store/CanvasStore';
 export const ImageTool: React.FC = () => {
 	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
 	const {addLayer} = useLayersStore(({addLayer}) => ({addLayer}));
+	const app = useWhiteboard();
 	const [imageData, setImageData] = useState<z.infer<typeof ImageSchema> | null>(null);
 	usePointerEvents(canvasRef, {
 		onPointerDown(event) {
@@ -22,7 +24,7 @@ export const ImageTool: React.FC = () => {
 				return;
 			}
 
-			const {camera} = whiteboardStore.getState();
+			const {camera} = app;
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setImageData({
@@ -41,7 +43,7 @@ export const ImageTool: React.FC = () => {
 				return;
 			}
 
-			const {camera} = whiteboardStore.getState();
+			const {camera} = app;
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setImageData({
@@ -67,10 +69,10 @@ export const ImageTool: React.FC = () => {
 export const useDropImageTool = () => {
 	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
 	const {addLayer} = useLayersStore(({addLayer}) => ({addLayer}));
-
+	const app = useWhiteboard();
 	useEvent(canvasRef, 'drop', (event: DragEvent) => {
 		event.preventDefault();
-		const {camera} = whiteboardStore.getState();
+		const {camera} = app;
 		const {x, y} = mouseEventToCanvasPoint(event, camera);
 		const {dataTransfer} = event;
 

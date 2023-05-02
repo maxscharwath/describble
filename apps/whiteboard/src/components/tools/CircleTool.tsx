@@ -24,7 +24,7 @@ export const CircleTool: React.FC = () => {
 				return;
 			}
 
-			const {camera} = whiteboardStore.getState();
+			const {camera} = app;
 			const selectedColor = app.state.appState.currentStyle.color;
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
@@ -44,7 +44,7 @@ export const CircleTool: React.FC = () => {
 				return;
 			}
 
-			const {camera} = whiteboardStore.getState();
+			const {camera} = app;
 
 			const {x, y} = mouseEventToCanvasPoint(event, camera);
 			setCircleData({

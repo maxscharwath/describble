@@ -12,7 +12,7 @@ export class ActivityManager {
 			this.abortActivity();
 		}
 
-		this.activity = new Activity(this, ...args);
+		this.activity = new Activity(this.app, ...args);
 		const patch = this.activity.start();
 		if (patch) {
 			this.app.patchState(patch, `activity_start_${this.activity.type}`);

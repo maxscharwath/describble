@@ -6,7 +6,6 @@ import {ClosedEyeIcon, OpenEyeIcon, TargetIcon, TrashIcon} from 'ui/components/I
 import {Button} from '../ui/Buttons';
 import {Spacer} from '../ui/Utils';
 import {useLayersStore} from '../../store/CanvasStore';
-import {whiteboardStore} from '../../store/WhiteboardStore';
 
 const Separator = () => <div className='my-2 h-px bg-gray-300'/>;
 
@@ -60,17 +59,7 @@ const LayerItem = memo(({layer}: {layer: LayerData}) => {
 	}
 
 	function handleTargetLayer() {
-		whiteboardStore.setState(state => {
-			const factory = Layers.getFactory(layer.type) as LayerFactory;
-			const bound = factory.getBounds(layer);
-			return {
-				camera: {
-					...state.camera,
-					x: (window.innerWidth / 2) + -((bound.x + (bound.width / 2)) * state.camera.scale),
-					y: (window.innerHeight / 2) + -((bound.y + (bound.height / 2)) * state.camera.scale),
-				},
-			};
-		});
+		// TODO: Teleport to layer
 	}
 
 	return (

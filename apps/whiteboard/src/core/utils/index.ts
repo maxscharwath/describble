@@ -1,4 +1,4 @@
-import {type Patch} from '../types';
+import {type Bounds, type Patch} from '../types';
 import {type StoreApi} from 'zustand/vanilla';
 import {type UseBoundStore, useStore} from 'zustand';
 
@@ -23,3 +23,16 @@ export function deepcopy<T>(target: T): T {
 
 export const createUseStore = <T> (store: StoreApi<T>) => ((selector, equalityFn) => useStore(store, selector, equalityFn)) as UseBoundStore<StoreApi<T>>;
 
+/**
+ * Normalizes a bounds object so that the width and height are positive
+ * @param bounds
+ */
+export const normalizeBounds = (bounds: Bounds): Bounds => {
+	const {x, y, width, height} = bounds;
+	return {
+		x: width < 0 ? x + width : x,
+		y: height < 0 ? y + height : y,
+		width: Math.abs(width),
+		height: Math.abs(height),
+	};
+};

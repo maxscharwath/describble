@@ -6,6 +6,7 @@ import {boundsToClientCoords} from '../../utils/coordinateUtils';
 import {Selection} from './Selection';
 import {layersStore} from '../../store/CanvasStore';
 import {LayersIcon} from 'ui/components/Icons';
+import {useWhiteboard} from '../../core/useWhiteboard';
 
 export const handleLayerSelect = (e: PointerEvent, layer: LayerData) => {
 	if (e.button !== 0) {
@@ -75,7 +76,9 @@ export const useSelection = () => {
 };
 
 export const Selections = () => {
-	const {camera, selectedLayers} = useWhiteboardStore();
+	const {selectedLayers} = useWhiteboardStore();
+	const app = useWhiteboard();
+	const camera = app.useStore(state => state.document.camera);
 
 	const boundingBoxes = React.useMemo(() => selectedLayers.map(layer => {
 		const bound = Layers.getFactory(layer.type).getBounds(layer as never);

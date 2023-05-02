@@ -17,4 +17,8 @@ export class PointerEventManager {
 		this.app.updateInput(event);
 		this.app.currentTool?.onPointerUp(event);
 	};
+
+	public onPointerCancel = (event: React.PointerEvent) => {
+		this.app.updateInput(event);
+	};
 }

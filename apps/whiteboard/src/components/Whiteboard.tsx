@@ -6,6 +6,7 @@ import {Cursors} from './Cursors';
 import {SelectionsToolbar} from './ui/Selections';
 import {WhiteboardApp, type WhiteboardCallbacks} from '../core/WhiteboardApp';
 import {WhiteboardProvider} from '../core/useWhiteboard';
+import {DebugBar} from './toolbar/DebugBar';
 
 type WhiteboardProps = {
 	id: string;
@@ -29,6 +30,7 @@ export default function Whiteboard({id, ...callbacks}: WhiteboardProps) {
 				<Sidebar/>
 			</div>
 			<Cursors/>
+			<DebugBar/>
 		</WhiteboardProvider>
 	);
 }

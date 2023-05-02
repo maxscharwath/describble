@@ -1,13 +1,14 @@
 import {BaseActivity} from '../BaseActivity';
 import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '../../WhiteboardApp';
 import {getLayerUtil, type Layer} from '../../layers';
-import {normalizeBounds} from '../../utils';
+import {type PathLayer} from '../../layers/Path';
 
-export class ResizeActivity extends BaseActivity {
-	type = 'resize' as const;
+export class DrawActivity extends BaseActivity {
+	type = 'draw' as const;
 	private readonly initLayer: Layer | undefined;
+	private readonly path: number[][] = [];
 
-	constructor(app: WhiteboardApp, private readonly layerId: string, private readonly create = false) {
+	constructor(app: WhiteboardApp, private readonly layerId: string) {
 		super(app);
 		this.initLayer = app.getLayer(layerId);
 	}
@@ -16,7 +17,7 @@ export class ResizeActivity extends BaseActivity {
 		return {
 			document: {
 				layers: {
-					[this.layerId]: this.create ? undefined : this.initLayer,
+					[this.layerId]: undefined,
 				},
 			},
 		};
@@ -33,7 +34,7 @@ export class ResizeActivity extends BaseActivity {
 			before: {
 				document: {
 					layers: {
-						[layer.id]: this.create ? undefined : this.initLayer,
+						[layer.id]: undefined,
 					},
 				},
 			},
@@ -52,23 +53,20 @@ export class ResizeActivity extends BaseActivity {
 	}
 
 	update(): WhiteboardPatch | void {
-		const layer = this.app.getLayer(this.layerId);
+		const layer = this.app.getLayer<PathLayer>(this.layerId);
 		if (!this.initLayer || !layer) {
 			return;
 		}
 
-		const initPoint = this.initLayer.position;
-		const utils = getLayerUtil(layer);
-		const resized = utils.resize(this.initLayer as never, normalizeBounds({
-			x: initPoint.x,
-			y: initPoint.y,
-			width: this.app.currentPoint.x - initPoint.x,
-			height: this.app.currentPoint.y - initPoint.y,
-		}));
+		const {x, y, pressure} = this.app.currentPoint;
+		this.path.push([x, y, pressure]);
+
 		return {
 			document: {
 				layers: {
-					[layer.id]: resized,
+					[layer.id]: {
+						path: this.path,
+					},
 				},
 			},
 		};

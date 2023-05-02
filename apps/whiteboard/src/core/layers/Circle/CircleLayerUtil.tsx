@@ -19,8 +19,8 @@ export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
 	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
 		<ellipse
 			ref={ref}
-			x={layer.position.x}
-			y={layer.position.y}
+			cx={layer.position.x}
+			cy={layer.position.y}
 			rx={layer.rx}
 			ry={layer.ry}
 			rotate={layer.rotation}
@@ -54,13 +54,15 @@ export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
 	}
 
 	resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+		// Apply transform-origin: center center;
+		const {x, y, width, height} = bounds;
 		return {
 			position: {
-				x: bounds.x + (bounds.width / 2),
-				y: bounds.y + (bounds.height / 2),
+				x: x + (width / 2),
+				y: y + (height / 2),
 			},
-			rx: bounds.width / 2,
-			ry: bounds.height / 2,
+			rx: Math.abs(width / 2),
+			ry: Math.abs(height / 2),
 		};
 	}
 }

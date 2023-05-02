@@ -7,6 +7,7 @@ import {boundsToClientCoords, mouseEventToCanvasPoint} from '../../utils/coordin
 import {type LayerData, Layers} from '../layers/Layer';
 import {QuadTree} from '../../utils/QuadTree';
 import {useLayersStore} from '../../store/CanvasStore';
+import {useWhiteboard} from '../../core/useWhiteboard';
 
 /**
  * This tool allows the user to select a region of the canvas.
@@ -15,9 +16,9 @@ import {useLayersStore} from '../../store/CanvasStore';
 export const SelectedTool: React.FC = () => {
 	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({canvasRef}));
 	const {layers} = useLayersStore(({layers}) => ({layers}));
-	const {camera} = useWhiteboardStore();
 	const [selection, setSelection] = useState<Bounds | null>(null);
-
+	const app = useWhiteboard();
+	const camera = app.useStore(state => state.document.camera);
 	const quadTree = useMemo(() => {
 		const tree = new QuadTree<LayerData>();
 		layers.forEach(layer => {
@@ -33,7 +34,7 @@ export const SelectedTool: React.FC = () => {
 				return;
 			}
 
-			const point = mouseEventToCanvasPoint(event, camera);
+			const point = mouseEventToCanvasPoint(event, app.camera);
 			setSelection({
 				...point,
 				width: 0,
@@ -67,7 +68,7 @@ export const SelectedTool: React.FC = () => {
 				return;
 			}
 
-			const point = mouseEventToCanvasPoint(event, camera);
+			const point = mouseEventToCanvasPoint(event, app.camera);
 			if (selection) {
 				setSelection({
 					...selection,
@@ -80,7 +81,7 @@ export const SelectedTool: React.FC = () => {
 
 	const remappedSelection = useMemo(() => {
 		if (selection) {
-			return boundsToClientCoords(selection, camera);
+			return boundsToClientCoords(selection, app.camera);
 		}
 	}, [selection, camera]);
 

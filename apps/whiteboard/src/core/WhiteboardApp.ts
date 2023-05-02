@@ -13,9 +13,10 @@ import {
 	type ToolsKey,
 } from './tools';
 import {defaultLayerStyle, type LayerStyle} from './layers/shared';
-import {createLayersCommand} from './tools/Commands/CreateLayersCommand';
 import {PointerEventManager} from './managers/PointerEventManager';
 import {ActivityManager} from './managers/ActivityManager';
+import {createLayersCommand} from './commands/CreateLayersCommand';
+import {KeyboardEventManager} from './managers/KeyboardEventManager';
 
 type Tools = ToolsKey<typeof WhiteboardApp.prototype.tools>;
 
@@ -58,13 +59,12 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	public currentTool?: BaseTool;
 	public currentPoint: Pointer = {id: 0, x: 0, y: 0, pressure: 0};
-	public readonly pointerEvent: PointerEventManager;
-	public readonly activity: ActivityManager;
+	public readonly pointerEvent = new PointerEventManager(this);
+	public readonly keyboardEvent = new KeyboardEventManager(this);
+	public readonly activity = new ActivityManager(this);
 
 	constructor(id: string, private readonly callbacks: WhiteboardCallbacks = {}) {
 		super(WhiteboardApp.defaultState, id);
-		this.pointerEvent = new PointerEventManager(this);
-		this.activity = new ActivityManager(this);
 	}
 
 	public get documentState() {
@@ -73,6 +73,10 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	public get camera() {
 		return this.documentState.camera;
+	}
+
+	public setCamera(camera: Partial<Camera>) {
+		this.patchState({document: {camera}}, 'set_camera');
 	}
 
 	public setStatus(status: string) {
@@ -97,6 +101,10 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.currentTool.onActivate();
 		this.patchState({appState: {currentTool: type}}, `set_tool_${type}`);
 		return this;
+	}
+
+	public abort() {
+		this.currentTool?.onAbort();
 	}
 
 	public getLayer<TLayer extends Layer>(id: string): TLayer | undefined {
@@ -130,8 +138,8 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	public getCanvasPoint(point: Point) {
 		const {x, y, zoom} = this.camera;
 		return {
-			x: (point.x / zoom) - x,
-			y: (point.y / zoom) - y,
+			x: (point.x - x) / zoom,
+			y: (point.y - y) / zoom,
 		};
 	}
 

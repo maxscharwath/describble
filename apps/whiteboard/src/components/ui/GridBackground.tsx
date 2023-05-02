@@ -1,13 +1,13 @@
-import {type Camera} from '../../store/WhiteboardStore';
 import React from 'react';
+import {type Camera} from '../../core/types';
 
 export const GridBackground = ({camera}: {camera: Camera}) => (
 	<>
 		<defs>
 			<pattern
 				id='smallGrid'
-				width={10 * camera.scale}
-				height={10 * camera.scale}
+				width={10 * camera.zoom}
+				height={10 * camera.zoom}
 				patternUnits='userSpaceOnUse'
 			>
 				<path
@@ -15,19 +15,19 @@ export const GridBackground = ({camera}: {camera: Camera}) => (
 					fill='none'
 					stroke='gray'
 					strokeWidth={0.5}
-					transform={`scale(${camera.scale})`}
+					transform={`scale(${camera.zoom})`}
 				/>
 			</pattern>
 			<pattern
 				id='grid'
-				width={100 * camera.scale}
-				height={100 * camera.scale}
+				width={100 * camera.zoom}
+				height={100 * camera.zoom}
 				patternUnits='userSpaceOnUse'
 				patternTransform={`translate(${camera.x}, ${camera.y})`}
 			>
 				<rect
-					width={100 * camera.scale}
-					height={100 * camera.scale}
+					width={100 * camera.zoom}
+					height={100 * camera.zoom}
 					fill='url(#smallGrid)'
 				/>
 				<path
@@ -35,7 +35,7 @@ export const GridBackground = ({camera}: {camera: Camera}) => (
 					fill='none'
 					stroke='silver'
 					strokeWidth={1}
-					transform={`scale(${camera.scale})`}
+					transform={`scale(${camera.zoom})`}
 				/>
 			</pattern>
 		</defs>

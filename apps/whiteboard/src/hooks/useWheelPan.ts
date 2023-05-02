@@ -1,10 +1,10 @@
-import {whiteboardStore} from '../store/WhiteboardStore';
 import {type EventElement, useEvents} from './useEvents';
 import {type MouseEvent, type RefObject, useRef} from 'react';
+import {useWhiteboard} from '../core/useWhiteboard';
 
 export const useWheelPan = (canvasRef: RefObject<EventElement>) => {
 	const initialWheelPosition = useRef<{x: number; y: number} | null>(null);
-
+	const app = useWhiteboard();
 	useEvents(canvasRef, {
 		mousedown(e: MouseEvent) {
 			if (e.button === 1) {
@@ -13,12 +13,10 @@ export const useWheelPan = (canvasRef: RefObject<EventElement>) => {
 		},
 		mousemove(e: MouseEvent) {
 			if (initialWheelPosition.current) {
-				const {camera, setCamera} = whiteboardStore.getState();
-
 				const deltaX = e.clientX - initialWheelPosition.current.x;
 				const deltaY = e.clientY - initialWheelPosition.current.y;
 
-				setCamera({...camera, x: camera.x + deltaX, y: camera.y + deltaY});
+				app.patchState({document: {camera: {x: app.camera.x + deltaX, y: app.camera.y + deltaY}}}, 'pan');
 
 				initialWheelPosition.current = {x: e.clientX, y: e.clientY};
 			}

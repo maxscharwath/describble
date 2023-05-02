@@ -1,6 +1,6 @@
-import {type WhiteboardApp, type WhiteboardCommand} from '../../WhiteboardApp';
-import {type Layer} from '../../layers';
-import {type Patch} from '../../types';
+import {type WhiteboardApp, type WhiteboardCommand} from '../WhiteboardApp';
+import {type Layer} from '../layers';
+import {type Patch} from '../types';
 
 export function createLayersCommand(
 	app: WhiteboardApp,
