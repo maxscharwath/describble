@@ -73,6 +73,7 @@ module.exports = {
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/no-confusing-void-expression': 'off',
     '@typescript-eslint/naming-convention': 'off',
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     'react/prop-types': 'off',
     'no-bitwise': 'off',
   },

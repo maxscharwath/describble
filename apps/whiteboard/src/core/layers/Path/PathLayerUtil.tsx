@@ -41,7 +41,7 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 			}, props);
 	}
 
-	public getBounds(layer: TLayer): Bounds {
+	public getBounds(_layer: TLayer): Bounds {
 		return {
 			x: 0,
 			y: 0,

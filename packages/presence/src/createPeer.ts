@@ -8,7 +8,7 @@ export async function createPeer(roomId: string) {
 			conn.once('open', () => {
 				resolve({peer: clientPeer, conn});
 			});
-			clientPeer.once('error', error => {
+			clientPeer.once('error', () => {
 				clientPeer.destroy();
 				const hostPeer = new Peer(roomId);
 				hostPeer.once('open', () => {

@@ -1,12 +1,7 @@
 import {BaseActivity} from '../BaseActivity';
-import {type WhiteboardApp} from '../../WhiteboardApp';
 
 export class SelectActivity extends BaseActivity {
 	type = 'select' as const;
-
-	constructor(app: WhiteboardApp, test: number, yolo: string) {
-		super(app);
-	}
 
 	abort(): void {
 		console.log('SelectActivity aborted');

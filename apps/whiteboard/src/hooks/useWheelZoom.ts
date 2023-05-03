@@ -1,4 +1,3 @@
-import {whiteboardStore} from '../store/WhiteboardStore';
 import {type EventElement, useEvent} from './useEvents';
 import {type RefObject} from 'react';
 import {useWhiteboard} from '../core/useWhiteboard';

@@ -6,6 +6,6 @@ export class SelectTool extends BaseTool {
 
 	onActivate = () => {
 		super.onActivate();
-		this.app.activity.startActivity(SelectActivity, 1, 'yolo');
+		this.app.activity.startActivity(SelectActivity);
 	};
 }

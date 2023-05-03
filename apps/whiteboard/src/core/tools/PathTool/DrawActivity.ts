@@ -1,6 +1,6 @@
 import {BaseActivity} from '../BaseActivity';
 import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '../../WhiteboardApp';
-import {getLayerUtil, type Layer} from '../../layers';
+import {type Layer} from '../../layers';
 import {type PathLayer} from '../../layers/Path';
 
 export class DrawActivity extends BaseActivity {
@@ -24,7 +24,7 @@ export class DrawActivity extends BaseActivity {
 	}
 
 	complete(): WhiteboardCommand | void {
-		const layer = this.app.getLayer(this.layerId);
+		const layer = this.app.getLayer<PathLayer>(this.layerId);
 		if (!this.initLayer || !layer) {
 			return;
 		}

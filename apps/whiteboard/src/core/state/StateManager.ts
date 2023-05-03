@@ -207,14 +207,14 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-   * Cleanup state before updating
-   * @param nextState - The next state
-   * @param prevState - The previous state
-   * @param patch - The patch that was applied
-   * @param id - The id of the patch
-   * @protected
-   */
-	protected cleanup(nextState: T, prevState: T, patch: Patch<T>, id?: string): T {
+	 * Cleanup state before updating
+	 * @param nextState - The next state
+	 * @param _prevState
+	 * @param _patch
+	 * @param _id
+	 * @protected
+	 */
+	protected cleanup(nextState: T, _prevState: T, _patch: Patch<T>, _id?: string): T {
 		return nextState;
 	}
 

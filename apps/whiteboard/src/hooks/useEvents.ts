@@ -25,7 +25,7 @@ export const useEvent = <TEvent extends EventElement, THandler extends EventHand
 
 type EventHandlerWithType<T extends Event> = (event: T) => void;
 
-type EventHandlers<T, E extends EventElement> = {
+type EventHandlers<T> = {
 	[K in keyof T]: EventHandlerWithType<T[K] extends EventHandlerWithType<infer U> ? U : never> | undefined;
 };
 
@@ -36,7 +36,7 @@ type EventHandlers<T, E extends EventElement> = {
  */
 export const useEvents = <
 	TEvent extends EventElement,
-	THandlers extends EventHandlers<THandlers, TEvent>,
+	THandlers extends EventHandlers<THandlers>,
 > (
 	ref: RefObject<TEvent>,
 	events: THandlers,

@@ -17,6 +17,7 @@ import {PointerEventManager} from './managers/PointerEventManager';
 import {ActivityManager} from './managers/ActivityManager';
 import {createLayersCommand} from './commands/CreateLayersCommand';
 import {KeyboardEventManager} from './managers/KeyboardEventManager';
+import {removeLayersCommand} from './commands/RemoveLayersCommand';
 
 export enum Status {
 	Idle = 'idle',
@@ -117,6 +118,20 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.setState(createLayersCommand(this, layers));
 	}
 
+	public removeLayer(...layersId: string[]) {
+		if (!layersId.length) {
+			return this;
+		}
+
+		const layers = layersId.map(id => this.state.document.layers[id]);
+		this.setState(removeLayersCommand(this, layers));
+	}
+
+	public clearLayers() {
+		const layers = Object.values(this.state.document.layers);
+		this.setState(removeLayersCommand(this, layers));
+	}
+
 	public patchLayer(...layers: Layer[]) {
 		if (!layers.length) {
 			return this;
@@ -154,6 +169,17 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	protected onStateDidChange = (state: WhiteboardState, id?: string) => {
 		this.callbacks.onChange?.(state, id ?? 'unknown');
 	};
+
+	protected cleanup(state: WhiteboardState): WhiteboardState {
+		const next = {...state};
+		Object.entries(next.document.layers).forEach(([id, layer]) => {
+			if (!layer) {
+				// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+				delete next.document.layers[id];
+			}
+		});
+		return next;
+	}
 
 	static defaultDocument: Document = {
 		id: '',

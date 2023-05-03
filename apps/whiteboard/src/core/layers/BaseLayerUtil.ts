@@ -7,6 +7,7 @@ export interface BaseLayer {
 	name: string;
 	type: string;
 	visible: boolean;
+	zIndex?: number;
 	style: LayerStyle;
 	position: Point;
 	rotation: number;
@@ -45,7 +46,7 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 }
 
 // ---UTILS---
-export type LayerUtils<U extends BaseLayer> = {
+type LayerUtils<U extends BaseLayer> = {
 	[K in U['type']]: BaseLayerUtil<Extract<U, {type: K}>>;
 };
 

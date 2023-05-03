@@ -1,22 +1,31 @@
 import React, {memo} from 'react';
 import {Reorder} from 'framer-motion';
-import {type LayerData, Layers, PreviewLayer} from '../layers/Layer';
-import {type LayerFactory} from '../layers/factory/LayerFactory';
 import {ClosedEyeIcon, OpenEyeIcon, TargetIcon, TrashIcon} from 'ui/components/Icons';
 import {Button} from '../ui/Buttons';
 import {Spacer} from '../ui/Utils';
-import {useLayersStore} from '../../store/CanvasStore';
+import {useWhiteboard} from '../../core/useWhiteboard';
+import {shallow} from 'zustand/shallow';
+import {type Layer} from '../../core/layers';
+import {PreviewLayer} from '../Layer';
 
 const Separator = () => <div className='my-2 h-px bg-gray-300'/>;
 
 export const Sidebar = () => {
-	const context = useLayersStore(({layers, setOrder}) => ({layers, setOrder}));
-
-	function handleLayerReorder(layers: LayerData[]) {
-		context.setOrder(layers);
+	const app = useWhiteboard();
+	const layers = app.useStore(state =>
+		Object.values(state.document.layers)
+			.sort((a, b) => (b.zIndex ?? Infinity) - (a.zIndex ?? Infinity))
+	, shallow);
+	function handleLayerReorder(_layers: Layer[]) {
+		const newLayers = Object.fromEntries(_layers.map((layer, index, {length}) => [layer.id, {zIndex: length - index}]));
+		app.patchState({
+			document: {
+				layers: newLayers,
+			},
+		});
 	}
 
-	if (context.layers.length === 0) {
+	if (layers.length === 0) {
 		return null;
 	}
 
@@ -28,13 +37,13 @@ export const Sidebar = () => {
 			<Separator/>
 			<Reorder.Group
 				axis='y'
-				values={context.layers}
+				values={layers}
 				onReorder={handleLayerReorder}
 				className='flex w-full flex-col space-y-1 overflow-y-auto'
 				layoutScroll
 			>
-				{context.layers.map(layer => (
-					<Reorder.Item key={layer.uuid} value={layer}
+				{layers.map(layer => (
+					<Reorder.Item key={layer.id} value={layer}
 						className='flex w-full items-center space-x-2 rounded-lg bg-gray-200/50 p-1 backdrop-blur hover:bg-gray-200/80'>
 						<LayerItem layer={layer}/>
 					</Reorder.Item>
@@ -44,22 +53,26 @@ export const Sidebar = () => {
 	);
 };
 
-const LayerItem = memo(({layer}: {layer: LayerData}) => {
-	const {setLayer, removeLayer} = useLayersStore(({setLayer, removeLayer}) => ({setLayer, removeLayer}));
-
+const LayerItem = memo(({layer}: {layer: Layer}) => {
+	const app = useWhiteboard();
 	function handleLayerVisibilityChange() {
-		setLayer({
-			...layer,
-			visible: !layer.visible,
-		});
+		app.patchState({
+			document: {
+				layers: {
+					[layer.id]: {
+						visible: !layer.visible,
+					},
+				},
+			},
+		}, 'set_layer_visibility');
 	}
 
 	function handleLayerDelete() {
-		removeLayer(layer.uuid);
+		app.removeLayer(layer.id);
 	}
 
 	function handleTargetLayer() {
-		// TODO: Teleport to layer
+		//
 	}
 
 	return (
@@ -67,7 +80,7 @@ const LayerItem = memo(({layer}: {layer: LayerData}) => {
 			<PreviewLayer layer={layer}
 				className='h-8 w-8 shrink-0 rounded-lg border border-gray-300 bg-gray-100/50 p-0.5 shadow-sm'/>
 			<span className='overflow-hidden text-ellipsis whitespace-nowrap text-sm'
-				title={layer.uuid}>
+				title={layer.id}>
 				{layer.type}
 			</span>
 			<Spacer/>

@@ -1,15 +1,10 @@
 import style from './Canvas.module.scss';
-import React, {useMemo} from 'react';
-import {useWhiteboardStore} from '../store/WhiteboardStore';
-import {SelectableLayer} from './layers/Layer';
-import {GlobalTools, LayerTools} from './tools/Tools';
-import {useDropImageTool} from './tools/ImageTool';
+import React from 'react';
+import {useDropImageTool} from '../hooks/UseDropImageTool';
 import {useTouchZoom} from '../hooks/useTouchZoom';
 import {useWheelZoom} from '../hooks/useWheelZoom';
 import {useWheelPan} from '../hooks/useWheelPan';
-import {Selections, useSelection} from './ui/Selections';
 import {DottedGridBackground} from './ui/DottedGridBackground';
-import {useLayersStore} from '../store/CanvasStore';
 import {useWhiteboard} from '../core/useWhiteboard';
 import {shallow} from 'zustand/shallow';
 import {Layer} from './Layer';
@@ -17,29 +12,22 @@ import {useKeyEvents} from '../core/hooks/useKeyEvents';
 import {usePointerEvents} from '../core/hooks/usePointerEvents';
 
 export const Canvas = () => {
-	const {canvasRef} = useWhiteboardStore(({canvasRef}) => ({
-		canvasRef,
-	}));
-
 	const app = useWhiteboard();
-	const layersId = app.useStore(state => Object.keys(state.document.layers), shallow);
+	const layersId = app.useStore(state =>
+		Object.values(state.document.layers)
+			.filter(layer => layer.visible)
+			.sort((a, b) => (a.zIndex ?? Infinity) - (b.zIndex ?? Infinity))
+			.map(layer => layer.id)
+	, shallow);
 	const camera = app.useStore(state => state.document.camera, shallow);
-
-	const {layers} = useLayersStore(({layers}) => ({layers}));
-
-	useTouchZoom();
+	const canvasRef = React.useRef<SVGSVGElement>(null);
+	useTouchZoom(canvasRef);
 	useWheelZoom(canvasRef);
 	useWheelPan(canvasRef);
-	useDropImageTool();
-	useSelection();
+	useDropImageTool(canvasRef);
 
 	useKeyEvents();
 	const events = usePointerEvents();
-
-	const visibleLayers = useMemo(
-		() => layers.filter(layer => layer.visible),
-		[layers],
-	);
 
 	return (
 		<svg

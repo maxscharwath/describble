@@ -1,5 +1,5 @@
 import {type WhiteboardApp} from '../WhiteboardApp';
-import {type KeyboardEventHandler, type PointerEventHandler} from 'react';
+import {type PointerEventHandler} from 'react';
 
 export enum Status {
 	Idle = 'idle',

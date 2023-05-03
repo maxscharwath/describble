@@ -14,7 +14,6 @@ import {
 	WASMIcon,
 } from 'ui/components/Icons';
 import {Button} from '../ui/Buttons';
-import {useLayersStore} from '../../store/CanvasStore';
 import {useWhiteboard} from '../../core/useWhiteboard';
 import {shallow} from 'zustand/shallow';
 import {type Tools} from '../../core/WhiteboardApp';
@@ -55,8 +54,6 @@ const ToolButton = (props: ToolButtonProps) => {
 };
 
 export const Toolbar = () => {
-	const {clearLayers} = useLayersStore(({clearLayers}) => ({clearLayers}));
-
 	const app = useWhiteboard();
 
 	const handleUndo = React.useCallback(() => {
@@ -69,6 +66,10 @@ export const Toolbar = () => {
 
 	const handleSetTool = React.useCallback((tool: Tools) => {
 		app.setTool(tool);
+	}, [app]);
+
+	const handleClear = React.useCallback(() => {
+		app.clearLayers();
 	}, [app]);
 
 	const {selectedTool, selectedColor} = app.useStore(state => ({
@@ -163,9 +164,7 @@ export const Toolbar = () => {
 				<Button
 					aria-label='Clear canvas'
 					className='text-red-900'
-					onClick={() => {
-						clearLayers();
-					}}
+					onClick={handleClear}
 				>
 					<TrashIcon/>
 				</Button>
