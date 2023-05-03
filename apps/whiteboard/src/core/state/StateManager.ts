@@ -24,7 +24,7 @@ export class StateManager<T extends Record<string, any>> {
 	private readonly idbId?: string;
 	private readonly ready: Promise<void>;
 	private stack: Array<Command<T>> = [];
-	private stackIndex = 0;
+	private stackIndex = -1;
 	private _state: T;
 
 	/**

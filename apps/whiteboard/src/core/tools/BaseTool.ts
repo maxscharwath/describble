@@ -25,7 +25,6 @@ export abstract class BaseTool<TStatus extends string = any> {
 	onPointerUp: PointerEventHandler = () => {
 		if (this.status === Status.Creating) {
 			this.app.activity.completeActivity();
-			this.app.setTool('select');
 		}
 
 		this.setStatus(Status.Idle);

@@ -55,13 +55,13 @@ export const useTouchZoom = () => {
 
 				if (currentTool !== null) {
 					initialCurrentTool.current = currentTool;
-					app.setTool(null);
+					app.setTool(undefined);
 				}
 			}
 		},
 		touchend(e: TouchEvent) {
 			if (e.touches.length < 2 && currentTool === null) {
-				app.setTool(initialCurrentTool.current ?? null);
+				app.setTool(initialCurrentTool.current);
 			}
 
 			lastPosition.current = null;

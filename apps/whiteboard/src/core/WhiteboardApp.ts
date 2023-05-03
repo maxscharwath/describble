@@ -18,8 +18,6 @@ import {ActivityManager} from './managers/ActivityManager';
 import {createLayersCommand} from './commands/CreateLayersCommand';
 import {KeyboardEventManager} from './managers/KeyboardEventManager';
 
-type Tools = ToolsKey<typeof WhiteboardApp.prototype.tools>;
-
 export enum Status {
 	Idle = 'idle',
 }
@@ -83,11 +81,11 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.patchState({appState: {status}}, `set_status_${status}`);
 	}
 
-	public setTool(type: Tools | null) {
-		if (type === null) {
+	public setTool(type: Tools | undefined) {
+		if (!type) {
 			this.currentTool?.onDeactivate();
 			this.currentTool = undefined;
-			this.patchState({appState: {currentTool: undefined}}, 'set_tool_null');
+			this.patchState({appState: {currentTool: undefined}}, 'set_tool_none');
 			return this;
 		}
 
@@ -144,6 +142,12 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	}
 
 	protected onReady = () => {
+		this.patchState({
+			appState: {
+				status: Status.Idle,
+			},
+		});
+		this.setTool(this.state.appState.currentTool);
 		this.callbacks.onMount?.(this);
 	};
 
@@ -171,3 +175,4 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 export type WhiteboardPatch = Patch<WhiteboardState>;
 export type WhiteboardCommand = Command<WhiteboardState>;
+export type Tools = ToolsKey<typeof WhiteboardApp.prototype.tools>;

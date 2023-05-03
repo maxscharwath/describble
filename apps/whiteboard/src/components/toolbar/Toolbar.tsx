@@ -14,9 +14,10 @@ import {
 	WASMIcon,
 } from 'ui/components/Icons';
 import {Button} from '../ui/Buttons';
-import {useHistory, useLayersStore} from '../../store/CanvasStore';
+import {useLayersStore} from '../../store/CanvasStore';
 import {useWhiteboard} from '../../core/useWhiteboard';
 import {shallow} from 'zustand/shallow';
+import {type Tools} from '../../core/WhiteboardApp';
 
 const colors = {
 	red: '#FF0000',
@@ -35,12 +36,41 @@ const colors = {
 
 const Separator = () => <div className='m-2 h-px w-full rounded-full bg-gray-200 sm:h-full sm:w-px'/>;
 
+type ToolButtonProps = {tool: Tools; icon: React.ReactNode; onClick: (tool: Tools) => void; currentTool?: Tools};
+const ToolButton = (props: ToolButtonProps) => {
+	const {tool, icon, onClick, currentTool} = props;
+	const handleButtonClick = React.useCallback(() => {
+		onClick(tool);
+	}, [props]);
+
+	return (
+		<Button
+			aria-label={`${tool} tool`}
+			active={currentTool === tool}
+			onClick={handleButtonClick}
+		>
+			{icon}
+		</Button>
+	);
+};
+
 export const Toolbar = () => {
 	const {clearLayers} = useLayersStore(({clearLayers}) => ({clearLayers}));
 
-	const history = useHistory();
-
 	const app = useWhiteboard();
+
+	const handleUndo = React.useCallback(() => {
+		app.undo();
+	}, [app]);
+
+	const handleRedo = React.useCallback(() => {
+		app.redo();
+	}, [app]);
+
+	const handleSetTool = React.useCallback((tool: Tools) => {
+		app.setTool(tool);
+	}, [app]);
+
 	const {selectedTool, selectedColor} = app.useStore(state => ({
 		selectedTool: state.appState.currentTool,
 		selectedColor: state.appState.currentStyle.color,
@@ -71,79 +101,59 @@ export const Toolbar = () => {
 
 			<Separator/>
 			<div className='grid grid-cols-3 gap-2'>
-				<Button
-					aria-label='Path tool'
-					active={selectedTool === 'path'}
-					onClick={() => {
-						app.setTool('path');
-					}}
-				>
-					<PathIcon/>
-				</Button>
+				<ToolButton
+					tool='path'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<PathIcon/>}
+				/>
 
-				<Button
-					aria-label='Rectangle tool'
-					active={selectedTool === 'rectangle'}
-					onClick={() => {
-						app.setTool('rectangle');
-					}}
-				>
-					<RectangleIcon/>
-				</Button>
+				<ToolButton
+					tool='rectangle'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<RectangleIcon/>}
+				/>
 
-				<Button
-					aria-label='Circle tool'
-					active={selectedTool === 'circle'}
-					onClick={() => {
-						app.setTool('circle');
-					}}
-				>
-					<CircleIcon/>
-				</Button>
+				<ToolButton
+					tool='circle'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<CircleIcon/>}
+				/>
 
-				<Button
-					aria-label='Image tool'
-					active={selectedTool === 'image'}
-					onClick={() => {
-						app.setTool('image');
-					}}
-				>
-					<ImageIcon/>
-				</Button>
+				<ToolButton
+					tool='image'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<ImageIcon/>}
+				/>
 
-				<Button
-					aria-label='Move tool'
-					active={selectedTool === 'move'}
-					onClick={() => {
-						app.setTool('move');
-					}}
-				>
-					<MoveIcon/>
-				</Button>
+				<ToolButton
+					tool='move'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<MoveIcon/>}
+				/>
 
-				<Button
-					aria-label='Select tool'
-					active={selectedTool === 'select'}
-					onClick={() => {
-						app.setTool('select');
-					}}
-				>
-					<SelectIcon/>
-				</Button>
+				<ToolButton
+					tool='select'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<SelectIcon/>}
+				/>
 			</div>
 			<Separator/>
 			<div className='grid grid-cols-2 gap-2'>
 				<Button
 					aria-label='Undo action'
-					disabled={!history.pastStates.length}
-					onClick={() => history.undo(1)}
+					onClick={handleUndo}
 				>
 					<RedoIcon/>
 				</Button>
 				<Button
 					aria-label='Redo action'
-					disabled={!history.futureStates.length}
-					onClick={() => history.redo(1)}
+					onClick={handleRedo}
 				>
 					<UndoIcon/>
 				</Button>
