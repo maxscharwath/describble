@@ -1,7 +1,7 @@
 import {BaseTool, Status} from '../BaseTool';
 import {Image} from '../../layers';
 import {nanoid} from 'nanoid';
-import {ResizeActivity} from '../shared/ResizeActivity';
+import {ResizeActivity} from '../../activities/ResizeActivity';
 
 export class ImageTool extends BaseTool {
 	type = 'image' as const;

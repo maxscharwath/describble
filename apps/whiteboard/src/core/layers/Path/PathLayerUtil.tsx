@@ -19,8 +19,7 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
 		<path
 			ref={ref}
-			x={layer.position.x}
-			y={layer.position.y}
+			transform={`translate(${layer.position.x} ${layer.position.y})`}
 			rotate={layer.rotation}
 			fill={layer.style.color}
 			d={strokeToPath(toStroke(layer))}
@@ -34,19 +33,34 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 				name: '',
 				type,
 				visible: true,
-				position: {x: 0, y: 0},
+				position: {x: 0, y: 0}, // Where is the first point
 				rotation: 0,
-				path: [],
+				path: [], // Relative to position
 				style: defaultLayerStyle,
 			}, props);
 	}
 
-	public getBounds(_layer: TLayer): Bounds {
+	public getBounds(layer: TLayer): Bounds {
+		const {path} = layer;
+		if (path.length < 1) {
+			return {...layer.position, width: 0, height: 0};
+		}
+
+		const bounds = path.reduce(
+			(acc, [x, y]) => ({
+				minX: Math.min(acc.minX, x),
+				minY: Math.min(acc.minY, y),
+				maxX: Math.max(acc.maxX, x),
+				maxY: Math.max(acc.maxY, y),
+			}),
+			{minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity},
+		);
+
 		return {
-			x: 0,
-			y: 0,
-			width: 0,
-			height: 0,
+			x: layer.position.x + bounds.minX,
+			y: layer.position.y + bounds.minY,
+			width: bounds.maxX - bounds.minX,
+			height: bounds.maxY - bounds.minY,
 		};
 	}
 }

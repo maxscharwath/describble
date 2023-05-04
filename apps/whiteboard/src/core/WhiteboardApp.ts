@@ -156,6 +156,14 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		};
 	}
 
+	public getScreenPoint(point: Point) {
+		const {x, y, zoom} = this.camera;
+		return {
+			x: (point.x * zoom) + x,
+			y: (point.y * zoom) + y,
+		};
+	}
+
 	protected onReady = () => {
 		this.patchState({
 			appState: {

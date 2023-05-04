@@ -1,6 +1,6 @@
 import {Status, type WhiteboardApp} from '../WhiteboardApp';
 import {type Class, type OmitFirst} from '../types';
-import {type BaseActivity} from '../tools/BaseActivity';
+import {type BaseActivity} from '../activities/BaseActivity';
 
 export class ActivityManager {
 	activity?: BaseActivity;

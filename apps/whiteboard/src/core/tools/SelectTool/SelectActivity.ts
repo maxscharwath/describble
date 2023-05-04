@@ -1,4 +1,4 @@
-import {BaseActivity} from '../BaseActivity';
+import {BaseActivity} from '../../activities/BaseActivity';
 
 export class SelectActivity extends BaseActivity {
 	type = 'select' as const;

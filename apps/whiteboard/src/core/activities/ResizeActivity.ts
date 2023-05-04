@@ -1,7 +1,7 @@
-import {BaseActivity} from '../BaseActivity';
-import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '../../WhiteboardApp';
-import {getLayerUtil, type Layer} from '../../layers';
-import {normalizeBounds} from '../../utils';
+import {BaseActivity} from './BaseActivity';
+import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '../WhiteboardApp';
+import {getLayerUtil, type Layer} from '../layers';
+import {normalizeBounds} from '../utils';
 
 export class ResizeActivity extends BaseActivity {
 	type = 'resize' as const;

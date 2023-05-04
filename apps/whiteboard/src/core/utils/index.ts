@@ -1,3 +1,4 @@
+export * from './vector';
 import {type Bounds, type Patch} from '../types';
 import {type StoreApi} from 'zustand/vanilla';
 import {type UseBoundStore, useStore} from 'zustand';

@@ -72,9 +72,22 @@ export const Cursors = () => {
 		}
 	});
 
+	React.useLayoutEffect(() => {
+		const size = 32;
+		const color = randomColor(room.current?.id ?? '');
+		const svgCursor = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='${size}' height='${size}'><path fill='${color}' stroke='white' strokeWidth='1.5' d='M7.407 2.486c-.917-.612-2.251.046-2.152 1.238l.029.347a86.016 86.016 0 0 0 2.79 15.693c.337 1.224 2.03 1.33 2.544.195l2.129-4.697c.203-.449.697-.737 1.234-.68l5.266.564c1.209.13 2.063-1.346 1.094-2.281A90.863 90.863 0 0 0 7.703 2.684l-.296-.198Z'/></svg>`;
+		const cursor = `url("data:image/svg+xml,${encodeURIComponent(svgCursor)}") ${size / 4} ${size / 6}, default`;
+		document.body.style.setProperty('--cursor', cursor);
+		console.log('set cursor', document.body.style.getPropertyValue('--cursor'));
+	}, [room.current]);
+
+	const mouses = React.useMemo(() =>
+		Array.from(mousesState.entries())
+			.filter(([id]) => id !== room.current?.id), [mousesState, room.current]);
+
 	return (
 		<>
-			{Array.from(mousesState.entries()).map(([id, mouse]) => (
+			{mouses.map(([id, mouse]) => (
 				<Cursor
 					key={id}
 					x={mouse.x}

@@ -5,7 +5,8 @@ module.exports = {
     '../../packages/ui/**/*.{js,jsx,ts,tsx}'
   ],
   theme: {
-    extend: {},
+    extend: {
+    },
   },
   plugins: [],
 }

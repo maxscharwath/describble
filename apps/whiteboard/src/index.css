@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-    cursor: none !important;
+body {
+    --cursor: pointer;
+    cursor: var(--cursor);
 }

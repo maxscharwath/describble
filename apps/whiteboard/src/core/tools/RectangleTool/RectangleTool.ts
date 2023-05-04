@@ -1,5 +1,5 @@
 import {BaseTool, Status} from '../BaseTool';
-import {ResizeActivity} from '../shared/ResizeActivity';
+import {ResizeActivity} from '../../activities/ResizeActivity';
 import {Rectangle} from '../../layers';
 import {nanoid} from 'nanoid';
 

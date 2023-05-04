@@ -1,7 +1,7 @@
 import {BaseTool, Status} from '../BaseTool';
 import {Path} from '../../layers';
 import {nanoid} from 'nanoid';
-import {DrawActivity} from './DrawActivity';
+import {DrawActivity} from '../../activities/DrawActivity';
 
 export class PathTool extends BaseTool {
 	type = 'path' as const;

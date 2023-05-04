@@ -4,6 +4,7 @@ import {type PointerEventHandler} from 'react';
 export enum Status {
 	Idle = 'idle',
 	Creating = 'creating',
+	Dragging = 'dragging',
 }
 
 export abstract class BaseTool<TStatus extends string = any> {
@@ -17,7 +18,7 @@ export abstract class BaseTool<TStatus extends string = any> {
 	};
 
 	onPointerMove: PointerEventHandler = () => {
-		if (this.status === Status.Creating) {
+		if (this.status !== Status.Idle) {
 			this.app.activity.updateActivity();
 		}
 	};
