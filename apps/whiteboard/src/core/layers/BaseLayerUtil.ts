@@ -1,11 +1,13 @@
 import {type Bounds, type Point} from '../types';
 import React from 'react';
 import {type LayerStyle} from './shared';
+import {type Asset} from '../WhiteboardApp';
 
 export interface BaseLayer {
 	id: string;
 	name: string;
 	type: string;
+	assetId?: string;
 	visible: boolean;
 	zIndex?: number;
 	style: LayerStyle;
@@ -15,6 +17,7 @@ export interface BaseLayer {
 
 export interface ComponentProps<T extends BaseLayer, E = any> {
 	layer: T;
+	asset?: Asset;
 	ref?: React.Ref<E>;
 }
 

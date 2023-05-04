@@ -10,17 +10,19 @@ export const Layer = React.memo(({layerId}: {layerId: string}) => {
 		return null;
 	}
 
+	const asset = layer.assetId ? app.asset.getAsset(layer.assetId) : undefined;
+
 	const {Component} = getLayerUtil(layer);
-	return <Component layer={layer as never}/>;
+	return <Component layer={layer as never} asset={asset}/>;
 });
 Layer.displayName = 'Layer';
 
 export const PreviewLayer = memo(({layer, ...props}: {layer: TLayer} & React.SVGProps<SVGSVGElement>) => {
-	const {Component, getBounds} = getLayerUtil(layer);
+	const {getBounds} = getLayerUtil(layer);
 	const {x, y, width, height} = getBounds(layer as never);
 	return (
 		<svg {...props} viewBox={`${x} ${y} ${width} ${height}`}>
-			<Component layer={layer as never}/>
+			<Layer layerId={layer.id}/>
 		</svg>
 	);
 }, shallow);

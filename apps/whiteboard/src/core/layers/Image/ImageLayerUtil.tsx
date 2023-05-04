@@ -11,13 +11,13 @@ type TElement = SVGImageElement;
 export interface ImageLayer extends BaseLayer {
 	type: typeof type;
 	dimensions: Dimension;
-	src: string;
+	assetId: string;
 }
 
 export class ImageLayerUtil extends BaseLayerUtil<TLayer> {
 	type = type;
 
-	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
+	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, asset}, ref) =>
 		<image
 			ref={ref}
 			x={layer.position.x}
@@ -25,7 +25,7 @@ export class ImageLayerUtil extends BaseLayerUtil<TLayer> {
 			width={layer.dimensions.width}
 			height={layer.dimensions.height}
 			rotate={layer.rotation}
-			href={layer.src}
+			href={asset?.src ?? 'https://media.tenor.com/lx2WSGRk8bcAAAAC/pulp-fiction-john-travolta.gif'}
 			preserveAspectRatio='none'
 		/>,
 	);
@@ -36,12 +36,12 @@ export class ImageLayerUtil extends BaseLayerUtil<TLayer> {
 				id: '',
 				name: '',
 				type,
+				assetId: '',
 				visible: true,
 				position: {x: 0, y: 0},
 				dimensions: {width: 0, height: 0},
 				rotation: 0,
 				style: defaultLayerStyle,
-				src: '',
 			}, props);
 	}
 

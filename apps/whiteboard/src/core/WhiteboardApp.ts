@@ -18,6 +18,7 @@ import {ActivityManager} from './managers/ActivityManager';
 import {createLayersCommand} from './commands/CreateLayersCommand';
 import {KeyboardEventManager} from './managers/KeyboardEventManager';
 import {removeLayersCommand} from './commands/RemoveLayersCommand';
+import {AssetManager} from './managers/AssetManager';
 
 export enum Status {
 	Idle = 'idle',
@@ -26,7 +27,14 @@ export enum Status {
 type Document = {
 	id: string;
 	layers: Record<string, Layer>;
+	assets: Record<string, Asset>;
 	camera: Camera;
+};
+
+export type Asset = {
+	id: string;
+	type: string;
+	src: string;
 };
 
 export type WhiteboardState = {
@@ -61,6 +69,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	public readonly pointerEvent = new PointerEventManager(this);
 	public readonly keyboardEvent = new KeyboardEventManager(this);
 	public readonly activity = new ActivityManager(this);
+	public readonly asset = new AssetManager(this);
 
 	constructor(id: string, private readonly callbacks: WhiteboardCallbacks = {}) {
 		super(WhiteboardApp.defaultState, id);
@@ -193,6 +202,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		id: '',
 		layers: {},
 		camera: {x: 0, y: 0, zoom: 1},
+		assets: {},
 	};
 
 	static defaultState: WhiteboardState = {
