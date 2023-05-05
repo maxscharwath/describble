@@ -228,7 +228,7 @@ export class StateManager<T extends Record<string, any>> {
 			let state = await idb.get<T>(this.idbId);
 			if (state) {
 				state = this.migrate(state);
-				this._state = deepcopy(state);
+				this._state = deepmerge(this._state, state);
 				this.store.setState(this._state, true);
 			}
 		}

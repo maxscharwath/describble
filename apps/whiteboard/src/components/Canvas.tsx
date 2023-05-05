@@ -1,4 +1,3 @@
-import style from './Canvas.module.scss';
 import React from 'react';
 import {useDropImageTool} from '../hooks/UseDropImageTool';
 import {useTouchZoom} from '../hooks/useTouchZoom';
@@ -10,6 +9,7 @@ import {shallow} from 'zustand/shallow';
 import {Layer} from './Layer';
 import {useKeyEvents} from '../core/hooks/useKeyEvents';
 import {usePointerEvents} from '../core/hooks/usePointerEvents';
+import {useViewport} from '../core/hooks/useViewport';
 
 export const Canvas = () => {
 	const app = useWhiteboard();
@@ -27,11 +27,12 @@ export const Canvas = () => {
 	useDropImageTool(canvasRef);
 
 	useKeyEvents();
+	useViewport(canvasRef);
 	const events = usePointerEvents();
 
 	return (
 		<svg
-			className={style.whiteboard}
+			className='fixed inset-0 h-full w-full touch-none bg-gray-200 dark:bg-gray-900'
 			ref={canvasRef}
 			{...events}
 		>

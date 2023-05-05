@@ -3,7 +3,8 @@ import {deepmerge} from '../../utils';
 import {type BaseLayer, BaseLayerUtil} from '../BaseLayerUtil';
 import {type Bounds} from '../../types';
 import {defaultLayerStyle} from '../shared';
-import {strokeToPath, toStroke} from './PathHelpers';
+import {strokeToPath, toPath, toStroke} from './PathHelpers';
+import {TinyColor} from '@ctrl/tinycolor';
 
 const type = 'path' as const;
 type TLayer = PathLayer;
@@ -16,15 +17,27 @@ export interface PathLayer extends BaseLayer {
 
 export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 	type = type;
-	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
-		<path
-			ref={ref}
-			transform={`translate(${layer.position.x} ${layer.position.y})`}
-			rotate={layer.rotation}
-			fill={layer.style.color}
-			d={strokeToPath(toStroke(layer))}
-		/>,
-	);
+	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) => {
+		const isClosed = this.isShapeClosed(layer);
+		const color = new TinyColor(layer.style.color);
+		const innerColor = color.isDark() ? color.lighten(5).toString() : color.darken(5).toString();
+		return (
+			<g
+				ref={ref}
+				transform={`translate(${layer.position.x} ${layer.position.y})`}
+				rotate={layer.rotation}
+			>
+				{isClosed && <path
+					fill={innerColor}
+					d={strokeToPath(toPath(layer))}
+				/>}
+				<path
+					fill={layer.style.color}
+					d={strokeToPath(toStroke(layer))}
+				/>
+			</g>
+		);
+	});
 
 	public getLayer(props: Partial<TLayer>): TLayer {
 		return deepmerge<TLayer>(
@@ -33,9 +46,9 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 				name: '',
 				type,
 				visible: true,
-				position: {x: 0, y: 0}, // Where is the first point
+				position: {x: 0, y: 0},
 				rotation: 0,
-				path: [], // Relative to position
+				path: [],
 				style: defaultLayerStyle,
 			}, props);
 	}
@@ -62,5 +75,20 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 			width: bounds.maxX - bounds.minX,
 			height: bounds.maxY - bounds.minY,
 		};
+	}
+
+	public isShapeClosed(layer: TLayer, delta = 10): boolean {
+		const {path} = layer;
+
+		if (path.length < 2) {
+			return false;
+		}
+
+		const firstPoint = path[0];
+		const lastPoint = path[path.length - 1];
+
+		const distance = Math.hypot(lastPoint[0] - firstPoint[0], lastPoint[1] - firstPoint[1]);
+
+		return distance <= delta;
 	}
 }

@@ -1,4 +1,4 @@
-import {getStroke, type StrokeOptions} from 'perfect-freehand';
+import {getStroke, getStrokePoints, type StrokeOptions} from 'perfect-freehand';
 import {type PathLayer} from './PathLayerUtil';
 
 export type Stroke = number[][];
@@ -26,4 +26,8 @@ export function strokeToPath(stroke: Stroke) {
 
 export function toStroke(layer: PathLayer, options?: StrokeOptions) {
 	return getStroke(layer.path, options) as Stroke;
+}
+
+export function toPath(layer: PathLayer, options?: StrokeOptions) {
+	return getStrokePoints(layer.path, options).map(stroke => stroke.point);
 }

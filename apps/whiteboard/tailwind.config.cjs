@@ -6,6 +6,12 @@ module.exports = {
   ],
   theme: {
     extend: {
+      height: {
+        'screen': '100dvh',
+      },
+      screens: {
+        'standalone': {'raw': '(display-mode: standalone)'},
+      }
     },
   },
   plugins: [],

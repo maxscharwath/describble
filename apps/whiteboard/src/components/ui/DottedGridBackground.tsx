@@ -15,7 +15,7 @@ export const DottedGridBackground = ({camera}: {camera: Camera}) => (
 					cx={20 * camera.zoom}
 					cy={20 * camera.zoom}
 					r={1.5 * camera.zoom}
-					fill='silver'
+					className='fill-gray-400 dark:fill-gray-600'
 				/>
 			</pattern>
 		</defs>

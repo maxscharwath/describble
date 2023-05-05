@@ -1,5 +1,5 @@
 import {StateManager} from './state/StateManager';
-import {type Camera, type Command, type Patch, type Point, type Pointer} from './types';
+import {type Camera, type Command, type Dimension, type Patch, type Point, type Pointer} from './types';
 import {type Layer} from './layers';
 import {
 	type BaseTool,
@@ -44,6 +44,7 @@ export type WhiteboardState = {
 	appState: {
 		currentTool?: Tools;
 		currentStyle: LayerStyle;
+		selectedLayers: string[];
 		status: string;
 	};
 	document: Document;
@@ -66,6 +67,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	public currentTool?: BaseTool;
 	public currentPoint: Pointer = {id: 0, x: 0, y: 0, pressure: 0};
+	public viewport: Dimension = {width: 0, height: 0};
 	public readonly pointerEvent = new PointerEventManager(this);
 	public readonly keyboardEvent = new KeyboardEventManager(this);
 	public readonly activity = new ActivityManager(this);
@@ -212,6 +214,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		appState: {
 			status: Status.Idle,
 			currentStyle: defaultLayerStyle,
+			selectedLayers: [],
 		},
 		document: WhiteboardApp.defaultDocument,
 	};

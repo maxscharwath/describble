@@ -8,9 +8,13 @@ export const DebugBar = () => {
 	const camera = app.useStore(state => state.document.camera);
 
 	return (
-		<div className='fixed bottom-0 left-0 flex w-full items-center justify-between border-t border-gray-200 bg-gray-100/75 p-2 backdrop-blur'>
-			<span className='text-sm text-gray-500'>{currentTool} - {status}</span>
-			<span className='text-sm text-gray-500'>{(camera.zoom * 100).toFixed(1)}%</span>
+		<div className='standalone:px-10 flex w-full items-center justify-between border-t border-gray-200 bg-gray-100/75 p-2 backdrop-blur dark:border-gray-600 dark:bg-gray-800/75 dark:text-gray-200 dark:backdrop-blur'>
+			<span className='text-sm text-gray-500 dark:text-gray-200'>
+				{currentTool} - {status}
+			</span>
+			<span className='text-sm text-gray-500 dark:text-gray-200'>
+				{(camera.zoom * 100).toFixed(1)}%
+			</span>
 		</div>
 	);
 };

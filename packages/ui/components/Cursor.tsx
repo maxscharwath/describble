@@ -5,6 +5,7 @@ type CursorState = {
 	x: number;
 	y: number;
 	clicked: boolean;
+	visible: boolean;
 };
 
 export type CursorProps = {
@@ -20,7 +21,7 @@ export type CursorRef = {
 
 const springConfig = {stiffness: 1000, damping: 50};
 
-const updateMotionValue = (motionValue: MotionValue<number>, newValue?: number) => {
+const updateMotionValue = (motionValue: MotionValue, newValue?: any) => {
 	if (newValue !== undefined) {
 		motionValue.set(newValue);
 	}
@@ -31,24 +32,27 @@ type MotionValues = {
 	y: MotionValue<number>;
 	rotateX: MotionValue<number>;
 	rotateY: MotionValue<number>;
+	opacity: MotionValue;
 };
 
 const updateMotionValues = (cursor: Partial<CursorState>, motionValues: MotionValues) => {
-	const {x, y, rotateX, rotateY} = motionValues;
+	const {x, y, rotateX, rotateY, opacity} = motionValues;
 	updateMotionValue(x, cursor.x);
 	updateMotionValue(y, cursor.y);
 	updateMotionValue(rotateX, cursor.clicked ? 25 : 0);
 	updateMotionValue(rotateY, cursor.clicked ? -25 : 0);
+	updateMotionValue(opacity, cursor.visible ? 1 : 0);
 };
 
 export const Cursor = React.forwardRef<CursorRef, CursorProps>(
-	({color, size = 32, label, ...props}, ref) => {
-		const motionValues: MotionValues = {
+	({color, size = 32, label, visible = true, ...props}, ref) => {
+		const motionValues = {
 			x: useMotionValue(props.x ?? 0),
 			y: useMotionValue(props.y ?? 0),
 			rotateX: useMotionValue(props.clicked ? 25 : 0),
 			rotateY: useMotionValue(props.clicked ? -25 : 0),
-		};
+			opacity: useSpring(visible ? 1 : 0),
+		} satisfies MotionValues;
 
 		const [springX, springY] = [
 			useSpring(motionValues.x, springConfig),
@@ -71,7 +75,7 @@ export const Cursor = React.forwardRef<CursorRef, CursorProps>(
 		return (
 			<motion.div
 				className='pointer-events-none fixed drop-shadow-md'
-				style={{x: xPos, y: yPos, perspective: 1000}}
+				style={{x: xPos, y: yPos, perspective: 1000, opacity: motionValues.opacity}}
 			>
 				<motion.svg
 					xmlns='http://www.w3.org/2000/svg'

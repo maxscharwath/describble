@@ -33,7 +33,7 @@ const colors = {
 	white: '#FFFFFF',
 } as const;
 
-const Separator = () => <div className='m-2 h-px w-full rounded-full bg-gray-200 sm:h-full sm:w-px'/>;
+const Separator = () => <div className='m-2 h-px w-full rounded-full bg-gray-200 dark:bg-gray-700 sm:h-full sm:w-px'/>;
 
 type ToolButtonProps = {tool: Tools; icon: React.ReactNode; onClick: (tool: Tools) => void; currentTool?: Tools};
 const ToolButton = (props: ToolButtonProps) => {
@@ -78,7 +78,7 @@ export const Toolbar = () => {
 	}), shallow);
 	return (
 		<div
-			className='pointer-events-auto m-2 flex flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur sm:flex-row'
+			className='pointer-events-auto m-2 flex h-full flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur dark:border-gray-600 dark:bg-gray-800/80 dark:text-gray-200 dark:backdrop-blur sm:flex-row'
 		>
 			<div className='grid grid-cols-6 gap-2'>
 				{Object.entries(colors).map(([color, value]) => (
@@ -163,7 +163,7 @@ export const Toolbar = () => {
 			<div className='grid grid-cols-2 gap-2'>
 				<Button
 					aria-label='Clear canvas'
-					className='text-red-900'
+					className='text-red-900 dark:text-red-500'
 					onClick={handleClear}
 				>
 					<TrashIcon/>
