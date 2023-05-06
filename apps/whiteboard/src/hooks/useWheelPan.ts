@@ -16,7 +16,7 @@ export const useWheelPan = (canvasRef: RefObject<EventElement>) => {
 				const deltaX = e.clientX - initialWheelPosition.current.x;
 				const deltaY = e.clientY - initialWheelPosition.current.y;
 
-				app.patchState({document: {camera: {x: app.camera.x + deltaX, y: app.camera.y + deltaY}}}, 'pan');
+				app.patchDocument({camera: {x: app.camera.x + deltaX, y: app.camera.y + deltaY}}, 'pan');
 
 				initialWheelPosition.current = {x: e.clientX, y: e.clientY};
 			}

@@ -10,16 +10,17 @@ import {Layer} from './Layer';
 import {useKeyEvents} from '../core/hooks/useKeyEvents';
 import {usePointerEvents} from '../core/hooks/usePointerEvents';
 import {useViewport} from '../core/hooks/useViewport';
+import {cameraSelector, layersSelector} from '../core/selectors';
 
 export const Canvas = () => {
 	const app = useWhiteboard();
 	const layersId = app.useStore(state =>
-		Object.values(state.document.layers)
+		Object.values(layersSelector(state))
 			.filter(layer => layer.visible)
 			.sort((a, b) => (a.zIndex ?? Infinity) - (b.zIndex ?? Infinity))
 			.map(layer => layer.id)
 	, shallow);
-	const camera = app.useStore(state => state.document.camera, shallow);
+	const camera = app.useStore(cameraSelector, shallow);
 	const canvasRef = React.useRef<SVGSVGElement>(null);
 	useTouchZoom(canvasRef);
 	useWheelZoom(canvasRef);

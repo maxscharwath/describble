@@ -2,10 +2,11 @@ import React, {memo} from 'react';
 import {useWhiteboard} from '../core/useWhiteboard';
 import {getLayerUtil, type Layer as TLayer} from '../core/layers';
 import {shallow} from 'zustand/shallow';
+import {layerSelector} from '../core/selectors';
 
 export const Layer = React.memo(({layerId}: {layerId: string}) => {
 	const app = useWhiteboard();
-	const layer = app.useStore(state => state.document.layers[layerId]);
+	const layer = app.useStore(layerSelector(layerId));
 	if (!layer) {
 		return null;
 	}

@@ -34,7 +34,7 @@ export const useTouchZoom = (canvasRef: React.RefObject<Element>) => {
 				x = currentX - ((currentX - x) * newScale / app.camera.zoom);
 				y = currentY - ((currentY - y) * newScale / app.camera.zoom);
 
-				app.patchState({document: {camera: {x, y, zoom: newScale}}}, 'zoom');
+				app.patchDocument({camera: {x, y, zoom: newScale}}, 'zoom');
 
 				initialDistance.current = distance;
 				lastPosition.current = {x: currentX, y: currentY};

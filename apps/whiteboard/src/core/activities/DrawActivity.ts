@@ -15,9 +15,11 @@ export class DrawActivity extends BaseActivity {
 
 	abort(): WhiteboardPatch {
 		return {
-			document: {
-				layers: {
-					[this.layerId]: undefined,
+			documents: {
+				[this.app.currentDocumentId]: {
+					layers: {
+						[this.layerId]: undefined,
+					},
 				},
 			},
 		};
@@ -36,16 +38,20 @@ export class DrawActivity extends BaseActivity {
 		return {
 			id: 'draw-layer',
 			before: {
-				document: {
-					layers: {
-						[layer.id]: undefined,
+				documents: {
+					[this.app.currentDocumentId]: {
+						layers: {
+							[layer.id]: undefined,
+						},
 					},
 				},
 			},
 			after: {
-				document: {
-					layers: {
-						[layer.id]: layer,
+				documents: {
+					[this.app.currentDocumentId]: {
+						layers: {
+							[layer.id]: layer,
+						},
 					},
 				},
 			},
@@ -65,10 +71,12 @@ export class DrawActivity extends BaseActivity {
 		this.addPoint();
 
 		return {
-			document: {
-				layers: {
-					[layer.id]: {
-						path: this.path,
+			documents: {
+				[this.app.currentDocumentId]: {
+					layers: {
+						[layer.id]: {
+							path: this.path,
+						},
 					},
 				},
 			},

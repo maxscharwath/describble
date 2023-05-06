@@ -42,12 +42,13 @@ export type WhiteboardState = {
 		theme: 'light' | 'dark';
 	};
 	appState: {
+		currentDocumentId: string;
 		currentTool?: Tools;
 		currentStyle: LayerStyle;
 		selectedLayers: string[];
 		status: string;
 	};
-	document: Document;
+	documents: Record<string, Document>;
 };
 
 export type WhiteboardCallbacks = {
@@ -77,8 +78,12 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		super(WhiteboardApp.defaultState, id);
 	}
 
+	public get currentDocumentId() {
+		return this.state.appState.currentDocumentId;
+	}
+
 	public get documentState() {
-		return this.state.document;
+		return this.state.documents[this.currentDocumentId];
 	}
 
 	public get camera() {
@@ -86,7 +91,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	}
 
 	public setCamera(camera: Partial<Camera>) {
-		this.patchState({document: {camera}}, 'set_camera');
+		this.patchDocument({camera}, 'set_camera');
 	}
 
 	public setStatus(status: string) {
@@ -117,8 +122,12 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.currentTool?.onAbort();
 	}
 
+	public patchDocument(patch: Patch<Document>, id?: string) {
+		this.patchState({documents: {[this.currentDocumentId]: patch}}, id);
+	}
+
 	public getLayer<TLayer extends Layer>(id: string): TLayer | undefined {
-		return this.state.document.layers[id] as TLayer | undefined;
+		return this.documentState.layers[id] as TLayer;
 	}
 
 	public addLayer(...layers: Layer[]) {
@@ -134,12 +143,12 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			return this;
 		}
 
-		const layers = layersId.map(id => this.state.document.layers[id]);
+		const layers = layersId.map(id => this.documentState.layers[id]);
 		this.setState(removeLayersCommand(this, layers));
 	}
 
 	public clearLayers() {
-		const layers = Object.values(this.state.document.layers);
+		const layers = Object.values(this.documentState.layers);
 		this.setState(removeLayersCommand(this, layers));
 	}
 
@@ -191,17 +200,19 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	protected cleanup(state: WhiteboardState): WhiteboardState {
 		const next = {...state};
-		Object.entries(next.document.layers).forEach(([id, layer]) => {
-			if (!layer) {
-				// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-				delete next.document.layers[id];
-			}
+		Object.entries(next.documents).forEach(([documentId, document]) => {
+			Object.entries(document.layers).forEach(([layerId, layer]) => {
+				if (!layer) {
+					// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+					delete next.documents[documentId].layers[layerId];
+				}
+			});
 		});
 		return next;
 	}
 
 	static defaultDocument: Document = {
-		id: '',
+		id: 'demo',
 		layers: {},
 		camera: {x: 0, y: 0, zoom: 1},
 		assets: {},
@@ -215,8 +226,11 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			status: Status.Idle,
 			currentStyle: defaultLayerStyle,
 			selectedLayers: [],
+			currentDocumentId: 'demo',
 		},
-		document: WhiteboardApp.defaultDocument,
+		documents: {
+			demo: WhiteboardApp.defaultDocument,
+		},
 	};
 }
 

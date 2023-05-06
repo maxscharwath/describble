@@ -14,9 +14,11 @@ export class ResizeActivity extends BaseActivity {
 
 	abort(): WhiteboardPatch {
 		return {
-			document: {
-				layers: {
-					[this.layerId]: this.create ? undefined : this.initLayer,
+			documents: {
+				[this.app.currentDocumentId]: {
+					layers: {
+						[this.layerId]: this.create ? undefined : this.initLayer,
+					},
 				},
 			},
 		};
@@ -31,16 +33,20 @@ export class ResizeActivity extends BaseActivity {
 		return {
 			id: 'resize-layer',
 			before: {
-				document: {
-					layers: {
-						[layer.id]: this.create ? undefined : this.initLayer,
+				documents: {
+					[this.app.currentDocumentId]: {
+						layers: {
+							[layer.id]: this.create ? undefined : this.initLayer,
+						},
 					},
 				},
 			},
 			after: {
-				document: {
-					layers: {
-						[layer.id]: layer,
+				documents: {
+					[this.app.currentDocumentId]: {
+						layers: {
+							[layer.id]: layer,
+						},
 					},
 				},
 			},
@@ -66,9 +72,11 @@ export class ResizeActivity extends BaseActivity {
 			height: this.app.currentPoint.y - initPoint.y,
 		}));
 		return {
-			document: {
-				layers: {
-					[layer.id]: resized,
+			documents: {
+				[this.app.currentDocumentId]: {
+					layers: {
+						[layer.id]: resized,
+					},
 				},
 			},
 		};

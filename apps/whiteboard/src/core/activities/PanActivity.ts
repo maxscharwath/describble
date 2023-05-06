@@ -32,8 +32,10 @@ export class PanActivity extends BaseActivity {
 			.subtract(pos)
 			.toPoint();
 		return {
-			document: {
-				camera,
+			documents: {
+				[this.app.currentDocumentId]: {
+					camera,
+				},
 			},
 		};
 	}

@@ -17,13 +17,17 @@ export function removeLayersCommand(
 	return {
 		id: 'create-layers',
 		before: {
-			document: {
-				layers: beforeLayers,
+			documents: {
+				[app.currentDocumentId]: {
+					layers: beforeLayers,
+				},
 			},
 		},
 		after: {
-			document: {
-				layers: afterLayers,
+			documents: {
+				[app.currentDocumentId]: {
+					layers: afterLayers,
+				},
 			},
 		},
 	};

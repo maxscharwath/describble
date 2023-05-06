@@ -11,6 +11,7 @@
     "dev": "vite --host --port 3000",
     "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src",
+    "ts-check": "tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest --coverage"
   },
