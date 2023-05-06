@@ -10,7 +10,8 @@ import {Layer} from './Layer';
 import {useKeyEvents} from '../core/hooks/useKeyEvents';
 import {usePointerEvents} from '../core/hooks/usePointerEvents';
 import {useViewport} from '../core/hooks/useViewport';
-import {cameraSelector, layersSelector} from '../core/selectors';
+import {cameraSelector, layersSelector, selectionSelector} from '../core/selectors';
+import {Selection} from './ui/Selection';
 
 export const Canvas = () => {
 	const app = useWhiteboard();
@@ -21,6 +22,7 @@ export const Canvas = () => {
 			.map(layer => layer.id)
 	, shallow);
 	const camera = app.useStore(cameraSelector, shallow);
+	const selection = app.useStore(selectionSelector, shallow);
 	const canvasRef = React.useRef<SVGSVGElement>(null);
 	useTouchZoom(canvasRef);
 	useWheelZoom(canvasRef);
@@ -46,6 +48,7 @@ export const Canvas = () => {
 					/>
 				))}
 			</g>
+			{selection && <Selection bounds={app.getScreenBounds(selection)}/>}
 		</svg>
 	);
 };

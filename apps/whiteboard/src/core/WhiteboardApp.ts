@@ -1,5 +1,5 @@
 import {StateManager} from './state/StateManager';
-import {type Camera, type Command, type Dimension, type Patch, type Point, type Pointer} from './types';
+import {type Bounds, type Camera, type Command, type Dimension, type Patch, type Point, type Pointer} from './types';
 import {type Layer} from './layers';
 import {
 	type BaseTool,
@@ -46,6 +46,7 @@ export type WhiteboardState = {
 		currentTool?: Tools;
 		currentStyle: LayerStyle;
 		selectedLayers: string[];
+		selection: Bounds | null;
 		status: string;
 	};
 	documents: Record<string, Document>;
@@ -184,6 +185,16 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		};
 	}
 
+	public getScreenBounds(bounds: Bounds) {
+		const {x, y, zoom} = this.camera;
+		return {
+			x: (bounds.x * zoom) + x,
+			y: (bounds.y * zoom) + y,
+			width: bounds.width * zoom,
+			height: bounds.height * zoom,
+		};
+	}
+
 	protected onReady = () => {
 		this.patchState({
 			appState: {
@@ -226,6 +237,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			status: Status.Idle,
 			currentStyle: defaultLayerStyle,
 			selectedLayers: [],
+			selection: null,
 			currentDocumentId: 'demo',
 		},
 		documents: {

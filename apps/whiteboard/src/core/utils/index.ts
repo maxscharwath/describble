@@ -1,5 +1,5 @@
 export * from './vector';
-import {type Bounds, type Patch} from '../types';
+import {type Bounds, type Patch, type Point} from '../types';
 import {type StoreApi} from 'zustand/vanilla';
 import {type UseBoundStore, useStore} from 'zustand';
 
@@ -37,3 +37,10 @@ export const normalizeBounds = (bounds: Bounds): Bounds => {
 		height: Math.abs(height),
 	};
 };
+
+export const createBounds = (p1: Point, p2: Point): Bounds => ({
+	x: Math.min(p1.x, p2.x),
+	y: Math.min(p1.y, p2.y),
+	width: Math.abs(p1.x - p2.x),
+	height: Math.abs(p1.y - p2.y),
+});
