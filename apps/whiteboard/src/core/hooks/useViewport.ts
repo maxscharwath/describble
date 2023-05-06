@@ -1,5 +1,5 @@
 import React from 'react';
-import {useWhiteboard} from '../useWhiteboard';
+import {useWhiteboard} from './useWhiteboard';
 
 export const useViewport = (ref: React.RefObject<Element>) => {
 	const app = useWhiteboard();

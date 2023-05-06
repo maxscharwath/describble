@@ -18,7 +18,7 @@
     "@samrum/vite-plugin-web-extension": "^4.1.0",
     "@types/chrome": "^0.0.233",
     "@types/dagre": "^0.7.48",
-    "@types/react": "^18.2.5",
+    "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
     "@types/webextension-polyfill": "^0.10.0",
     "@vitejs/plugin-react": "^4.0.0",

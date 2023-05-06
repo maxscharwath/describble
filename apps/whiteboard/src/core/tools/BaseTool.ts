@@ -1,5 +1,5 @@
 import {type WhiteboardApp} from '../WhiteboardApp';
-import {type PointerEventHandler} from 'react';
+import {type KeyboardEventHandler, type PointerEventHandler, WhiteboardEvents} from '../types';
 
 export enum Status {
 	Idle = 'idle',
@@ -7,15 +7,13 @@ export enum Status {
 	Dragging = 'dragging',
 }
 
-export abstract class BaseTool<TStatus extends string = any> {
+export abstract class BaseTool<TStatus extends string = any> extends WhiteboardEvents {
 	abstract type: string;
 	protected status: Status | TStatus = Status.Idle;
 
-	public constructor(protected app: WhiteboardApp) {}
-
-	onPointerDown: PointerEventHandler = () => {
-		//
-	};
+	public constructor(protected app: WhiteboardApp) {
+		super();
+	}
 
 	onPointerMove: PointerEventHandler = () => {
 		if (this.status !== Status.Idle) {
@@ -31,14 +29,10 @@ export abstract class BaseTool<TStatus extends string = any> {
 		this.setStatus(Status.Idle);
 	};
 
-	onKeyDown: (e: KeyboardEvent) => void = ({key}) => {
+	onKeyDown: KeyboardEventHandler = ({key}) => {
 		if (key === 'Escape') {
 			this.onAbort();
 		}
-	};
-
-	onKeyUp: (e: KeyboardEvent) => void = () => {
-		//
 	};
 
 	onActivate(): void {

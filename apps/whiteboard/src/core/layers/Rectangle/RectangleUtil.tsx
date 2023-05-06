@@ -2,7 +2,7 @@ import React from 'react';
 import {deepmerge} from '../../utils';
 import {type BaseLayer, BaseLayerUtil} from '../BaseLayerUtil';
 import {type Bounds, type Dimension} from '../../types';
-import {defaultLayerStyle} from '../shared';
+import {defaultLayerStyle, getBaseStyle} from '../shared';
 
 const type = 'rectangle' as const;
 type TLayer = RectangleLayer;
@@ -21,10 +21,11 @@ export class RectangleLayerUtil extends BaseLayerUtil<TLayer> {
 			ref={ref}
 			x={layer.position.x}
 			y={layer.position.y}
+			rx={5}
 			width={layer.dimensions.width}
 			height={layer.dimensions.height}
-			rotate={layer.rotation}
-			fill={layer.style.color}
+			transform={`rotate(${layer.rotation})`}
+			{...getBaseStyle(layer.style)}
 		/>,
 	);
 
@@ -42,7 +43,7 @@ export class RectangleLayerUtil extends BaseLayerUtil<TLayer> {
 			}, props);
 	}
 
-	getBounds(layer: TLayer): Bounds {
+	public getBounds(layer: TLayer): Bounds {
 		const {position, dimensions} = layer;
 		return {
 			...position,
@@ -50,7 +51,7 @@ export class RectangleLayerUtil extends BaseLayerUtil<TLayer> {
 		};
 	}
 
-	resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
 		return {
 			position: {
 				x: bounds.x,

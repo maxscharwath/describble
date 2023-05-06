@@ -29,3 +29,19 @@ export type Camera = {
 export type OmitFirst<T extends any[]> = T extends [first: any, ...rest: infer R] ? R : never;
 
 export type Class<T extends U, U extends abstract new (...args: any) => any> = new (...args: any[]) => InstanceType<T> & InstanceType<U>;
+
+export type PointerEventHandler = (event: React.PointerEvent, target: string) => void;
+export type KeyboardEventHandler = (event: KeyboardEvent) => void;
+export class WhiteboardEvents {
+	onPointerDown?: PointerEventHandler;
+	onPointerMove?: PointerEventHandler;
+	onPointerUp?: PointerEventHandler;
+	onKeyDown?: KeyboardEventHandler;
+	onKeyUp?: KeyboardEventHandler;
+	onLayerDown?: PointerEventHandler;
+	onLayerMove?: PointerEventHandler;
+	onLayerUp?: PointerEventHandler;
+	onCanvasDown?: PointerEventHandler;
+	onCanvasMove?: PointerEventHandler;
+	onCanvasUp?: PointerEventHandler;
+}

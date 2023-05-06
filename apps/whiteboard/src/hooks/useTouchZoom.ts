@@ -1,7 +1,7 @@
 import {type TouchEvent, useRef} from 'react';
 import {useEvents} from './useEvents';
 import {shallow} from 'zustand/shallow';
-import {useWhiteboard} from '../core/useWhiteboard';
+import {useWhiteboard} from '../core/hooks/useWhiteboard';
 
 export const useTouchZoom = (canvasRef: React.RefObject<Element>) => {
 	const app = useWhiteboard();

@@ -3,7 +3,7 @@ import {Reorder} from 'framer-motion';
 import {ClosedEyeIcon, OpenEyeIcon, TargetIcon, TrashIcon} from 'ui/components/Icons';
 import {Button} from '../ui/Buttons';
 import {Spacer} from '../ui/Utils';
-import {useWhiteboard} from '../../core/useWhiteboard';
+import {useWhiteboard} from '../../core/hooks/useWhiteboard';
 import {shallow} from 'zustand/shallow';
 import {PreviewLayer} from '../Layer';
 import {Sidebar} from './Sidebar';

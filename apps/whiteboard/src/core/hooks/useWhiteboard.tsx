@@ -1,5 +1,5 @@
 import React from 'react';
-import {type WhiteboardApp} from './WhiteboardApp';
+import {type WhiteboardApp} from '../WhiteboardApp';
 
 const WhiteboardContext = React.createContext<WhiteboardApp | null>(null);
 

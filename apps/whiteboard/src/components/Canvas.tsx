@@ -4,14 +4,15 @@ import {useTouchZoom} from '../hooks/useTouchZoom';
 import {useWheelZoom} from '../hooks/useWheelZoom';
 import {useWheelPan} from '../hooks/useWheelPan';
 import {DottedGridBackground} from './ui/DottedGridBackground';
-import {useWhiteboard} from '../core/useWhiteboard';
+import {useWhiteboard} from '../core/hooks/useWhiteboard';
 import {shallow} from 'zustand/shallow';
 import {Layer} from './Layer';
 import {useKeyEvents} from '../core/hooks/useKeyEvents';
-import {usePointerEvents} from '../core/hooks/usePointerEvents';
+import {useCanvasEvents} from '../core/hooks/useCanvasEvents';
 import {useViewport} from '../core/hooks/useViewport';
 import {cameraSelector, layersSelector, selectionSelector} from '../core/selectors';
 import {Selection} from './ui/Selection';
+import {useSelection} from '../core/hooks/useSelection';
 
 export const Canvas = () => {
 	const app = useWhiteboard();
@@ -31,7 +32,8 @@ export const Canvas = () => {
 
 	useKeyEvents();
 	useViewport(canvasRef);
-	const events = usePointerEvents();
+	const events = useCanvasEvents();
+	const selections = useSelection();
 
 	return (
 		<svg
@@ -49,6 +51,7 @@ export const Canvas = () => {
 				))}
 			</g>
 			{selection && <Selection bounds={app.getScreenBounds(selection)}/>}
+			{selections && <Selection bounds={app.getScreenBounds(selections)} padding={10}/>}
 		</svg>
 	);
 };

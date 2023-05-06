@@ -2,9 +2,10 @@ import React from 'react';
 import {deepmerge} from '../../utils';
 import {type BaseLayer, BaseLayerUtil} from '../BaseLayerUtil';
 import {type Bounds} from '../../types';
-import {defaultLayerStyle} from '../shared';
+import {BorderStyle, defaultLayerStyle, FillStyle, getBaseStyle} from '../shared';
 import {strokeToPath, toPath, toStroke} from './PathHelpers';
-import {TinyColor} from '@ctrl/tinycolor';
+import {match} from 'ts-pattern';
+import {type StrokeOptions} from 'perfect-freehand';
 
 const type = 'path' as const;
 type TLayer = PathLayer;
@@ -19,22 +20,24 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 	type = type;
 	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) => {
 		const isClosed = this.isShapeClosed(layer);
-		const color = new TinyColor(layer.style.color);
-		const innerColor = color.isDark() ? color.lighten(5).toString() : color.darken(5).toString();
+		const style = getBaseStyle(layer.style);
+		const strokeOptions: StrokeOptions = {
+			size: Number(style.strokeWidth),
+		};
 		return (
 			<g
 				ref={ref}
-				transform={`translate(${layer.position.x} ${layer.position.y})`}
-				rotate={layer.rotation}
+				transform={`translate(${layer.position.x} ${layer.position.y}) rotate(${layer.rotation})`}
 			>
-				{isClosed && <path
-					fill={innerColor}
-					d={strokeToPath(toPath(layer))}
+				{isClosed && layer.style.fillStyle !== FillStyle.Empty && <path
+					fill={style.fill}
+					d={strokeToPath(toPath(layer, strokeOptions))}
 				/>}
-				<path
-					fill={layer.style.color}
-					d={strokeToPath(toStroke(layer))}
-				/>
+				{
+					match(layer.style)
+						.with({borderStyle: BorderStyle.Solid}, () => <path fill={style.stroke} d={strokeToPath(toStroke(layer, strokeOptions))}/>)
+						.otherwise(() => <path {...style} fill='none' d={strokeToPath(toPath(layer, {...strokeOptions, last: false}), false)}/>)
+				}
 			</g>
 		);
 	});

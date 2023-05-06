@@ -2,7 +2,7 @@ import {useMouseState} from '../hooks/useMouse';
 import {useRoom} from 'presence';
 import React from 'react';
 import {Cursor, type CursorRef} from 'ui';
-import {useWhiteboard} from '../core/useWhiteboard';
+import {useWhiteboard} from '../core/hooks/useWhiteboard';
 
 type MouseState = {
 	x: number;

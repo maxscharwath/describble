@@ -1,5 +1,5 @@
 import React from 'react';
-import {useWhiteboard} from '../../core/useWhiteboard';
+import {useWhiteboard} from '../../core/hooks/useWhiteboard';
 import {cameraSelector} from '../../core/selectors';
 
 export const DebugBar = () => {

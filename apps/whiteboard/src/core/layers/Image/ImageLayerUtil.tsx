@@ -24,7 +24,7 @@ export class ImageLayerUtil extends BaseLayerUtil<TLayer> {
 			y={layer.position.y}
 			width={layer.dimensions.width}
 			height={layer.dimensions.height}
-			rotate={layer.rotation}
+			transform={`rotate(${layer.rotation})`}
 			href={asset?.src ?? 'https://media.tenor.com/lx2WSGRk8bcAAAAC/pulp-fiction-john-travolta.gif'}
 			preserveAspectRatio='none'
 		/>,

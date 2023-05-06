@@ -17,8 +17,8 @@ type SelectionProps = {
  * @param radius - The radius of the corners.
  * @constructor
  */
-export const Selection = memo(({bounds, radius = 10}: SelectionProps) => {
-	const bound = normalizeBounds(bounds);
+export const Selection = memo(({bounds, radius = 10, padding = 0}: SelectionProps) => {
+	const bound = normalizeBounds(bounds, padding);
 	return (
 		<rect
 			{...bound}

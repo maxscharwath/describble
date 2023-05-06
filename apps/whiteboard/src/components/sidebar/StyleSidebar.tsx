@@ -1,5 +1,5 @@
 import React from 'react';
-import {useWhiteboard} from '../../core/useWhiteboard';
+import {useWhiteboard} from '../../core/hooks/useWhiteboard';
 import {shallow} from 'zustand/shallow';
 import {clsx} from 'clsx';
 import {TinyColor} from '@ctrl/tinycolor';

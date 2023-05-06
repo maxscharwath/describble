@@ -2,7 +2,7 @@ import React from 'react';
 import {deepmerge} from '../../utils';
 import {type BaseLayer, BaseLayerUtil} from '../BaseLayerUtil';
 import {type Bounds} from '../../types';
-import {defaultLayerStyle} from '../shared';
+import {defaultLayerStyle, getBaseStyle} from '../shared';
 
 const type = 'circle' as const;
 type TLayer = CircleLayer;
@@ -23,8 +23,8 @@ export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
 			cy={layer.position.y}
 			rx={layer.rx}
 			ry={layer.ry}
-			rotate={layer.rotation}
-			fill={layer.style.color}
+			transform={`rotate(${layer.rotation})`}
+			{...getBaseStyle(layer.style)}
 		/>,
 	);
 

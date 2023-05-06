@@ -1,5 +1,5 @@
-import {type Bounds} from './types';
-import {normalizeBounds} from './coordinateUtils';
+import {type Bounds} from '../core/types';
+import {normalizeBounds} from '../core/utils';
 
 export interface QuadTreeItem<T> {
 	bounds: Bounds;

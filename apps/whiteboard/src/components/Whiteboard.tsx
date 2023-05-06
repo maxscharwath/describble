@@ -5,7 +5,7 @@ import {LayersSidebar} from './sidebar/LayersSidebar';
 import {Cursors} from './Cursors';
 import {SelectionsToolbar} from './ui/Selections';
 import {WhiteboardApp, type WhiteboardCallbacks} from '../core/WhiteboardApp';
-import {WhiteboardProvider} from '../core/useWhiteboard';
+import {WhiteboardProvider} from '../core/hooks/useWhiteboard';
 import {DebugBar} from './toolbar/DebugBar';
 import {StyleSidebar} from './sidebar/StyleSidebar';
 

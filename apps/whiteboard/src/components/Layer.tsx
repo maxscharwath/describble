@@ -1,8 +1,9 @@
 import React, {memo} from 'react';
-import {useWhiteboard} from '../core/useWhiteboard';
+import {useWhiteboard} from '../core/hooks/useWhiteboard';
 import {getLayerUtil, type Layer as TLayer} from '../core/layers';
 import {shallow} from 'zustand/shallow';
 import {layerSelector} from '../core/selectors';
+import {useLayerEvents} from '../core/hooks/useLayerEvents';
 
 export const Layer = React.memo(({layerId}: {layerId: string}) => {
 	const app = useWhiteboard();
@@ -14,7 +15,12 @@ export const Layer = React.memo(({layerId}: {layerId: string}) => {
 	const asset = layer.assetId ? app.asset.getAsset(layer.assetId) : undefined;
 
 	const {Component} = getLayerUtil(layer);
-	return <Component layer={layer as never} asset={asset}/>;
+	const events = useLayerEvents(layerId);
+	return (
+		<g {...events}>
+			<Component layer={layer as never} asset={asset}/>
+		</g>
+	);
 });
 Layer.displayName = 'Layer';
 

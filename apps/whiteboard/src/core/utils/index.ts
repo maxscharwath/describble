@@ -28,13 +28,13 @@ export const createUseStore = <T> (store: StoreApi<T>) => ((selector, equalityFn
  * Normalizes a bounds object so that the width and height are positive
  * @param bounds
  */
-export const normalizeBounds = (bounds: Bounds): Bounds => {
+export const normalizeBounds = (bounds: Bounds, padding = 0): Bounds => {
 	const {x, y, width, height} = bounds;
 	return {
-		x: width < 0 ? x + width : x,
-		y: height < 0 ? y + height : y,
-		width: Math.abs(width),
-		height: Math.abs(height),
+		x: (width < 0 ? x + width : x) - padding,
+		y: (height < 0 ? y + height : y) - padding,
+		width: Math.abs(width) + (padding * 2),
+		height: Math.abs(height) + (padding * 2),
 	};
 };
 

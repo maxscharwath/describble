@@ -24,10 +24,17 @@ export class ResizeActivity extends BaseActivity {
 		};
 	}
 
-	complete(): WhiteboardCommand | void {
+	complete(): WhiteboardCommand | WhiteboardPatch | void {
 		const layer = this.app.getLayer(this.layerId);
 		if (!this.initLayer || !layer) {
 			return;
+		}
+
+		if (this.create) {
+			const bounds = normalizeBounds(getLayerUtil(layer).getBounds(layer as never));
+			if (bounds.width < 2 || bounds.height < 2) {
+				return this.abort();
+			}
 		}
 
 		return {

@@ -131,6 +131,18 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		return this.documentState.layers[id] as TLayer;
 	}
 
+	public getLayers(ids: string[]): Layer[] {
+		const layers: Layer[] = [];
+		for (const id of ids) {
+			const layer = this.documentState.layers[id];
+			if (layer) {
+				layers.push(layer);
+			}
+		}
+
+		return layers;
+	}
+
 	public addLayer(...layers: Layer[]) {
 		if (!layers.length) {
 			return this;

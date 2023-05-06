@@ -14,7 +14,7 @@ import {
 	WASMIcon,
 } from 'ui/components/Icons';
 import {Button} from '../ui/Buttons';
-import {useWhiteboard} from '../../core/useWhiteboard';
+import {useWhiteboard} from '../../core/hooks/useWhiteboard';
 import {shallow} from 'zustand/shallow';
 import {type Tools} from '../../core/WhiteboardApp';
 

@@ -1,4 +1,4 @@
-import {useWhiteboard} from '../useWhiteboard';
+import {useWhiteboard} from './useWhiteboard';
 import React from 'react';
 
 export function useKeyEvents() {
