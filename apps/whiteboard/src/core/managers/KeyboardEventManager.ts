@@ -1,4 +1,4 @@
-import {type WhiteboardApp} from '../WhiteboardApp';
+import {type WhiteboardApp} from '~core/WhiteboardApp';
 
 export class KeyboardEventManager {
 	constructor(private readonly app: WhiteboardApp) {}

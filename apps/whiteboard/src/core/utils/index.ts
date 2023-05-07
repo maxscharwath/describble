@@ -1,7 +1,8 @@
-export * from './vector';
-import {type Bounds, type Patch, type Point} from '../types';
 import {type StoreApi} from 'zustand/vanilla';
 import {type UseBoundStore, useStore} from 'zustand';
+import {type Bounds, type Patch, type Point} from '~core/types';
+
+export * from './vector';
 
 export function deepmerge<T>(target: T, patch: Patch<T>): T {
 	const result: T = {...target};

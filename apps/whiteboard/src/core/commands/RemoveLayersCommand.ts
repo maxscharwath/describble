@@ -1,6 +1,6 @@
-import {type WhiteboardApp, type WhiteboardCommand} from '../WhiteboardApp';
-import {type Patch} from '../types';
-import {type Layer} from '../layers';
+import {type WhiteboardApp, type WhiteboardCommand} from '~core/WhiteboardApp';
+import {type Patch} from '~core/types';
+import {type Layer} from '~core/layers';
 
 export function removeLayersCommand(
 	app: WhiteboardApp,

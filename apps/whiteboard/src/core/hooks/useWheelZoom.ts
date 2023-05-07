@@ -1,6 +1,5 @@
-import {type EventElement, useEvent} from './useEvents';
 import {type RefObject} from 'react';
-import {useWhiteboard} from '../core/hooks/useWhiteboard';
+import {type EventElement, useEvent, useWhiteboard} from '~core/hooks';
 
 export const useWheelZoom = (canvasRef: RefObject<EventElement>) => {
 	const app = useWhiteboard();

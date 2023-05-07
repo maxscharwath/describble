@@ -1,4 +1,4 @@
-import {type Asset, type WhiteboardApp} from '../WhiteboardApp';
+import {type Asset, type WhiteboardApp} from '~core/WhiteboardApp';
 
 export class AssetManager {
 	constructor(private readonly app: WhiteboardApp) {}

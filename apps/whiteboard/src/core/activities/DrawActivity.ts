@@ -1,7 +1,7 @@
-import {BaseActivity} from './BaseActivity';
-import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '../WhiteboardApp';
-import {type Layer} from '../layers';
-import {type PathLayer} from '../layers/Path';
+import {BaseActivity} from '~core/activities/BaseActivity';
+import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '~core/WhiteboardApp';
+import {type Layer} from '~core/layers';
+import {type PathLayer} from '~core/layers/Path';
 
 export class DrawActivity extends BaseActivity {
 	type = 'draw' as const;

@@ -1,5 +1,6 @@
 import React from 'react';
-import {ColorButton} from './ColorButton';
+import {shallow} from 'zustand/shallow';
+import {ColorButton} from '~components/ui/ColorButton';
 import {greet} from 'hello-wasm';
 import {
 	CircleIcon,
@@ -13,10 +14,9 @@ import {
 	UndoIcon,
 	WASMIcon,
 } from 'ui/components/Icons';
-import {Button} from '../ui/Buttons';
-import {useWhiteboard} from '../../core/hooks/useWhiteboard';
-import {shallow} from 'zustand/shallow';
-import {type Tools} from '../../core/WhiteboardApp';
+import {Button} from '~components/ui/Buttons';
+import {useWhiteboard} from '~core/hooks/useWhiteboard';
+import {type Tools} from '~core/WhiteboardApp';
 
 const colors = {
 	red: '#FF0000',

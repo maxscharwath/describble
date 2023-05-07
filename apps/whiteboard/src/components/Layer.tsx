@@ -1,9 +1,8 @@
 import React, {memo} from 'react';
-import {useWhiteboard} from '../core/hooks/useWhiteboard';
-import {getLayerUtil, type Layer as TLayer} from '../core/layers';
 import {shallow} from 'zustand/shallow';
-import {layerSelector} from '../core/selectors';
-import {useLayerEvents} from '../core/hooks/useLayerEvents';
+import {useLayerEvents, useWhiteboard} from '~core/hooks';
+import {getLayerUtil, type Layer as TLayer} from '~core/layers';
+import {layerSelector} from '~core/selectors';
 
 export const Layer = React.memo(({layerId}: {layerId: string}) => {
 	const app = useWhiteboard();

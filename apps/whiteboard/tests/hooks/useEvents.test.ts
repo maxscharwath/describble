@@ -1,5 +1,5 @@
 import {describe, type Mock, vi} from 'vitest';
-import {useEvent, useEvents} from '../../src/hooks/useEvents';
+import {useEvent, useEvents} from '~core/hooks/useEvents';
 import {renderHook} from '@testing-library/react';
 import {type PointerEventHandler} from 'react';
 

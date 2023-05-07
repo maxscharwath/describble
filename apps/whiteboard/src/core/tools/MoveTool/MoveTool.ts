@@ -1,5 +1,5 @@
-import {BaseTool, Status} from '../BaseTool';
-import {PanActivity} from '../../activities/PanActivity';
+import {BaseTool, Status} from '~core/tools';
+import {PanActivity} from '~core/activities/PanActivity';
 
 export class MoveTool extends BaseTool {
 	type = 'move' as const;

@@ -1,7 +1,7 @@
-import {BaseActivity} from './BaseActivity';
-import {type WhiteboardPatch} from '../WhiteboardApp';
-import {createBounds} from '../utils';
-import {type Point} from '../types';
+import {BaseActivity} from '~core/activities/BaseActivity';
+import {type WhiteboardPatch} from '~core/WhiteboardApp';
+import {createBounds} from '~core/utils';
+import {type Point} from '~core/types';
 
 export class SelectActivity extends BaseActivity {
 	type = 'select' as const;

@@ -1,4 +1,4 @@
-import {type BaseTool} from './BaseTool';
+import {type BaseTool} from '~core/tools/BaseTool';
 
 type Tools<T extends BaseTool[]> = {[K in T[number]['type']]: Extract<T[number], {type: K}>};
 export const createTools = <T extends BaseTool[]> (...tools: T): Tools<T> => (

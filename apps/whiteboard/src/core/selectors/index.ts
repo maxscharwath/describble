@@ -1,4 +1,4 @@
-import {type WhiteboardState} from '../WhiteboardApp';
+import {type WhiteboardState} from '~core/WhiteboardApp';
 
 export const documentSelector = (state: WhiteboardState) => state.documents[state.appState.currentDocumentId];
 

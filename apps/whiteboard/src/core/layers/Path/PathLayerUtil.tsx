@@ -1,11 +1,11 @@
 import React from 'react';
-import {deepmerge} from '../../utils';
-import {type BaseLayer, BaseLayerUtil} from '../BaseLayerUtil';
-import {type Bounds} from '../../types';
-import {BorderStyle, defaultLayerStyle, FillStyle, getBaseStyle} from '../shared';
-import {strokeToPath, toPath, toStroke} from './PathHelpers';
 import {match} from 'ts-pattern';
 import {type StrokeOptions} from 'perfect-freehand';
+import {deepmerge} from '~core/utils';
+import {type BaseLayer, BaseLayerUtil} from '~core/layers/BaseLayerUtil';
+import {type Bounds} from '~core/types';
+import {BorderStyle, defaultLayerStyle, FillStyle, getBaseStyle} from '~core/layers/shared';
+import {strokeToPath, toPath, toStroke} from '~core/layers/Path/PathHelpers';
 
 const type = 'path' as const;
 type TLayer = PathLayer;

@@ -1,7 +1,7 @@
-import {BaseTool, Status} from '../BaseTool';
-import {ResizeActivity} from '../../activities/ResizeActivity';
-import {Rectangle} from '../../layers';
 import {nanoid} from 'nanoid';
+import {BaseTool, Status} from '~core/tools';
+import {ResizeActivity} from '~core/activities/ResizeActivity';
+import {Rectangle} from '~core/layers';
 
 export class RectangleTool extends BaseTool {
 	type = 'rectangle' as const;

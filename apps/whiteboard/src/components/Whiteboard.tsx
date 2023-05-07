@@ -1,13 +1,13 @@
 import React from 'react';
-import {Toolbar} from './toolbar/Toolbar';
-import {Canvas} from './Canvas';
-import {LayersSidebar} from './sidebar/LayersSidebar';
-import {Cursors} from './Cursors';
-import {SelectionsToolbar} from './ui/Selections';
-import {WhiteboardApp, type WhiteboardCallbacks} from '../core/WhiteboardApp';
-import {WhiteboardProvider} from '../core/hooks/useWhiteboard';
-import {DebugBar} from './toolbar/DebugBar';
-import {StyleSidebar} from './sidebar/StyleSidebar';
+import {Toolbar} from '~components/toolbar/Toolbar';
+import {Canvas} from '~components/Canvas';
+import {LayersSidebar} from '~components/sidebar/LayersSidebar';
+import {Cursors} from '~components/Cursors';
+import {SelectionsToolbar} from '~components/ui/Selections';
+import {DebugBar} from '~components/toolbar/DebugBar';
+import {StyleSidebar} from '~components/sidebar/StyleSidebar';
+import {WhiteboardApp, type WhiteboardCallbacks} from '~core/WhiteboardApp';
+import {WhiteboardProvider} from '~core/hooks';
 
 type WhiteboardProps = {
 	id: string;

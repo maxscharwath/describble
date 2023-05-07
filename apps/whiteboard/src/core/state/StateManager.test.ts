@@ -1,4 +1,4 @@
-import {StateManager} from './StateManager';
+import {StateManager} from '~core/state/StateManager';
 import {expect} from 'vitest';
 
 describe('StateManager', () => {

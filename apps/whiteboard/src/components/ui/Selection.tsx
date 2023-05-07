@@ -1,8 +1,8 @@
 import React, {memo} from 'react';
 import clsx from 'clsx';
 import style from './Selection.module.scss';
-import {normalizeBounds} from '../../core/utils';
-import {type Bounds} from '../../core/types';
+import {normalizeBounds} from '~core/utils';
+import {type Bounds} from '~core/types';
 
 type SelectionProps = {
 	bounds: Bounds;

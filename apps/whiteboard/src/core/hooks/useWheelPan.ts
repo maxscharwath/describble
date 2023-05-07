@@ -1,6 +1,5 @@
-import {type EventElement, useEvents} from './useEvents';
 import {type MouseEvent, type RefObject, useRef} from 'react';
-import {useWhiteboard} from '../core/hooks/useWhiteboard';
+import {type EventElement, useEvents, useWhiteboard} from '~core/hooks';
 
 export const useWheelPan = (canvasRef: RefObject<EventElement>) => {
 	const initialWheelPosition = useRef<{x: number; y: number} | null>(null);

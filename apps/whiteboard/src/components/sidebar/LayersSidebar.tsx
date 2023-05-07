@@ -1,13 +1,13 @@
 import React, {memo} from 'react';
 import {Reorder} from 'framer-motion';
 import {ClosedEyeIcon, OpenEyeIcon, TargetIcon, TrashIcon} from 'ui/components/Icons';
-import {Button} from '../ui/Buttons';
-import {Spacer} from '../ui/Utils';
-import {useWhiteboard} from '../../core/hooks/useWhiteboard';
+import {Button} from '~components/ui/Buttons';
+import {Spacer} from '~components/ui/Utils';
+import {useWhiteboard} from '~core/hooks/useWhiteboard';
 import {shallow} from 'zustand/shallow';
-import {PreviewLayer} from '../Layer';
-import {Sidebar} from './Sidebar';
-import {layerSelector, layersSelector} from '../../core/selectors';
+import {PreviewLayer} from '~components/Layer';
+import {Sidebar} from '~components/ui/Sidebar';
+import {layerSelector, layersSelector} from '~core/selectors';
 
 export const LayersSidebar = () => {
 	const app = useWhiteboard();

@@ -1,5 +1,5 @@
 import React from 'react';
-import {type Camera} from '../../core/types';
+import {type Camera} from '~core/types';
 
 export const DottedGridBackground = ({camera}: {camera: Camera}) => (
 	<>

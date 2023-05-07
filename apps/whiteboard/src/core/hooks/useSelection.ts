@@ -1,7 +1,7 @@
-import {useWhiteboard} from './useWhiteboard';
+import {useWhiteboard} from '~core/hooks';
 import {shallow} from 'zustand/shallow';
-import {getLayerUtil} from '../layers';
-import {type Bounds} from '../types';
+import {getLayerUtil} from '~core/layers';
+import {type Bounds} from '~core/types';
 
 export const useSelection = () => {
 	const app = useWhiteboard();

@@ -1,8 +1,8 @@
-import {BaseTool, Status} from '../BaseTool';
-import {Image} from '../../layers';
 import {nanoid} from 'nanoid';
-import {ResizeActivity} from '../../activities/ResizeActivity';
-import {type Asset} from '../../WhiteboardApp';
+import {BaseTool, Status} from '~core/tools';
+import {Image} from '~core/layers';
+import {ResizeActivity} from '~core/activities/ResizeActivity';
+import {type Asset} from '~core/WhiteboardApp';
 
 export class ImageTool extends BaseTool {
 	type = 'image' as const;

@@ -1,7 +1,7 @@
-import {BaseTool, Status} from '../BaseTool';
-import {Circle} from '../../layers';
 import {nanoid} from 'nanoid';
-import {ResizeActivity} from '../../activities/ResizeActivity';
+import {Circle} from '~core/layers';
+import {ResizeActivity} from '~core/activities/ResizeActivity';
+import {BaseTool, Status} from '../BaseTool';
 
 export class CircleTool extends BaseTool {
 	type = 'circle' as const;

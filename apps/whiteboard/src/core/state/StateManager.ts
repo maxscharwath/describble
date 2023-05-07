@@ -1,8 +1,8 @@
 import {createStore, type StoreApi} from 'zustand/vanilla';
 import {type UseBoundStore} from 'zustand';
 import * as idb from 'idb-keyval';
-import {type Command, type Patch} from '../types';
-import {createUseStore, deepcopy, deepmerge} from '../utils';
+import {type Command, type Patch} from '~core/types';
+import {createUseStore, deepcopy, deepmerge} from '~core/utils';
 
 /**
  * State manager

@@ -1,5 +1,5 @@
-import {type WhiteboardApp} from '../WhiteboardApp';
-import {type KeyboardEventHandler, type PointerEventHandler, WhiteboardEvents} from '../types';
+import {type WhiteboardApp} from '~core/WhiteboardApp';
+import {type KeyboardEventHandler, type PointerEventHandler, WhiteboardEvents} from '~core/types';
 
 export enum Status {
 	Idle = 'idle',
@@ -22,7 +22,7 @@ export abstract class BaseTool<TStatus extends string = any> extends WhiteboardE
 	};
 
 	onPointerUp: PointerEventHandler = () => {
-		if (this.status === Status.Creating) {
+		if (this.status !== Status.Idle) {
 			this.app.activity.completeActivity();
 		}
 

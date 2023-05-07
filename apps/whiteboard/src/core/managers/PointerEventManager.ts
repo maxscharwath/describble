@@ -1,4 +1,4 @@
-import {type WhiteboardApp} from '../WhiteboardApp';
+import {type WhiteboardApp} from '~core/WhiteboardApp';
 
 export class PointerEventManager {
 	public isPointerDown = false;

@@ -1,7 +1,7 @@
-import {BaseActivity} from './BaseActivity';
-import {type WhiteboardPatch} from '../WhiteboardApp';
-import {type Point} from '../types';
-import {Vector} from '../utils';
+import {BaseActivity} from '~core/activities/BaseActivity';
+import {type WhiteboardPatch} from '~core/WhiteboardApp';
+import {type Point} from '~core/types';
+import {Vector} from '~core/utils';
 
 export class PanActivity extends BaseActivity {
 	type = 'pan' as const;

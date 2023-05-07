@@ -1,18 +1,20 @@
 import React from 'react';
-import {useDropImageTool} from '../hooks/UseDropImageTool';
-import {useTouchZoom} from '../hooks/useTouchZoom';
-import {useWheelZoom} from '../hooks/useWheelZoom';
-import {useWheelPan} from '../hooks/useWheelPan';
-import {DottedGridBackground} from './ui/DottedGridBackground';
-import {useWhiteboard} from '../core/hooks/useWhiteboard';
+import {
+	useCanvasEvents,
+	useDropImageTool,
+	useKeyEvents,
+	useSelection,
+	useTouchZoom,
+	useViewport,
+	useWheelPan,
+	useWheelZoom,
+	useWhiteboard,
+} from '~core/hooks';
+import {DottedGridBackground} from '~components/ui/DottedGridBackground';
+import {Selection} from '~components/ui/Selection';
 import {shallow} from 'zustand/shallow';
-import {Layer} from './Layer';
-import {useKeyEvents} from '../core/hooks/useKeyEvents';
-import {useCanvasEvents} from '../core/hooks/useCanvasEvents';
-import {useViewport} from '../core/hooks/useViewport';
-import {cameraSelector, layersSelector, selectionSelector} from '../core/selectors';
-import {Selection} from './ui/Selection';
-import {useSelection} from '../core/hooks/useSelection';
+import {Layer} from '~components/Layer';
+import {cameraSelector, layersSelector, selectionSelector} from '~core/selectors';
 
 export const Canvas = () => {
 	const app = useWhiteboard();

@@ -1,6 +1,6 @@
-import {BaseTool} from '../BaseTool';
-import {SelectActivity} from '../../activities/SelectActivity';
-import {type PointerEventHandler} from '../../types';
+import {BaseTool} from '~core/tools';
+import {SelectActivity} from '~core/activities/SelectActivity';
+import {type KeyboardEventHandler, type PointerEventHandler} from '~core/types';
 
 enum Status {
 	Idle = 'idle',
@@ -11,11 +11,6 @@ enum Status {
 
 export class SelectTool extends BaseTool<Status> {
 	type = 'select' as const;
-
-	onPointerUp: PointerEventHandler = () => {
-		this.app.activity.completeActivity();
-		this.setStatus(Status.Idle);
-	};
 
 	onPointerMove: PointerEventHandler = () => {
 		if (this.app.activity.activity) {
@@ -36,12 +31,23 @@ export class SelectTool extends BaseTool<Status> {
 		});
 	};
 
-	onCanvasDown = () => {
+	onCanvasDown: PointerEventHandler = () => {
 		this.setStatus(Status.CanvasPointing);
 		this.app.patchState({
 			appState: {
 				selectedLayers: [],
 			},
 		});
+	};
+
+	onKeyDown: KeyboardEventHandler = ({key}) => {
+		if (key === 'Escape' || key === 'Backspace') {
+			this.app.removeLayer(...this.app.state.appState.selectedLayers);
+			this.app.patchState({
+				appState: {
+					selectedLayers: [],
+				},
+			});
+		}
 	};
 }

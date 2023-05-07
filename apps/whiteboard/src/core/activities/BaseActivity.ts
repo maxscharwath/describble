@@ -1,4 +1,4 @@
-import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '../WhiteboardApp';
+import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '~core/WhiteboardApp';
 
 export abstract class BaseActivity {
 	abstract readonly type: string;

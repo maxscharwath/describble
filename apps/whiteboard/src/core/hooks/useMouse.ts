@@ -1,7 +1,6 @@
 import {type PointerEvent, useRef} from 'react';
 
-import {usePointerEvents} from './usePointerEvents';
-import {useEvent} from './useEvents';
+import {useEvent, usePointerEvents} from '~core/hooks';
 
 type MouseState = {
 	x: number;

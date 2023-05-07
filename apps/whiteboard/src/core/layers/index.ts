@@ -1,8 +1,8 @@
-import {createLayerUtils, type LayerUtilsKey, type LayerUtilsType, makeGetLayerUtil} from './BaseLayerUtil';
-import {RectangleLayerUtil} from './Rectangle';
-import {CircleLayerUtil} from './Circle';
-import {PathLayerUtil} from './Path';
-import {ImageLayerUtil} from './Image';
+import {createLayerUtils, type LayerUtilsKey, type LayerUtilsType, makeGetLayerUtil} from '~core/layers/BaseLayerUtil';
+import {RectangleLayerUtil} from '~core/layers/Rectangle';
+import {CircleLayerUtil} from '~core/layers/Circle';
+import {PathLayerUtil} from '~core/layers/Path';
+import {ImageLayerUtil} from '~core/layers/Image';
 
 export const Circle = new CircleLayerUtil();
 export const Rectangle = new RectangleLayerUtil();

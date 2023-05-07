@@ -1,4 +1,4 @@
-import {useEvent} from './useEvents';
+import {useEvent} from '~core/hooks/useEvents';
 
 /**
  * This hook allows you to drop an image onto the canvas

@@ -1,8 +1,8 @@
 import React from 'react';
-import {deepmerge} from '../../utils';
-import {type BaseLayer, BaseLayerUtil} from '../BaseLayerUtil';
-import {type Bounds, type Dimension} from '../../types';
-import {defaultLayerStyle} from '../shared';
+import {deepmerge} from '~core/utils';
+import {type BaseLayer, BaseLayerUtil} from '~core/layers/BaseLayerUtil';
+import {type Bounds, type Dimension} from '~core/types';
+import {defaultLayerStyle} from '~core/layers/shared';
 
 const type = 'image' as const;
 type TLayer = ImageLayer;

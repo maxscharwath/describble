@@ -1,5 +1,5 @@
 import {getStroke, getStrokePoints, type StrokeOptions} from 'perfect-freehand';
-import {type PathLayer} from './PathLayerUtil';
+import {type PathLayer} from '~core/layers/Path/PathLayerUtil';
 
 export type Stroke = number[][];
 

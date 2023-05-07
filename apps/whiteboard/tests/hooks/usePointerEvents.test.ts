@@ -1,7 +1,7 @@
 import {describe, vi} from 'vitest';
 import {renderHook} from '@testing-library/react';
 import {type PointerEventHandler} from 'react';
-import {usePointerEvents} from '../../src/hooks/usePointerEvents';
+import {usePointerEvents} from '~core/hooks/usePointerEvents';
 
 describe('usePointerEvents', () => {
 	let target: HTMLDivElement;

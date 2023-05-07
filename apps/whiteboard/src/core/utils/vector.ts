@@ -1,4 +1,4 @@
-import {type Point} from '../types';
+import {type Point} from '~core/types';
 
 export class Vector implements Point {
 	public readonly x: number;

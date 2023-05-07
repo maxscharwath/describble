@@ -1,6 +1,14 @@
-import {StateManager} from './state/StateManager';
-import {type Bounds, type Camera, type Command, type Dimension, type Patch, type Point, type Pointer} from './types';
-import {type Layer} from './layers';
+import {StateManager} from '~core/state/StateManager';
+import {
+	type Bounds,
+	type Camera,
+	type Command,
+	type Dimension,
+	type Patch,
+	type Point,
+	type Pointer,
+} from '~core/types';
+import {type Layer} from '~core/layers';
 import {
 	type BaseTool,
 	CircleTool,
@@ -11,14 +19,10 @@ import {
 	RectangleTool,
 	SelectTool,
 	type ToolsKey,
-} from './tools';
-import {defaultLayerStyle, type LayerStyle} from './layers/shared';
-import {PointerEventManager} from './managers/PointerEventManager';
-import {ActivityManager} from './managers/ActivityManager';
-import {createLayersCommand} from './commands/CreateLayersCommand';
-import {KeyboardEventManager} from './managers/KeyboardEventManager';
-import {removeLayersCommand} from './commands/RemoveLayersCommand';
-import {AssetManager} from './managers/AssetManager';
+} from '~core/tools';
+import {defaultLayerStyle, type LayerStyle} from '~core/layers/shared';
+import {ActivityManager, AssetManager, KeyboardEventManager, PointerEventManager} from '~core/managers';
+import {createLayersCommand, removeLayersCommand} from '~core/commands';
 
 export enum Status {
 	Idle = 'idle',

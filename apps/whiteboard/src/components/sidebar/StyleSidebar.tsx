@@ -4,7 +4,7 @@ import {shallow} from 'zustand/shallow';
 import {clsx} from 'clsx';
 import {TinyColor} from '@ctrl/tinycolor';
 import {BorderStyle, FillStyle, Size} from '../../core/layers/shared';
-import {Sidebar} from './Sidebar';
+import {Sidebar} from '../ui/Sidebar';
 
 type StyleButtonProps = {
 	selected: boolean;

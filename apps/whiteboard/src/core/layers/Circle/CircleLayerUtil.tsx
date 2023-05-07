@@ -1,8 +1,8 @@
 import React from 'react';
-import {deepmerge} from '../../utils';
-import {type BaseLayer, BaseLayerUtil} from '../BaseLayerUtil';
-import {type Bounds} from '../../types';
-import {defaultLayerStyle, getBaseStyle} from '../shared';
+import {deepmerge} from '~core/utils';
+import {type BaseLayer, BaseLayerUtil} from '~core/layers/BaseLayerUtil';
+import {type Bounds} from '~core/types';
+import {defaultLayerStyle, getBaseStyle} from '~core/layers/shared';
 
 const type = 'circle' as const;
 type TLayer = CircleLayer;

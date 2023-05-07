@@ -1,5 +1,5 @@
-import {useWhiteboard} from './useWhiteboard';
 import React from 'react';
+import {useWhiteboard} from '~core/hooks/useWhiteboard';
 
 export function useCanvasEvents() {
 	const {pointerEvent} = useWhiteboard();
