@@ -17,11 +17,14 @@ export const Button = ({
 }) => (
 	<button
 		type='button'
-		className={twMerge(clsx(
-			'rounded-full bg-gray-200 p-2 transition-all hover:scale-110 active:scale-90',
-			active && 'bg-gray-900 text-white',
-			disabled && 'cursor-not-allowed opacity-50',
-		), className)}
+		className={twMerge(
+			clsx(
+				'rounded-full bg-gray-200 p-2 transition-all hover:scale-110 active:scale-90 dark:bg-gray-700 dark:hover:bg-gray-900',
+				active && 'bg-gray-900 text-white dark:bg-gray-500 dark:text-gray-200',
+				disabled && 'cursor-not-allowed opacity-50 dark:opacity-50',
+			),
+			className,
+		)}
 		disabled={disabled}
 		{...props}
 	>

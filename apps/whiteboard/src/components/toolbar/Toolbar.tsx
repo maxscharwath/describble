@@ -1,6 +1,6 @@
 import React from 'react';
-import {ColorButton} from './ColorButton';
-import {useWhiteboardStore, whiteboardStore} from '../../store/WhiteboardStore';
+import {shallow} from 'zustand/shallow';
+import {ColorButton} from '~components/ui/ColorButton';
 import {greet} from 'hello-wasm';
 import {
 	CircleIcon,
@@ -14,8 +14,9 @@ import {
 	UndoIcon,
 	WASMIcon,
 } from 'ui/components/Icons';
-import {Button} from '../ui/Buttons';
-import {useHistory, useLayersStore} from '../../store/CanvasStore';
+import {Button} from '~components/ui/Buttons';
+import {useWhiteboard} from '~core/hooks/useWhiteboard';
+import {type Tools} from '~core/WhiteboardApp';
 
 const colors = {
 	red: '#FF0000',
@@ -32,33 +33,68 @@ const colors = {
 	white: '#FFFFFF',
 } as const;
 
-const Separator = () => <div className='m-2 h-px w-full rounded-full bg-gray-200 sm:h-full sm:w-px'/>;
+const Separator = () => <div className='m-2 h-px w-full rounded-full bg-gray-200 dark:bg-gray-700 sm:h-full sm:w-px'/>;
 
-export const Toolbar = () => {
-	const context = useWhiteboardStore(state => ({
-		selectedColor: state.selectedColor,
-		currentTool: state.currentTool,
-	}));
-
-	const {clearLayers} = useLayersStore(({clearLayers}) => ({clearLayers}));
-
-	const store = whiteboardStore;
-
-	const history = useHistory();
+type ToolButtonProps = {tool: Tools; icon: React.ReactNode; onClick: (tool: Tools) => void; currentTool?: Tools};
+const ToolButton = (props: ToolButtonProps) => {
+	const {tool, icon, onClick, currentTool} = props;
+	const handleButtonClick = React.useCallback(() => {
+		onClick(tool);
+	}, [props]);
 
 	return (
+		<Button
+			aria-label={`${tool} tool`}
+			active={currentTool === tool}
+			onClick={handleButtonClick}
+		>
+			{icon}
+		</Button>
+	);
+};
+
+export const Toolbar = () => {
+	const app = useWhiteboard();
+
+	const handleUndo = React.useCallback(() => {
+		app.undo();
+	}, [app]);
+
+	const handleRedo = React.useCallback(() => {
+		app.redo();
+	}, [app]);
+
+	const handleSetTool = React.useCallback((tool: Tools) => {
+		app.setTool(tool);
+	}, [app]);
+
+	const handleClear = React.useCallback(() => {
+		app.clearLayers();
+	}, [app]);
+
+	const {selectedTool, selectedColor} = app.useStore(state => ({
+		selectedTool: state.appState.currentTool,
+		selectedColor: state.appState.currentStyle.color,
+	}), shallow);
+	return (
 		<div
-			className='pointer-events-auto m-2 flex flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur sm:flex-row'
+			className='pointer-events-auto m-2 flex h-full flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur dark:border-gray-600 dark:bg-gray-800/80 dark:text-gray-200 dark:backdrop-blur sm:flex-row'
 		>
 			<div className='grid grid-cols-6 gap-2'>
 				{Object.entries(colors).map(([color, value]) => (
 					<ColorButton
 						key={color}
-						selected={context.selectedColor === value || context.selectedColor === color}
+						selected={selectedColor === value || selectedColor === color}
 						color={value}
 						aria-label={color}
 						onClick={() => {
-							store.setState({selectedColor: value});
+							app.patchState({
+								appState: {
+									currentStyle: {
+										color: value,
+									},
+								},
+							}, `set_style_color_${color}`);
 						}}
 					/>
 				))}
@@ -66,79 +102,59 @@ export const Toolbar = () => {
 
 			<Separator/>
 			<div className='grid grid-cols-3 gap-2'>
-				<Button
-					aria-label='Path tool'
-					active={context.currentTool === 'path'}
-					onClick={() => {
-						store.setState({currentTool: 'path'});
-					}}
-				>
-					<PathIcon/>
-				</Button>
+				<ToolButton
+					tool='path'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<PathIcon/>}
+				/>
 
-				<Button
-					aria-label='Rectangle tool'
-					active={context.currentTool === 'rectangle'}
-					onClick={() => {
-						store.setState({currentTool: 'rectangle'});
-					}}
-				>
-					<RectangleIcon/>
-				</Button>
+				<ToolButton
+					tool='rectangle'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<RectangleIcon/>}
+				/>
 
-				<Button
-					aria-label='Circle tool'
-					active={context.currentTool === 'circle'}
-					onClick={() => {
-						store.setState({currentTool: 'circle'});
-					}}
-				>
-					<CircleIcon/>
-				</Button>
+				<ToolButton
+					tool='circle'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<CircleIcon/>}
+				/>
 
-				<Button
-					aria-label='Image tool'
-					active={context.currentTool === 'image'}
-					onClick={() => {
-						store.setState({currentTool: 'image'});
-					}}
-				>
-					<ImageIcon/>
-				</Button>
+				<ToolButton
+					tool='image'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<ImageIcon/>}
+				/>
 
-				<Button
-					aria-label='Move tool'
-					active={context.currentTool === 'move'}
-					onClick={() => {
-						store.setState({currentTool: 'move'});
-					}}
-				>
-					<MoveIcon/>
-				</Button>
+				<ToolButton
+					tool='move'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<MoveIcon/>}
+				/>
 
-				<Button
-					aria-label='Select tool'
-					active={context.currentTool === 'select'}
-					onClick={() => {
-						store.setState({currentTool: 'select'});
-					}}
-				>
-					<SelectIcon/>
-				</Button>
+				<ToolButton
+					tool='select'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<SelectIcon/>}
+				/>
 			</div>
 			<Separator/>
 			<div className='grid grid-cols-2 gap-2'>
 				<Button
 					aria-label='Undo action'
-					disabled={!history.pastStates.length}
-					onClick={() => history.undo(1)}
+					onClick={handleUndo}
 				>
 					<RedoIcon/>
 				</Button>
 				<Button
 					aria-label='Redo action'
-					disabled={!history.futureStates.length}
-					onClick={() => history.redo(1)}
+					onClick={handleRedo}
 				>
 					<UndoIcon/>
 				</Button>
@@ -147,10 +163,8 @@ export const Toolbar = () => {
 			<div className='grid grid-cols-2 gap-2'>
 				<Button
 					aria-label='Clear canvas'
-					className='text-red-900'
-					onClick={() => {
-						clearLayers();
-					}}
+					className='text-red-900 dark:text-red-500'
+					onClick={handleClear}
 				>
 					<TrashIcon/>
 				</Button>

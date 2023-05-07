@@ -5,7 +5,14 @@ module.exports = {
     '../../packages/ui/**/*.{js,jsx,ts,tsx}'
   ],
   theme: {
-    extend: {},
+    extend: {
+      height: {
+        'screen': '100dvh',
+      },
+      screens: {
+        'standalone': {'raw': '(display-mode: standalone)'},
+      }
+    },
   },
   plugins: [],
 }

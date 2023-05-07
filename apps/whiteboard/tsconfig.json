@@ -1,5 +1,16 @@
 {
   "extends": "tsconfig/react-library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~*": [
+        "src/*"
+      ]
+    },
+    "types": [
+      "vitest/globals"
+    ]
+  },
   "include": [
     "."
   ],

@@ -1,22 +1,44 @@
 import React from 'react';
-import {Toolbar} from './toolbar/Toolbar';
-import {Canvas} from './Canvas';
-import {Sidebar} from './sidebar/Sidebar';
-import {Cursors} from './Cursors';
-import {SelectionsToolbar} from './ui/Selections';
+import {Toolbar} from '~components/toolbar/Toolbar';
+import {Canvas} from '~components/Canvas';
+import {LayersSidebar} from '~components/sidebar/LayersSidebar';
+import {Cursors} from '~components/Cursors';
+import {SelectionsToolbar} from '~components/ui/Selections';
+import {DebugBar} from '~components/toolbar/DebugBar';
+import {StyleSidebar} from '~components/sidebar/StyleSidebar';
+import {WhiteboardApp, type WhiteboardCallbacks} from '~core/WhiteboardApp';
+import {WhiteboardProvider} from '~core/hooks';
 
-export default function Whiteboard() {
+type WhiteboardProps = {
+	id: string;
+} & WhiteboardCallbacks;
+
+export default function Whiteboard({id, ...callbacks}: WhiteboardProps) {
+	const [app, setApp] = React.useState(() =>
+		new WhiteboardApp(id, callbacks),
+	);
+	React.useLayoutEffect(() => {
+		setApp(new WhiteboardApp(id, callbacks));
+	}, [id]);
 	return (
-		<div className='cursor-none'>
-			<Canvas/>
-			<div className='pointer-events-none absolute inset-x-0 top-0 flex flex-col items-center justify-center'>
-				<Toolbar/>
-				<SelectionsToolbar/>
+		<WhiteboardProvider value={app}>
+			<Canvas />
+			<div className='pointer-events-none fixed flex h-screen w-screen flex-col'>
+				<div className='portrait:standalone:mt-14 m-2 flex w-full flex-row items-center justify-center'>
+					<Toolbar />
+					<SelectionsToolbar />
+				</div>
+				<div className='flex grow flex-row justify-end overflow-y-auto'>
+					<div className='m-2 flex h-full w-48 flex-col justify-start space-y-2 md:w-72'>
+						<StyleSidebar />
+						<LayersSidebar />
+					</div>
+				</div>
+				<div className='flex w-full flex-row items-center justify-center'>
+					<DebugBar />
+				</div>
 			</div>
-			<div className='pointer-events-none absolute inset-y-0 right-0 flex flex-col justify-center'>
-				<Sidebar/>
-			</div>
-			<Cursors/>
-		</div>
+			<Cursors />
+		</WhiteboardProvider>
 	);
 }

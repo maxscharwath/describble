@@ -1,0 +1,8 @@
+{
+  "display": "standalone",
+  "name": "Whiteboard",
+  "short_name": "Whiteboard",
+  "theme_color": "#000000",
+  "background_color": "#000000",
+  "start_url": "/"
+  }

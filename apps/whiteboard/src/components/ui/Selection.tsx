@@ -1,17 +1,8 @@
 import React, {memo} from 'react';
 import clsx from 'clsx';
-import {type Bounds} from '../../utils/types';
 import style from './Selection.module.scss';
-
-const normalizeBounds = (
-	{x, y, width, height}: Bounds,
-	padding = 0,
-): Bounds => ({
-	x: (width < 0 ? x + width : x) - padding,
-	y: (height < 0 ? y + height : y) - padding,
-	width: Math.abs(width) + (padding * 2),
-	height: Math.abs(height) + (padding * 2),
-});
+import {normalizeBounds} from '~core/utils';
+import {type Bounds} from '~core/types';
 
 type SelectionProps = {
 	bounds: Bounds;
@@ -26,7 +17,7 @@ type SelectionProps = {
  * @param radius - The radius of the corners.
  * @constructor
  */
-export const Selection = memo(({bounds, padding = 0, radius = 10}: SelectionProps) => {
+export const Selection = memo(({bounds, radius = 10, padding = 0}: SelectionProps) => {
 	const bound = normalizeBounds(bounds, padding);
 	return (
 		<rect
