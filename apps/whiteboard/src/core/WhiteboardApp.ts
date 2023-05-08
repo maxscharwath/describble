@@ -23,6 +23,7 @@ import {
 import {defaultLayerStyle, type LayerStyle} from '~core/layers/shared';
 import {ActivityManager, AssetManager, KeyboardEventManager, PointerEventManager} from '~core/managers';
 import {createLayersCommand, removeLayersCommand} from '~core/commands';
+import {patchLayersCommand} from '~core/commands/PatchLayersCommand';
 
 export enum Status {
 	Idle = 'idle',
@@ -129,6 +130,14 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	public patchDocument(patch: Patch<Document>, id?: string) {
 		this.patchState({documents: {[this.currentDocumentId]: patch}}, id);
+	}
+
+	public patchStyle(patch: Patch<LayerStyle>, id?: string) {
+		this.patchState({appState: {currentStyle: patch}}, id);
+		const {selectedLayers} = this.state.appState;
+		if (selectedLayers.length) {
+			this.setState(patchLayersCommand(this, selectedLayers, {style: patch}));
+		}
 	}
 
 	public getLayer<TLayer extends Layer>(id: string): TLayer | undefined {

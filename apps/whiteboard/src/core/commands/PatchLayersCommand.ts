@@ -2,20 +2,21 @@ import {type WhiteboardApp, type WhiteboardCommand} from '~core/WhiteboardApp';
 import {type Layer} from '~core/layers';
 import {type Patch} from '~core/types';
 
-export function createLayersCommand(
+export function patchLayersCommand(
 	app: WhiteboardApp,
-	layers: Layer[],
+	layerIds: string[],
+	patch: Patch<Layer>,
 ): WhiteboardCommand {
 	const beforeLayers: Record<string, Patch<Layer> | undefined> = {};
 	const afterLayers: Record<string, Patch<Layer> | undefined> = {};
 
-	layers.forEach(layer => {
-		beforeLayers[layer.id] = undefined;
-		afterLayers[layer.id] = layer;
+	layerIds.forEach(layerId => {
+		beforeLayers[layerId] = app.getLayer(layerId);
+		afterLayers[layerId] = patch;
 	});
 
 	return {
-		id: 'create-layers',
+		id: 'patch-layers',
 		before: {
 			documents: {
 				[app.currentDocumentId]: {

@@ -1,10 +1,11 @@
 import React from 'react';
-import {useWhiteboard} from '../../core/hooks/useWhiteboard';
 import {shallow} from 'zustand/shallow';
 import {clsx} from 'clsx';
 import {TinyColor} from '@ctrl/tinycolor';
-import {BorderStyle, FillStyle, Size} from '../../core/layers/shared';
-import {Sidebar} from '../ui/Sidebar';
+import {useWhiteboard} from '~core/hooks';
+import {BorderStyle, FillStyle, Size} from '~core/layers/shared';
+import {Sidebar} from '~components/ui/Sidebar';
+import {match} from 'ts-pattern';
 
 type StyleButtonProps = {
 	selected: boolean;
@@ -47,87 +48,65 @@ export const StyleButton = ({
 	</button>
 );
 
-const getStrokeWidth = (size: Size) => {
-	switch (size) {
-		case Size.Small:
-			return 5;
-		case Size.Medium:
-			return 10;
-		case Size.Large:
-			return 15;
-		default:
-			return 5;
-	}
-};
+const getStrokeWidth = (size: Size) => match(size)
+	.with(Size.Small, () => 5)
+	.with(Size.Medium, () => 10)
+	.with(Size.Large, () => 15)
+	.exhaustive();
 
-const getFill = (color: string, style: FillStyle) => {
-	switch (style) {
-		case FillStyle.Filled:
-			return color;
-		case FillStyle.Semi:
-			return new TinyColor(color).setAlpha(0.5).toString();
-		case FillStyle.Empty:
-			return 'none';
-		default:
-			return color;
-	}
-};
+const getFill = (color: string, style: FillStyle) => match(style)
+	.with(FillStyle.Filled, () => color)
+	.with(FillStyle.Semi, () => new TinyColor(color).setAlpha(0.5).toString())
+	.with(FillStyle.Empty, () => 'none')
+	.otherwise(() => color);
 
 export const StyleSidebar = () => {
 	const app = useWhiteboard();
 	const style = app.useStore(state => state.appState.currentStyle, shallow);
 	const strokeWidth = getStrokeWidth(style.size);
-	const fill = getFill(style.color, style.fillStyle);
 	const stroke = new TinyColor(style.color).darken(20).toString();
 	const handleFillChange = React.useCallback((fillStyle: FillStyle) => {
-		app.patchState({
-			appState: {
-				currentStyle: {
-					fillStyle,
-				},
-			},
-		}, 'change_fill_style');
+		app.patchStyle({
+			fillStyle,
+		}, `set_style_fill_${fillStyle}`);
 	}, [app]);
 	const handleSizeChange = React.useCallback((size: Size) => {
-		app.patchState({
-			appState: {
-				currentStyle: {
-					size,
-				},
-			},
-		}, 'change_size');
+		app.patchStyle({
+			size,
+		}, `set_style_size_${size}`);
 	}, [app]);
 	const handleBorderStyleChange = React.useCallback((borderStyle: BorderStyle) => {
-		app.patchState({
-			appState: {
-				currentStyle: {
-					borderStyle,
-				},
-			},
-		}, 'change_border_style');
+		app.patchStyle({
+			borderStyle,
+		}, `set_style_border_${borderStyle}`);
 	}, [app]);
 
 	return (
 		<Sidebar title='Style'>
-			<div className='grid justify-items-center gap-2'>
+			<div className='grid grid-cols-2 items-center justify-items-center gap-2'>
+				{/* Border Style */}
+				<p className='justify-self-start overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold dark:text-gray-200'>Border Style</p>
 				<div className='grid grid-cols-3 justify-items-center gap-2'>
-					<StyleButton // Stroke fill
-						fill={fill}
+					{/* Solid */}
+					<StyleButton
+						fill='none'
 						stroke={stroke}
 						strokeWidth={strokeWidth}
 						selected={style.borderStyle === BorderStyle.Solid}
 						onClick={() => handleBorderStyleChange(BorderStyle.Solid)}
 					/>
-					<StyleButton // Stroke dash
-						fill={fill}
+					{/* Dashed */}
+					<StyleButton
+						fill='none'
 						stroke={stroke}
 						strokeWidth={strokeWidth}
 						strokeStyle={`${strokeWidth * 2}, ${strokeWidth * 2}`}
 						selected={style.borderStyle === BorderStyle.Dashed}
 						onClick={() => handleBorderStyleChange(BorderStyle.Dashed)}
 					/>
-					<StyleButton // Stroke doted
-						fill={fill}
+					{/* Dotted */}
+					<StyleButton
+						fill='none'
 						stroke={stroke}
 						strokeWidth={strokeWidth * 1.1}
 						strokeStyle={`1, ${strokeWidth * 2}`}
@@ -135,45 +114,57 @@ export const StyleSidebar = () => {
 						onClick={() => handleBorderStyleChange(BorderStyle.Dotted)}
 					/>
 				</div>
+
+				{/* Size */}
+				<p className='justify-self-start overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold dark:text-gray-200'>Size</p>
 				<div className='grid grid-cols-3 justify-items-center gap-2'>
-					<StyleButton // Size small
-						fill={fill}
+					{/* Small */}
+					<StyleButton
+						fill='none'
 						stroke={stroke}
 						strokeWidth={getStrokeWidth(Size.Small)}
 						selected={style.size === Size.Small}
 						onClick={() => handleSizeChange(Size.Small)}
 					/>
-					<StyleButton // Size medium
-						fill={fill}
+					{/* Medium */}
+					<StyleButton
+						fill='none'
 						stroke={stroke}
 						strokeWidth={getStrokeWidth(Size.Medium)}
 						selected={style.size === Size.Medium}
 						onClick={() => handleSizeChange(Size.Medium)}
 					/>
-					<StyleButton // Size large
-						fill={fill}
+					{/* Large */}
+					<StyleButton
+						fill='none'
 						stroke={stroke}
 						strokeWidth={getStrokeWidth(Size.Large)}
 						selected={style.size === Size.Large}
 						onClick={() => handleSizeChange(Size.Large)}
 					/>
 				</div>
+
+				{/* Fill Style */}
+				<p className='justify-self-start overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold dark:text-gray-200'>Fill Style</p>
 				<div className='grid grid-cols-3 justify-items-center gap-2'>
-					<StyleButton // Fill empty
+					{/* Empty */}
+					<StyleButton
 						fill={getFill(style.color, FillStyle.Empty)}
 						stroke={stroke}
 						strokeWidth={strokeWidth}
 						selected={style.fillStyle === FillStyle.Empty}
 						onClick={() => handleFillChange(FillStyle.Empty)}
 					/>
-					<StyleButton // Fill filled
+					{/* Filled */}
+					<StyleButton
 						fill={getFill(style.color, FillStyle.Filled)}
 						stroke={stroke}
 						strokeWidth={strokeWidth}
 						selected={style.fillStyle === FillStyle.Filled}
 						onClick={() => handleFillChange(FillStyle.Filled)}
 					/>
-					<StyleButton // Fill semi
+					{/* Semi-Transparent */}
+					<StyleButton
 						fill={getFill(style.color, FillStyle.Semi)}
 						stroke={stroke}
 						strokeWidth={strokeWidth}

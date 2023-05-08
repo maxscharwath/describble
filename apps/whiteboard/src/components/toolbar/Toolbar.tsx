@@ -87,12 +87,8 @@ export const Toolbar = () => {
 						color={value}
 						aria-label={color}
 						onClick={() => {
-							app.patchState({
-								appState: {
-									currentStyle: {
-										color: value,
-									},
-								},
+							app.patchStyle({
+								color: value,
 							}, `set_style_color_${color}`);
 						}}
 					/>
