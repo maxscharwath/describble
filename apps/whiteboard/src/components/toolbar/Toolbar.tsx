@@ -3,9 +3,8 @@ import {shallow} from 'zustand/shallow';
 import {ColorButton} from '~components/ui/ColorButton';
 import {greet} from 'hello-wasm';
 import {
-	CircleIcon,
+	CircleIcon, HandIcon,
 	ImageIcon,
-	MoveIcon,
 	PathIcon,
 	RectangleIcon,
 	RedoIcon,
@@ -134,7 +133,7 @@ export const Toolbar = () => {
 					tool='move'
 					currentTool={selectedTool}
 					onClick={handleSetTool}
-					icon={<MoveIcon/>}
+					icon={<HandIcon/>}
 				/>
 
 				<ToolButton

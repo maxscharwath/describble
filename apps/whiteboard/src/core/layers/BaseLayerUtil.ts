@@ -39,6 +39,16 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 		};
 	}
 
+	public translate(layer: T, delta: Point): Partial<T> {
+		return {
+			...layer,
+			position: {
+				x: layer.position.x + delta.x,
+				y: layer.position.y + delta.y,
+			},
+		};
+	}
+
 	abstract getLayer(props: Partial<T>): T;
 
 	abstract getBounds(layer: T): Bounds;
