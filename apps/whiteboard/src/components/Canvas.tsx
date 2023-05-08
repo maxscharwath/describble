@@ -2,9 +2,9 @@ import React from 'react';
 import {
 	useCanvasEvents,
 	useDropImageTool,
-	useKeyEvents,
+	useKeyEvents, useLayersTree,
 	useSelection,
-	useTouchZoom,
+	useTouchZoom, useViewport,
 	useWheelPan,
 	useWheelZoom,
 	useWhiteboard,
@@ -29,6 +29,11 @@ export const Canvas = () => {
 	useWheelZoom(app.whiteboardRef);
 	useWheelPan(app.whiteboardRef);
 	useDropImageTool(app.whiteboardRef);
+	useViewport(app.whiteboardRef);
+
+	const tree = useLayersTree(app, layersId);
+
+	const layers = React.useMemo(() => tree.query(app.getCanvasBounds(app.viewport)), [tree, app.viewport, camera]);
 
 	useKeyEvents();
 	const events = useCanvasEvents();
@@ -42,10 +47,10 @@ export const Canvas = () => {
 		>
 			<DottedGridBackground camera={camera}/>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.zoom})`}>
-				{layersId.map(layer => (
+				{layers.map(layer => (
 					<Layer
-						key={layer}
-						layerId={layer}
+						key={layer.id}
+						layerId={layer.id}
 					/>
 				))}
 			</g>

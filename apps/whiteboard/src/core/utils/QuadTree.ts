@@ -1,5 +1,5 @@
 import {type Bounds} from '~core/types';
-import {normalizeBounds} from '~core/utils';
+import {normalizeBounds} from '~core/utils/index';
 
 export interface QuadTreeItem<T> {
 	bounds: Bounds;
@@ -75,7 +75,7 @@ export class QuadTree<T> {
 		}
 
 		for (const item of this.items) {
-			if (this.contains(range, item.bounds)) {
+			if (this.intersects(range, item.bounds)) {
 				found.push(item.data);
 			}
 		}
@@ -126,15 +126,6 @@ export class QuadTree<T> {
 		});
 
 		this.divided = true;
-	}
-
-	private contains(boundsA: Bounds, boundsB: Bounds): boolean {
-		return (
-			boundsB.x >= boundsA.x
-      && boundsB.x + boundsB.width <= boundsA.x + boundsA.width
-      && boundsB.y >= boundsA.y
-      && boundsB.y + boundsB.height <= boundsA.y + boundsA.height
-		);
 	}
 
 	private intersects(a: Bounds, b: Bounds): boolean {

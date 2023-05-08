@@ -75,6 +75,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	public currentTool?: BaseTool;
 	public currentPoint: Pointer = {id: 0, x: 0, y: 0, pressure: 0};
+	public viewport: Bounds = {x: 0, y: 0, width: 0, height: 0};
 	public whiteboardRef = React.createRef<SVGSVGElement>();
 	public readonly pointerEvent = new PointerEventManager(this);
 	public readonly keyboardEvent = new KeyboardEventManager(this);
@@ -145,7 +146,11 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		return this.documentState.layers[id] as TLayer;
 	}
 
-	public getLayers(ids: string[]): Layer[] {
+	public getLayers(ids?: string[]): Layer[] {
+		if (!ids) {
+			return Object.values(this.documentState.layers);
+		}
+
 		const layers: Layer[] = [];
 		for (const id of ids) {
 			const layer = this.documentState.layers[id];
@@ -188,10 +193,10 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	}
 
 	public updateInput(event: React.PointerEvent) {
-		const bounds = this.whiteboardRef.current?.getBoundingClientRect();
+		const {viewport} = this;
 		this.currentPoint = {
 			id: event.pointerId,
-			...this.getCanvasPoint({x: event.clientX - (bounds?.left ?? 0), y: event.clientY - (bounds?.top ?? 0)}),
+			...this.getCanvasPoint({x: event.clientX - viewport.x, y: event.clientY - viewport.y}),
 			pressure: event.pressure,
 		};
 	}
@@ -219,6 +224,16 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			y: (bounds.y * zoom) + y,
 			width: bounds.width * zoom,
 			height: bounds.height * zoom,
+		};
+	}
+
+	public getCanvasBounds(bounds: Bounds) {
+		const {x, y, zoom} = this.camera;
+		return {
+			x: (bounds.x - x) / zoom,
+			y: (bounds.y - y) / zoom,
+			width: bounds.width / zoom,
+			height: bounds.height / zoom,
 		};
 	}
 
