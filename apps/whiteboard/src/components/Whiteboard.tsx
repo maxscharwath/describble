@@ -11,9 +11,11 @@ import {WhiteboardProvider} from '~core/hooks';
 
 type WhiteboardProps = {
 	id: string;
+	className?: string;
+	style?: React.CSSProperties;
 } & WhiteboardCallbacks;
 
-export default function Whiteboard({id, ...callbacks}: WhiteboardProps) {
+export default function Whiteboard({id, className, style, ...callbacks}: WhiteboardProps) {
 	const [app, setApp] = React.useState(() =>
 		new WhiteboardApp(id, callbacks),
 	);
@@ -22,23 +24,27 @@ export default function Whiteboard({id, ...callbacks}: WhiteboardProps) {
 	}, [id]);
 	return (
 		<WhiteboardProvider value={app}>
-			<Canvas />
-			<div className='pointer-events-none fixed flex h-screen w-screen flex-col'>
-				<div className='portrait:standalone:mt-14 m-2 flex w-full flex-row items-center justify-center'>
-					<Toolbar />
-					<SelectionsToolbar />
-				</div>
-				<div className='flex grow flex-row justify-end overflow-y-auto'>
-					<div className='m-2 flex h-full w-48 flex-col justify-start space-y-2 md:w-72'>
-						<StyleSidebar />
-						<LayersSidebar />
+			<div className={className} style={style}>
+				<div className='relative h-full w-full overflow-hidden'>
+					<Canvas />
+					<div className='pointer-events-none flex h-full w-full flex-col'>
+						<div className='portrait:standalone:mt-14 m-2 flex w-full flex-row items-center justify-center'>
+							<Toolbar />
+							<SelectionsToolbar />
+						</div>
+						<div className='flex grow flex-row justify-end overflow-y-auto'>
+							<div className='m-2 flex h-full w-48 flex-col justify-start space-y-2 md:w-72'>
+								<StyleSidebar />
+								<LayersSidebar />
+							</div>
+						</div>
+						<div className='flex w-full flex-row items-center justify-center'>
+							<DebugBar />
+						</div>
 					</div>
-				</div>
-				<div className='flex w-full flex-row items-center justify-center'>
-					<DebugBar />
+					<Cursors />
 				</div>
 			</div>
-			<Cursors />
 		</WhiteboardProvider>
 	);
 }

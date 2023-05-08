@@ -5,7 +5,6 @@ import {
 	useKeyEvents,
 	useSelection,
 	useTouchZoom,
-	useViewport,
 	useWheelPan,
 	useWheelZoom,
 	useWhiteboard,
@@ -26,21 +25,19 @@ export const Canvas = () => {
 	, shallow);
 	const camera = app.useStore(cameraSelector, shallow);
 	const selection = app.useStore(selectionSelector, shallow);
-	const canvasRef = React.useRef<SVGSVGElement>(null);
-	useTouchZoom(canvasRef);
-	useWheelZoom(canvasRef);
-	useWheelPan(canvasRef);
-	useDropImageTool(canvasRef);
+	useTouchZoom(app.whiteboardRef);
+	useWheelZoom(app.whiteboardRef);
+	useWheelPan(app.whiteboardRef);
+	useDropImageTool(app.whiteboardRef);
 
 	useKeyEvents();
-	useViewport(canvasRef);
 	const events = useCanvasEvents();
 	const selections = useSelection();
 
 	return (
 		<svg
-			className='fixed inset-0 h-full w-full touch-none bg-gray-200 dark:bg-gray-900'
-			ref={canvasRef}
+			className='absolute inset-0 h-full w-full touch-none bg-gray-200 dark:bg-gray-900'
+			ref={app.whiteboardRef}
 			{...events}
 		>
 			<DottedGridBackground camera={camera}/>

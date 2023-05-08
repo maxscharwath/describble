@@ -3,7 +3,6 @@ import {
 	type Bounds,
 	type Camera,
 	type Command,
-	type Dimension,
 	type Patch,
 	type Point,
 	type Pointer,
@@ -24,6 +23,7 @@ import {defaultLayerStyle, type LayerStyle} from '~core/layers/shared';
 import {ActivityManager, AssetManager, KeyboardEventManager, PointerEventManager} from '~core/managers';
 import {createLayersCommand, removeLayersCommand} from '~core/commands';
 import {patchLayersCommand} from '~core/commands/PatchLayersCommand';
+import React from 'react';
 
 export enum Status {
 	Idle = 'idle',
@@ -60,6 +60,7 @@ export type WhiteboardState = {
 export type WhiteboardCallbacks = {
 	onMount?: (app: WhiteboardApp) => void;
 	onChange?: (state: WhiteboardState, reason: string) => void;
+	onPatch?: (patch: Patch<WhiteboardState>, reason: string) => void;
 };
 
 export class WhiteboardApp extends StateManager<WhiteboardState> {
@@ -74,7 +75,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	public currentTool?: BaseTool;
 	public currentPoint: Pointer = {id: 0, x: 0, y: 0, pressure: 0};
-	public viewport: Dimension = {width: 0, height: 0};
+	public whiteboardRef = React.createRef<SVGSVGElement>();
 	public readonly pointerEvent = new PointerEventManager(this);
 	public readonly keyboardEvent = new KeyboardEventManager(this);
 	public readonly activity = new ActivityManager(this);
@@ -187,9 +188,10 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	}
 
 	public updateInput(event: React.PointerEvent) {
+		const bounds = this.whiteboardRef.current?.getBoundingClientRect();
 		this.currentPoint = {
 			id: event.pointerId,
-			...this.getCanvasPoint({x: event.clientX, y: event.clientY}),
+			...this.getCanvasPoint({x: event.clientX - (bounds?.left ?? 0), y: event.clientY - (bounds?.top ?? 0)}),
 			pressure: event.pressure,
 		};
 	}
@@ -232,6 +234,10 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	protected onStateDidChange = (state: WhiteboardState, id?: string) => {
 		this.callbacks.onChange?.(state, id ?? 'unknown');
+	};
+
+	protected onPatch = (patch: Patch<WhiteboardState>, id?: string) => {
+		this.callbacks.onPatch?.(patch, id ?? 'unknown');
 	};
 
 	protected cleanup(state: WhiteboardState): WhiteboardState {
