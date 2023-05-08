@@ -38,7 +38,7 @@
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
     "@types/testing-library__jest-dom": "^5.14.5",
-    "@vitejs/plugin-react-swc": "^3.3.0",
+    "@vitejs/plugin-react-swc": "^3.3.1",
     "@vitest/coverage-c8": "^0.30.1",
     "@vitest/ui": "^0.30.1",
     "autoprefixer": "^10.4.14",

@@ -23,7 +23,7 @@ export const useMouseState = (handle?: (state: MouseState) => void) => {
 		if (e.relatedTarget === null || e.relatedTarget === document.documentElement) {
 			handleMouse(e, true);
 		}
-	});
+	}, {capture: true});
 	usePointerEvents(windowRef, {
 		onPointerDown(e: PointerEvent<Window>) {
 			if (activePointerIdRef.current === null) {
@@ -40,5 +40,5 @@ export const useMouseState = (handle?: (state: MouseState) => void) => {
 
 			handleMouse(e);
 		},
-	});
+	}, {capture: true});
 };

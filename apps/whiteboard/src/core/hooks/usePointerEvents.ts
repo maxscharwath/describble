@@ -8,10 +8,11 @@ export const usePointerEvents = <TElement extends EventElement> (
 		onPointerMove?: PointerEventHandler<TElement>;
 		onPointerUp?: PointerEventHandler<TElement>;
 	},
+	options?: AddEventListenerOptions,
 ) => {
 	useEvents(ref, {
 		pointerdown: events.onPointerDown,
 		pointermove: events.onPointerMove,
 		pointerup: events.onPointerUp,
-	});
+	}, options);
 };
