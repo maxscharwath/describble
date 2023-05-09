@@ -12,4 +12,4 @@ export * from './useWheelZoom';
 export * from './useWhiteboard';
 export * from './useViewport';
 export * from './useLayersTree';
-
+export * from './useShortcuts';

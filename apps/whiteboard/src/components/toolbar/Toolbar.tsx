@@ -98,6 +98,20 @@ export const Toolbar = () => {
 			<Separator/>
 			<div className='grid grid-cols-5 gap-2'>
 				<ToolButton
+					tool='select'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<SelectIcon/>}
+				/>
+
+				<ToolButton
+					tool='move'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<HandIcon/>}
+				/>
+
+				<ToolButton
 					tool='path'
 					currentTool={selectedTool}
 					onClick={handleSetTool}
@@ -130,20 +144,6 @@ export const Toolbar = () => {
 					currentTool={selectedTool}
 					onClick={handleSetTool}
 					icon={<TextIcon/>}
-				/>
-
-				<ToolButton
-					tool='move'
-					currentTool={selectedTool}
-					onClick={handleSetTool}
-					icon={<HandIcon/>}
-				/>
-
-				<ToolButton
-					tool='select'
-					currentTool={selectedTool}
-					onClick={handleSetTool}
-					icon={<SelectIcon/>}
 				/>
 			</div>
 			<Separator/>

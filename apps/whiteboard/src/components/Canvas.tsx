@@ -3,7 +3,7 @@ import {
 	useCanvasEvents,
 	useDropImageTool,
 	useKeyEvents, useLayersTree,
-	useSelection,
+	useSelection, useShortcuts,
 	useTouchZoom, useViewport,
 	useWheelPan,
 	useWheelZoom,
@@ -30,6 +30,7 @@ export const Canvas = () => {
 	useWheelPan(app.whiteboardRef);
 	useDropImageTool(app.whiteboardRef);
 	useViewport(app.whiteboardRef);
+	useShortcuts();
 
 	const tree = useLayersTree(app, layersId);
 

@@ -4,14 +4,14 @@ import {type Layer} from '~core/layers';
 
 export function removeLayersCommand(
 	app: WhiteboardApp,
-	layers: Layer[],
+	layerIds: string[],
 ): WhiteboardCommand {
 	const beforeLayers: Record<string, Patch<Layer> | undefined> = {};
 	const afterLayers: Record<string, Patch<Layer> | undefined> = {};
 
-	layers.forEach(layer => {
-		beforeLayers[layer.id] = layer;
-		afterLayers[layer.id] = undefined;
+	layerIds.forEach(layerId => {
+		beforeLayers[layerId] = app.getLayer(layerId);
+		afterLayers[layerId] = undefined;
 	});
 
 	return {
@@ -22,12 +22,18 @@ export function removeLayersCommand(
 					layers: beforeLayers,
 				},
 			},
+			appState: {
+				selectedLayers: app.selectedLayers,
+			},
 		},
 		after: {
 			documents: {
 				[app.currentDocumentId]: {
 					layers: afterLayers,
 				},
+			},
+			appState: {
+				selectedLayers: app.selectedLayers.filter(id => !layerIds.includes(id)),
 			},
 		},
 	};

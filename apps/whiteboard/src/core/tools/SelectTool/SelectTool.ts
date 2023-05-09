@@ -1,6 +1,6 @@
 import {BaseTool} from '~core/tools';
 import {SelectActivity} from '~core/activities/SelectActivity';
-import {type KeyboardEventHandler, type PointerEventHandler} from '~core/types';
+import {type PointerEventHandler} from '~core/types';
 import {TranslateActivity} from '~core/activities/TranslateActivity';
 
 enum Status {
@@ -45,20 +45,5 @@ export class SelectTool extends BaseTool<Status> {
 				selectedLayers: [],
 			},
 		});
-	};
-
-	onKeyDown: KeyboardEventHandler = ({key}) => {
-		if (this.status === Status.Idle && (key === 'Delete' || key === 'Backspace')) {
-			this.app.removeLayer(...this.app.state.appState.selectedLayers);
-			this.app.patchState({
-				appState: {
-					selectedLayers: [],
-				},
-			});
-		}
-
-		if (key === 'Escape') {
-			this.onAbort();
-		}
 	};
 }

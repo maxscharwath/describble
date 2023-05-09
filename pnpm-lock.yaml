@@ -107,6 +107,9 @@ importers:
       react-dom:
         specifier: ^18.2.0
         version: 18.2.0(react@18.2.0)
+      react-hotkeys-hook:
+        specifier: ^4.4.0
+        version: 4.4.0(react-dom@18.2.0)(react@18.2.0)
       tailwind-merge:
         specifier: ^1.12.0
         version: 1.12.0
@@ -9578,6 +9581,16 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
       react-is: 18.1.0
     dev: true
+
+  /react-hotkeys-hook@4.4.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-wOaCWLwgT/f895CMJrR9hmzVf+gfL8IpjWDXWXKngBp9i6Xqzf0tvLv4VI8l3Vlsg/cc4C/Iik3Ck76L/Hj0tw==}
+    peerDependencies:
+      react: '>=16.8.1'
+      react-dom: '>=16.8.1'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /react-inspector@6.0.1(react@18.2.0):
     resolution: {integrity: sha512-cxKSeFTf7jpSSVddm66sKdolG90qURAX3g1roTeaN6x0YEbtWc8JpmFN9+yIqLNH2uEkYerWLtJZIXRIFuBKrg==}

@@ -44,7 +44,7 @@ export type Asset = {
 
 export type WhiteboardState = {
 	settings: {
-		theme: 'light' | 'dark';
+		darkMode: boolean;
 	};
 	appState: {
 		currentDocumentId: string;
@@ -95,6 +95,10 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		return this.state.documents[this.currentDocumentId];
 	}
 
+	public get selectedLayers() {
+		return this.state.appState.selectedLayers;
+	}
+
 	public get camera() {
 		return this.documentState.camera;
 	}
@@ -125,6 +129,22 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.currentTool.onActivate();
 		this.patchState({appState: {currentTool: type}}, `set_tool_${type}`);
 		return this;
+	}
+
+	public selectAll() {
+		this.patchState({
+			appState: {
+				selectedLayers: Object.keys(this.documentState.layers),
+			},
+		});
+	}
+
+	public selectNone() {
+		this.patchState({
+			appState: {
+				selectedLayers: [],
+			},
+		});
 	}
 
 	public abort() {
@@ -176,12 +196,11 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			return this;
 		}
 
-		const layers = layersId.map(id => this.documentState.layers[id]);
-		this.setState(removeLayersCommand(this, layers));
+		this.setState(removeLayersCommand(this, layersId));
 	}
 
 	public clearLayers() {
-		const layers = Object.values(this.documentState.layers);
+		const layers = Object.keys(this.documentState.layers);
 		this.setState(removeLayersCommand(this, layers));
 	}
 
@@ -238,6 +257,13 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		};
 	}
 
+	public toggleDarkMode() {
+		const patch = {settings: {darkMode: !this.state.settings.darkMode}};
+		this.patchState(patch, 'toggle_dark_mode');
+		void this.persist(patch, 'toggle_dark_mode');
+		return this;
+	}
+
 	protected onReady = () => {
 		this.patchState({
 			appState: {
@@ -278,7 +304,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	static defaultState: WhiteboardState = {
 		settings: {
-			theme: 'light',
+			darkMode: false,
 		},
 		appState: {
 			status: Status.Idle,

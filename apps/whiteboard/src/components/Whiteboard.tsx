@@ -8,6 +8,8 @@ import {DebugBar} from '~components/toolbar/DebugBar';
 import {StyleSidebar} from '~components/sidebar/StyleSidebar';
 import {WhiteboardApp, type WhiteboardCallbacks} from '~core/WhiteboardApp';
 import {WhiteboardProvider} from '~core/hooks';
+import clsx from 'clsx';
+import {shallow} from 'zustand/shallow';
 
 type WhiteboardProps = {
 	id: string;
@@ -22,9 +24,12 @@ export default function Whiteboard({id, className, style, ...callbacks}: Whitebo
 	React.useLayoutEffect(() => {
 		setApp(new WhiteboardApp(id, callbacks));
 	}, [id]);
+
+	const settings = app.useStore(state => state.settings, shallow);
+
 	return (
 		<WhiteboardProvider value={app}>
-			<div className={className} style={style}>
+			<div className={clsx(className, settings.darkMode && 'dark')} style={style}>
 				<div className='relative h-full w-full overflow-hidden'>
 					<Canvas />
 					<div className='pointer-events-none flex h-full w-full flex-col'>
