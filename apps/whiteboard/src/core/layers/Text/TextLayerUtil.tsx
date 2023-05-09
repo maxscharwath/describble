@@ -2,7 +2,7 @@ import React from 'react';
 import {deepmerge} from '~core/utils';
 import {type BaseLayer, BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 import {type Bounds, type Dimension} from '~core/types';
-import {defaultLayerStyle, getBaseStyle} from '~core/layers/shared';
+import {defaultLayerStyle} from '~core/layers/shared';
 
 const type = 'text' as const;
 type TLayer = TextLayer;
@@ -22,11 +22,9 @@ export class TextLayerUtil extends BaseLayerUtil<TLayer> {
 			ref={ref}
 			x={layer.position.x}
 			y={layer.position.y}
-			rx={5}
 			width={layer.dimensions.width}
 			height={layer.dimensions.height}
 			transform={`rotate(${layer.rotation})`}
-			{...getBaseStyle(layer.style)}
 		>
 			{layer.text}
 		</text>,

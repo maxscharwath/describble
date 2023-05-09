@@ -8,7 +8,7 @@ import {
 	PathIcon,
 	RectangleIcon,
 	RedoIcon,
-	SelectIcon,
+	SelectIcon, TextIcon,
 	TrashIcon,
 	UndoIcon,
 	WASMIcon,
@@ -96,7 +96,7 @@ export const Toolbar = () => {
 			</div>
 
 			<Separator/>
-			<div className='grid grid-cols-3 gap-2'>
+			<div className='grid grid-cols-5 gap-2'>
 				<ToolButton
 					tool='path'
 					currentTool={selectedTool}
@@ -123,6 +123,13 @@ export const Toolbar = () => {
 					currentTool={selectedTool}
 					onClick={handleSetTool}
 					icon={<ImageIcon/>}
+				/>
+
+				<ToolButton
+					tool='text'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<TextIcon/>}
 				/>
 
 				<ToolButton

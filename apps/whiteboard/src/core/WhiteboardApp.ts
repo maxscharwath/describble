@@ -16,7 +16,7 @@ import {
 	MoveTool,
 	PathTool,
 	RectangleTool,
-	SelectTool,
+	SelectTool, TextTool,
 	type ToolsKey,
 } from '~core/tools';
 import {defaultLayerStyle, type LayerStyle} from '~core/layers/shared';
@@ -71,6 +71,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		new PathTool(this),
 		new SelectTool(this),
 		new MoveTool(this),
+		new TextTool(this),
 	);
 
 	public currentTool?: BaseTool;
