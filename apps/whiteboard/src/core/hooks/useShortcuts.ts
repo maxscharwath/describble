@@ -28,17 +28,17 @@ export const useShortcuts = () => {
 		app.removeLayer(...app.selectedLayers);
 	}, undefined, [app]);
 
-	useHotkeys('meta+a', e => {
+	useHotkeys('meta+a,ctrl+a', e => {
 		e.preventDefault();
 		app.selectAll();
 	}, undefined, [app]);
 
-	useHotkeys('meta+shift+a', e => {
+	useHotkeys('meta+shift+a,ctrl+shift+a', e => {
 		e.preventDefault();
 		app.selectNone();
 	}, undefined, [app]);
 
-	useHotkeys('meta+z', e => {
+	useHotkeys('meta+z,ctrl+z', e => {
 		e.preventDefault();
 		if (app.activity.activity) {
 			app.activity.abortActivity();
@@ -47,7 +47,7 @@ export const useShortcuts = () => {
 		}
 	}, undefined, [app]);
 
-	useHotkeys('meta+shift+z', e => {
+	useHotkeys('meta+shift+z,ctrl+shift+z', e => {
 		e.preventDefault();
 		if (app.activity.activity) {
 			app.activity.abortActivity();
@@ -57,7 +57,7 @@ export const useShortcuts = () => {
 	}, undefined, [app]);
 
 	// Toggle dark mode
-	useHotkeys('meta+shift+d', e => {
+	useHotkeys('meta+shift+d,ctrl+shift+d', e => {
 		e.preventDefault();
 		app.toggleDarkMode();
 	}, undefined, [app]);
