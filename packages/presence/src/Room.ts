@@ -84,31 +84,54 @@ class HostDataProcessor<TData extends object> implements DataProcessor<TData> {
 }
 
 class ClientDataProcessor<TData extends object> implements DataProcessor<TData> {
-	private data: TData;
+	private data: {
+		value: TData;
+		hash: string;
+	};
+
 	private clientData: TData;
 	constructor(private readonly peer: Peer, private readonly conn: DataConnection, private readonly initialData: TData, private readonly onData?: (data: TData) => void) {
-		this.data = initialData;
+		this.data = {
+			value: initialData,
+			hash: objectHash(initialData),
+		};
 		this.clientData = initialData;
 		conn.on('data', data => {
-			this.data = data as TData;
-			this.onData?.(this.data);
+			const newData = {
+				value: data as TData,
+				hash: objectHash(data as TData),
+			};
+			if (newData.hash !== this.data.hash) {
+				this.data = newData;
+				this.onData?.(this.data.value);
+			}
 		});
 		conn.once('close', () => {
-			this.data = deepmerge(this.initialData, this.clientData) as TData;
-			this.onData?.(this.data);
+			const data = deepmerge(this.initialData, this.clientData) as TData;
+			this.data = {
+				value: data,
+				hash: objectHash(data),
+			};
+			this.onData?.(this.data.value);
 		});
 		this.send(initialData);
 	}
 
 	public getData(): TData | undefined {
-		return this.data;
+		return this.data.value;
 	}
 
 	public send(data: TData): void {
 		this.clientData = data;
-		this.data = deepmerge(this.data, this.clientData) as TData;
-		this.onData?.(this.data);
-		this.conn.send(data);
+		const newData = deepmerge(this.data.value, this.clientData) as TData;
+		const newHash = objectHash(newData);
+
+		if (newHash !== this.data.hash) {
+			this.data = {value: newData, hash: newHash};
+			this.onData?.(this.data.value);
+
+			this.conn.send(this.clientData);
+		}
 	}
 
 	public destroy(): void {
