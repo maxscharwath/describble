@@ -193,8 +193,18 @@ export class StateManager<T extends Record<string, any>> {
 	protected async persist(patch: Patch<T>, id?: string) {
 		this.onPersist?.(this._state, patch, id);
 		if (this.idbId) {
-			return idb.set(this.idbId, this._state).catch(console.error);
+			const state = this.preparePersist(this._state);
+			return idb.set(this.idbId, state).catch(console.error);
 		}
+	}
+
+	/**
+	 * Prepare state for persisting
+	 * @param state - The state to prepare
+	 * @protected
+	 */
+	protected preparePersist(state: T): Patch<T> {
+		return state;
 	}
 
 	/**

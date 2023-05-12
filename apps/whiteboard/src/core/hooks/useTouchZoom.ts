@@ -52,7 +52,7 @@ export const useTouchZoom = (canvasRef: React.RefObject<Element>) => {
 
 				if (currentTool !== null) {
 					initialCurrentTool.current = currentTool;
-					app.setTool(undefined);
+					app.setTool(null);
 				}
 			}
 		},

@@ -9,6 +9,7 @@ export * from './useSelection';
 export * from './useTouchZoom';
 export * from './useWheelPan';
 export * from './useWheelZoom';
+export * from './useZoom';
 export * from './useWhiteboard';
 export * from './useViewport';
 export * from './useLayersTree';

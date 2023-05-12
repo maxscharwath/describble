@@ -48,7 +48,7 @@ export type WhiteboardState = {
 	};
 	appState: {
 		currentDocumentId: string;
-		currentTool?: Tools;
+		currentTool: Tools;
 		currentStyle: LayerStyle;
 		selectedLayers: string[];
 		selection: Bounds | null;
@@ -74,7 +74,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		new TextTool(this),
 	);
 
-	public currentTool?: BaseTool;
+	public currentTool: BaseTool | null = this.tools.select;
 	public currentPoint: Pointer = {id: 0, x: 0, y: 0, pressure: 0};
 	public viewport: Bounds = {x: 0, y: 0, width: 0, height: 0};
 	public whiteboardRef = React.createRef<SVGSVGElement>();
@@ -111,10 +111,10 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.patchState({appState: {status}}, `set_status_${status}`);
 	}
 
-	public setTool(type: Tools | undefined) {
+	public setTool(type: Tools | null) {
 		if (!type) {
 			this.currentTool?.onDeactivate();
-			this.currentTool = undefined;
+			this.currentTool = null;
 			this.patchState({appState: {currentTool: undefined}}, 'set_tool_none');
 			return this;
 		}
@@ -282,6 +282,13 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.callbacks.onPatch?.(patch, id ?? 'unknown');
 	};
 
+	protected preparePersist({documents, settings}: WhiteboardState): Patch<WhiteboardState> {
+		return {
+			documents,
+			settings,
+		};
+	}
+
 	protected cleanup(state: WhiteboardState): WhiteboardState {
 		const next = {...state};
 		Object.entries(next.documents).forEach(([documentId, document]) => {
@@ -311,6 +318,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			currentStyle: defaultLayerStyle,
 			selectedLayers: [],
 			selection: null,
+			currentTool: 'select',
 			currentDocumentId: 'demo',
 		},
 		documents: {
