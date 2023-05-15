@@ -95,4 +95,25 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 
 		return distance <= delta;
 	}
+
+	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+		const oldBounds = this.getBounds(layer);
+
+		const scaleX = bounds.width / oldBounds.width;
+		const scaleY = bounds.height / oldBounds.height;
+
+		const path = layer.path.map(([x, y, ...rest]) => [
+			x * scaleX,
+			y * scaleY,
+			...rest,
+		]);
+
+		return {
+			path,
+			position: {
+				x: ((layer.position.x - oldBounds.x) * scaleX) + bounds.x,
+				y: ((layer.position.y - oldBounds.y) * scaleY) + bounds.y,
+			},
+		};
+	}
 }
