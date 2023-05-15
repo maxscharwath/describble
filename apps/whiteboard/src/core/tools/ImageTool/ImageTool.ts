@@ -2,7 +2,6 @@ import {nanoid} from 'nanoid';
 import {BaseTool, Status} from '~core/tools';
 import {Image} from '~core/layers';
 import {ResizeActivity} from '~core/activities/ResizeActivity';
-import {type Asset} from '~core/WhiteboardApp';
 
 export class ImageTool extends BaseTool {
 	type = 'image' as const;
@@ -40,12 +39,7 @@ export class ImageTool extends BaseTool {
 			if (file) {
 				const reader = new FileReader();
 				reader.onloadend = () => {
-					const asset: Asset = {
-						id: nanoid(),
-						type: 'image',
-						src: reader.result as string,
-					};
-					this.app.asset.addAsset(asset);
+					const asset = this.app.asset.createAsset(reader.result as string, 'image');
 					this.assetId = asset.id;
 				};
 

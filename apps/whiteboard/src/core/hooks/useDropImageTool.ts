@@ -1,9 +1,13 @@
 import {useEvent} from '~core/hooks/useEvents';
+import {useWhiteboard} from '~core/hooks/useWhiteboard';
+import {nanoid} from 'nanoid';
+import * as Layers from '~core/layers';
 
 /**
  * This hook allows you to drop an image onto the canvas
  */
 export const useDropImageTool = (canvasRef: React.RefObject<Element>) => {
+	const app = useWhiteboard();
 	useEvent(canvasRef, 'drop', (event: DragEvent) => {
 		event.preventDefault();
 		const {dataTransfer} = event;
@@ -18,7 +22,19 @@ export const useDropImageTool = (canvasRef: React.RefObject<Element>) => {
 				const img = new Image();
 				img.src = imageSrc;
 				img.onload = () => {
-					// Do something with the image here
+					const asset = app.asset.createAsset(imageSrc, 'image');
+					const initPoint = app.getCanvasPoint({x: event.clientX, y: event.clientY});
+					const layer = Layers.Image.create({
+						id: nanoid(),
+						position: initPoint,
+						assetId: asset.id,
+						dimensions: {
+							width: img.width / 2,
+							height: img.height / 2,
+						},
+						style: app.state.appState.currentStyle,
+					});
+					app.addLayer(layer);
 				};
 			};
 

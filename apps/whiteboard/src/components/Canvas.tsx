@@ -3,10 +3,7 @@ import {
 	useCanvasEvents,
 	useDropImageTool,
 	useKeyEvents, useLayersTree,
-	useSelection, useShortcuts,
-	useTouchZoom, useViewport,
-	useWheelPan,
-	useWheelZoom,
+	useSelection, useShortcuts, useViewport,
 	useWhiteboard, useZoom,
 } from '~core/hooks';
 import {DottedGridBackground} from '~components/ui/DottedGridBackground';
@@ -26,7 +23,6 @@ export const Canvas = () => {
 	const camera = app.useStore(cameraSelector, shallow);
 	const selection = app.useStore(selectionSelector, shallow);
 	useZoom(app.whiteboardRef);
-	useWheelPan(app.whiteboardRef);
 	useDropImageTool(app.whiteboardRef);
 	useViewport(app.whiteboardRef);
 	useShortcuts();
