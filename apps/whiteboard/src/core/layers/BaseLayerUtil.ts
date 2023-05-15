@@ -22,8 +22,9 @@ export interface ComponentProps<T extends BaseLayer, E = any> {
 }
 
 export abstract class BaseLayerUtil<T extends BaseLayer> {
-	abstract Component: React.ForwardRefExoticComponent<ComponentProps<T>>;
-	abstract type: T['type'];
+	public PreviewComponent?: React.ForwardRefExoticComponent<ComponentProps<T>>;
+	public abstract type: T['type'];
+	public abstract readonly Component: React.ForwardRefExoticComponent<ComponentProps<T>>;
 
 	public create(props: Partial<T> & {id: string}): T {
 		return this.getLayer(props);

@@ -15,8 +15,9 @@ export interface CircleLayer extends BaseLayer {
 }
 
 export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
-	type = type;
-	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
+	public type = type;
+
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
 		<ellipse
 			ref={ref}
 			cx={layer.position.x}
@@ -53,8 +54,7 @@ export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
 		};
 	}
 
-	resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
-		// Apply transform-origin: center center;
+	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
 		const {x, y, width, height} = bounds;
 		return {
 			position: {

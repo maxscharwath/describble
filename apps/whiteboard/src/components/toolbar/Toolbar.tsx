@@ -3,7 +3,7 @@ import {shallow} from 'zustand/shallow';
 import {ColorButton} from '~components/ui/ColorButton';
 import {greet} from 'hello-wasm';
 import {
-	CircleIcon, HandIcon,
+	CircleIcon, EmbedIcon, HandIcon,
 	ImageIcon,
 	PathIcon,
 	RectangleIcon,
@@ -77,7 +77,7 @@ export const Toolbar = () => {
 	}), shallow);
 	return (
 		<div
-			className='pointer-events-auto m-2 flex h-full flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur dark:border-gray-600 dark:bg-gray-800/80 dark:text-gray-200 dark:backdrop-blur sm:flex-row'
+			className='pointer-events-auto m-2 flex h-full flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur dark:border-gray-600 dark:bg-gray-800/80 dark:text-gray-200 sm:flex-row'
 		>
 			<div className='grid grid-cols-6 gap-2'>
 				{Object.entries(colors).map(([color, value]) => (
@@ -144,6 +144,13 @@ export const Toolbar = () => {
 					currentTool={selectedTool}
 					onClick={handleSetTool}
 					icon={<TextIcon/>}
+				/>
+
+				<ToolButton
+					tool='embed'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<EmbedIcon/>}
 				/>
 			</div>
 			<Separator/>

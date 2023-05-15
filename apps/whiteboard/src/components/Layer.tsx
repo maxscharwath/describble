@@ -24,11 +24,21 @@ export const Layer = React.memo(({layerId}: {layerId: string}) => {
 Layer.displayName = 'Layer';
 
 export const PreviewLayer = memo(({layer, ...props}: {layer: TLayer} & React.SVGProps<SVGSVGElement>) => {
-	const {getBounds} = getLayerUtil(layer);
+	const app = useWhiteboard();
+	const asset = layer.assetId ? app.asset.getAsset(layer.assetId) : undefined;
+	const {PreviewComponent, Component, getBounds} = getLayerUtil(layer);
+	if (PreviewComponent) {
+		return (
+			<svg {...props}>
+				<PreviewComponent layer={layer as never} asset={asset}/>
+			</svg>
+		);
+	}
+
 	const {x, y, width, height} = getBounds(layer as never);
 	return (
 		<svg {...props} viewBox={`${x} ${y} ${width} ${height}`}>
-			<Layer layerId={layer.id}/>
+			<Component layer={layer as never} asset={asset}/>
 		</svg>
 	);
 }, shallow);

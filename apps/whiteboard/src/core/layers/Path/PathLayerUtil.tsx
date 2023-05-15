@@ -17,8 +17,9 @@ export interface PathLayer extends BaseLayer {
 }
 
 export class PathLayerUtil extends BaseLayerUtil<TLayer> {
-	type = type;
-	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) => {
+	public type = type;
+
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) => {
 		const isClosed = this.isShapeClosed(layer);
 		const style = getBaseStyle(layer.style);
 		const strokeOptions: StrokeOptions = {

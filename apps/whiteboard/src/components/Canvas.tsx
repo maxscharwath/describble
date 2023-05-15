@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+	useBoundsEvents,
 	useCanvasEvents,
 	useDropImageTool,
 	useKeyEvents, useLayersTree,
@@ -7,7 +8,7 @@ import {
 	useWhiteboard, useZoom,
 } from '~core/hooks';
 import {DottedGridBackground} from '~components/ui/DottedGridBackground';
-import {Selection} from '~components/ui/Selection';
+import {HandledSelection, Selection} from '~components/ui/Selection';
 import {shallow} from 'zustand/shallow';
 import {Layer} from '~components/Layer';
 import {cameraSelector, layersSelector, selectionSelector} from '~core/selectors';
@@ -35,6 +36,8 @@ export const Canvas = () => {
 	const events = useCanvasEvents();
 	const selections = useSelection();
 
+	const boundsEvents = useBoundsEvents();
+
 	return (
 		<svg
 			className='absolute inset-0 h-full w-full touch-none bg-gray-200 dark:bg-gray-900'
@@ -51,7 +54,7 @@ export const Canvas = () => {
 				))}
 			</g>
 			{selection && <Selection bounds={app.getScreenBounds(selection)}/>}
-			{selections && <Selection bounds={app.getScreenBounds(selections)} padding={10}/>}
+			{selections && <HandledSelection bounds={app.getScreenBounds(selections)} padding={10} {...boundsEvents}/>}
 		</svg>
 	);
 };

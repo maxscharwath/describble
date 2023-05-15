@@ -7,18 +7,11 @@ import {Vector} from '~core/utils';
 export class TranslateActivity extends BaseActivity {
 	type = 'translate' as const;
 	private initialLayers: Layer[] = [];
-	private initialSelectedLayers: string[] = [];
 	private iniPos?: Point;
 
-	start(): WhiteboardPatch {
+	start(): void {
 		this.iniPos = this.app.currentPoint;
-		this.initialSelectedLayers = this.app.state.appState.selectedLayers;
-		this.initialLayers = this.app.getLayers(this.initialSelectedLayers);
-		return {
-			appState: {
-				selectedLayers: [],
-			},
-		};
+		this.initialLayers = this.app.getLayers(this.app.state.appState.selectedLayers);
 	}
 
 	update(): WhiteboardPatch | void {
@@ -60,18 +53,12 @@ export class TranslateActivity extends BaseActivity {
 						layers: beforeLayers,
 					},
 				},
-				appState: {
-					selectedLayers: this.initialSelectedLayers,
-				},
 			},
 			after: {
 				documents: {
 					[this.app.currentDocumentId]: {
 						layers: afterLayers,
 					},
-				},
-				appState: {
-					selectedLayers: this.initialSelectedLayers,
 				},
 			},
 		};
@@ -93,9 +80,6 @@ export class TranslateActivity extends BaseActivity {
 				[this.app.currentDocumentId]: {
 					layers,
 				},
-			},
-			appState: {
-				selectedLayers: this.initialSelectedLayers,
 			},
 		};
 	}

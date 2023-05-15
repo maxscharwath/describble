@@ -12,7 +12,10 @@ module.exports = {
       },
       screens: {
         'standalone': {'raw': '(display-mode: standalone)'},
-      }
+      },
+      fontFamily: {
+        'caveat': ['Caveat', 'cursive'],
+      },
     },
   },
   plugins: [],

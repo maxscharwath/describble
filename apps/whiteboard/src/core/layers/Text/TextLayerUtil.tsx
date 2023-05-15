@@ -2,11 +2,11 @@ import React from 'react';
 import {deepmerge} from '~core/utils';
 import {type BaseLayer, BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 import {type Bounds, type Dimension} from '~core/types';
-import {defaultLayerStyle} from '~core/layers/shared';
+import {defaultLayerStyle, getTextStyle} from '~core/layers/shared';
 
 const type = 'text' as const;
 type TLayer = TextLayer;
-type TElement = SVGTextElement;
+type TElement = SVGForeignObjectElement;
 
 export interface TextLayer extends BaseLayer {
 	type: typeof type;
@@ -15,19 +15,22 @@ export interface TextLayer extends BaseLayer {
 }
 
 export class TextLayerUtil extends BaseLayerUtil<TLayer> {
-	type = type;
+	public type = type;
 
-	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
-		<text
-			ref={ref}
-			x={layer.position.x}
-			y={layer.position.y}
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) => {
+		const style = getTextStyle(layer.style);
+		return <foreignObject
 			width={layer.dimensions.width}
 			height={layer.dimensions.height}
-			transform={`rotate(${layer.rotation})`}
+			x={layer.position.x}
+			y={layer.position.y}
+			ref={ref}
 		>
-			{layer.text}
-		</text>,
+			<span className='font-caveat flex h-full w-full select-none items-center justify-center' style={style}>
+				{layer.text}
+			</span>
+		</foreignObject>;
+	},
 	);
 
 	public getLayer(props: Partial<TLayer>): TLayer {

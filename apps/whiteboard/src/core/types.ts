@@ -30,8 +30,17 @@ export type OmitFirst<T extends any[]> = T extends [first: any, ...rest: infer R
 
 export type Class<T extends U, U extends abstract new (...args: any) => any> = new (...args: any[]) => InstanceType<T> & InstanceType<U>;
 
+export enum BoundsHandle {
+	TOP_LEFT = 'top-left',
+	TOP_RIGHT = 'top-right',
+	BOTTOM_LEFT = 'bottom-left',
+	BOTTOM_RIGHT = 'bottom-right',
+	NONE = 'none',
+}
+
 export type PointerEventHandler = (event: React.PointerEvent, target: string) => void;
 export type KeyboardEventHandler = (event: KeyboardEvent) => void;
+export type BoundsEventHandler = (event: React.PointerEvent, handle: BoundsHandle) => void;
 export class WhiteboardEvents {
 	onPointerDown?: PointerEventHandler;
 	onPointerMove?: PointerEventHandler;
@@ -44,4 +53,7 @@ export class WhiteboardEvents {
 	onCanvasDown?: PointerEventHandler;
 	onCanvasMove?: PointerEventHandler;
 	onCanvasUp?: PointerEventHandler;
+	onBoundsDown?: BoundsEventHandler;
+	onBoundsMove?: BoundsEventHandler;
+	onBoundsUp?: BoundsEventHandler;
 }

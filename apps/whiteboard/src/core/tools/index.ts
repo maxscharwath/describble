@@ -5,5 +5,6 @@ export * from './PathTool';
 export * from './RectangleTool';
 export * from './SelectTool';
 export * from './TextTool';
+export * from './EmbedTool';
 export * from './BaseTool';
 export * from './toolUtils';

@@ -14,9 +14,9 @@ export interface RectangleLayer extends BaseLayer {
 }
 
 export class RectangleLayerUtil extends BaseLayerUtil<TLayer> {
-	type = type;
+	public type = type;
 
-	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
 		<rect
 			ref={ref}
 			x={layer.position.x}

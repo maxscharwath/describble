@@ -1,4 +1,5 @@
 import {type WhiteboardApp} from '~core/WhiteboardApp';
+import {type BoundsHandle} from '~core/types';
 
 export class PointerEventManager {
 	public isPointerDown = false;
@@ -53,5 +54,20 @@ export class PointerEventManager {
 	public onCanvasUp = (event: React.PointerEvent) => {
 		this.app.updateInput(event);
 		this.app.currentTool?.onCanvasUp?.(event, 'canvas');
+	};
+
+	public onBoundsDown = (event: React.PointerEvent, handle: BoundsHandle) => {
+		this.app.updateInput(event);
+		this.app.currentTool?.onBoundsDown?.(event, handle);
+	};
+
+	public onBoundsMove = (event: React.PointerEvent, handle: BoundsHandle) => {
+		this.app.updateInput(event);
+		this.app.currentTool?.onBoundsMove?.(event, handle);
+	};
+
+	public onBoundsUp = (event: React.PointerEvent, handle: BoundsHandle) => {
+		this.app.updateInput(event);
+		this.app.currentTool?.onBoundsUp?.(event, handle);
 	};
 }

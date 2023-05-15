@@ -15,9 +15,9 @@ export interface ImageLayer extends BaseLayer {
 }
 
 export class ImageLayerUtil extends BaseLayerUtil<TLayer> {
-	type = type;
+	public type = type;
 
-	Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, asset}, ref) =>
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, asset}, ref) =>
 		<image
 			ref={ref}
 			x={layer.position.x}
@@ -45,7 +45,7 @@ export class ImageLayerUtil extends BaseLayerUtil<TLayer> {
 			}, props);
 	}
 
-	getBounds(layer: TLayer): Bounds {
+	public getBounds(layer: TLayer): Bounds {
 		const {position, dimensions} = layer;
 		return {
 			...position,
@@ -53,7 +53,7 @@ export class ImageLayerUtil extends BaseLayerUtil<TLayer> {
 		};
 	}
 
-	resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
 		return {
 			position: {
 				x: bounds.x,

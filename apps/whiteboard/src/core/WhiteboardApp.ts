@@ -11,7 +11,7 @@ import {type Layer} from '~core/layers';
 import {
 	type BaseTool,
 	CircleTool,
-	createTools,
+	createTools, EmbedTool,
 	ImageTool,
 	MoveTool,
 	PathTool,
@@ -72,6 +72,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		new SelectTool(this),
 		new MoveTool(this),
 		new TextTool(this),
+		new EmbedTool(this),
 	);
 
 	public currentTool: BaseTool | null = this.tools.select;
