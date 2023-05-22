@@ -34,8 +34,8 @@ export const Selection = memo(({bounds, radius = 10, padding = 0, ...props}: Sel
 
 Selection.displayName = 'Selection';
 
-const Handle = memo(({x, y, size = 20, cursor, ...props}: {x: number; y: number; size?: number; cursor: string}) => {
-	const invisiblePadding = 10;
+const Handle = memo(({x, y, size = 15, cursor, ...props}: {x: number; y: number; size?: number; cursor: string}) => {
+	const invisiblePadding = 15;
 	const enlargedSize = size + (2 * invisiblePadding);
 
 	return (
@@ -65,12 +65,18 @@ Handle.displayName = 'Handle';
 
 type HandledSelectionProps = SelectionProps & BoundsEventHandlers;
 
-export const HandledSelection = memo(({bounds, padding = 0, radius = 10, ...events}: HandledSelectionProps) => (<>
-	<Selection bounds={bounds} padding={padding} radius={radius} {...useBoundsHandleEvents(events)}/>
-	<Handle x={bounds.x - padding} y={bounds.y - padding} size={20} {...useBoundsHandleEvents(events, BoundsHandle.TOP_LEFT)} cursor='nwse-resize'/>
-	<Handle x={bounds.x + bounds.width + padding} y={bounds.y - padding} size={20} {...useBoundsHandleEvents(events, BoundsHandle.TOP_RIGHT)} cursor='nesw-resize'/>
-	<Handle x={bounds.x - padding} y={bounds.y + bounds.height + padding} size={20} {...useBoundsHandleEvents(events, BoundsHandle.BOTTOM_LEFT)} cursor='nesw-resize'/>
-	<Handle x={bounds.x + bounds.width + padding} y={bounds.y + bounds.height + padding} size={20} {...useBoundsHandleEvents(events, BoundsHandle.BOTTOM_RIGHT)} cursor='nwse-resize'/>
-</>));
+export const HandledSelection = memo(({bounds, padding = 0, radius = 10, ...events}: HandledSelectionProps) => (
+	<>
+		<Selection bounds={bounds} padding={padding} radius={radius} {...useBoundsHandleEvents(events)}/>
+		<Handle x={bounds.x - padding} y={bounds.y - padding} {...useBoundsHandleEvents(events, BoundsHandle.TOP + BoundsHandle.LEFT)} cursor='nwse-resize'/>
+		<Handle x={bounds.x + bounds.width + padding} y={bounds.y - padding} {...useBoundsHandleEvents(events, BoundsHandle.TOP + BoundsHandle.RIGHT)} cursor='nesw-resize'/>
+		<Handle x={bounds.x - padding} y={bounds.y + bounds.height + padding} {...useBoundsHandleEvents(events, BoundsHandle.BOTTOM + BoundsHandle.LEFT)} cursor='nesw-resize'/>
+		<Handle x={bounds.x + bounds.width + padding} y={bounds.y + bounds.height + padding} {...useBoundsHandleEvents(events, BoundsHandle.BOTTOM + BoundsHandle.RIGHT)} cursor='nwse-resize'/>
+		<Handle x={bounds.x + (bounds.width / 2)} y={bounds.y - padding} {...useBoundsHandleEvents(events, BoundsHandle.TOP)} cursor='ns-resize'/>
+		<Handle x={bounds.x + (bounds.width / 2)} y={bounds.y + bounds.height + padding} {...useBoundsHandleEvents(events, BoundsHandle.BOTTOM)} cursor='ns-resize'/>
+		<Handle x={bounds.x - padding} y={bounds.y + (bounds.height / 2)} {...useBoundsHandleEvents(events, BoundsHandle.LEFT)} cursor='ew-resize'/>
+		<Handle x={bounds.x + bounds.width + padding} y={bounds.y + (bounds.height / 2)} {...useBoundsHandleEvents(events, BoundsHandle.RIGHT)} cursor='ew-resize'/>
+	</>
+));
 
 HandledSelection.displayName = 'HandledSelection';

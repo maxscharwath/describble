@@ -3,7 +3,6 @@ import {getLayerUtil, type Layer} from '~core/layers';
 import {type BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 import {type Bounds, BoundsHandle} from '~core/types';
 import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '~core/WhiteboardApp';
-import {normalizeBounds} from '~core/utils';
 import {resizeBounds} from '~core/activities/ResizeActivity';
 
 export class ResizeManyActivity extends BaseActivity {
@@ -11,8 +10,9 @@ export class ResizeManyActivity extends BaseActivity {
 	private readonly initLayers: Record<string, Layer>;
 	private readonly utils: Record<string, BaseLayerUtil<any>>;
 	private readonly initBounds: Bounds;
+	private readonly aspectRatio?: number;
 
-	constructor(app: WhiteboardApp, private readonly layerIds: string[], private readonly create = false, private readonly resizeCorner: BoundsHandle = BoundsHandle.BOTTOM_RIGHT) {
+	constructor(app: WhiteboardApp, private readonly layerIds: string[], private readonly create = false, private readonly resizeCorner: BoundsHandle = BoundsHandle.BOTTOM + BoundsHandle.RIGHT) {
 		super(app);
 		this.initLayers = {};
 		this.utils = {};
@@ -24,6 +24,9 @@ export class ResizeManyActivity extends BaseActivity {
 			}
 		});
 		this.initBounds = this.getMultiLayerBounds();
+		if (this.initBounds.width && this.initBounds.height) {
+			this.aspectRatio = this.initBounds.width / this.initBounds.height;
+		}
 	}
 
 	public abort(): WhiteboardPatch {
@@ -71,7 +74,13 @@ export class ResizeManyActivity extends BaseActivity {
 	public update(): WhiteboardPatch | void {
 		// Compute new overall bounds
 		const {x, y, width, height} = this.initBounds;
-		const newBounds = resizeBounds(this.initBounds, this.app.currentPoint, this.resizeCorner);
+
+		let aspectRatio;
+		if (this.app.keyboardEvent.event?.shiftKey) {
+			aspectRatio = this.aspectRatio;
+		}
+
+		const newBounds = resizeBounds(this.initBounds, this.app.currentPoint, this.resizeCorner, aspectRatio);
 
 		// Compute scaling and translation factors
 		const scaleX = newBounds.width / width;

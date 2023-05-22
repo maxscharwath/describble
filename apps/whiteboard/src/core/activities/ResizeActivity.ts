@@ -2,7 +2,6 @@ import {BaseActivity} from '~core/activities/BaseActivity';
 import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '~core/WhiteboardApp';
 import {getLayerUtil, type Layer} from '~core/layers';
 import {normalizeBounds} from '~core/utils';
-import {match} from 'ts-pattern';
 import {type Bounds, BoundsHandle, type Point} from '~core/types';
 import {type BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 
@@ -11,12 +10,16 @@ export class ResizeActivity extends BaseActivity {
 	private readonly initLayer: Layer;
 	private readonly utils: BaseLayerUtil<any>;
 	private readonly initBounds: Bounds;
+	private readonly aspectRatio?: number;
 
-	constructor(app: WhiteboardApp, private readonly layerId: string, private readonly create = false, private readonly resizeCorner: BoundsHandle = BoundsHandle.BOTTOM_RIGHT) {
+	constructor(app: WhiteboardApp, private readonly layerId: string, private readonly create = false, private readonly resizeCorner: BoundsHandle = BoundsHandle.BOTTOM + BoundsHandle.RIGHT) {
 		super(app);
 		this.initLayer = app.getLayer(layerId)!;
 		this.utils = getLayerUtil(this.initLayer);
 		this.initBounds = this.utils.getBounds(this.initLayer);
+		if (this.initBounds.width && this.initBounds.height) {
+			this.aspectRatio = this.initBounds.width / this.initBounds.height;
+		}
 	}
 
 	abort(): WhiteboardPatch {
@@ -72,7 +75,12 @@ export class ResizeActivity extends BaseActivity {
 	}
 
 	update(): WhiteboardPatch | void {
-		const newBounds = resizeBounds(this.initBounds, this.app.currentPoint, this.resizeCorner);
+		let aspectRatio;
+		if (this.app.keyboardEvent.event?.shiftKey) {
+			aspectRatio = this.aspectRatio;
+		}
+
+		const newBounds = resizeBounds(this.initBounds, this.app.currentPoint, this.resizeCorner, aspectRatio);
 		const resized = this.utils.resize(this.initLayer, newBounds);
 		return {
 			documents: {
@@ -86,32 +94,26 @@ export class ResizeActivity extends BaseActivity {
 	}
 }
 
-export function resizeBounds(bounds: Bounds, point: Point, resizeCorner: BoundsHandle): Bounds {
+export function resizeBounds(bounds: Bounds, point: Point, resizeCorner: BoundsHandle, aspectRatio?: number): Bounds {
 	const {x, y, width, height} = bounds;
-	return match(resizeCorner)
-		.with(BoundsHandle.BOTTOM_RIGHT, () => ({
-			x,
-			y,
-			width: point.x - x,
-			height: point.y - y,
-		}))
-		.with(BoundsHandle.BOTTOM_LEFT, () => ({
-			x: point.x,
-			y,
-			width: x - point.x + width,
-			height: point.y - y,
-		}))
-		.with(BoundsHandle.TOP_LEFT, () => ({
-			x: point.x,
-			y: point.y,
-			width: x - point.x + width,
-			height: y - point.y + height,
-		}))
-		.with(BoundsHandle.TOP_RIGHT, () => ({
-			x,
-			y: point.y,
-			width: point.x - x,
-			height: y - point.y + height,
-		}))
-		.otherwise(() => bounds);
+	const newX = (resizeCorner & BoundsHandle.LEFT) ? point.x : x;
+	const newY = (resizeCorner & BoundsHandle.TOP) ? point.y : y;
+	let newWidth = (resizeCorner & BoundsHandle.LEFT) ? x - point.x + width : (resizeCorner & BoundsHandle.RIGHT) ? point.x - x : width;
+	let newHeight = (resizeCorner & BoundsHandle.TOP) ? y - point.y + height : (resizeCorner & BoundsHandle.BOTTOM) ? point.y - y : height;
+
+	if (aspectRatio && width && height) {
+		if (resizeCorner & BoundsHandle.RIGHT || resizeCorner & BoundsHandle.LEFT) {
+			newHeight = newWidth / aspectRatio;
+		} else if (resizeCorner & BoundsHandle.TOP || resizeCorner & BoundsHandle.BOTTOM) {
+			newWidth = newHeight * aspectRatio;
+		}
+	}
+
+	return {
+		x: newX,
+		y: newY,
+		width: newWidth,
+		height: newHeight,
+	};
 }
+
