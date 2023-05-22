@@ -1,5 +1,5 @@
 import React from 'react';
-import {deepmerge} from '~core/utils';
+import {deepmerge, normalizeBounds} from '~core/utils';
 import {type BaseLayer, BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 import {type Bounds, type Dimension} from '~core/types';
 import {defaultLayerStyle} from '~core/layers/shared';
@@ -65,14 +65,15 @@ export class EmbedLayerUtil extends BaseLayerUtil<TLayer> {
 	}
 
 	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+		const {x, y, width, height} = normalizeBounds(bounds);
 		return {
 			position: {
-				x: bounds.x,
-				y: bounds.y,
+				x,
+				y,
 			},
 			dimensions: {
-				width: bounds.width,
-				height: bounds.height,
+				width,
+				height,
 			},
 		};
 	}

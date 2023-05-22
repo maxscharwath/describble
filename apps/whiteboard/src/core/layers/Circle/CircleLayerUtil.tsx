@@ -1,5 +1,5 @@
 import React from 'react';
-import {deepmerge} from '~core/utils';
+import {deepmerge, normalizeBounds} from '~core/utils';
 import {type BaseLayer, BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 import {type Bounds} from '~core/types';
 import {defaultLayerStyle, getBaseStyle} from '~core/layers/shared';
@@ -55,7 +55,7 @@ export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
 	}
 
 	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
-		const {x, y, width, height} = bounds;
+		const {x, y, width, height} = normalizeBounds(bounds);
 		return {
 			position: {
 				x: x + (width / 2),

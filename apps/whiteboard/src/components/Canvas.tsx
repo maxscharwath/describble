@@ -52,8 +52,8 @@ export const Canvas = () => {
 						layerId={layer.id}
 					/>
 				))}
+				{selection && <Selection bounds={selection}/>}
 			</g>
-			{selection && <Selection bounds={app.getScreenBounds(selection)}/>}
 			{selections && <HandledSelection bounds={app.getScreenBounds(selections)} padding={10} {...boundsEvents}/>}
 		</svg>
 	);

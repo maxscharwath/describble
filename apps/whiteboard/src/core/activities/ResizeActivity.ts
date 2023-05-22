@@ -3,7 +3,7 @@ import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '
 import {getLayerUtil, type Layer} from '~core/layers';
 import {normalizeBounds} from '~core/utils';
 import {match} from 'ts-pattern';
-import {type Bounds, BoundsHandle} from '~core/types';
+import {type Bounds, BoundsHandle, type Point} from '~core/types';
 import {type BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 
 export class ResizeActivity extends BaseActivity {
@@ -72,40 +72,8 @@ export class ResizeActivity extends BaseActivity {
 	}
 
 	update(): WhiteboardPatch | void {
-		const {x, y, width, height} = this.initBounds;
-		const newBounds = match(this.resizeCorner)
-			.with(BoundsHandle.BOTTOM_RIGHT, () => ({
-				x,
-				y,
-				width: this.app.currentPoint.x - x,
-				height: this.app.currentPoint.y - y,
-			}))
-			.with(BoundsHandle.BOTTOM_LEFT, () => ({
-				x: this.app.currentPoint.x,
-				y,
-				width: x - this.app.currentPoint.x + width,
-				height: this.app.currentPoint.y - y,
-			}))
-			.with(BoundsHandle.TOP_LEFT, () => ({
-				x: this.app.currentPoint.x,
-				y: this.app.currentPoint.y,
-				width: x - this.app.currentPoint.x + width,
-				height: y - this.app.currentPoint.y + height,
-			}))
-			.with(BoundsHandle.TOP_RIGHT, () => ({
-				x,
-				y: this.app.currentPoint.y,
-				width: this.app.currentPoint.x - x,
-				height: y - this.app.currentPoint.y + height,
-			}))
-			.otherwise(() => ({
-				x,
-				y,
-				width,
-				height,
-			}));
-
-		const resized = this.utils.resize(this.initLayer, normalizeBounds(newBounds));
+		const newBounds = resizeBounds(this.initBounds, this.app.currentPoint, this.resizeCorner);
+		const resized = this.utils.resize(this.initLayer, newBounds);
 		return {
 			documents: {
 				[this.app.currentDocumentId]: {
@@ -116,4 +84,34 @@ export class ResizeActivity extends BaseActivity {
 			},
 		};
 	}
+}
+
+export function resizeBounds(bounds: Bounds, point: Point, resizeCorner: BoundsHandle): Bounds {
+	const {x, y, width, height} = bounds;
+	return match(resizeCorner)
+		.with(BoundsHandle.BOTTOM_RIGHT, () => ({
+			x,
+			y,
+			width: point.x - x,
+			height: point.y - y,
+		}))
+		.with(BoundsHandle.BOTTOM_LEFT, () => ({
+			x: point.x,
+			y,
+			width: x - point.x + width,
+			height: point.y - y,
+		}))
+		.with(BoundsHandle.TOP_LEFT, () => ({
+			x: point.x,
+			y: point.y,
+			width: x - point.x + width,
+			height: y - point.y + height,
+		}))
+		.with(BoundsHandle.TOP_RIGHT, () => ({
+			x,
+			y: point.y,
+			width: point.x - x,
+			height: y - point.y + height,
+		}))
+		.otherwise(() => bounds);
 }

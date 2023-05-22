@@ -3,6 +3,7 @@ import {SelectActivity} from '~core/activities/SelectActivity';
 import {type BoundsEventHandler, BoundsHandle, type PointerEventHandler} from '~core/types';
 import {TranslateActivity} from '~core/activities/TranslateActivity';
 import {ResizeActivity} from '~core/activities/ResizeActivity';
+import {ResizeManyActivity} from '~core/activities/ResizeManyActivity';
 
 enum Status {
 	Idle = 'idle',
@@ -52,9 +53,9 @@ export class SelectTool extends BaseTool<Status> {
 
 	onBoundsDown: BoundsEventHandler = (event, handle) => {
 		this.setStatus(Status.BoundsPointing);
-		const firstSelectedLayer = this.app.state.appState.selectedLayers[0];
-		if (firstSelectedLayer && handle !== BoundsHandle.NONE) {
-			this.app.activity.startActivity(ResizeActivity, firstSelectedLayer, false, handle);
+		const layers = this.app.state.appState.selectedLayers;
+		if (layers.length > 0 && handle !== BoundsHandle.NONE) {
+			this.app.activity.startActivity(ResizeManyActivity, layers, false, handle);
 			this.setStatus(Status.Resizing);
 		}
 	};

@@ -24,11 +24,10 @@ export const Selection = memo(({bounds, radius = 10, padding = 0, ...props}: Sel
 		<rect
 			{...props}
 			{...bound}
-			fill='rgba(128,128,128,0.3)'
 			rx={radius}
-			stroke='rgba(128,128,128,0.9)'
 			strokeWidth={5}
-			className={clsx(style.strokeAnimation)}
+			className={clsx(style.strokeAnimation, 'fill-gray-400/20 stroke-gray-400/90')}
+			vectorEffect='non-scaling-stroke'
 		/>
 	);
 });
@@ -40,14 +39,14 @@ const Handle = memo(({x, y, size = 20, cursor, ...props}: {x: number; y: number;
 	const enlargedSize = size + (2 * invisiblePadding);
 
 	return (
-		<g>
+		<g className='group'>
 			<rect
 				x={x - (size / 2)}
 				y={y - (size / 2)}
 				width={size}
 				height={size}
-				fill='rgba(128,128,128,0.9)'
 				rx={5}
+				className='fill-gray-500 stroke-2 group-hover:stroke-gray-400'
 			/>
 			<rect
 				{...props}

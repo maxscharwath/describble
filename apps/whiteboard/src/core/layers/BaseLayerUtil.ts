@@ -2,6 +2,7 @@ import React from 'react';
 import {type Bounds, type Point} from '~core/types';
 import {type LayerStyle} from '~core/layers/shared';
 import {type Asset} from '~core/WhiteboardApp';
+import {normalizeBounds} from '~core/utils';
 
 export interface BaseLayer {
 	id: string;
@@ -31,11 +32,12 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 	}
 
 	public resize(layer: T, bounds: Bounds): Partial<T> {
+		const {x, y} = normalizeBounds(bounds);
 		return {
 			...layer,
 			position: {
-				x: bounds.x,
-				y: bounds.y,
+				x,
+				y,
 			},
 		};
 	}
