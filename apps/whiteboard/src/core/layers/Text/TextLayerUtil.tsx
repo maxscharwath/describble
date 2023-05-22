@@ -26,7 +26,7 @@ export class TextLayerUtil extends BaseLayerUtil<TLayer> {
 			y={layer.position.y}
 			ref={ref}
 		>
-			<span className='font-caveat flex h-full w-full select-none items-center justify-center' style={style}>
+			<span className='flex h-full w-full select-none items-center justify-center font-caveat' style={style}>
 				{layer.text}
 			</span>
 		</foreignObject>;

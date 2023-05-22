@@ -1,32 +1,38 @@
-# Condensation Monorepo
+# 🎨 DeScribble - Unleash Your Imagination! 🌟
+Welcome to DeScribble, an innovative whiteboard application designed to help you collaborate and bring your ideas to life. Created by Maxime Scharwath for his bachelor's thesis at HEIG-VD School, DeScribble provides a dynamic platform where people can come together to brainstorm, visualize, and share their ideas in a decentralized environment.
 
-This is a monorepo for the Condensation project. It will contain examples, integrations, and other related projects with
-Condensation.
+With DeScribble's infinite whiteboard canvas, you have the perfect space to nurture your ideas and watch them flourish. Whether you're planning projects, teaching, or simply letting your imagination run wild, DeScribble empowers you to turn abstract concepts into vibrant visual representations.
 
-### Prerequisites
+Built with the powerful React framework and flexible Scalable Vector Graphics (SVG), DeScribble offers a smooth and immersive user experience. Its decentralized architecture ensures data ownership, privacy, and the freedom to collaborate seamlessly.
 
-- [Node.js](https://nodejs.org/en/download/) (v14 or higher)
-- [pnpm](https://pnpm.io/installation)
+Try DeScribble now at https://describble.vercel.app and let your ideas come to life in the most captivating way. 🚀
 
-### Build
 
-To build all apps and packages, run the following command:
+## 📚 Prerequisites
 
-```
-cd my-turborepo
+To get started with DeScribble, make sure you have the following installed:
+
+- [Node.js](https://nodejs.org/en/download/) (v16 or higher)
+- [pnpm](https://pnpm.io/installation) 📦
+
+## 🏗️ Build
+
+Follow these steps to build all apps and packages in DeScribble:
+
+```bash
 pnpm run build
 ```
 
-### Develop
+### 💻 Develop
 
-To develop all apps and packages, run the following command:
+To launch the development environment for all apps and packages in DeScribble, use the following command:
 
 ```
-cd my-turborepo
 pnpm run dev
 ```
+This will start the development server, allowing you to experiment, iterate, and enhance the application in real-time.
 
-### Remote Caching with Turborpo
+### ☁️ Remote Caching with Turborepo
 
 Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to
 share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
@@ -35,7 +41,6 @@ By default, Turborepo will cache locally. To enable Remote Caching you will need
 have an account you can [create one](https://vercel.com/signup), then enter the following commands:
 
 ```
-cd my-turborepo
 pnpm dlx turbo login
 ```
 
@@ -48,7 +53,7 @@ Next, you can link your Turborepo to your Remote Cache by running the following 
 pnpm dlx turbo link
 ```
 
-## Useful Links
+## 📚 Useful Links
 
 Learn more about the power of Turborepo:
 

@@ -9,7 +9,7 @@ export const DebugBar = () => {
 	const camera = app.useStore(cameraSelector);
 
 	return (
-		<div className='standalone:px-10 flex w-full items-center justify-between border-t border-gray-200 bg-gray-100/75 p-2 backdrop-blur dark:border-gray-600 dark:bg-gray-800/75 dark:text-gray-200 dark:backdrop-blur'>
+		<div className='flex w-full items-center justify-between border-t border-gray-200 bg-gray-100/75 p-2 backdrop-blur dark:border-gray-600 dark:bg-gray-800/75 dark:text-gray-200 dark:backdrop-blur standalone:px-10'>
 			<span className='text-sm text-gray-500 dark:text-gray-200'>
 				{currentTool} - {status}
 			</span>

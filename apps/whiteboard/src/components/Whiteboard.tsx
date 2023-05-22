@@ -33,7 +33,7 @@ export default function Whiteboard({id, className, style, ...callbacks}: Whitebo
 				<div className='relative h-full w-full overflow-hidden'>
 					<Canvas />
 					<div className='pointer-events-none flex h-full w-full flex-col'>
-						<div className='portrait:standalone:mt-14 m-2 flex w-full flex-col items-center justify-center'>
+						<div className='m-2 flex w-full flex-col items-center justify-center portrait:standalone:mt-14'>
 							<Toolbar />
 							<SelectionsToolbar />
 						</div>

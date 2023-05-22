@@ -2,7 +2,6 @@ import {BaseTool} from '~core/tools';
 import {SelectActivity} from '~core/activities/SelectActivity';
 import {type BoundsEventHandler, BoundsHandle, type PointerEventHandler} from '~core/types';
 import {TranslateActivity} from '~core/activities/TranslateActivity';
-import {ResizeActivity} from '~core/activities/ResizeActivity';
 import {ResizeManyActivity} from '~core/activities/ResizeManyActivity';
 
 enum Status {

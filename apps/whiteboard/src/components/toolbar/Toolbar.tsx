@@ -1,17 +1,18 @@
 import React from 'react';
 import {shallow} from 'zustand/shallow';
 import {ColorButton} from '~components/ui/ColorButton';
-import {greet} from 'hello-wasm';
 import {
-	CircleIcon, EmbedIcon, HandIcon,
+	CircleIcon,
+	EmbedIcon,
+	HandIcon,
 	ImageIcon,
 	PathIcon,
 	RectangleIcon,
 	RedoIcon,
-	SelectIcon, TextIcon,
+	SelectIcon,
+	TextIcon,
 	TrashIcon,
 	UndoIcon,
-	WASMIcon,
 } from 'ui/components/Icons';
 import {Button} from '~components/ui/Buttons';
 import {useWhiteboard} from '~core/hooks/useWhiteboard';
@@ -176,14 +177,6 @@ export const Toolbar = () => {
 					onClick={handleClear}
 				>
 					<TrashIcon/>
-				</Button>
-				<Button
-					aria-label='WASM test'
-					onClick={() => {
-						greet('from the button');
-					}}
-				>
-					<WASMIcon/>
 				</Button>
 			</div>
 		</div>
