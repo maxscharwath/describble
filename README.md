@@ -1,5 +1,5 @@
 # 🎨 DeScribble - Unleash Your Imagination! 🌟
-Welcome to DeScribble, an innovative whiteboard application designed to help you collaborate and bring your ideas to life. Created by Maxime Scharwath for his bachelor's thesis at HEIG-VD School, DeScribble provides a dynamic platform where people can come together to brainstorm, visualize, and share their ideas in a decentralized environment.
+Welcome to DeScribble, an innovative whiteboard application designed to help you collaborate and bring your ideas to life. Created by Maxime Scharwath for his bachelor's thesis at HEIG-VD, DeScribble provides a dynamic platform where people can come together to brainstorm, visualize, and share their ideas in a decentralized environment.
 
 With DeScribble's infinite whiteboard canvas, you have the perfect space to nurture your ideas and watch them flourish. Whether you're planning projects, teaching, or simply letting your imagination run wild, DeScribble empowers you to turn abstract concepts into vibrant visual representations.
 
