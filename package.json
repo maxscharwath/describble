@@ -1,5 +1,6 @@
 {
-  "name": "condensation",
+  "name": "describble",
+  "description": "A simple drawing app",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",

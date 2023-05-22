@@ -1,7 +1,6 @@
 import React from 'react';
 import {shallow} from 'zustand/shallow';
 import {ColorButton} from '~components/ui/ColorButton';
-import {greet} from 'hello-wasm';
 import {
 	CircleIcon, EmbedIcon, HandIcon,
 	ImageIcon,
@@ -176,14 +175,6 @@ export const Toolbar = () => {
 					onClick={handleClear}
 				>
 					<TrashIcon/>
-				</Button>
-				<Button
-					aria-label='WASM test'
-					onClick={() => {
-						greet('from the button');
-					}}
-				>
-					<WASMIcon/>
 				</Button>
 			</div>
 		</div>

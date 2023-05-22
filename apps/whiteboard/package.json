@@ -20,7 +20,6 @@
     "@use-gesture/react": "^10.2.27",
     "clsx": "^1.2.1",
     "framer-motion": "^10.12.12",
-    "hello-wasm": "workspace:*",
     "idb-keyval": "^6.2.1",
     "nanoid": "^4.0.2",
     "perfect-freehand": "^1.2.0",

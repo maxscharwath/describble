@@ -26,7 +26,7 @@ const randomColor = (id: string) => {
 export const Cursors = () => {
 	const app = useWhiteboard();
 	const [mousesState, setMousesState] = React.useState<Map<string, MouseState>>(new Map());
-	const {room, updateData} = useRoom<RoomState>('condensation-whiteboard', {
+	const {room, updateData} = useRoom<RoomState>('descibble-whiteboard', {
 		defaultData: {mouses: {}},
 		onData(data) {
 			let changed = false;
