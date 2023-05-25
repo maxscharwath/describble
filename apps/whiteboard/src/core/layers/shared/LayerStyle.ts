@@ -93,3 +93,24 @@ export function getTextStyle(style: LayerStyle): React.CSSProperties {
 		fontSize,
 	};
 }
+
+export function getArrowStyle(style: LayerStyle): React.SVGAttributes<any> {
+	const fill = match(style)
+		.with({fillStyle: FillStyle.Filled}, () => new TinyColor(style.color).darken(10).toRgbString())
+		.with({fillStyle: FillStyle.Semi}, () => new TinyColor(style.color).darken(10).setAlpha(0.5).toRgbString())
+		.otherwise(() => 'none');
+
+	const strokeWidth = match(style)
+		.with({size: Size.Small}, () => 5)
+		.with({size: Size.Medium}, () => 10)
+		.with({size: Size.Large}, () => 20)
+		.exhaustive();
+
+	return {
+		fill,
+		strokeWidth,
+		strokeLinejoin: 'round',
+		strokeLinecap: 'round',
+		stroke: style.color,
+	};
+}

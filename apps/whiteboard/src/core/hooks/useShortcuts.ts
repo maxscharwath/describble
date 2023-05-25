@@ -17,11 +17,20 @@ export const useShortcuts = () => {
 	useHotkeys('c,5', () => {
 		app.setTool('circle');
 	}, undefined, [app]);
-	useHotkeys('i,6', () => {
+	useHotkeys('l,6', () => {
+		app.setTool('line');
+	}, undefined, [app]);
+	useHotkeys('a,7', () => {
+		app.setTool('arrow');
+	}, undefined, [app]);
+	useHotkeys('i,8', () => {
 		app.setTool('image');
 	}, undefined, [app]);
-	useHotkeys('t,7', () => {
+	useHotkeys('t,9', () => {
 		app.setTool('text');
+	}, undefined, [app]);
+	useHotkeys('e,0', () => {
+		app.setTool('embed');
 	}, undefined, [app]);
 
 	useHotkeys('backspace,del', () => {
@@ -31,6 +40,7 @@ export const useShortcuts = () => {
 	useHotkeys('meta+a,ctrl+a', e => {
 		e.preventDefault();
 		app.selectAll();
+		app.setTool('select');
 	}, undefined, [app]);
 
 	useHotkeys('meta+shift+a,ctrl+shift+a', e => {

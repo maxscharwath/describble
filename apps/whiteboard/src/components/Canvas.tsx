@@ -34,7 +34,7 @@ export const Canvas = () => {
 
 	useKeyEvents();
 	const events = useCanvasEvents();
-	const selections = useSelection();
+	const {bounds, selectedLayers} = useSelection();
 
 	const boundsEvents = useBoundsEvents();
 
@@ -50,11 +50,12 @@ export const Canvas = () => {
 					<Layer
 						key={layer.id}
 						layerId={layer.id}
+						selected={selectedLayers.has(layer.id)}
 					/>
 				))}
 				{selection && <Selection bounds={selection}/>}
 			</g>
-			{selections && <HandledSelection bounds={app.getScreenBounds(selections)} padding={10} {...boundsEvents}/>}
+			{bounds && <HandledSelection bounds={app.getScreenBounds(bounds)} padding={10} {...boundsEvents}/>}
 		</svg>
 	);
 };

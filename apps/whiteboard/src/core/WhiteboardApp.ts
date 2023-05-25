@@ -9,10 +9,11 @@ import {
 } from '~core/types';
 import {type Layer} from '~core/layers';
 import {
+	ArrowTool,
 	type BaseTool,
 	CircleTool,
 	createTools, EmbedTool,
-	ImageTool,
+	ImageTool, LineTool,
 	MoveTool,
 	PathTool,
 	RectangleTool,
@@ -69,6 +70,8 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		new CircleTool(this),
 		new ImageTool(this),
 		new PathTool(this),
+		new LineTool(this),
+		new ArrowTool(this),
 		new SelectTool(this),
 		new MoveTool(this),
 		new TextTool(this),

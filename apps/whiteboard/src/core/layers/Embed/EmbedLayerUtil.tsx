@@ -17,24 +17,43 @@ export interface EmbedLayer extends BaseLayer {
 export class EmbedLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) => <foreignObject
-		width={layer.dimensions.width}
-		height={layer.dimensions.height}
-		x={layer.position.x}
-		y={layer.position.y}
-		ref={ref}
-	>
-		<iframe
-			className='flex h-full w-full select-none items-center justify-center border-0'
-			src={layer.url}
-			allow='autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-		/>
-	</foreignObject>,
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) =>
+		<g transform={`rotate(${layer.rotation})`}>
+			<foreignObject
+				width={layer.dimensions.width}
+				height={layer.dimensions.height}
+				x={layer.position.x}
+				y={layer.position.y}
+				ref={ref}
+				className='rounded-md'
+			>
+				<iframe
+					className='flex h-full w-full select-none items-center justify-center border-0'
+					src={layer.url}
+					allow='autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+				/>
+			</foreignObject>
+
+			{selected && (
+				<rect
+					x={layer.position.x}
+					y={layer.position.y}
+					rx={5}
+					width={layer.dimensions.width}
+					height={layer.dimensions.height}
+					strokeWidth={5}
+					fill='none'
+					className='stroke-dashed stroke-gray-400/90'
+					vectorEffect='non-scaling-stroke'
+				/>
+			)}
+		</g>,
 	);
 
-	public PreviewComponent = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}) => {
+	public PreviewComponent = BaseLayerUtil.makeComponent<TLayer>(({layer}, ref) => {
 		const url = new URL(layer.url).hostname;
 		return <image
+			ref={ref}
 			href={`https://www.google.com/s2/favicons?domain=${url}&sz=64`}
 			width='100%'
 			height='100%'

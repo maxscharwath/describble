@@ -16,17 +16,31 @@ export interface RectangleLayer extends BaseLayer {
 export class RectangleLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
-		<rect
-			ref={ref}
-			x={layer.position.x}
-			y={layer.position.y}
-			rx={5}
-			width={layer.dimensions.width}
-			height={layer.dimensions.height}
-			transform={`rotate(${layer.rotation})`}
-			{...getBaseStyle(layer.style)}
-		/>,
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) =>
+		<g transform={`rotate(${layer.rotation})`}>
+			<rect
+				ref={ref}
+				x={layer.position.x}
+				y={layer.position.y}
+				rx={5}
+				width={layer.dimensions.width}
+				height={layer.dimensions.height}
+				{...getBaseStyle(layer.style)}
+			/>
+			{selected && (
+				<rect
+					x={layer.position.x}
+					y={layer.position.y}
+					rx={5}
+					width={layer.dimensions.width}
+					height={layer.dimensions.height}
+					strokeWidth={5}
+					fill='none'
+					className='stroke-dashed stroke-gray-400/90'
+					vectorEffect='non-scaling-stroke'
+				/>
+			)}
+		</g>,
 	);
 
 	public getLayer(props: Partial<TLayer>): TLayer {

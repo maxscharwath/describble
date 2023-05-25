@@ -4,7 +4,7 @@ import {useLayerEvents, useWhiteboard} from '~core/hooks';
 import {getLayerUtil, type Layer as TLayer} from '~core/layers';
 import {layerSelector} from '~core/selectors';
 
-export const Layer = React.memo(({layerId}: {layerId: string}) => {
+export const Layer = React.memo(({layerId, selected}: {layerId: string; selected?: boolean}) => {
 	const app = useWhiteboard();
 	const layer = app.useStore(layerSelector(layerId));
 	if (!layer) {
@@ -17,7 +17,7 @@ export const Layer = React.memo(({layerId}: {layerId: string}) => {
 	const events = useLayerEvents(layerId);
 	return (
 		<g {...events}>
-			<Component layer={layer as never} asset={asset}/>
+			<Component layer={layer as never} asset={asset} selected={selected}/>
 		</g>
 	);
 });

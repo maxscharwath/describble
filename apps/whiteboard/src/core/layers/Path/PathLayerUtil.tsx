@@ -19,7 +19,7 @@ export interface PathLayer extends BaseLayer {
 export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) => {
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) => {
 		const isClosed = this.isShapeClosed(layer);
 		const style = getBaseStyle(layer.style);
 		const strokeOptions: StrokeOptions = {
@@ -39,6 +39,15 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 						.with({borderStyle: BorderStyle.Solid}, () => <path fill={style.stroke} d={strokeToPath(toStroke(layer, strokeOptions))}/>)
 						.otherwise(() => <path {...style} fill='none' d={strokeToPath(toPath(layer, {...strokeOptions, last: false}), false)}/>)
 				}
+				{selected && (
+					<path
+						d={strokeToPath(toPath(layer, strokeOptions), false)}
+						strokeWidth={5}
+						fill='none'
+						className='stroke-dashed stroke-gray-400/90'
+						vectorEffect='non-scaling-stroke'
+					/>
+				)}
 			</g>
 		);
 	});

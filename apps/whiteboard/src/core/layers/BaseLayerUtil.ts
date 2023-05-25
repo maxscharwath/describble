@@ -19,6 +19,7 @@ export interface BaseLayer {
 export interface ComponentProps<T extends BaseLayer, E = any> {
 	layer: T;
 	asset?: Asset;
+	selected?: boolean;
 	ref?: React.Ref<E>;
 }
 

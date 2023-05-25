@@ -4,6 +4,8 @@ export * from './MoveTool';
 export * from './PathTool';
 export * from './RectangleTool';
 export * from './SelectTool';
+export * from './LineTool';
+export * from './ArrowTool';
 export * from './TextTool';
 export * from './EmbedTool';
 export * from './BaseTool';

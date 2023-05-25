@@ -17,19 +17,35 @@ export interface TextLayer extends BaseLayer {
 export class TextLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) => {
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) => {
 		const style = getTextStyle(layer.style);
-		return <foreignObject
-			width={layer.dimensions.width}
-			height={layer.dimensions.height}
-			x={layer.position.x}
-			y={layer.position.y}
-			ref={ref}
-		>
-			<span className='flex h-full w-full select-none items-center justify-center font-caveat' style={style}>
-				{layer.text}
-			</span>
-		</foreignObject>;
+		return <g transform={`rotate(${layer.rotation})`}>
+			<foreignObject
+				width={layer.dimensions.width}
+				height={layer.dimensions.height}
+				x={layer.position.x}
+				y={layer.position.y}
+				ref={ref}
+			>
+				<span className='flex h-full w-full select-none items-center justify-center font-caveat' style={style}>
+					{layer.text}
+				</span>
+			</foreignObject>
+
+			{selected && (
+				<rect
+					x={layer.position.x}
+					y={layer.position.y}
+					rx={5}
+					width={layer.dimensions.width}
+					height={layer.dimensions.height}
+					strokeWidth={5}
+					fill='none'
+					className='stroke-dashed stroke-gray-400/90'
+					vectorEffect='non-scaling-stroke'
+				/>
+			)}
+		</g>;
 	},
 	);
 

@@ -17,17 +17,32 @@ export interface ImageLayer extends BaseLayer {
 export class ImageLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, asset}, ref) =>
-		<image
-			ref={ref}
-			x={layer.position.x}
-			y={layer.position.y}
-			width={layer.dimensions.width}
-			height={layer.dimensions.height}
-			transform={`rotate(${layer.rotation})`}
-			href={asset?.src ?? 'https://media.tenor.com/lx2WSGRk8bcAAAAC/pulp-fiction-john-travolta.gif'}
-			preserveAspectRatio='none'
-		/>,
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, asset, selected}, ref) =>
+		<g transform={`rotate(${layer.rotation})`}>
+			<image
+				ref={ref}
+				x={layer.position.x}
+				y={layer.position.y}
+				width={layer.dimensions.width}
+				height={layer.dimensions.height}
+				href={asset?.src ?? 'https://media.tenor.com/lx2WSGRk8bcAAAAC/pulp-fiction-john-travolta.gif'}
+				preserveAspectRatio='none'
+			/>
+
+			{selected && (
+				<rect
+					x={layer.position.x}
+					y={layer.position.y}
+					rx={5}
+					width={layer.dimensions.width}
+					height={layer.dimensions.height}
+					strokeWidth={5}
+					fill='none'
+					className='stroke-dashed stroke-gray-400/90'
+					vectorEffect='non-scaling-stroke'
+				/>
+			)}
+		</g>,
 	);
 
 	public getLayer(props: Partial<TLayer>): TLayer {

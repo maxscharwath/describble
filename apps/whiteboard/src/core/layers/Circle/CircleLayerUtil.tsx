@@ -17,16 +17,29 @@ export interface CircleLayer extends BaseLayer {
 export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer}, ref) =>
-		<ellipse
-			ref={ref}
-			cx={layer.position.x}
-			cy={layer.position.y}
-			rx={layer.rx}
-			ry={layer.ry}
-			transform={`rotate(${layer.rotation})`}
-			{...getBaseStyle(layer.style)}
-		/>,
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) =>
+		<g transform={`rotate(${layer.rotation})`}>
+			<ellipse
+				ref={ref}
+				cx={layer.position.x}
+				cy={layer.position.y}
+				rx={layer.rx}
+				ry={layer.ry}
+				{...getBaseStyle(layer.style)}
+			/>
+			{selected && (
+				<ellipse
+					cx={layer.position.x}
+					cy={layer.position.y}
+					rx={layer.rx}
+					ry={layer.ry}
+					strokeWidth={5}
+					fill='none'
+					className='stroke-dashed stroke-gray-400/90'
+					vectorEffect='non-scaling-stroke'
+				/>
+			)}
+		</g>,
 	);
 
 	public getLayer(props: Partial<TLayer>): TLayer {

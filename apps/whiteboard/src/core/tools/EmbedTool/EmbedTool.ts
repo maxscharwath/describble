@@ -13,14 +13,14 @@ export class EmbedTool extends BaseTool {
 	}
 
 	onPointerDown = (event: React.PointerEvent) => {
-		if (this.status !== Status.Idle) {
+		if (this.status !== Status.Idle || !this.url) {
 			return;
 		}
 
 		const initPoint = this.app.getCanvasPoint({x: event.clientX, y: event.clientY});
 		const layer = Embed.create({
 			id: nanoid(),
-			url: this.url!,
+			url: this.url,
 			position: initPoint,
 			style: this.app.state.appState.currentStyle,
 		});
@@ -30,6 +30,7 @@ export class EmbedTool extends BaseTool {
 	};
 
 	private openUrlDialog() {
+		// eslint-disable-next-line no-alert
 		const url = prompt('Enter URL');
 		if (url) {
 			this.url = url;

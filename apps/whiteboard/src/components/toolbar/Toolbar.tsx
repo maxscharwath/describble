@@ -2,10 +2,12 @@ import React from 'react';
 import {shallow} from 'zustand/shallow';
 import {ColorButton} from '~components/ui/ColorButton';
 import {
+	ArrowIcon,
 	CircleIcon,
 	EmbedIcon,
 	HandIcon,
 	ImageIcon,
+	LineIcon,
 	PathIcon,
 	RectangleIcon,
 	RedoIcon,
@@ -131,6 +133,20 @@ export const Toolbar = () => {
 					currentTool={selectedTool}
 					onClick={handleSetTool}
 					icon={<CircleIcon/>}
+				/>
+
+				<ToolButton
+					tool='line'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<LineIcon/>}
+				/>
+
+				<ToolButton
+					tool='arrow'
+					currentTool={selectedTool}
+					onClick={handleSetTool}
+					icon={<ArrowIcon/>}
 				/>
 
 				<ToolButton

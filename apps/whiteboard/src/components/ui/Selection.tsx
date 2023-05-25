@@ -1,6 +1,4 @@
 import React, {memo} from 'react';
-import clsx from 'clsx';
-import style from './Selection.module.scss';
 import {normalizeBounds} from '~core/utils';
 import {type Bounds, BoundsHandle} from '~core/types';
 import {type BoundsEventHandlers, useBoundsHandleEvents} from '~core/hooks';
@@ -26,7 +24,7 @@ export const Selection = memo(({bounds, radius = 10, padding = 0, ...props}: Sel
 			{...bound}
 			rx={radius}
 			strokeWidth={5}
-			className={clsx(style.strokeAnimation, 'fill-gray-400/20 stroke-gray-400/90')}
+			className='stroke-dashed fill-gray-400/20 stroke-gray-400/90'
 			vectorEffect='non-scaling-stroke'
 		/>
 	);
