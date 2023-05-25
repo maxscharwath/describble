@@ -1,33 +1,33 @@
 import React from 'react';
 import {useWhiteboard} from '~core/hooks/useWhiteboard';
-import {BoundsHandle, type PointerEventHandler} from '~core/types';
+import {type PointerEventHandler} from '~core/types';
 
-export type BoundsEventHandlers = (handle?: BoundsHandle) => {
+export type HandleEventHandlers = (handle: number) => {
 	onPointerMove: PointerEventHandler;
 	onPointerDown: PointerEventHandler;
 	onPointerUp: PointerEventHandler;
 };
 
-export const useBoundsEvents = (): BoundsEventHandlers => {
+export const useHandleEvents = (): HandleEventHandlers => {
 	const {pointerEvent} = useWhiteboard();
 
-	return React.useCallback((handle = BoundsHandle.NONE) => ({
+	return React.useCallback(handle => ({
 		onPointerDown(e: React.PointerEvent) {
 			e.currentTarget.setPointerCapture(e.pointerId);
-			pointerEvent.onBoundsDown(e, handle);
-			pointerEvent.onPointerDown(e, 'bounds');
+			pointerEvent.onHandleDown(e, handle);
+			pointerEvent.onPointerDown(e, 'handle');
 		},
 		onPointerMove(e: React.PointerEvent) {
-			pointerEvent.onBoundsMove(e, handle);
-			pointerEvent.onPointerMove(e, 'bounds');
+			pointerEvent.onHandleMove(e, handle);
+			pointerEvent.onPointerMove(e, 'handle');
 		},
 		onPointerUp(e: React.PointerEvent) {
 			if (e.currentTarget.hasPointerCapture(e.pointerId)) {
 				e.currentTarget?.releasePointerCapture(e.pointerId);
 			}
 
-			pointerEvent.onBoundsUp(e, handle);
-			pointerEvent.onPointerUp(e, 'bounds');
+			pointerEvent.onHandleUp(e, handle);
+			pointerEvent.onPointerUp(e, 'handle');
 		},
 	}), [pointerEvent]);
 };

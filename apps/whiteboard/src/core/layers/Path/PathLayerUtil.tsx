@@ -19,7 +19,7 @@ export interface PathLayer extends BaseLayer {
 export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) => {
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) => {
 		const isClosed = this.isShapeClosed(layer);
 		const style = getBaseStyle(layer.style);
 		const strokeOptions: StrokeOptions = {
@@ -27,7 +27,6 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 		};
 		return (
 			<g
-				ref={ref}
 				transform={`translate(${layer.position.x} ${layer.position.y}) rotate(${layer.rotation})`}
 			>
 				{isClosed && layer.style.fillStyle !== FillStyle.Empty && <path

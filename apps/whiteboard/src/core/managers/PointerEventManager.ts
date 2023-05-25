@@ -70,4 +70,19 @@ export class PointerEventManager {
 		this.app.updateInput(event);
 		this.app.currentTool?.onBoundsUp?.(event, handle);
 	};
+
+	public onHandleDown = (event: React.PointerEvent, handleIndex: number) => {
+		this.app.updateInput(event);
+		this.app.currentTool?.onHandleDown?.(event, handleIndex);
+	};
+
+	public onHandleMove = (event: React.PointerEvent, handleIndex: number) => {
+		this.app.updateInput(event);
+		this.app.currentTool?.onHandleMove?.(event, handleIndex);
+	};
+
+	public onHandleUp = (event: React.PointerEvent, handleIndex: number) => {
+		this.app.updateInput(event);
+		this.app.currentTool?.onHandleUp?.(event, handleIndex);
+	};
 }

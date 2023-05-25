@@ -4,7 +4,7 @@ import {useLayerEvents, useWhiteboard} from '~core/hooks';
 import {getLayerUtil, type Layer as TLayer} from '~core/layers';
 import {layerSelector} from '~core/selectors';
 
-export const Layer = React.memo(({layerId, selected}: {layerId: string; selected?: boolean}) => {
+export const LayerElement = React.memo(({layerId, selected}: {layerId: string; selected?: boolean}) => {
 	const app = useWhiteboard();
 	const layer = app.useStore(layerSelector(layerId));
 	if (!layer) {
@@ -21,9 +21,9 @@ export const Layer = React.memo(({layerId, selected}: {layerId: string; selected
 		</g>
 	);
 });
-Layer.displayName = 'Layer';
+LayerElement.displayName = 'Layer';
 
-export const PreviewLayer = memo(({layer, ...props}: {layer: TLayer} & React.SVGProps<SVGSVGElement>) => {
+export const PreviewLayerElement = memo(({layer, ...props}: {layer: TLayer} & React.SVGProps<SVGSVGElement>) => {
 	const app = useWhiteboard();
 	const asset = layer.assetId ? app.asset.getAsset(layer.assetId) : undefined;
 	const {PreviewComponent, Component, getBounds} = getLayerUtil(layer);
@@ -42,4 +42,4 @@ export const PreviewLayer = memo(({layer, ...props}: {layer: TLayer} & React.SVG
 		</svg>
 	);
 }, shallow);
-PreviewLayer.displayName = 'PreviewLayer';
+PreviewLayerElement.displayName = 'PreviewLayer';

@@ -8,10 +8,12 @@ import {
 	useWhiteboard, useZoom,
 } from '~core/hooks';
 import {DottedGridBackground} from '~components/ui/DottedGridBackground';
-import {HandledSelection, Selection} from '~components/ui/Selection';
+import {HandledSelection, Handles, Selection} from '~components/ui/Selection';
 import {shallow} from 'zustand/shallow';
-import {Layer} from '~components/Layer';
+import {LayerElement} from '~components/LayerElement';
 import {cameraSelector, layersSelector, selectionSelector} from '~core/selectors';
+import {type Layer} from '~core/layers';
+import {useHandleEvents} from '~core/hooks/useHandleEvents';
 
 export const Canvas = () => {
 	const app = useWhiteboard();
@@ -33,29 +35,39 @@ export const Canvas = () => {
 	const layers = React.useMemo(() => tree.query(app.getCanvasBounds(app.viewport)), [tree, app.viewport, camera]);
 
 	useKeyEvents();
-	const events = useCanvasEvents();
 	const {bounds, selectedLayers} = useSelection();
 
+	const canvasEvents = useCanvasEvents();
 	const boundsEvents = useBoundsEvents();
+	const handleEvents = useHandleEvents();
+
+	let layerWithHandles: Layer | undefined;
+	if (selectedLayers.length === 1) {
+		const layer = app.getLayer(selectedLayers[0]);
+		if (layer?.handles) {
+			layerWithHandles = layer;
+		}
+	}
 
 	return (
 		<svg
 			className='absolute inset-0 h-full w-full touch-none bg-gray-200 dark:bg-gray-900'
 			ref={app.whiteboardRef}
-			{...events}
+			{...canvasEvents}
 		>
 			<DottedGridBackground camera={camera}/>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.zoom})`}>
 				{layers.map(layer => (
-					<Layer
+					<LayerElement
 						key={layer.id}
 						layerId={layer.id}
-						selected={selectedLayers.has(layer.id)}
+						selected={selectedLayers.includes(layer.id)}
 					/>
 				))}
 				{selection && <Selection bounds={selection}/>}
 			</g>
-			{bounds && <HandledSelection bounds={app.getScreenBounds(bounds)} padding={10} {...boundsEvents}/>}
+			{!layerWithHandles && bounds && <HandledSelection bounds={app.getScreenBounds(bounds)} padding={10} events={boundsEvents}/>}
+			{layerWithHandles && <Handles layer={layerWithHandles} camera={camera} events={handleEvents}/>}
 		</svg>
 	);
 };

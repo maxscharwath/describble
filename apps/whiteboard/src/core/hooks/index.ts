@@ -1,5 +1,6 @@
 export * from './useCanvasEvents';
 export * from './useBoundsEvents';
+export * from './useHandleEvents';
 export * from './useDropImageTool';
 export * from './useEvents';
 export * from './useKeyEvents';

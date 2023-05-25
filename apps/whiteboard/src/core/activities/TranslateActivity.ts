@@ -19,12 +19,12 @@ export class TranslateActivity extends BaseActivity {
 			return;
 		}
 
-		const delta = new Vector(this.app.currentPoint).subtract(this.iniPos);
+		const delta = Vector.subtract(this.app.currentPoint, this.iniPos);
 		const layers: Record<string, Partial<Layer>> = {};
 
 		for (const layer of this.initialLayers) {
 			const layerUtil = getLayerUtil(layer);
-			layers[layer.id] = layerUtil.translate(layer as never, delta.toPoint());
+			layers[layer.id] = layerUtil.translate(layer as never, delta);
 		}
 
 		return {

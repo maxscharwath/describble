@@ -16,10 +16,9 @@ export interface RectangleLayer extends BaseLayer {
 export class RectangleLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) =>
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) =>
 		<g transform={`rotate(${layer.rotation})`}>
 			<rect
-				ref={ref}
 				x={layer.position.x}
 				y={layer.position.y}
 				rx={5}

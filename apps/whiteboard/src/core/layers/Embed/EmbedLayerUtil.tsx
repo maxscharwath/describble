@@ -17,14 +17,13 @@ export interface EmbedLayer extends BaseLayer {
 export class EmbedLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) =>
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) =>
 		<g transform={`rotate(${layer.rotation})`}>
 			<foreignObject
 				width={layer.dimensions.width}
 				height={layer.dimensions.height}
 				x={layer.position.x}
 				y={layer.position.y}
-				ref={ref}
 				className='rounded-md'
 			>
 				<iframe
@@ -50,10 +49,9 @@ export class EmbedLayerUtil extends BaseLayerUtil<TLayer> {
 		</g>,
 	);
 
-	public PreviewComponent = BaseLayerUtil.makeComponent<TLayer>(({layer}, ref) => {
+	public PreviewComponent = BaseLayerUtil.makeComponent<TLayer>(({layer}) => {
 		const url = new URL(layer.url).hostname;
 		return <image
-			ref={ref}
 			href={`https://www.google.com/s2/favicons?domain=${url}&sz=64`}
 			width='100%'
 			height='100%'

@@ -17,10 +17,9 @@ export interface CircleLayer extends BaseLayer {
 export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) =>
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) =>
 		<g transform={`rotate(${layer.rotation})`}>
 			<ellipse
-				ref={ref}
 				cx={layer.position.x}
 				cy={layer.position.y}
 				rx={layer.rx}

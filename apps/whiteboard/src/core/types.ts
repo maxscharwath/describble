@@ -41,19 +41,28 @@ export enum BoundsHandle {
 export type PointerEventHandler = (event: React.PointerEvent, target: string) => void;
 export type KeyboardEventHandler = (event: KeyboardEvent) => void;
 export type BoundsEventHandler = (event: React.PointerEvent, handle: BoundsHandle) => void;
+export type HandleEventHandler = (event: React.PointerEvent, handleIndex: number) => void;
 export class WhiteboardEvents {
 	onPointerDown?: PointerEventHandler;
 	onPointerMove?: PointerEventHandler;
 	onPointerUp?: PointerEventHandler;
+
 	onKeyDown?: KeyboardEventHandler;
 	onKeyUp?: KeyboardEventHandler;
+
 	onLayerDown?: PointerEventHandler;
 	onLayerMove?: PointerEventHandler;
 	onLayerUp?: PointerEventHandler;
+
 	onCanvasDown?: PointerEventHandler;
 	onCanvasMove?: PointerEventHandler;
 	onCanvasUp?: PointerEventHandler;
+
 	onBoundsDown?: BoundsEventHandler;
 	onBoundsMove?: BoundsEventHandler;
 	onBoundsUp?: BoundsEventHandler;
+
+	onHandleDown?: HandleEventHandler;
+	onHandleMove?: HandleEventHandler;
+	onHandleUp?: HandleEventHandler;
 }

@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
-    "turbo": "^1.9.8"
+    "turbo": "^1.9.9"
   },
   "packageManager": "pnpm@7.27.1",
   "engines": {

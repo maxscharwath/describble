@@ -1,70 +1,55 @@
 import {type Point} from '~core/types';
 
-export class Vector implements Point {
-	public readonly x: number;
-	public readonly y: number;
-	constructor(point: Point) {
-		this.x = point.x;
-		this.y = point.y;
-	}
+export const Vector = {
+	add(...points: Point[]): Point {
+		return points.reduce((acc, point) => ({x: acc.x + point.x, y: acc.y + point.y}), {x: 0, y: 0});
+	},
 
-	add(v: Point): Vector {
-		return new Vector({x: this.x + v.x, y: this.y + v.y});
-	}
+	subtract(...points: Point[]): Point {
+		return points.slice(1).reduce((acc, point) => ({x: acc.x - point.x, y: acc.y - point.y}), points[0]);
+	},
 
-	subtract(v: Point): Vector {
-		return new Vector({x: this.x - v.x, y: this.y - v.y});
-	}
+	multiply(point: Point, scalar: number): Point {
+		return {x: point.x * scalar, y: point.y * scalar};
+	},
 
-	multiply(scalar: number): Vector {
-		return new Vector({x: this.x * scalar, y: this.y * scalar});
-	}
+	divide(point: Point, scalar: number): Point {
+		return {x: point.x / scalar, y: point.y / scalar};
+	},
 
-	divide(scalar: number): Vector {
-		return new Vector({x: this.x / scalar, y: this.y / scalar});
-	}
+	length(point: Point): number {
+		return Math.hypot(point.x, point.y);
+	},
 
-	length(): number {
-		return Math.sqrt((this.x * this.x) + (this.y * this.y));
-	}
+	normalize(point: Point): Point {
+		const len = this.length(point);
+		return this.divide(point, len);
+	},
 
-	normalize(): Vector {
-		const len = this.length();
-		return new Vector({x: this.x / len, y: this.y / len});
-	}
+	dot(p1: Point, p2: Point): number {
+		return (p1.x * p2.x) + (p1.y * p2.y);
+	},
 
-	dot(v: Point): number {
-		return (this.x * v.x) + (this.y * v.y);
-	}
+	cross(p1: Point, p2: Point): number {
+		return (p1.x * p2.y) - (p1.y * p2.x);
+	},
 
-	cross(v: Point): number {
-		return (this.x * v.y) - (this.y * v.x);
-	}
-
-	angleBetween(v: Point): number {
-		const dotProduct = this.dot(v);
-		const lengthsProduct = this.length() * new Vector(v).length();
+	angleBetween(p1: Point, p2: Point): number {
+		const dotProduct = this.dot(p1, p2);
+		const lengthsProduct = this.length(p1) * this.length(p2);
 		return Math.acos(dotProduct / lengthsProduct);
-	}
+	},
 
-	rotate(angle: number): Vector {
+	rotate(point: Point, angle: number): Point {
 		const cosAngle = Math.cos(angle);
 		const sinAngle = Math.sin(angle);
-		return new Vector({
-			x: (this.x * cosAngle) - (this.y * sinAngle),
-			y: (this.x * sinAngle) + (this.y * cosAngle),
-		});
-	}
+		return {
+			x: (point.x * cosAngle) - (point.y * sinAngle),
+			y: (point.x * sinAngle) + (point.y * cosAngle),
+		};
+	},
 
-	toPoint(): Point {
-		return {x: this.x, y: this.y};
-	}
-
-	static fromPoints(p1: Point, p2: Point): Vector {
-		return new Vector({x: p2.x - p1.x, y: p2.y - p1.y});
-	}
-
-	static zero(): Vector {
-		return new Vector({x: 0, y: 0});
-	}
-}
+	zero(): Point {
+		return {x: 0, y: 0};
+	},
+};

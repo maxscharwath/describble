@@ -1,6 +1,6 @@
 import {type StoreApi} from 'zustand/vanilla';
 import {type UseBoundStore, useStore} from 'zustand';
-import {type Bounds, type Patch, type Point} from '~core/types';
+import {type Bounds, type Camera, type Patch, type Point} from '~core/types';
 
 export * from './vector';
 
@@ -44,4 +44,28 @@ export const createBounds = (p1: Point, p2: Point): Bounds => ({
 	y: Math.min(p1.y, p2.y),
 	width: Math.abs(p1.x - p2.x),
 	height: Math.abs(p1.y - p2.y),
+});
+
+export const getCanvasPoint = (point: Point, {x, y, zoom}: Camera) => ({
+	x: (point.x - x) / zoom,
+	y: (point.y - y) / zoom,
+});
+
+export const getScreenPoint = (point: Point, {x, y, zoom}: Camera) => ({
+	x: (point.x * zoom) + x,
+	y: (point.y * zoom) + y,
+});
+
+export const getScreenBounds = (bounds: Bounds, {x, y, zoom}: Camera) => ({
+	x: (bounds.x * zoom) + x,
+	y: (bounds.y * zoom) + y,
+	width: bounds.width * zoom,
+	height: bounds.height * zoom,
+});
+
+export const getCanvasBounds = (bounds: Bounds, {x, y, zoom}: Camera) => ({
+	x: (bounds.x - x) / zoom,
+	y: (bounds.y - y) / zoom,
+	width: bounds.width / zoom,
+	height: bounds.height / zoom,
 });

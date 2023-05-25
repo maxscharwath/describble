@@ -5,7 +5,7 @@ import {Button} from '~components/ui/Buttons';
 import {Spacer} from '~components/ui/Utils';
 import {useWhiteboard} from '~core/hooks/useWhiteboard';
 import {shallow} from 'zustand/shallow';
-import {PreviewLayer} from '~components/Layer';
+import {PreviewLayerElement} from '~components/LayerElement';
 import {Sidebar} from '~components/ui/Sidebar';
 import {layerSelector, layersSelector} from '~core/selectors';
 
@@ -65,12 +65,12 @@ const LayerItem = memo(({layerId}: {layerId: string}) => {
 	}
 
 	function handleTargetLayer() {
-		//
+		app.targetLayer(layer.id);
 	}
 
 	return (
 		<>
-			<PreviewLayer
+			<PreviewLayerElement
 				layer={layer}
 				className='h-8 w-8 shrink-0 rounded-lg border border-gray-300 bg-gray-100/50 p-0.5 shadow-sm dark:border-gray-600 dark:bg-gray-800/50'
 			/>

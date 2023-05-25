@@ -7,7 +7,7 @@ import {
 	type Point,
 	type Pointer,
 } from '~core/types';
-import {type Layer} from '~core/layers';
+import {getLayerUtil, type Layer} from '~core/layers';
 import {
 	ArrowTool,
 	type BaseTool,
@@ -25,6 +25,7 @@ import {ActivityManager, AssetManager, KeyboardEventManager, PointerEventManager
 import {createLayersCommand, removeLayersCommand} from '~core/commands';
 import {patchLayersCommand} from '~core/commands/PatchLayersCommand';
 import React from 'react';
+import {getCanvasBounds, getCanvasPoint, getScreenBounds, getScreenPoint} from '~core/utils';
 
 export enum Status {
 	Idle = 'idle',
@@ -225,40 +226,35 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		};
 	}
 
+	public targetLayer(layerId: string) {
+		const layer = this.getLayer(layerId);
+		if (!layer) {
+			return this;
+		}
+
+		const {width, height} = this.viewport;
+		const {x, y} = getLayerUtil(layer).getCenter(layer as never);
+
+		this.setCamera({
+			x: (width / 2) - (x * this.camera.zoom),
+			y: (height / 2) - (y * this.camera.zoom),
+		});
+	}
+
 	public getCanvasPoint(point: Point) {
-		const {x, y, zoom} = this.camera;
-		return {
-			x: (point.x - x) / zoom,
-			y: (point.y - y) / zoom,
-		};
+		return getCanvasPoint(point, this.camera);
 	}
 
 	public getScreenPoint(point: Point) {
-		const {x, y, zoom} = this.camera;
-		return {
-			x: (point.x * zoom) + x,
-			y: (point.y * zoom) + y,
-		};
+		return getScreenPoint(point, this.camera);
 	}
 
 	public getScreenBounds(bounds: Bounds) {
-		const {x, y, zoom} = this.camera;
-		return {
-			x: (bounds.x * zoom) + x,
-			y: (bounds.y * zoom) + y,
-			width: bounds.width * zoom,
-			height: bounds.height * zoom,
-		};
+		return getScreenBounds(bounds, this.camera);
 	}
 
 	public getCanvasBounds(bounds: Bounds) {
-		const {x, y, zoom} = this.camera;
-		return {
-			x: (bounds.x - x) / zoom,
-			y: (bounds.y - y) / zoom,
-			width: bounds.width / zoom,
-			height: bounds.height / zoom,
-		};
+		return getCanvasBounds(bounds, this.camera);
 	}
 
 	public toggleDarkMode() {

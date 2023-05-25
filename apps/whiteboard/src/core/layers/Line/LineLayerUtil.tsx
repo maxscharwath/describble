@@ -10,32 +10,30 @@ type TElement = SVGPathElement;
 
 export interface LineLayer extends BaseLayer {
 	type: typeof type;
-	points: {
-		start: Point;
-		end: Point;
-	};
+	handles: [Point, Point];
 }
 
 export class LineLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) =>
-		<g transform={`rotate(${layer.rotation}) translate(${layer.position.x} ${layer.position.y})`}>
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) => {
+		const [start, end] = layer.handles;
+		return <g transform={`rotate(${layer.rotation}) translate(${layer.position.x} ${layer.position.y})`}>
 			<path
-				ref={ref}
 				{...getBaseStyle(layer.style)}
-				d={`M ${layer.points.start.x} ${layer.points.start.y} L ${layer.points.end.x} ${layer.points.end.y}`}
+				d={`M ${start.x} ${start.y} L ${end.x} ${end.y}`}
 			/>
 			{selected && (
 				<path
-					d={`M ${layer.points.start.x} ${layer.points.start.y} L ${layer.points.end.x} ${layer.points.end.y}`}
+					d={`M ${start.x} ${start.y} L ${end.x} ${end.y}`}
 					strokeWidth={5}
 					fill='none'
 					className='stroke-dashed stroke-gray-400/90'
 					vectorEffect='non-scaling-stroke'
 				/>
 			)}
-		</g>,
+		</g>;
+	},
 	);
 
 	public getLayer(props: Partial<TLayer>): TLayer {
@@ -47,16 +45,16 @@ export class LineLayerUtil extends BaseLayerUtil<TLayer> {
 				visible: true,
 				position: {x: 0, y: 0},
 				rotation: 0,
-				points: {
-					start: {x: 0, y: 0},
-					end: {x: 0, y: 0},
-				},
+				handles: [
+					{x: 0, y: 0},
+					{x: 1, y: 1},
+				],
 				style: defaultLayerStyle,
 			}, props);
 	}
 
 	public getBounds(layer: TLayer): Bounds {
-		const {start, end} = layer.points;
+		const [start, end] = layer.handles;
 		const x = Math.min(start.x, end.x) + layer.position.x;
 		const y = Math.min(start.y, end.y) + layer.position.y;
 		const width = Math.abs(end.x - start.x);
@@ -66,24 +64,24 @@ export class LineLayerUtil extends BaseLayerUtil<TLayer> {
 	}
 
 	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
-		const {x, y, width, height} = bounds;
-		const diagonal = Math.hypot(width, height);
-		const angle = Math.atan2(height, width);
+		const oldBounds = this.getBounds(layer);
 
-		const newStart = {
-			x: x - layer.position.x,
-			y: y - layer.position.y,
-		};
-		const newEnd = {
-			x: newStart.x + (diagonal * Math.cos(angle)),
-			y: newStart.y + (diagonal * Math.sin(angle)),
+		const scaleX = bounds.width / oldBounds.width;
+		const scaleY = bounds.height / oldBounds.height;
+
+		const handles = layer.handles.map(({x, y}) => ({
+			x: x * scaleX,
+			y: y * scaleY,
+		})) as [Point, Point];
+
+		const position = {
+			x: ((layer.position.x - oldBounds.x) * scaleX) + bounds.x,
+			y: ((layer.position.y - oldBounds.y) * scaleY) + bounds.y,
 		};
 
 		return {
-			points: {
-				start: newStart,
-				end: newEnd,
-			},
+			handles,
+			position,
 		};
 	}
 }

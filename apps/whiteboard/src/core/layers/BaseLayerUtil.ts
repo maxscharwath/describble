@@ -14,6 +14,7 @@ export interface BaseLayer {
 	style: LayerStyle;
 	position: Point;
 	rotation: number;
+	handles?: Point[];
 }
 
 export interface ComponentProps<T extends BaseLayer, E = any> {
@@ -24,9 +25,9 @@ export interface ComponentProps<T extends BaseLayer, E = any> {
 }
 
 export abstract class BaseLayerUtil<T extends BaseLayer> {
-	public PreviewComponent?: React.ForwardRefExoticComponent<ComponentProps<T>>;
+	public PreviewComponent?: React.FC<ComponentProps<T>>;
 	public abstract type: T['type'];
-	public abstract readonly Component: React.ForwardRefExoticComponent<ComponentProps<T>>;
+	public abstract readonly Component: React.FC<ComponentProps<T>>;
 
 	public create(props: Partial<T> & {id: string}): T {
 		return this.getLayer(props);
@@ -35,21 +36,39 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 	public resize(layer: T, bounds: Bounds): Partial<T> {
 		const {x, y} = normalizeBounds(bounds);
 		return {
-			...layer,
 			position: {
 				x,
 				y,
 			},
-		};
+		} satisfies Partial<BaseLayer> as Partial<T>;
 	}
 
 	public translate(layer: T, delta: Point): Partial<T> {
 		return {
-			...layer,
 			position: {
 				x: layer.position.x + delta.x,
 				y: layer.position.y + delta.y,
 			},
+		} satisfies Partial<BaseLayer> as Partial<T>;
+	}
+
+	public setHandle(layer: T, index: number, handle: Point): Partial<T> {
+		if (!layer.handles) {
+			return {};
+		}
+
+		const handles = [...layer.handles];
+		handles[index] = handle;
+		return {
+			handles,
+		} satisfies Partial<BaseLayer> as Partial<T>;
+	}
+
+	public getCenter(layer: T): Point {
+		const bounds = this.getBounds(layer);
+		return {
+			x: bounds.x + (bounds.width / 2),
+			y: bounds.y + (bounds.height / 2),
 		};
 	}
 
@@ -57,8 +76,8 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 
 	abstract getBounds(layer: T): Bounds;
 
-	protected static makeComponent<T extends BaseLayer, E extends Element = any>(component: (props: ComponentProps<T, E>, ref: React.Ref<E>) => React.ReactElement) {
-		return React.forwardRef(component);
+	protected static makeComponent<T extends BaseLayer, E extends Element = any>(component: React.FC<ComponentProps<T, E>>): React.FC<ComponentProps<T, E>> {
+		return React.memo(component);
 	}
 }
 

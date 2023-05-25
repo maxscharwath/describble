@@ -17,10 +17,9 @@ export interface ImageLayer extends BaseLayer {
 export class ImageLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, asset, selected}, ref) =>
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, asset, selected}) =>
 		<g transform={`rotate(${layer.rotation})`}>
 			<image
-				ref={ref}
 				x={layer.position.x}
 				y={layer.position.y}
 				width={layer.dimensions.width}

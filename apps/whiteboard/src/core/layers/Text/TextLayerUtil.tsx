@@ -17,7 +17,7 @@ export interface TextLayer extends BaseLayer {
 export class TextLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}, ref) => {
+	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) => {
 		const style = getTextStyle(layer.style);
 		return <g transform={`rotate(${layer.rotation})`}>
 			<foreignObject
@@ -25,7 +25,6 @@ export class TextLayerUtil extends BaseLayerUtil<TLayer> {
 				height={layer.dimensions.height}
 				x={layer.position.x}
 				y={layer.position.y}
-				ref={ref}
 			>
 				<span className='flex h-full w-full select-none items-center justify-center font-caveat' style={style}>
 					{layer.text}
