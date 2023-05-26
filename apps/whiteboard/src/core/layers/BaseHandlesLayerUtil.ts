@@ -7,7 +7,8 @@ export interface BaseHandlesLayer extends BaseLayer {
 
 export abstract class BaseHandlesLayerUtil<TLayer extends BaseHandlesLayer> extends BaseLayerUtil<TLayer> {
 	public getBounds(layer: TLayer): Bounds {
-		const [start, end] = layer.handles;
+		const start = layer.handles.at(0) ?? {x: 0, y: 0};
+		const end = layer.handles.at(-1) ?? {x: 0, y: 0};
 
 		return {
 			x: Math.min(start.x, end.x) + layer.position.x,

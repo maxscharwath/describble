@@ -17,7 +17,8 @@ export class LineLayerUtil extends BaseHandlesLayerUtil<TLayer> {
 	public type = type;
 
 	public Component = BaseLayerUtil.makeComponent<TLayer>(({layer, selected}) => {
-		const [start, end] = layer.handles;
+		const start = layer.handles.at(0) ?? {x: 0, y: 0};
+		const end = layer.handles.at(-1) ?? {x: 0, y: 0};
 		return <g transform={`rotate(${layer.rotation}) translate(${layer.position.x} ${layer.position.y})`}>
 			<path
 				{...getBaseStyle(layer.style)}
