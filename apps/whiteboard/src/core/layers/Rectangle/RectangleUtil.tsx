@@ -6,7 +6,6 @@ import {defaultLayerStyle, getBaseStyle} from '~core/layers/shared';
 
 const type = 'rectangle' as const;
 type TLayer = RectangleLayer;
-type TElement = SVGRectElement;
 
 export interface RectangleLayer extends BaseLayer {
 	type: typeof type;
@@ -16,7 +15,7 @@ export interface RectangleLayer extends BaseLayer {
 export class RectangleLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) =>
+	public Component = BaseLayerUtil.makeComponent<TLayer>(({layer, selected}) =>
 		<g transform={`rotate(${layer.rotation})`}>
 			<rect
 				x={layer.position.x}

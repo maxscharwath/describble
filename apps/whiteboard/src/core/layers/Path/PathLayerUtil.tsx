@@ -9,7 +9,6 @@ import {strokeToPath, toPath, toStroke} from '~core/layers/Path/PathHelpers';
 
 const type = 'path' as const;
 type TLayer = PathLayer;
-type TElement = SVGPathElement;
 
 export interface PathLayer extends BaseLayer {
 	type: typeof type;
@@ -19,7 +18,7 @@ export interface PathLayer extends BaseLayer {
 export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) => {
+	public Component = BaseLayerUtil.makeComponent<TLayer>(({layer, selected}) => {
 		const isClosed = this.isShapeClosed(layer);
 		const style = getBaseStyle(layer.style);
 		const strokeOptions: StrokeOptions = {

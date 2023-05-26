@@ -20,6 +20,8 @@ export type Bounds = Point & Dimension;
 
 export type Pointer = Point & {id: number; pressure: number};
 
+export type Handle = Point & {parent?: string};
+
 export type Camera = {
 	x: number;
 	y: number;

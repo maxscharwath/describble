@@ -6,7 +6,6 @@ import {defaultLayerStyle, getBaseStyle} from '~core/layers/shared';
 
 const type = 'circle' as const;
 type TLayer = CircleLayer;
-type TElement = SVGEllipseElement;
 
 export interface CircleLayer extends BaseLayer {
 	type: typeof type;
@@ -17,7 +16,7 @@ export interface CircleLayer extends BaseLayer {
 export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) =>
+	public Component = BaseLayerUtil.makeComponent<TLayer>(({layer, selected}) =>
 		<g transform={`rotate(${layer.rotation})`}>
 			<ellipse
 				cx={layer.position.x}

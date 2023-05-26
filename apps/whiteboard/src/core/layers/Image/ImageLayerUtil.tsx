@@ -6,7 +6,6 @@ import {defaultLayerStyle} from '~core/layers/shared';
 
 const type = 'image' as const;
 type TLayer = ImageLayer;
-type TElement = SVGImageElement;
 
 export interface ImageLayer extends BaseLayer {
 	type: typeof type;
@@ -17,7 +16,7 @@ export interface ImageLayer extends BaseLayer {
 export class ImageLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, asset, selected}) =>
+	public Component = BaseLayerUtil.makeComponent<TLayer>(({layer, asset, selected}) =>
 		<g transform={`rotate(${layer.rotation})`}>
 			<image
 				x={layer.position.x}

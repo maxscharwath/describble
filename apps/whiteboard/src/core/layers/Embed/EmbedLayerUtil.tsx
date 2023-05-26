@@ -6,7 +6,6 @@ import {defaultLayerStyle} from '~core/layers/shared';
 
 const type = 'embed' as const;
 type TLayer = EmbedLayer;
-type TElement = SVGForeignObjectElement;
 
 export interface EmbedLayer extends BaseLayer {
 	type: typeof type;
@@ -17,7 +16,7 @@ export interface EmbedLayer extends BaseLayer {
 export class EmbedLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) =>
+	public Component = BaseLayerUtil.makeComponent<TLayer>(({layer, selected}) =>
 		<g transform={`rotate(${layer.rotation})`}>
 			<foreignObject
 				width={layer.dimensions.width}

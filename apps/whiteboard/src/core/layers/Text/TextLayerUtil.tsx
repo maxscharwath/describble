@@ -6,7 +6,6 @@ import {defaultLayerStyle, getTextStyle} from '~core/layers/shared';
 
 const type = 'text' as const;
 type TLayer = TextLayer;
-type TElement = SVGForeignObjectElement;
 
 export interface TextLayer extends BaseLayer {
 	type: typeof type;
@@ -17,7 +16,7 @@ export interface TextLayer extends BaseLayer {
 export class TextLayerUtil extends BaseLayerUtil<TLayer> {
 	public type = type;
 
-	public Component = BaseLayerUtil.makeComponent<TLayer, TElement>(({layer, selected}) => {
+	public Component = BaseLayerUtil.makeComponent<TLayer>(({layer, selected}) => {
 		const style = getTextStyle(layer.style);
 		return <g transform={`rotate(${layer.rotation})`}>
 			<foreignObject

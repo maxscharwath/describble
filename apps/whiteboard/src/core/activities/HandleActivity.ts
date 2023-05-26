@@ -1,4 +1,4 @@
-import {type Bounds, type Point} from '~core/types';
+import {type Bounds, type Handle, type Point} from '~core/types';
 import {BaseActivity} from '~core/activities/BaseActivity';
 import {getLayerUtil, type Layer} from '~core/layers';
 import {type BaseLayerUtil} from '~core/layers/BaseLayerUtil';
@@ -89,8 +89,9 @@ export class HandleActivity extends BaseActivity {
 	}
 }
 
-function moveHandle(handle: Point, newPoint: Point, layerPosition: Point): Point {
+function moveHandle(handle: Handle, newPoint: Point, layerPosition: Point): Handle {
 	return {
+		...handle,
 		x: newPoint.x - layerPosition.x,
 		y: newPoint.y - layerPosition.y,
 	};

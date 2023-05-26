@@ -1,5 +1,5 @@
 import React from 'react';
-import {type Bounds, type Point} from '~core/types';
+import {type Bounds, type Handle, type Point} from '~core/types';
 import {type LayerStyle} from '~core/layers/shared';
 import {type Asset} from '~core/WhiteboardApp';
 import {normalizeBounds} from '~core/utils';
@@ -14,14 +14,13 @@ export interface BaseLayer {
 	style: LayerStyle;
 	position: Point;
 	rotation: number;
-	handles?: Point[];
+	handles?: Handle[];
 }
 
-export interface ComponentProps<T extends BaseLayer, E = any> {
+export interface ComponentProps<T extends BaseLayer> {
 	layer: T;
 	asset?: Asset;
 	selected?: boolean;
-	ref?: React.Ref<E>;
 }
 
 export abstract class BaseLayerUtil<T extends BaseLayer> {
@@ -52,7 +51,7 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 		} satisfies Partial<BaseLayer> as Partial<T>;
 	}
 
-	public setHandle(layer: T, index: number, handle: Point): Partial<T> {
+	public setHandle(layer: T, index: number, handle: Handle): Partial<T> {
 		if (!layer.handles) {
 			return {};
 		}
@@ -76,7 +75,7 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 
 	abstract getBounds(layer: T): Bounds;
 
-	protected static makeComponent<T extends BaseLayer, E extends Element = any>(component: React.FC<ComponentProps<T, E>>): React.FC<ComponentProps<T, E>> {
+	protected static makeComponent<T extends BaseLayer>(component: React.FC<ComponentProps<T>>): React.FC<ComponentProps<T>> {
 		return React.memo(component);
 	}
 }
