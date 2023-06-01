@@ -14,6 +14,9 @@ export default defineConfig({
 			{find: '~utils', replacement: fileURLToPath(new URL('./src/utils', import.meta.url))},
 		],
 	},
+	optimizeDeps: {
+		exclude: ['@automerge/automerge-wasm'],
+	},
 	test: {
 		environment: 'jsdom',
 		setupFiles: ['./tests/setup.ts'],

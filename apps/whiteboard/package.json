@@ -16,6 +16,7 @@
     "test": "vitest --coverage"
   },
   "dependencies": {
+    "@automerge/automerge": "^2.0.3",
     "@ctrl/tinycolor": "^3.6.0",
     "@use-gesture/react": "^10.2.27",
     "clsx": "^1.2.1",
@@ -45,6 +46,7 @@
     "@vitest/ui": "^0.31.1",
     "autoprefixer": "^10.4.14",
     "eslint-config-custom": "workspace:*",
+    "fake-indexeddb": "^4.0.1",
     "jsdom": "^22.0.0",
     "postcss": "^8.4.23",
     "sass": "^1.62.1",
