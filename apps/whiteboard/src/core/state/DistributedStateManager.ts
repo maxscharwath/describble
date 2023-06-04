@@ -69,7 +69,7 @@ export class DistributedStateManager<T extends Record<string, unknown>> {
 	}
 
 	public get state(): T {
-		return this.document;
+		return Automerge.toJS(this.document);
 	}
 
 	protected setDocument(doc: Doc<T>, force = false): void {
@@ -81,7 +81,7 @@ export class DistributedStateManager<T extends Record<string, unknown>> {
 		}
 
 		this.document = doc;
-		this.onChange?.(this.document);
+		this.onChange?.(Automerge.toJS(this.document));
 	}
 
 	public static create<T extends Record<string, unknown>>(defaultState: T): DistributedStateManager<T> {

@@ -16,7 +16,7 @@ export class PathTool extends BaseTool {
 			position: initPoint,
 			style: this.app.state.appState.currentStyle,
 		});
-		this.app.patchLayer(layer);
+		this.app.document.layer.add(layer);
 		this.app.activity.startActivity(DrawActivity, layer.id);
 		this.setStatus(Status.Creating);
 	};

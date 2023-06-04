@@ -71,7 +71,7 @@ export const Toolbar = () => {
 	}, [app]);
 
 	const handleClear = React.useCallback(() => {
-		app.clearLayers();
+		app.document.layer.deleteAll();
 	}, [app]);
 
 	const {selectedTool, selectedColor} = app.useStore(state => ({

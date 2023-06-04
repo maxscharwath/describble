@@ -63,17 +63,12 @@ export class RectangleLayerUtil extends BaseLayerUtil<TLayer> {
 		};
 	}
 
-	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+	public resize(layer: TLayer, bounds: Bounds): TLayer {
 		const {x, y, width, height} = normalizeBounds(bounds);
-		return {
-			position: {
-				x,
-				y,
-			},
-			dimensions: {
-				width,
-				height,
-			},
-		};
+		layer.position.x = x;
+		layer.position.y = y;
+		layer.dimensions.width = width;
+		layer.dimensions.height = height;
+		return layer;
 	}
 }

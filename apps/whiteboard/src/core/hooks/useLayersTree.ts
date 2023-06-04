@@ -5,7 +5,7 @@ import {type WhiteboardApp} from '~core/WhiteboardApp';
 
 export const useLayersTree = (app: WhiteboardApp, layerIds: string[]) => React.useMemo(() => {
 	const tree = new QuadTree<Layer>();
-	for (const layer of app.getLayers(layerIds)) {
+	for (const layer of app.document.layer.get(layerIds)) {
 		const utils = getLayerUtil(layer);
 		tree.insert({
 			bounds: utils.getBounds(layer as never),

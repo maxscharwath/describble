@@ -17,13 +17,13 @@ import {useHandleEvents} from '~core/hooks/useHandleEvents';
 
 export const Canvas = () => {
 	const app = useWhiteboard();
-	const layersId = app.useStore(state =>
+	const layersId = app.document.useStore(state =>
 		Object.values(layersSelector(state))
 			.filter(layer => layer.visible)
 			.sort((a, b) => (a.zIndex ?? Infinity) - (b.zIndex ?? Infinity))
 			.map(layer => layer.id)
 	, shallow);
-	const camera = app.useStore(cameraSelector, shallow);
+	const camera = app.document.useStore(cameraSelector, shallow);
 	const selection = app.useStore(selectionSelector, shallow);
 	useZoom(app.whiteboardRef);
 	useDropImageTool(app.whiteboardRef);
@@ -43,7 +43,7 @@ export const Canvas = () => {
 
 	let layerWithHandles: Layer | undefined;
 	if (selectedLayers.length === 1) {
-		const layer = app.getLayer(selectedLayers[0]);
+		const layer = app.document.layer.get(selectedLayers[0]);
 		if (layer?.handles) {
 			layerWithHandles = layer;
 		}

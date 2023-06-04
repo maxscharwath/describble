@@ -22,7 +22,7 @@ export const useDropImageTool = (canvasRef: React.RefObject<Element>) => {
 				const img = new Image();
 				img.src = imageSrc;
 				img.onload = () => {
-					const asset = app.asset.createAsset(imageSrc, 'image');
+					const asset = app.document.asset.create(imageSrc, 'image');
 					const initPoint = app.getCanvasPoint({x: event.clientX, y: event.clientY});
 					const layer = Layers.Image.create({
 						id: nanoid(),
@@ -34,7 +34,7 @@ export const useDropImageTool = (canvasRef: React.RefObject<Element>) => {
 						},
 						style: app.state.appState.currentStyle,
 					});
-					app.addLayer(layer);
+					app.document.layer.add(layer);
 				};
 			};
 

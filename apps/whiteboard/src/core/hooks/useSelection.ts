@@ -12,7 +12,7 @@ export const useSelection: () => ({selectedLayers: string[]; bounds: Bounds | nu
 		return {bounds: null, selectedLayers: []};
 	}
 
-	const layers = app.getLayers(selectedLayers);
+	const layers = app.document.layer.get(selectedLayers);
 
 	const firstLayerBounds = getLayerUtil(layers[0]).getBounds(layers[0] as never);
 	const bounds = layers.slice(1).reduce<Bounds>((bounds, layer) => {

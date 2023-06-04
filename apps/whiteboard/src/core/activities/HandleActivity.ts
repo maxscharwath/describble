@@ -2,7 +2,7 @@ import {type Bounds, type Handle, type Point} from '~core/types';
 import {BaseActivity} from '~core/activities/BaseActivity';
 import {getLayerUtil, type Layer} from '~core/layers';
 import {type BaseLayerUtil} from '~core/layers/BaseLayerUtil';
-import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '~core/WhiteboardApp';
+import {type WhiteboardApp} from '~core/WhiteboardApp';
 
 export class HandleActivity extends BaseActivity {
 	type = 'handle' as const;
@@ -12,80 +12,36 @@ export class HandleActivity extends BaseActivity {
 
 	constructor(app: WhiteboardApp, private readonly layerId: string, private readonly handleIndex: number) {
 		super(app);
-		this.initLayer = app.getLayer(layerId)!;
+		this.initLayer = app.document.layer.get(layerId)!;
 		this.utils = getLayerUtil(this.initLayer);
 		this.initBounds = this.utils.getBounds(this.initLayer);
 	}
 
-	abort(): WhiteboardPatch {
-		return {
-			documents: {
-				[this.app.currentDocumentId]: {
-					layers: {
-						[this.layerId]: this.initLayer,
-					},
-				},
-			},
-		};
+	abort() {
+		this.app.document.layer.patch(this.initLayer, 'reset-layer');
 	}
 
-	complete(): WhiteboardCommand | WhiteboardPatch | void {
-		const layer = this.app.getLayer(this.layerId);
-		if (!this.initLayer || !layer) {
-			return;
-		}
-
-		return {
-			id: 'move-handle',
-			before: {
-				documents: {
-					[this.app.currentDocumentId]: {
-						layers: {
-							[layer.id]: this.initLayer,
-						},
-					},
-				},
-			},
-			after: {
-				documents: {
-					[this.app.currentDocumentId]: {
-						layers: {
-							[layer.id]: layer,
-						},
-					},
-				},
-			},
-		};
+	complete(): void {
+		// Define the behavior when the handle activity completes.
 	}
 
 	start(): void {
 		// Define the behavior when the handle activity starts.
 	}
 
-	update(): WhiteboardPatch | void {
-		const layer = this.app.getLayer(this.layerId);
-		if (!layer) {
-			return;
-		}
+	update(): void {
+		this.app.document.layer.change({
+			[this.layerId]: layer => {
+				const {handles, position} = layer;
+				const handle = handles?.[this.handleIndex];
+				if (!handle || !handles) {
+					return;
+				}
 
-		const {handles, position} = layer;
-		const handle = handles?.[this.handleIndex];
-		if (!handle || !handles) {
-			return;
-		}
-
-		const newHandle = moveHandle(handle, this.app.currentPoint, position);
-		const updatedLayer = this.utils.setHandle(layer, this.handleIndex, newHandle);
-
-		return {
-			documents: {
-				[this.app.currentDocumentId]: {
-					layers: {
-						[layer.id]: updatedLayer,
-					},
-				},
+				const newHandle = moveHandle(handle, this.app.currentPoint, position);
+				this.utils.setHandle(layer, this.handleIndex, newHandle);
 			},
-		};
+		}, 'resize-layer');
 	}
 }
 

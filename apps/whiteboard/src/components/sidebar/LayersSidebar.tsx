@@ -11,14 +11,14 @@ import {layerSelector, layersSelector} from '~core/selectors';
 
 export const LayersSidebar = () => {
 	const app = useWhiteboard();
-	const layerIds = app.useStore(state =>
+	const layerIds = app.document.useStore(state =>
 		Object.values(layersSelector(state))
 			.sort((a, b) => (b.zIndex ?? Infinity) - (a.zIndex ?? Infinity))
 			.map(layer => layer.id)
 	, shallow);
 	function handleLayerReorder(layers: string[]) {
 		const newLayers = Object.fromEntries(layers.map((layer, index, {length}) => [layer, {zIndex: length - index}]));
-		app.patchDocument({
+		app.document.patch({
 			layers: newLayers,
 		});
 	}
@@ -49,19 +49,16 @@ export const LayersSidebar = () => {
 
 const LayerItem = memo(({layerId}: {layerId: string}) => {
 	const app = useWhiteboard();
-	const layer = app.useStore(layerSelector(layerId));
+	const layer = app.document.useStore(layerSelector(layerId));
 	function handleLayerVisibilityChange() {
-		app.patchDocument({
-			layers: {
-				[layer.id]: {
-					visible: !layer.visible,
-				},
-			},
+		app.document.layer.patch({
+			id: layer.id,
+			visible: !layer.visible,
 		}, 'set_layer_visibility');
 	}
 
 	function handleLayerDelete() {
-		app.removeLayer(layer.id);
+		app.document.layer.delete(layer.id);
 	}
 
 	function handleTargetLayer() {

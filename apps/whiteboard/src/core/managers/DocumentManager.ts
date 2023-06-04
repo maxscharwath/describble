@@ -1,9 +1,10 @@
 import {type Layer} from '~core/layers';
 import {type Camera, type Patch, type PatchId} from '~core/types';
 import {DistributedStateManager} from '~core/state/DistributedStateManager';
-import {createUseStore, deepmerge} from '~core/utils';
+import {createUseStore, deepcopy, deepmerge} from '~core/utils';
 import {createStore, type StoreApi} from 'zustand/vanilla';
 import {type UseBoundStore} from 'zustand';
+import {nanoid} from 'nanoid';
 
 type SyncedDocument = {
 	layers: Record<string, Layer>;
@@ -47,14 +48,14 @@ class LayerManager {
 	patch(layers: PatchId<Layer> | Array<PatchId<Layer>>, message?: string): void {
 		const patches = Array.isArray(layers) ? layers : [layers];
 		this.documentManager.patch({
-			layers: patches.reduce<Record<string, Patch<Layer>>>((acc, layer) => {
-				acc[layer.id] = layer;
+			layers: patches.reduce<Record<string, Patch<Layer>>>((acc, {id, ...rest}) => {
+				acc[id] = rest;
 				return acc;
 			}, {}),
 		}, message ?? `Update ${patches.length} layers`);
 	}
 
-	change(layer: Record<string, <T extends Layer>(layer: T) => void>, message?: string): void {
+	change<T extends Layer>(layer: Record<string, (layer: T) => void>, message?: string): void {
 		this.documentManager.change(state => {
 			for (const [id, fn] of Object.entries(layer)) {
 				const currentLayer = state.layers[id];
@@ -120,7 +121,15 @@ class AssetManager {
 		}, message ?? `Update asset ${asset.id}`);
 	}
 
-	create(asset: Asset, message?: string) {
+	create(src: string, type: string): Asset {
+		return this.add({
+			id: nanoid(),
+			type,
+			src,
+		});
+	}
+
+	add(asset: Asset, message?: string) {
 		const existingAsset = Object.values(this.documentManager.state.assets).find(existing => existing.src === asset.src);
 		if (existingAsset) {
 			return existingAsset;
@@ -165,17 +174,21 @@ export class DocumentManager extends DistributedStateManager<SyncedDocument> {
 		return this.store.getState();
 	}
 
+	private set state(state: Partial<Document>) {
+		this.store.setState(deepcopy(state));
+	}
+
 	public get camera(): Readonly<Camera> {
 		return this.state.camera;
 	}
 
 	public set camera(camera: Partial<Camera>) {
-		this.store.setState({
+		this.state = {
 			camera: deepmerge(this.state.camera, camera),
-		});
+		};
 	}
 
 	protected onChange = (state: SyncedDocument) => {
-		this.store.setState(state);
+		this.state = state;
 	};
 }

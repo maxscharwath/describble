@@ -1,5 +1,5 @@
 import {BaseActivity} from '~core/activities/BaseActivity';
-import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '~core/WhiteboardApp';
+import {type WhiteboardApp} from '~core/WhiteboardApp';
 import {getLayerUtil, type Layer} from '~core/layers';
 import {normalizeBounds} from '~core/utils';
 import {type Bounds, BoundsHandle, type Point} from '~core/types';
@@ -8,34 +8,30 @@ import {type BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 export class ResizeActivity extends BaseActivity {
 	type = 'resize' as const;
 	private readonly initLayer: Layer;
-	private readonly utils: BaseLayerUtil<any>;
+	private readonly utils: BaseLayerUtil<Layer>;
 	private readonly initBounds: Bounds;
 	private readonly aspectRatio?: number;
 
 	constructor(app: WhiteboardApp, private readonly layerId: string, private readonly create = false, private readonly resizeCorner: BoundsHandle = BoundsHandle.BOTTOM + BoundsHandle.RIGHT) {
 		super(app);
-		this.initLayer = app.getLayer(layerId)!;
-		this.utils = getLayerUtil(this.initLayer);
+		this.initLayer = app.document.layer.get(layerId)!;
+		this.utils = getLayerUtil(this.initLayer as never);
 		this.initBounds = this.utils.getBounds(this.initLayer);
 		if (this.initBounds.width && this.initBounds.height) {
 			this.aspectRatio = this.initBounds.width / this.initBounds.height;
 		}
 	}
 
-	abort(): WhiteboardPatch {
-		return {
-			documents: {
-				[this.app.currentDocumentId]: {
-					layers: {
-						[this.layerId]: this.create ? undefined : this.initLayer,
-					},
-				},
-			},
-		};
+	abort(): void {
+		if (this.create) {
+			this.app.document.layer.delete(this.layerId, 'reset-layer');
+		} else {
+			this.app.document.layer.patch(this.initLayer, 'reset-layer');
+		}
 	}
 
-	complete(): WhiteboardCommand | WhiteboardPatch | void {
-		const layer = this.app.getLayer(this.layerId);
+	complete(): void {
+		const layer = this.app.document.layer.get(this.layerId);
 		if (!this.initLayer || !layer) {
 			return;
 		}
@@ -46,51 +42,24 @@ export class ResizeActivity extends BaseActivity {
 				return this.abort();
 			}
 		}
-
-		return {
-			id: 'resize-layer',
-			before: {
-				documents: {
-					[this.app.currentDocumentId]: {
-						layers: {
-							[layer.id]: this.create ? undefined : this.initLayer,
-						},
-					},
-				},
-			},
-			after: {
-				documents: {
-					[this.app.currentDocumentId]: {
-						layers: {
-							[layer.id]: layer,
-						},
-					},
-				},
-			},
-		};
 	}
 
 	start(): void {
 		//
 	}
 
-	update(): WhiteboardPatch | void {
+	update(): void {
 		let aspectRatio;
 		if (this.app.keyboardEvent.event?.shiftKey) {
 			aspectRatio = this.aspectRatio;
 		}
 
 		const newBounds = resizeBounds(this.initBounds, this.app.currentPoint, this.resizeCorner, aspectRatio);
-		const resized = this.utils.resize(this.initLayer, newBounds);
-		return {
-			documents: {
-				[this.app.currentDocumentId]: {
-					layers: {
-						[this.initLayer.id]: resized,
-					},
-				},
+		this.app.document.layer.change({
+			[this.layerId]: layer => {
+				this.utils.resize(layer, newBounds);
 			},
-		};
+		});
 	}
 }
 
