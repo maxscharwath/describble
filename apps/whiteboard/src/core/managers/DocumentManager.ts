@@ -5,6 +5,7 @@ import {createUseStore, deepcopy, deepmerge} from '~core/utils';
 import {createStore, type StoreApi} from 'zustand/vanilla';
 import {type UseBoundStore} from 'zustand';
 import {nanoid} from 'nanoid';
+import {type WhiteboardApp} from '~core/WhiteboardApp';
 
 type SyncedDocument = {
 	layers: Record<string, Layer>;
@@ -17,6 +18,8 @@ type BaseDocument = {
 };
 
 export type Document = BaseDocument & SyncedDocument;
+
+export type SavedDocument = BaseDocument & {data: Uint8Array | number[]};
 
 export type Asset = {
 	id: string;
@@ -50,6 +53,7 @@ class LayerManager {
 		this.documentManager.patch({
 			layers: patches.reduce<Record<string, Patch<Layer>>>((acc, {id, ...rest}) => {
 				acc[id] = rest;
+				acc[id].hash = nanoid();
 				return acc;
 			}, {}),
 		}, message ?? `Update ${patches.length} layers`);
@@ -64,6 +68,7 @@ class LayerManager {
 				}
 
 				fn(currentLayer as never);
+				currentLayer.hash = nanoid();
 			}
 		}, message ?? `Set ${Object.keys(layer).length} layers`);
 	}
@@ -75,6 +80,7 @@ class LayerManager {
 		this.documentManager.change(state => {
 			for (const layer of newLayers) {
 				state.layers[layer.id] = layer as never;
+				state.layers[layer.id].hash = nanoid();
 			}
 		}, message ?? `Set ${newLayers.length} layers`);
 	}
@@ -154,15 +160,19 @@ export class DocumentManager extends DistributedStateManager<SyncedDocument> {
 	public readonly layer = new LayerManager(this);
 	public readonly asset = new AssetManager(this);
 	private readonly store: StoreApi<Document>;
-	constructor(initialState: Document) {
-		const {layers, assets} = initialState;
+	constructor(private readonly app: WhiteboardApp) {
 		super({
 			defaultState: {
-				layers,
-				assets,
+				layers: {},
+				assets: {},
 			},
 		});
-		this.store = createStore(() => initialState);
+		this.store = createStore(() => ({
+			id: 'default',
+			camera: {x: 0, y: 0, zoom: 1},
+			layers: {},
+			assets: {},
+		}));
 		this.useStore = createUseStore(this.store);
 	}
 
@@ -176,6 +186,11 @@ export class DocumentManager extends DistributedStateManager<SyncedDocument> {
 
 	private set state(state: Partial<Document>) {
 		this.store.setState(deepcopy(state));
+		this.app.patchPersistedState({
+			documents: {
+				[this.id]: this.save(),
+			},
+		}, `Update document ${this.id}`);
 	}
 
 	public get camera(): Readonly<Camera> {
@@ -185,6 +200,30 @@ export class DocumentManager extends DistributedStateManager<SyncedDocument> {
 	public set camera(camera: Partial<Camera>) {
 		this.state = {
 			camera: deepmerge(this.state.camera, camera),
+		};
+	}
+
+	public save(): SavedDocument {
+		return {
+			id: this.state.id,
+			camera: this.state.camera,
+			data: this.saveDocument(),
+		};
+	}
+
+	public load(document: SavedDocument) {
+		this.state = {
+			id: document.id,
+			camera: document.camera,
+			...this.loadDocument(document.data),
+		};
+	}
+
+	public create(id: string) {
+		this.state = {
+			id,
+			camera: {x: 0, y: 0, zoom: 1},
+			...this.newDocument(),
 		};
 	}
 

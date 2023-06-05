@@ -71,15 +71,16 @@ export class ResizeManyActivity extends BaseActivity {
 		for (const id of this.layerIds) {
 			const layer = this.initLayers[id];
 			const util = this.utils[id];
-			const {x: lx, y: ly, width: lw, height: lh} = util.getBounds(layer);
+			const originalBounds = util.getBounds(layer);
+			const {x: lx, y: ly, width: lw, height: lh} = originalBounds;
 			const resizedBounds = {
 				x: x + ((lx - x) * scaleX) + deltaX,
 				y: y + ((ly - y) * scaleY) + deltaY,
 				width: lw * scaleX,
 				height: lh * scaleY,
 			};
-			newLayers[id] = (layer: Layer) => {
-				util.resize(layer, resizedBounds);
+			newLayers[id] = (l: Layer) => {
+				util.resize(l, layer, resizedBounds);
 			};
 		}
 

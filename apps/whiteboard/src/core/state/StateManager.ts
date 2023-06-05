@@ -73,6 +73,13 @@ export class StateManager<T extends Record<string, any>> {
 		return this;
 	}
 
+	public patchPersistedState(patch: Patch<T>, id?: string): this {
+		this.applyPatch(patch, id);
+		this.onPatch?.(patch, id);
+		void this.persist(patch, id);
+		return this;
+	}
+
 	/**
    * Apply Command to state and persist
    * @param command - The command to apply

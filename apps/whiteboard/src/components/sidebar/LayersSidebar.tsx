@@ -4,10 +4,10 @@ import {ClosedEyeIcon, OpenEyeIcon, TargetIcon, TrashIcon} from 'ui/components/I
 import {Button} from '~components/ui/Buttons';
 import {Spacer} from '~components/ui/Utils';
 import {useWhiteboard} from '~core/hooks/useWhiteboard';
-import {shallow} from 'zustand/shallow';
 import {PreviewLayerElement} from '~components/LayerElement';
 import {Sidebar} from '~components/ui/Sidebar';
 import {layerSelector, layersSelector} from '~core/selectors';
+import {shallow} from 'zustand/shallow';
 
 export const LayersSidebar = () => {
 	const app = useWhiteboard();
@@ -49,7 +49,7 @@ export const LayersSidebar = () => {
 
 const LayerItem = memo(({layerId}: {layerId: string}) => {
 	const app = useWhiteboard();
-	const layer = app.document.useStore(layerSelector(layerId));
+	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.hash === b.hash);
 	function handleLayerVisibilityChange() {
 		app.document.layer.patch({
 			id: layer.id,

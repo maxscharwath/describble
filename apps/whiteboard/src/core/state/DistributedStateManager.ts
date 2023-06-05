@@ -18,24 +18,14 @@ function applyPatch<T>(target: T, patch: Patch<T>): void {
 }
 
 type DistributedStateManagerOptions<T extends Record<string, unknown>> = {
-	document?: Doc<T>;
-	defaultState?: T;
+	defaultState: T;
 };
 
 export class DistributedStateManager<T extends Record<string, unknown>> {
 	protected onChange?: (state: T) => void;
 	protected document: Doc<T>;
-	public constructor(options?: DistributedStateManagerOptions<T>) {
-		if (options?.document) {
-			this.document = options.document;
-			if (options.defaultState) {
-				this.patch(options.defaultState);
-			}
-		} else if (options?.defaultState) {
-			this.document = Automerge.from<T>(options.defaultState);
-		} else {
-			throw new Error('You must provide either a document or a default state');
-		}
+	public constructor(private readonly options: DistributedStateManagerOptions<T>) {
+		this.document = Automerge.from<T>(options.defaultState);
 	}
 
 	public get actorId(): string {
@@ -56,12 +46,18 @@ export class DistributedStateManager<T extends Record<string, unknown>> {
 		this.setDocument(Automerge.merge(this.document, doc));
 	}
 
-	public save(): Uint8Array {
-		return Automerge.save(this.document);
+	public saveDocument(): number[] {
+		return [...Automerge.save(this.document)];
 	}
 
-	public load(data: Uint8Array): void {
-		this.setDocument(Automerge.load(data), true);
+	public loadDocument(data: number[] | Uint8Array): Doc<T> {
+		this.document = Automerge.load(new Uint8Array(data));
+		return this.document;
+	}
+
+	public newDocument(): Doc<T> {
+		this.document = Automerge.from<T>(this.options.defaultState);
+		return this.document;
 	}
 
 	public getHistory() {
@@ -69,7 +65,7 @@ export class DistributedStateManager<T extends Record<string, unknown>> {
 	}
 
 	public get state(): T {
-		return Automerge.toJS(this.document);
+		return this.document;
 	}
 
 	protected setDocument(doc: Doc<T>, force = false): void {
@@ -81,7 +77,7 @@ export class DistributedStateManager<T extends Record<string, unknown>> {
 		}
 
 		this.document = doc;
-		this.onChange?.(Automerge.toJS(this.document));
+		this.onChange?.(this.document);
 	}
 
 	public static create<T extends Record<string, unknown>>(defaultState: T): DistributedStateManager<T> {

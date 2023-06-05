@@ -21,7 +21,13 @@ import {
 	type ToolsKey,
 } from '~core/tools';
 import {defaultLayerStyle, type LayerStyle} from '~core/layers/shared';
-import {ActivityManager, DocumentManager, KeyboardEventManager, PointerEventManager} from '~core/managers';
+import {
+	ActivityManager,
+	DocumentManager,
+	KeyboardEventManager,
+	PointerEventManager,
+	type SavedDocument,
+} from '~core/managers';
 import React from 'react';
 import {getCanvasBounds, getCanvasPoint, getScreenBounds, getScreenPoint} from '~core/utils';
 export type {Document, Asset} from '~core/managers/DocumentManager';
@@ -34,13 +40,14 @@ export type WhiteboardState = {
 		darkMode: boolean;
 	};
 	appState: {
-		currentDocumentId: string;
+		currentDocumentId: string | null;
 		currentTool: Tools;
 		currentStyle: LayerStyle;
 		selectedLayers: string[];
 		selection: Bounds | null;
 		status: string;
 	};
+	documents: Record<string, SavedDocument>;
 };
 
 export type WhiteboardCallbacks = {
@@ -70,19 +77,24 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	public readonly pointerEvent = new PointerEventManager(this);
 	public readonly keyboardEvent = new KeyboardEventManager(this);
 	public readonly activity = new ActivityManager(this);
-	public readonly document = new DocumentManager({
-		id: 'default',
-		camera: {x: 0, y: 0, zoom: 1},
-		layers: {},
-		assets: {},
-	});
+	public readonly document = new DocumentManager(this);
 
 	constructor(id: string, private readonly callbacks: WhiteboardCallbacks = {}) {
 		super(WhiteboardApp.defaultState, id);
 	}
 
-	public get currentDocumentId() {
-		return this.state.appState.currentDocumentId;
+	public loadDocument(documentId: string) {
+		if (this.state.appState.currentDocumentId === documentId) {
+			return;
+		}
+
+		this.patchState({appState: {currentDocumentId: documentId}}, `load_document_${documentId}`);
+		const savedDocument = this.state.documents[documentId];
+		if (savedDocument) {
+			this.document.load(savedDocument);
+		} else {
+			this.document.create(documentId);
+		}
 	}
 
 	public get documentState() {
@@ -210,6 +222,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			},
 		});
 		this.setTool(this.state.appState.currentTool);
+		this.loadDocument('default');
 		this.callbacks.onMount?.(this);
 	};
 
@@ -221,9 +234,11 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.callbacks.onPatch?.(patch, id ?? 'unknown');
 	};
 
-	protected preparePersist({settings}: WhiteboardState): Patch<WhiteboardState> {
+	protected preparePersist(state: WhiteboardState): Patch<WhiteboardState> {
+		const {documents, settings} = state;
 		return {
 			settings,
+			documents,
 		};
 	}
 
@@ -237,8 +252,9 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			selectedLayers: [],
 			selection: null,
 			currentTool: 'select',
-			currentDocumentId: 'demo',
+			currentDocumentId: null,
 		},
+		documents: {},
 	};
 }
 

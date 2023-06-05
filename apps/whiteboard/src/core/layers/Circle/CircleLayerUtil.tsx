@@ -65,14 +65,14 @@ export class CircleLayerUtil extends BaseLayerUtil<TLayer> {
 		};
 	}
 
-	public resize(layer: TLayer, bounds: Bounds): TLayer {
+	public resize(current: TLayer, layer: TLayer, bounds: Bounds): TLayer {
 		const {x, y, width, height} = normalizeBounds(bounds);
 
-		layer.position.x = x + (width / 2);
-		layer.position.y = y + (height / 2);
-		layer.rx = Math.abs(width / 2);
-		layer.ry = Math.abs(height / 2);
+		current.position.x = x + (width / 2);
+		current.position.y = y + (height / 2);
+		current.rx = Math.abs(width / 2);
+		current.ry = Math.abs(height / 2);
 
-		return layer;
+		return current;
 	}
 }

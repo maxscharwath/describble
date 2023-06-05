@@ -18,20 +18,22 @@ export abstract class BaseHandlesLayerUtil<TLayer extends BaseHandlesLayer> exte
 		};
 	}
 
-	public resize(layer: TLayer, bounds: Bounds): TLayer {
+	public resize(current: TLayer, layer: TLayer, bounds: Bounds): TLayer {
 		const oldBounds = this.getBounds(layer);
 
 		const scaleX = bounds.width / (oldBounds.width || 1);
 		const scaleY = bounds.height / (oldBounds.height || 1);
 
-		layer.handles.forEach(handle => {
-			handle.x *= scaleX;
-			handle.y *= scaleY;
+		layer.handles.forEach((handle, index) => {
+			current.handles[index] = {
+				x: handle.x * scaleX,
+				y: handle.y * scaleY,
+			};
 		});
 
-		layer.position.x = ((layer.position.x - oldBounds.x) * scaleX) + bounds.x;
-		layer.position.y = ((layer.position.y - oldBounds.y) * scaleY) + bounds.y;
+		current.position.x = ((layer.position.x - oldBounds.x) * scaleX) + bounds.x;
+		current.position.y = ((layer.position.y - oldBounds.y) * scaleY) + bounds.y;
 
-		return layer;
+		return current;
 	}
 }

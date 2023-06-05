@@ -49,6 +49,10 @@ export class ResizeActivity extends BaseActivity {
 	}
 
 	update(): void {
+		if (!this.initLayer) {
+			return;
+		}
+
 		let aspectRatio;
 		if (this.app.keyboardEvent.event?.shiftKey) {
 			aspectRatio = this.aspectRatio;
@@ -57,7 +61,7 @@ export class ResizeActivity extends BaseActivity {
 		const newBounds = resizeBounds(this.initBounds, this.app.currentPoint, this.resizeCorner, aspectRatio);
 		this.app.document.layer.change({
 			[this.layerId]: layer => {
-				this.utils.resize(layer, newBounds);
+				this.utils.resize(layer, this.initLayer, newBounds);
 			},
 		});
 	}

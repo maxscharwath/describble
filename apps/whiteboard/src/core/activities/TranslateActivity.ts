@@ -23,7 +23,7 @@ export class TranslateActivity extends BaseActivity {
 		this.app.document.layer.change(Object.fromEntries(this.initialLayers.map(layer => {
 			const util = getLayerUtil(layer) as BaseLayerUtil<Layer>;
 			return [layer.id, (l: Layer) => {
-				util.translate(l, delta);
+				util.translate(l, layer, delta);
 			}];
 		}, 'translate-layer')));
 	}

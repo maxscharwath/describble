@@ -6,6 +6,7 @@ import {normalizeBounds} from '~core/utils';
 
 export interface BaseLayer {
 	id: string;
+	hash?: string;
 	name: string;
 	type: string;
 	assetId?: string;
@@ -32,17 +33,17 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 		return this.getLayer(props);
 	}
 
-	public resize(layer: T, bounds: Bounds): T {
+	public resize(current: T, layer: T, bounds: Bounds): T {
 		const {x, y} = normalizeBounds(bounds);
-		layer.position.x = x;
-		layer.position.y = y;
-		return layer;
+		current.position.x = x;
+		current.position.y = y;
+		return current;
 	}
 
-	public translate(layer: T, delta: Point): T {
-		layer.position.x += delta.x;
-		layer.position.y += delta.y;
-		return layer;
+	public translate(current: T, layer: T, delta: Point): T {
+		current.position.x = layer.position.x + delta.x;
+		current.position.y = layer.position.y + delta.y;
+		return current;
 	}
 
 	public setHandle(layer: T, index: number, handle: Handle): T {
