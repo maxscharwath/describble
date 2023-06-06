@@ -7,12 +7,10 @@ export const useSelection: () => ({selectedLayers: string[]; bounds: Bounds | nu
 	const app = useWhiteboard();
 	const selectedLayers = app.useStore(state => state.appState.selectedLayers, shallow);
 	const status = app.useStore(state => state.appState.status);
-
-	if (selectedLayers.length <= 0 || status === 'translating' || status === 'resizing') {
+	const layers = app.document.layer.get(selectedLayers);
+	if (layers.length <= 0 || status === 'translating' || status === 'resizing') {
 		return {bounds: null, selectedLayers: []};
 	}
-
-	const layers = app.document.layer.get(selectedLayers);
 
 	const firstLayerBounds = getLayerUtil(layers[0]).getBounds(layers[0] as never);
 	const bounds = layers.slice(1).reduce<Bounds>((bounds, layer) => {

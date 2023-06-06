@@ -6,7 +6,7 @@ import {normalizeBounds} from '~core/utils';
 
 export interface BaseLayer {
 	id: string;
-	hash?: string;
+	timestamp?: number;
 	name: string;
 	type: string;
 	assetId?: string;

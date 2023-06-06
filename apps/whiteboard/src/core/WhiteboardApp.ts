@@ -81,6 +81,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	constructor(id: string, private readonly callbacks: WhiteboardCallbacks = {}) {
 		super(WhiteboardApp.defaultState, id);
+		console.log('WhiteboardApp constructor');
 	}
 
 	public loadDocument(documentId: string) {

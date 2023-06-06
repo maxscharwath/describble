@@ -68,14 +68,7 @@ export class DistributedStateManager<T extends Record<string, unknown>> {
 		return this.document;
 	}
 
-	protected setDocument(doc: Doc<T>, force = false): void {
-		if (!force) {
-			const changes = Automerge.getChanges(this.document, doc);
-			if (changes.length === 0) {
-				return;
-			}
-		}
-
+	protected setDocument(doc: Doc<T>): void {
 		this.document = doc;
 		this.onChange?.(this.document);
 	}

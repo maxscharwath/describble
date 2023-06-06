@@ -45,9 +45,6 @@ export default function Whiteboard({id, className, style, ...callbacks}: Whitebo
 	const [app, setApp] = React.useState(() =>
 		new WhiteboardApp(id, callbacks),
 	);
-	React.useLayoutEffect(() => {
-		setApp(new WhiteboardApp(id, callbacks));
-	}, [id]);
 
 	const settings = app.useStore(state => state.settings, shallow);
 

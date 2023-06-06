@@ -53,7 +53,7 @@ class LayerManager {
 		this.documentManager.patch({
 			layers: patches.reduce<Record<string, Patch<Layer>>>((acc, {id, ...rest}) => {
 				acc[id] = rest;
-				acc[id].hash = nanoid();
+				acc[id].timestamp = Date.now();
 				return acc;
 			}, {}),
 		}, message ?? `Update ${patches.length} layers`);
@@ -68,7 +68,7 @@ class LayerManager {
 				}
 
 				fn(currentLayer as never);
-				currentLayer.hash = nanoid();
+				currentLayer.hash = Date.now();
 			}
 		}, message ?? `Set ${Object.keys(layer).length} layers`);
 	}
@@ -80,7 +80,7 @@ class LayerManager {
 		this.documentManager.change(state => {
 			for (const layer of newLayers) {
 				state.layers[layer.id] = layer as never;
-				state.layers[layer.id].hash = nanoid();
+				state.layers[layer.id].hash = Date.now();
 			}
 		}, message ?? `Set ${newLayers.length} layers`);
 	}
@@ -186,11 +186,6 @@ export class DocumentManager extends DistributedStateManager<SyncedDocument> {
 
 	private set state(state: Partial<Document>) {
 		this.store.setState(deepcopy(state));
-		this.app.patchPersistedState({
-			documents: {
-				[this.id]: this.save(),
-			},
-		}, `Update document ${this.id}`);
 	}
 
 	public get camera(): Readonly<Camera> {
