@@ -6,7 +6,7 @@ import {layerSelector} from '~core/selectors';
 
 export const LayerElement = React.memo(({layerId, selected}: {layerId: string; selected?: boolean}) => {
 	const app = useWhiteboard();
-	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.hash === b.hash);
+	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.timestamp === b.timestamp);
 	if (!layer) {
 		return null;
 	}

@@ -49,7 +49,7 @@ export const LayersSidebar = () => {
 
 const LayerItem = memo(({layerId}: {layerId: string}) => {
 	const app = useWhiteboard();
-	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.hash === b.hash);
+	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.timestamp === b.timestamp);
 	function handleLayerVisibilityChange() {
 		app.document.layer.patch({
 			id: layer.id,

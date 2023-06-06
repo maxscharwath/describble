@@ -68,7 +68,7 @@ class LayerManager {
 				}
 
 				fn(currentLayer as never);
-				currentLayer.hash = Date.now();
+				currentLayer.timestamp = Date.now();
 			}
 		}, message ?? `Set ${Object.keys(layer).length} layers`);
 	}
@@ -80,7 +80,7 @@ class LayerManager {
 		this.documentManager.change(state => {
 			for (const layer of newLayers) {
 				state.layers[layer.id] = layer as never;
-				state.layers[layer.id].hash = Date.now();
+				state.layers[layer.id].timestamp = Date.now();
 			}
 		}, message ?? `Set ${newLayers.length} layers`);
 	}
