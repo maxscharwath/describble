@@ -3,7 +3,6 @@
   "description": "DDAP - Decentralized Document Access Protocol",
   "version": "0.0.0",
   "private": true,
-  "description": "",
   "license": "Apache-2.0",
   "author": "Maxime Scharwath <maxime@scharwath.ch>",
   "type": "module",
