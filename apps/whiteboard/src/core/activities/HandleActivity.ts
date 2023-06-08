@@ -12,13 +12,13 @@ export class HandleActivity extends BaseActivity {
 
 	constructor(app: WhiteboardApp, private readonly layerId: string, private readonly handleIndex: number) {
 		super(app);
-		this.initLayer = app.document.layer.get(layerId)!;
+		this.initLayer = app.document.layers.get(layerId)!;
 		this.utils = getLayerUtil(this.initLayer);
 		this.initBounds = this.utils.getBounds(this.initLayer);
 	}
 
 	abort() {
-		this.app.document.layer.patch(this.initLayer, 'reset-layer');
+		this.app.document.layers.patch(this.initLayer, 'reset-layer');
 	}
 
 	complete(): void {
@@ -30,8 +30,8 @@ export class HandleActivity extends BaseActivity {
 	}
 
 	update(): void {
-		this.app.document.layer.change({
-			[this.layerId]: layer => {
+		this.app.document.layers.change([
+			[this.layerId, layer => {
 				const {handles, position} = layer;
 				const handle = handles?.[this.handleIndex];
 				if (!handle || !handles) {
@@ -40,8 +40,8 @@ export class HandleActivity extends BaseActivity {
 
 				const newHandle = moveHandle(handle, this.app.currentPoint, position);
 				this.utils.setHandle(layer, this.handleIndex, newHandle);
-			},
-		}, 'resize-layer');
+			}],
+		], 'resize-layer');
 	}
 }
 

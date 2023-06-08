@@ -43,7 +43,7 @@ export const Canvas = () => {
 
 	let layerWithHandles: Layer | undefined;
 	if (selectedLayers.length === 1) {
-		const layer = app.document.layer.get(selectedLayers[0]);
+		const layer = app.document.layers.get(selectedLayers[0]);
 		if (layer?.handles) {
 			layerWithHandles = layer;
 		}

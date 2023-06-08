@@ -1,7 +1,6 @@
 import {StateManager} from '~core/state/StateManager';
 import {
 	type Bounds,
-	type Camera,
 	type Command,
 	type Patch,
 	type Point,
@@ -26,7 +25,6 @@ import {
 	DocumentManager,
 	KeyboardEventManager,
 	PointerEventManager,
-	type SavedDocument,
 } from '~core/managers';
 import React from 'react';
 import {getCanvasBounds, getCanvasPoint, getScreenBounds, getScreenPoint} from '~core/utils';
@@ -47,7 +45,6 @@ export type WhiteboardState = {
 		selection: Bounds | null;
 		status: string;
 	};
-	documents: Record<string, SavedDocument>;
 };
 
 export type WhiteboardCallbacks = {
@@ -77,41 +74,19 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	public readonly pointerEvent = new PointerEventManager(this);
 	public readonly keyboardEvent = new KeyboardEventManager(this);
 	public readonly activity = new ActivityManager(this);
-	public readonly document = new DocumentManager(this);
+	public readonly documentManager = new DocumentManager(this);
 
 	constructor(id: string, private readonly callbacks: WhiteboardCallbacks = {}) {
 		super(WhiteboardApp.defaultState, id);
 		console.log('WhiteboardApp constructor');
 	}
 
-	public loadDocument(documentId: string) {
-		if (this.state.appState.currentDocumentId === documentId) {
-			return;
-		}
-
-		this.patchState({appState: {currentDocumentId: documentId}}, `load_document_${documentId}`);
-		const savedDocument = this.state.documents[documentId];
-		if (savedDocument) {
-			this.document.load(savedDocument);
-		} else {
-			this.document.create(documentId);
-		}
-	}
-
-	public get documentState() {
-		return this.document.state;
+	public get document() {
+		return this.documentManager.current;
 	}
 
 	public get selectedLayers() {
 		return this.state.appState.selectedLayers;
-	}
-
-	public get camera() {
-		return this.documentState.camera;
-	}
-
-	public setCamera(camera: Partial<Camera>) {
-		this.document.camera = camera;
 	}
 
 	public setStatus(status: string) {
@@ -141,7 +116,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	public selectAll() {
 		this.patchState({
 			appState: {
-				selectedLayers: Object.keys(this.documentState.layers),
+				selectedLayers: this.document?.layers.getAllIds() ?? [],
 			},
 		});
 	}
@@ -167,30 +142,33 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		};
 	}
 
-	public patchStyle(style: Patch<LayerStyle>, id?: string) {
-		this.patchState({appState: {currentStyle: style}}, id);
+	public patchStyle(style: Patch<LayerStyle>, message?: string) {
+		this.patchState({appState: {currentStyle: style}}, message);
 		const {selectedLayers} = this.state.appState;
 		if (selectedLayers.length) {
-			this.document.layer.patch(
+			this.document?.layers.patch(
 				selectedLayers.map(id => ({id, style})),
-				id,
+				message,
 			);
 		}
 	}
 
+	public get camera() {
+		return this.document?.camera ?? {x: 0, y: 0, zoom: 1};
+	}
+
 	public targetLayer(layerId: string) {
-		const layer = this.document.layer.get(layerId);
+		const layer = this.document?.layers.get(layerId);
 		if (!layer) {
 			return this;
 		}
 
 		const {width, height} = this.viewport;
 		const {x, y} = getLayerUtil(layer).getCenter(layer as never);
-
-		this.setCamera({
-			x: (width / 2) - (x * this.camera.zoom),
-			y: (height / 2) - (y * this.camera.zoom),
-		});
+		this.document?.setCamera(({zoom}) => ({
+			x: (width / 2) - (x * zoom),
+			y: (height / 2) - (y * zoom),
+		}));
 	}
 
 	public getCanvasPoint(point: Point) {
@@ -223,7 +201,6 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			},
 		});
 		this.setTool(this.state.appState.currentTool);
-		this.loadDocument('default');
 		this.callbacks.onMount?.(this);
 	};
 
@@ -236,10 +213,9 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	};
 
 	protected preparePersist(state: WhiteboardState): Patch<WhiteboardState> {
-		const {documents, settings} = state;
+		const {settings} = state;
 		return {
 			settings,
-			documents,
 		};
 	}
 
@@ -255,7 +231,6 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			currentTool: 'select',
 			currentDocumentId: null,
 		},
-		documents: {},
 	};
 }
 

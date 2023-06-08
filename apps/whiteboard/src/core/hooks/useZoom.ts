@@ -14,17 +14,21 @@ export const useZoom = (canvasRef: React.RefObject<Element>) => {
 				const [dx, dy, z] = normalizeWheel(event);
 
 				if ((event.altKey || event.ctrlKey || event.metaKey) && event.buttons === 0) {
-					const zoom = Math.max(0.1, Math.min(10, app.camera.zoom + (z * app.camera.zoom)));
-					const x = event.clientX - ((event.clientX - app.camera.x) * zoom / app.camera.zoom);
-					const y = event.clientY - ((event.clientY - app.camera.y) * zoom / app.camera.zoom);
-					app.setCamera({x, y, zoom});
+					app.document.setCamera(camera => {
+						const zoom = Math.max(0.1, Math.min(10, camera.zoom + (z * camera.zoom)));
+						return {
+							x: event.clientX - ((event.clientX - camera.x) * zoom / camera.zoom),
+							y: event.clientY - ((event.clientY - camera.y) * zoom / camera.zoom),
+							zoom,
+						};
+					});
 					return;
 				}
 
-				const {x, y} = app.camera;
-				const newX = x - dx;
-				const newY = y - dy;
-				app.setCamera({x: newX, y: newY, zoom: app.camera.zoom});
+				app.document.setCamera(({x, y}) => ({
+					x: x - dx,
+					y: y - dy,
+				}));
 			},
 			onTouchStart({event}) {
 				if (event.touches.length === 2) {
@@ -62,7 +66,7 @@ export const useZoom = (canvasRef: React.RefObject<Element>) => {
 					x = currentX - ((currentX - x) * newScale / app.camera.zoom);
 					y = currentY - ((currentY - y) * newScale / app.camera.zoom);
 
-					app.setCamera({x, y, zoom: newScale});
+					app.document.setCamera({x, y, zoom: newScale});
 
 					initialDistance.current = distance;
 					lastPosition.current = {x: currentX, y: currentY};

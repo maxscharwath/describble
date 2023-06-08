@@ -17,10 +17,11 @@ export const LayersSidebar = () => {
 			.map(layer => layer.id)
 	, shallow);
 	function handleLayerReorder(layers: string[]) {
-		const newLayers = Object.fromEntries(layers.map((layer, index, {length}) => [layer, {zIndex: length - index}]));
-		app.document.patch({
-			layers: newLayers,
-		});
+		app.document.change(doc => {
+			layers.forEach((layerId, index) => {
+				doc.layers[layerId].zIndex = layers.length - index;
+			});
+		}, 'reorder_layers');
 	}
 
 	if (layerIds.length === 0) {
@@ -51,14 +52,14 @@ const LayerItem = memo(({layerId}: {layerId: string}) => {
 	const app = useWhiteboard();
 	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.timestamp === b.timestamp);
 	function handleLayerVisibilityChange() {
-		app.document.layer.patch({
+		app.document.layers.patch({
 			id: layer.id,
 			visible: !layer.visible,
 		}, 'set_layer_visibility');
 	}
 
 	function handleLayerDelete() {
-		app.document.layer.delete(layer.id);
+		app.document.layers.delete(layer.id);
 	}
 
 	function handleTargetLayer() {

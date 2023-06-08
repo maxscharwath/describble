@@ -29,6 +29,6 @@ export class PanActivity extends BaseActivity {
 
 		const pos = Vector.subtract(iniPos, this.app.getScreenPoint(this.app.currentPoint));
 		const camera = Vector.subtract(this.iniCamera, pos);
-		this.app.setCamera(camera);
+		this.app.document.setCamera(camera);
 	}
 }

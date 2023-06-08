@@ -9,15 +9,15 @@ export class DrawActivity extends BaseActivity {
 
 	constructor(app: WhiteboardApp, private readonly layerId: string) {
 		super(app);
-		this.initLayer = app.document.layer.get(layerId);
+		this.initLayer = app.document.layers.get(layerId);
 	}
 
 	abort() {
-		this.app.document.layer.delete(this.layerId);
+		this.app.document.layers.delete(this.layerId);
 	}
 
 	complete(): void {
-		const layer = this.app.document.layer.get<PathLayer>(this.layerId);
+		const layer = this.app.document.layers.get<PathLayer>(this.layerId);
 		if (!this.initLayer || !layer) {
 			return;
 		}
@@ -32,13 +32,13 @@ export class DrawActivity extends BaseActivity {
 	}
 
 	update(): void {
-		const layer = this.app.document.layer.get<PathLayer>(this.layerId);
+		const layer = this.app.document.layers.get<PathLayer>(this.layerId);
 		if (!this.initLayer || !layer) {
 			return;
 		}
 
-		this.app.document.layer.change({
-			[layer.id]: (layer: PathLayer) => {
+		this.app.document.layers.change([
+			[layer.id, (layer: PathLayer) => {
 				const {x, y, pressure} = this.app.currentPoint;
 				const initPoint = this.initLayer!.position;
 				const point = [x - initPoint.x, y - initPoint.y, pressure];
@@ -51,7 +51,7 @@ export class DrawActivity extends BaseActivity {
 				}
 
 				layer.path.push(point);
-			},
-		}, 'add-point');
+			}],
+		], 'add-point');
 	}
 }

@@ -13,7 +13,7 @@ export class SelectActivity extends BaseActivity {
 	public constructor(protected app: WhiteboardApp) {
 		super(app);
 		this.tree = new QuadTree<Layer>();
-		for (const layer of app.document.layer.getAll()) {
+		for (const layer of app.document.layers.getAll()) {
 			const utils = getLayerUtil(layer);
 			this.tree.insert({
 				bounds: utils.getBounds(layer as never),

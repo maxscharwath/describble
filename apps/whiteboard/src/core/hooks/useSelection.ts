@@ -7,7 +7,7 @@ export const useSelection: () => ({selectedLayers: string[]; bounds: Bounds | nu
 	const app = useWhiteboard();
 	const selectedLayers = app.useStore(state => state.appState.selectedLayers, shallow);
 	const status = app.useStore(state => state.appState.status);
-	const layers = app.document.layer.get(selectedLayers);
+	const layers = app.document.layers.get(selectedLayers);
 	if (layers.length <= 0 || status === 'translating' || status === 'resizing') {
 		return {bounds: null, selectedLayers: []};
 	}

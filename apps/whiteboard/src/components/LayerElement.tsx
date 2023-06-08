@@ -11,7 +11,7 @@ export const LayerElement = React.memo(({layerId, selected}: {layerId: string; s
 		return null;
 	}
 
-	const asset = app.document.asset.get(layer.assetId);
+	const asset = app.document.assets.get(layer.assetId);
 
 	const {Component} = getLayerUtil(layer);
 	const events = useLayerEvents(layerId);
@@ -25,7 +25,7 @@ LayerElement.displayName = 'Layer';
 
 export const PreviewLayerElement = memo(({layer, ...props}: {layer: TLayer} & React.SVGProps<SVGSVGElement>) => {
 	const app = useWhiteboard();
-	const asset = app.document.asset.get(layer.assetId);
+	const asset = app.document.assets.get(layer.assetId);
 	const {PreviewComponent, Component, getBounds} = getLayerUtil(layer);
 	if (PreviewComponent) {
 		return (

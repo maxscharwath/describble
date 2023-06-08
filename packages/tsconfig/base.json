@@ -16,7 +16,12 @@
     "preserveWatchOutput": true,
     "strict": true,
     "resolveJsonModule": true,
-    "target": "esNext"
+    "module": "ESNext",
+    "target": "es6",
+    "lib": [
+      "ES2015",
+      "DOM"
+    ]
   },
   "exclude": [
     "node_modules"

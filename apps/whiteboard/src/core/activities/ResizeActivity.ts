@@ -14,7 +14,7 @@ export class ResizeActivity extends BaseActivity {
 
 	constructor(app: WhiteboardApp, private readonly layerId: string, private readonly create = false, private readonly resizeCorner: BoundsHandle = BoundsHandle.BOTTOM + BoundsHandle.RIGHT) {
 		super(app);
-		this.initLayer = app.document.layer.get(layerId)!;
+		this.initLayer = app.document.layers.get(layerId)!;
 		this.utils = getLayerUtil(this.initLayer as never);
 		this.initBounds = this.utils.getBounds(this.initLayer);
 		if (this.initBounds.width && this.initBounds.height) {
@@ -24,14 +24,14 @@ export class ResizeActivity extends BaseActivity {
 
 	abort(): void {
 		if (this.create) {
-			this.app.document.layer.delete(this.layerId, 'reset-layer');
+			this.app.document.layers.delete(this.layerId, 'reset-layer');
 		} else {
-			this.app.document.layer.patch(this.initLayer, 'reset-layer');
+			this.app.document.layers.patch(this.initLayer, 'reset-layer');
 		}
 	}
 
 	complete(): void {
-		const layer = this.app.document.layer.get(this.layerId);
+		const layer = this.app.document.layers.get(this.layerId);
 		if (!this.initLayer || !layer) {
 			return;
 		}
@@ -59,11 +59,11 @@ export class ResizeActivity extends BaseActivity {
 		}
 
 		const newBounds = resizeBounds(this.initBounds, this.app.currentPoint, this.resizeCorner, aspectRatio);
-		this.app.document.layer.change({
-			[this.layerId]: layer => {
+		this.app.document.layers.change([
+			[this.layerId, layer => {
 				this.utils.resize(layer, this.initLayer, newBounds);
-			},
-		});
+			}],
+		]);
 	}
 }
 

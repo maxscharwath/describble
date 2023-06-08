@@ -6,16 +6,14 @@ import topLevelAwait from 'vite-plugin-top-level-await';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [react(), wasm(), topLevelAwait()],
+	plugins: [wasm(), topLevelAwait(), react()],
+
 	resolve: {
 		alias: [
 			{find: '~core', replacement: fileURLToPath(new URL('./src/core', import.meta.url))},
 			{find: '~components', replacement: fileURLToPath(new URL('./src/components', import.meta.url))},
 			{find: '~utils', replacement: fileURLToPath(new URL('./src/utils', import.meta.url))},
 		],
-	},
-	optimizeDeps: {
-		exclude: ['@automerge/automerge-wasm'],
 	},
 	test: {
 		environment: 'jsdom',
