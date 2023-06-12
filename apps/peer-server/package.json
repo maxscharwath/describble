@@ -11,18 +11,18 @@
   "license": "ISC",
   "dependencies": {
     "@automerge/automerge": "^2.0.3",
-    "automerge-repo": "^0.0.54",
-    "automerge-repo-network-websocket": "^0.0.54",
-    "automerge-repo-storage-nodefs": "^0.0.54",
-    "express": "^4.18.1",
+    "automerge-repo": "^0.0.56",
+    "automerge-repo-network-websocket": "^0.0.56",
+    "automerge-repo-storage-nodefs": "^0.0.56",
+    "express": "^4.18.2",
     "ws": "^8.7.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
-    "@types/ws": "^8.5.4",
+    "@types/ws": "^8.5.5",
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",
     "tsx": "^3.12.7",
-    "typescript": "^4.7.4"
+    "typescript": "^5.1.3"
   }
 }

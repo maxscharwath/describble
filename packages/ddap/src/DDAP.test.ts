@@ -1,13 +1,14 @@
 import {
-	createAddress,
-	importPublicKey,
 	toBase58,
 	verifySignature,
-	signChallenge,
+	createSignature,
 	generateKeys,
-	exportPublicKey,
 } from './utils';
 import {expect} from 'vitest';
+import * as secp256k1 from '@noble/secp256k1';
+import {hkdf} from '@noble/hashes/hkdf';
+import {sha256} from '@noble/hashes/sha256';
+import {randomBytes} from '@noble/hashes/utils';
 
 /*
 This authentication protocol assumes that the client's address (derived from their public key) has
@@ -68,9 +69,8 @@ class Server {
 		return undefined;
 	}
 
-	async verifyRequest(challenge: Uint8Array, signature: ArrayBuffer, publicKey: ArrayBuffer) {
-		const importedPublicKey = await importPublicKey(publicKey);
-		const address = toBase58(await createAddress(importedPublicKey));
+	verifyRequest(challenge: Uint8Array, signature: Uint8Array, publicKey: Uint8Array) {
+		const address = toBase58(publicKey);
 		if (!(this.addresses.has(address) && this.getChallenge(address, challenge))) {
 			return false;
 		}
@@ -78,38 +78,33 @@ class Server {
 		return verifySignature(
 			challenge,
 			signature,
-			importedPublicKey,
+			publicKey,
 		);
 	}
 
-	addAddress(address: ArrayBuffer): void {
+	addAddress(address: Uint8Array): void {
 		this.addresses.add(toBase58(address));
 	}
 
-	removeAddress(address: ArrayBuffer): void {
+	removeAddress(address: Uint8Array): void {
 		this.addresses.delete(toBase58(address));
 	}
 }
 
 class Client {
-	private readonly keyPair = generateKeys();
+	readonly keyPair = generateKeys();
 
-	async getPublicKey() {
-		const {publicKey} = await this.keyPair;
-		return exportPublicKey(publicKey);
-	}
-
-	async getAddress() {
-		const {publicKey} = await this.keyPair;
-		return createAddress(publicKey);
+	getPublicKey() {
+		return this.keyPair.publicKey;
 	}
 
 	async signChallenge(challenge: Uint8Array) {
-		const {publicKey, privateKey} = await this.keyPair;
+		const {publicKey, privateKey} = this.keyPair;
+		const signature = await createSignature(challenge, privateKey);
 		return {
 			challenge,
-			signature: await signChallenge(challenge, privateKey),
-			publicKey: await exportPublicKey(publicKey),
+			signature,
+			publicKey,
 		};
 	}
 }
@@ -124,7 +119,7 @@ describe('Authorization Protocol', () => {
 	});
 
 	const addAddressAndGenerateChallenge = async () => {
-		const address = await client.getAddress();
+		const address = client.getPublicKey();
 		server.addAddress(address);
 		return server.generateChallenge(toBase58(address));
 	};
@@ -132,8 +127,7 @@ describe('Authorization Protocol', () => {
 	it('should succeed on correct signature verification', async () => {
 		const challenge = await addAddressAndGenerateChallenge();
 		const response = await client.signChallenge(challenge);
-
-		const success = await server.verifyRequest(response.challenge, response.signature, response.publicKey);
+		const success = server.verifyRequest(response.challenge, response.signature, response.publicKey);
 		expect(success).toBe(true);
 	});
 
@@ -144,7 +138,7 @@ describe('Authorization Protocol', () => {
 		// Create an incorrect signature
 		const incorrectSignature = new Uint8Array(response.signature).fill(0);
 
-		const success = await server.verifyRequest(response.challenge, incorrectSignature, response.publicKey);
+		const success = server.verifyRequest(response.challenge, incorrectSignature, response.publicKey);
 		expect(success).toBe(false);
 	});
 
@@ -152,7 +146,7 @@ describe('Authorization Protocol', () => {
 		const challenge = crypto.getRandomValues(new Uint8Array(32));
 		const response = await client.signChallenge(challenge);
 
-		const success = await server.verifyRequest(response.challenge, response.signature, response.publicKey);
+		const success = server.verifyRequest(response.challenge, response.signature, response.publicKey);
 		expect(success).toBe(false);
 	});
 
@@ -163,12 +157,12 @@ describe('Authorization Protocol', () => {
 		const challenge = crypto.getRandomValues(new Uint8Array(32));
 		const response = await client.signChallenge(challenge);
 
-		const success = await server.verifyRequest(response.challenge, response.signature, response.publicKey);
+		const success = server.verifyRequest(response.challenge, response.signature, response.publicKey);
 		expect(success).toBe(false);
 	});
 
 	it('should handle duplicate addresses correctly', async () => {
-		const address = await client.getAddress();
+		const address = client.getPublicKey();
 
 		// Add same address twice
 		server.addAddress(address);
@@ -177,12 +171,12 @@ describe('Authorization Protocol', () => {
 		const challenge = server.generateChallenge(toBase58(address));
 		const response = await client.signChallenge(challenge);
 
-		const success = await server.verifyRequest(response.challenge, response.signature, response.publicKey);
+		const success = server.verifyRequest(response.challenge, response.signature, response.publicKey);
 		expect(success).toBe(true);
 	});
 
 	it('should handle concurrent challenges correctly', async () => {
-		const address = await client.getAddress();
+		const address = client.getPublicKey();
 		server.addAddress(address);
 
 		// Generate two challenges
@@ -194,8 +188,8 @@ describe('Authorization Protocol', () => {
 		const response2 = await client.signChallenge(challenge2);
 
 		// Both signatures should verify correctly
-		const success1 = await server.verifyRequest(response1.challenge, response1.signature, response1.publicKey);
-		const success2 = await server.verifyRequest(response2.challenge, response2.signature, response2.publicKey);
+		const success1 = server.verifyRequest(response1.challenge, response1.signature, response1.publicKey);
+		const success2 = server.verifyRequest(response2.challenge, response2.signature, response2.publicKey);
 
 		expect(success1).toBe(true);
 		expect(success2).toBe(true);
@@ -206,16 +200,16 @@ describe('Authorization Protocol', () => {
 		const response = await client.signChallenge(challenge);
 
 		// The signature verifies correctly
-		const success1 = await server.verifyRequest(challenge, response.signature, response.publicKey);
+		const success1 = server.verifyRequest(challenge, response.signature, response.publicKey);
 		expect(success1).toBe(true);
 
 		// After the challenge is used, it should be deleted and not verify again
-		const success2 = await server.verifyRequest(response.challenge, response.signature, response.publicKey);
+		const success2 = server.verifyRequest(response.challenge, response.signature, response.publicKey);
 		expect(success2).toBe(false);
 	});
 
 	it('should delete challenges on address removal', async () => {
-		const address = await client.getAddress();
+		const address = client.getPublicKey();
 		server.addAddress(address);
 		const challenge = server.generateChallenge(toBase58(address));
 		const response = await client.signChallenge(challenge);
@@ -224,7 +218,58 @@ describe('Authorization Protocol', () => {
 		server.removeAddress(address);
 
 		// The challenge associated with the address should no longer verify
-		const success = await server.verifyRequest(response.challenge, response.signature, response.publicKey);
+		const success = server.verifyRequest(response.challenge, response.signature, response.publicKey);
 		expect(success).toBe(false);
+	});
+});
+
+describe('Authorization Protocol ( research )', () => {
+	it('shared secret', async () => {
+		// Alice and Bob generate their keys
+		const alicePrivateKey = secp256k1.utils.randomPrivateKey();
+		const alicePublicKey = secp256k1.getPublicKey(alicePrivateKey);
+
+		const bobPrivateKey = secp256k1.utils.randomPrivateKey();
+		const bobPublicKey = secp256k1.getPublicKey(bobPrivateKey);
+
+		// They compute the same shared secret
+		const aliceSharedSecret = secp256k1.getSharedSecret(alicePrivateKey, bobPublicKey);
+		const bobSharedSecret = secp256k1.getSharedSecret(bobPrivateKey, alicePublicKey);
+
+		// Ensure the shared secrets are the same
+		expect(aliceSharedSecret).toEqual(bobSharedSecret);
+
+		// Use HKDF to derive a 256-bit key from the shared secret
+		const aliceKey = await crypto.subtle.importKey(
+			'raw',
+			hkdf(sha256, aliceSharedSecret, undefined, undefined, 32),
+			{name: 'AES-GCM'},
+			false,
+			['encrypt', 'decrypt'],
+		);
+
+		const bobKey = await crypto.subtle.importKey(
+			'raw',
+			hkdf(sha256, bobSharedSecret, undefined, undefined, 32),
+			{name: 'AES-GCM'},
+			false,
+			['encrypt', 'decrypt'],
+		);
+
+		const iv = crypto.getRandomValues(new Uint8Array(12));
+		const plaintext = 'Hello World!';
+		const ciphertext = await crypto.subtle.encrypt(
+			{name: 'AES-GCM', iv},
+			aliceKey,
+			new TextEncoder().encode(plaintext),
+		);
+
+		const decrypted = await crypto.subtle.decrypt(
+			{name: 'AES-GCM', iv},
+			bobKey,
+			ciphertext,
+		);
+
+		expect(new TextDecoder().decode(decrypted)).toEqual(plaintext);
 	});
 });
