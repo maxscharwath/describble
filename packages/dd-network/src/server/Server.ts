@@ -3,6 +3,8 @@ import {verifySignature} from '../utils';
 import base58 from 'bs58';
 import {Server, type IncomingMessage} from 'http';
 import crypto from 'crypto';
+import * as cbor from 'cbor-x';
+
 type PublicKey = Uint8Array | string;
 
 /**
@@ -32,6 +34,7 @@ export const PublicKeyHelper = {
 class Client {
 	private readonly publicKey: Uint8Array;
 	private readonly sockets = new Set<WebSocket>();
+	private messageHandler?: (socket: WebSocket, data: Uint8Array) => void;
 
 	/**
 	 * Create a new client.
@@ -55,6 +58,9 @@ class Client {
 	 */
 	addSocket(ws: WebSocket) {
 		this.sockets.add(ws);
+		ws.on('message', (data: Uint8Array) => {
+			this.messageHandler?.(ws, data);
+		});
 		ws.on('close', () => {
 			this.removeSocket(ws);
 		});
@@ -66,6 +72,20 @@ class Client {
 	 */
 	removeSocket(ws: WebSocket) {
 		this.sockets.delete(ws);
+	}
+
+	get numSockets() {
+		return this.sockets.size;
+	}
+
+	setMessageHandler(handler: (socket: WebSocket, data: Uint8Array) => void) {
+		this.messageHandler = handler;
+	}
+
+	broadcast(data: Uint8Array) {
+		for (const socket of this.sockets) {
+			socket.send(data);
+		}
 	}
 }
 
@@ -102,9 +122,7 @@ export class SignalingServer {
 		});
 		this.wss.on('connection', (ws, request) => {
 			this.authenticateClient(ws, request, (ws, publicKey) => {
-				this.getOrCreateClient(publicKey)
-					.addSocket(ws);
-				console.log(`Client ${PublicKeyHelper.encode(publicKey)} connected`);
+				this.addConnection(publicKey, ws);
 			});
 		});
 	}
@@ -152,21 +170,37 @@ export class SignalingServer {
 		ws.on('message', (data: Uint8Array) => {
 			if (nbTries++ > this.config.maxAuthAttempts) {
 				clearTimeout(timeout);
-				ws.send('Too many tries');
 				ws.close(1008, 'Too many tries');
 				return;
 			}
 
-			if (verifySignature(challenge, data, publicKey)) {
+			const {type, signature} = cbor.decode(data) as {type: string; signature: Uint8Array};
+
+			if (type !== 'challenge-response') {
+				clearTimeout(timeout);
+				ws.close(1008, 'Invalid message type');
+				return;
+			}
+
+			if (verifySignature(challenge, signature, publicKey)) {
 				clearTimeout(timeout);
 				ws.removeAllListeners();
+				ws.send(cbor.encode({
+					type: 'authenticated',
+				}));
 				return callback(ws, base58PublicKey);
 			}
 
 			challenge = this.createChallenge();
-			ws.send(challenge);
+			ws.send(cbor.encode({
+				type: 'challenge',
+				challenge,
+			}));
 		});
-		ws.send(challenge);
+		ws.send(cbor.encode({
+			type: 'challenge',
+			challenge,
+		}));
 	}
 
 	/**
@@ -176,20 +210,45 @@ export class SignalingServer {
 		return crypto.randomBytes(32);
 	}
 
-	/**
-	 * Get or create a client.
-	 * If a client with the provided public key exists, it's returned.
-	 * Otherwise, a new client is created and added to the list of clients.
-	 * @param publicKey - The public key of the client
-	 */
-	private getOrCreateClient(publicKey: PublicKey): Client {
+	private addConnection(publicKey: PublicKey, ws: WebSocket) {
 		const address = PublicKeyHelper.encode(publicKey);
 		let client = this.clients.get(address);
 		if (!client) {
+			console.log(`New client: ${address}`);
 			client = new Client(address);
+			client.setMessageHandler((ws, data) => {
+				this.handleMessage(client!, ws, data);
+			});
 			this.clients.set(address, client);
 		}
 
-		return client;
+		client.addSocket(ws);
+	}
+
+	private removeConnection(publicKey: PublicKey, ws: WebSocket) {
+		const address = PublicKeyHelper.encode(publicKey);
+		const client = this.clients.get(address);
+		if (client) {
+			client.removeSocket(ws);
+			if (client.public === publicKey && client.numSockets === 0) {
+				this.clients.delete(address);
+			}
+		}
+	}
+
+	private handleMessage(client: Client, ws: WebSocket, data: Uint8Array) {
+		const {type, to, data: message} = cbor.decode(data) as {type: string; to: Uint8Array; data: Uint8Array};
+		const address = PublicKeyHelper.encode(to);
+		const toClient = this.clients.get(address);
+		if (!toClient) {
+			console.log(`Client ${address} not found`);
+			return;
+		}
+
+		toClient.broadcast(cbor.encode({
+			type,
+			from: client.public,
+			data: message,
+		}));
 	}
 }

@@ -8,7 +8,6 @@ import {expect} from 'vitest';
 import * as secp256k1 from '@noble/secp256k1';
 import {hkdf} from '@noble/hashes/hkdf';
 import {sha256} from '@noble/hashes/sha256';
-import {randomBytes} from '@noble/hashes/utils';
 
 /*
 This authentication protocol assumes that the client's address (derived from their public key) has

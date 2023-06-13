@@ -1,44 +1,62 @@
-import Peer from 'simple-peer';
-import wrtc from 'wrtc';
-import * as secp256k1 from '@noble/secp256k1';
-import {hkdf} from '@noble/hashes/hkdf';
-import {sha256} from '@noble/hashes/sha256';
 import {SignalingServer} from './server/Server';
 import {SignalingClient} from './server/Client';
+import * as secp256k1 from '@noble/secp256k1';
 
-const createPeer = (initiator: boolean) => {
+const genKeyPair = () => {
 	const privateKey = secp256k1.utils.randomPrivateKey();
-	const peer = new Peer({initiator, wrtc});
-	return {
-		privateKey,
-		publicKey: secp256k1.getPublicKey(privateKey),
-		peer,
-		sharedSecret(publicKey: Uint8Array) {
-			return secp256k1.getSharedSecret(privateKey, publicKey);
-		},
-	};
+	const publicKey = secp256k1.getPublicKey(privateKey, true);
+	return {privateKey, publicKey};
 };
 
-async function createSymetricKey(secret: Uint8Array, salt?: Uint8Array | string) {
-	return crypto.subtle.importKey(
-		'raw',
-		hkdf(sha256, secret, salt, undefined, 32),
-		{name: 'AES-GCM'},
-		false,
-		['encrypt', 'decrypt'],
-	);
-}
+(async () => {
+	const server = new SignalingServer({
+		host: 'localhost',
+		port: 8080,
+	});
 
-const server = new SignalingServer({
-	host: 'localhost',
-	port: 8080,
-});
+	server.listen();
 
-server.listen();
+	const aliceKeys = genKeyPair();
+	const bobKeys = genKeyPair();
 
-const aliceClient = new SignalingClient({
-	url: 'ws://localhost:8080',
-});
+	const aliceClient1 = new SignalingClient({
+		url: 'ws://localhost:8080',
+		...aliceKeys,
+	});
 
-aliceClient.connect();
+	const aliceClient2 = new SignalingClient({
+		url: 'ws://localhost:8080',
+		...aliceKeys,
+	});
+
+	const bobClient = new SignalingClient({
+		url: 'ws://localhost:8080',
+		...bobKeys,
+	});
+
+	await aliceClient1.connect();
+	await aliceClient2.connect();
+	await bobClient.connect();
+
+	await bobClient.send({
+		type: 'offer',
+		to: aliceKeys.publicKey,
+		data: {
+			type: 'offer',
+			sdp: 'alice',
+		},
+	});
+})();
+
+/*
+GOAL:
+1. Client A ask for a specific document with a list of clients
+2. Server will check if clients are online
+3. Server will ask clients if he wants to share the document with client A
+4. Clients who want to share the document will share their WebRTC connection details with client A
+5. Client A will connect to the clients who want to share the document ( can receive multiple connections )
+
+This schema can be scaled to a decentralized network where clients can ask their peers for a specific document.
+That's why we need to encrypt data end-to-end.
+ */
 
