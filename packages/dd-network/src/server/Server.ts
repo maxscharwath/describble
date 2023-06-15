@@ -1,9 +1,9 @@
 import {type WebSocket, WebSocketServer} from 'ws';
-import {verifySignature} from '../utils';
 import base58 from 'bs58';
-import {Server, type IncomingMessage} from 'http';
-import crypto from 'crypto';
-import * as cbor from 'cbor-x';
+import {Server} from 'http';
+import {authenticateClient} from './authenticateClient';
+import {encodeMessage, parseBuffer} from './serialization';
+import {EncryptedMessageSchema} from './schemas';
 
 type PublicKey = Uint8Array | string;
 
@@ -17,7 +17,8 @@ export const PublicKeyHelper = {
 	 * otherwise the original Uint8Array is returned.
 	 * @param publicKey - The public key to parse
 	 */
-	parse: (publicKey: PublicKey) => typeof publicKey === 'string' ? base58.decode(publicKey) : publicKey,
+	parse: (publicKey: PublicKey): Uint8Array =>
+		typeof publicKey === 'string' ? base58.decode(publicKey) : publicKey,
 
 	/**
 	 * Encodes a public key.
@@ -25,7 +26,8 @@ export const PublicKeyHelper = {
 	 * otherwise it's encoded to base58.
 	 * @param publicKey - The public key to encode
 	 */
-	encode: (publicKey: PublicKey) => typeof publicKey === 'string' ? publicKey : base58.encode(publicKey),
+	encode: (publicKey: PublicKey): string =>
+		typeof publicKey === 'string' ? publicKey : base58.encode(publicKey),
 };
 
 /**
@@ -120,11 +122,9 @@ export class SignalingServer {
 		this.wss = new WebSocketServer({
 			server: this.server,
 		});
-		this.wss.on('connection', (ws, request) => {
-			this.authenticateClient(ws, request, (ws, publicKey) => {
-				this.addConnection(publicKey, ws);
-			});
-		});
+		this.wss.on('connection', authenticateClient(this.config, (ws, publicKey) => {
+			this.addConnection(publicKey, ws);
+		}));
 	}
 
 	/**
@@ -146,70 +146,6 @@ export class SignalingServer {
 		});
 	}
 
-	/**
-	 * Authenticate a client using a WebSocket and a request.
-	 * If authentication is successful, the provided callback is called.
-	 * @param ws - The WebSocket used for the authentication process
-	 * @param request - The request containing the public key for authentication
-	 * @param callback - The callback to call if authentication is successful
-	 */
-	private authenticateClient(ws: WebSocket, request: IncomingMessage, callback: (ws: WebSocket, publicKey: PublicKey) => void) {
-		const base58PublicKey = request.headers['x-public-key'];
-		if (!base58PublicKey || typeof base58PublicKey !== 'string') {
-			ws.close(1008, 'Missing public key');
-			return;
-		}
-
-		const publicKey = PublicKeyHelper.parse(base58PublicKey);
-		let nbTries = 0;
-		const timeout = setTimeout(() => {
-			ws.close(1008, 'Authentication timeout');
-		}, this.config.authTimeout);
-		let challenge = this.createChallenge();
-
-		ws.on('message', (data: Uint8Array) => {
-			if (nbTries++ > this.config.maxAuthAttempts) {
-				clearTimeout(timeout);
-				ws.close(1008, 'Too many tries');
-				return;
-			}
-
-			const {type, signature} = cbor.decode(data) as {type: string; signature: Uint8Array};
-
-			if (type !== 'challenge-response') {
-				clearTimeout(timeout);
-				ws.close(1008, 'Invalid message type');
-				return;
-			}
-
-			if (verifySignature(challenge, signature, publicKey)) {
-				clearTimeout(timeout);
-				ws.removeAllListeners();
-				ws.send(cbor.encode({
-					type: 'authenticated',
-				}));
-				return callback(ws, base58PublicKey);
-			}
-
-			challenge = this.createChallenge();
-			ws.send(cbor.encode({
-				type: 'challenge',
-				challenge,
-			}));
-		});
-		ws.send(cbor.encode({
-			type: 'challenge',
-			challenge,
-		}));
-	}
-
-	/**
-	 * Creates a random challenge for the authentication process.
-	 */
-	private createChallenge() {
-		return crypto.randomBytes(32);
-	}
-
 	private addConnection(publicKey: PublicKey, ws: WebSocket) {
 		const address = PublicKeyHelper.encode(publicKey);
 		let client = this.clients.get(address);
@@ -217,7 +153,7 @@ export class SignalingServer {
 			console.log(`New client: ${address}`);
 			client = new Client(address);
 			client.setMessageHandler((ws, data) => {
-				this.handleMessage(client!, ws, data);
+				void this.handleMessage(client!, ws, data);
 			});
 			this.clients.set(address, client);
 		}
@@ -236,19 +172,25 @@ export class SignalingServer {
 		}
 	}
 
-	private handleMessage(client: Client, ws: WebSocket, data: Uint8Array) {
-		const {type, to, data: message} = cbor.decode(data) as {type: string; to: Uint8Array; data: Uint8Array};
-		const address = PublicKeyHelper.encode(to);
+	private async handleMessage(client: Client, ws: WebSocket, data: Uint8Array) {
+		const message = await parseBuffer(EncryptedMessageSchema, data);
+		if (!message.success) {
+			console.error('Could not decode incoming message', message.error);
+			return;
+		}
+
+		const address = PublicKeyHelper.encode(message.data.to);
 		const toClient = this.clients.get(address);
 		if (!toClient) {
 			console.log(`Client ${address} not found`);
 			return;
 		}
 
-		toClient.broadcast(cbor.encode({
-			type,
+		toClient.broadcast(await encodeMessage(EncryptedMessageSchema, {
+			type: message.data.type,
 			from: client.public,
-			data: message,
+			to: toClient.public,
+			data: message.data.data,
 		}));
 	}
 }
