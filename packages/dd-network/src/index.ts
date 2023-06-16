@@ -1,6 +1,7 @@
 import {PublicKeyHelper, SignalingServer} from './server/Server';
-import {SignalingClient, webSocketConnection} from './server/Client';
+import {SignalingClient} from './server/Client';
 import * as secp256k1 from '@noble/secp256k1';
+import {webSocketAdapter, WebSocketServerAdapter} from './server/adapter';
 
 const genKeyPair = () => {
 	const privateKey = secp256k1.utils.randomPrivateKey();
@@ -10,8 +11,10 @@ const genKeyPair = () => {
 
 (async () => {
 	const server = new SignalingServer({
-		host: 'localhost',
-		port: 8080,
+		adapter: new WebSocketServerAdapter({
+			host: 'localhost',
+			port: 8080,
+		}),
 	});
 
 	server.listen();
@@ -20,12 +23,12 @@ const genKeyPair = () => {
 	const bobKeys = genKeyPair();
 
 	const aliceClient = new SignalingClient({
-		connection: webSocketConnection('ws://localhost:8080'),
+		adapter: webSocketAdapter('ws://localhost:8080'),
 		...aliceKeys,
 	});
 
 	const bobClient = new SignalingClient({
-		connection: webSocketConnection('ws://localhost:8080'),
+		adapter: webSocketAdapter('ws://localhost:8080'),
 		...bobKeys,
 	});
 
@@ -33,7 +36,7 @@ const genKeyPair = () => {
 	await bobClient.connect();
 
 	aliceClient.onMessage(message => {
-		console.log(`${message.type}: ${PublicKeyHelper.encode(message.from)} -> ${PublicKeyHelper.encode(message.to)}: `, message.data);
+		console.log(`Got: ${message.type}: ${PublicKeyHelper.encode(message.from)} -> ${PublicKeyHelper.encode(message.to)}: `, message.data);
 	});
 
 	await bobClient.send({

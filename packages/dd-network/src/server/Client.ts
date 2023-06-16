@@ -1,5 +1,4 @@
-import {WebSocket} from 'ws';
-import {createSignature} from '../utils';
+import {createSignature, Deferred} from '../utils';
 import * as secp256k1 from '@noble/secp256k1';
 import {hkdf} from '@noble/hashes/hkdf';
 import {sha256} from '@noble/hashes/sha256';
@@ -7,71 +6,13 @@ import * as cbor from 'cbor-x';
 import {encodeMessage, parseBuffer} from './serialization';
 import {AuthenticationSchema, ChallengeResponseMessageSchema, EncryptedMessageSchema} from './schemas';
 import {match} from 'ts-pattern';
-import {PublicKeyHelper} from './Server';
+import {type Connection} from './adapter';
 
 type SignalingClientConfig = {
 	publicKey: Uint8Array;
 	privateKey: Uint8Array;
-	connection: (publicKey: Uint8Array) => Connection;
+	adapter: (publicKey: Uint8Array) => Connection;
 };
-
-class Deferred<T> {
-	resolve!: (value: T) => void;
-	reject!: (reason?: any) => void;
-	promise: Promise<T>;
-
-	constructor() {
-		this.promise = new Promise((resolve, reject) => {
-			this.resolve = resolve;
-			this.reject = reject;
-		});
-	}
-}
-
-interface Connection {
-	onData: (callback: (data: Uint8Array) => void) => void;
-	onClose: (callback: (error: Error) => void) => void;
-	off: () => void;
-	send: (data: Uint8Array) => void;
-	close: (cause: string) => void;
-}
-
-export class WebSocketConnection implements Connection {
-	private readonly socket: WebSocket;
-
-	constructor(url: string, publicKey: Uint8Array) {
-		this.socket = new WebSocket(url, {
-			headers: {
-				'x-public-key': PublicKeyHelper.encode(publicKey),
-			},
-		});
-	}
-
-	onData(callback: (data: Uint8Array) => void) {
-		this.socket.on('message', callback);
-	}
-
-	onClose(callback: (error: Error) => void) {
-		this.socket.on('close', callback);
-		this.socket.on('error', callback);
-	}
-
-	off() {
-		this.socket.removeAllListeners();
-	}
-
-	close(cause: string) {
-		this.socket.close(1000, cause);
-		this.socket.terminate();
-	}
-
-	send(data: Uint8Array) {
-		this.socket.send(data);
-	}
-}
-
-export const webSocketConnection = (url: string) => (publicKey: Uint8Array) =>
-	new WebSocketConnection(url, publicKey);
 
 type Message = {
 	type: string;
@@ -96,7 +37,7 @@ export class SignalingClient {
 	 * Connects to the server, sends public key in the header to be used for authentication
 	 */
 	async connect() {
-		const connection = this.config.connection(this.publicKey);
+		const connection = this.config.adapter(this.publicKey);
 
 		const timeout = setTimeout(() => {
 			connection.close('Connection timeout');
@@ -168,7 +109,7 @@ export class SignalingClient {
 	 * Sets up message handling after connection is established and authenticated
 	 */
 	private onReady() {
-		this.connection!.onData(async (data: Uint8Array) => {
+		this.connection?.onData(async (data: Uint8Array) => {
 			const message = await parseBuffer(EncryptedMessageSchema, data);
 			if (message.success) {
 				const decrypted = await this.decryptMessage(message.data.data, message.data.from);

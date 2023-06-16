@@ -1,19 +1,17 @@
 import * as secp256k1 from '@noble/secp256k1';
-import * as bs58 from 'bs58';
 import {sha256} from '@noble/hashes/sha256';
 
-export function generateKeys() {
-	const privateKey = secp256k1.utils.randomPrivateKey();
-	const publicKey = secp256k1.getPublicKey(privateKey, true);
-	return {privateKey, publicKey};
-}
+export class Deferred<T> {
+	resolve!: (value: T) => void;
+	reject!: (reason?: any) => void;
+	promise: Promise<T>;
 
-export function toBase58(buffer: Uint8Array) {
-	return bs58.encode(buffer);
-}
-
-export function fromBase58(base58: string) {
-	return new Uint8Array(bs58.decode(base58));
+	constructor() {
+		this.promise = new Promise((resolve, reject) => {
+			this.resolve = resolve;
+			this.reject = reject;
+		});
+	}
 }
 
 export async function createSignature(data: Uint8Array, privateKey: Uint8Array) {
