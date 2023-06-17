@@ -1,12 +1,10 @@
 import {createSignature, Deferred} from '../utils';
-import * as secp256k1 from '@noble/secp256k1';
-import {hkdf} from '@noble/hashes/hkdf';
-import {sha256} from '@noble/hashes/sha256';
 import * as cbor from 'cbor-x';
-import {encodeMessage, parseBuffer} from './serialization';
+import {encodeMessage, safeParseBuffer} from './serialization';
 import {AuthenticationSchema, ChallengeResponseMessageSchema, EncryptedMessageSchema} from './schemas';
 import {match} from 'ts-pattern';
 import {type Connection} from './adapter';
+import {decryptMessage, encryptMessage} from '../crypto';
 
 type SignalingClientConfig = {
 	publicKey: Uint8Array;
@@ -14,7 +12,7 @@ type SignalingClientConfig = {
 	adapter: (publicKey: Uint8Array) => Connection;
 };
 
-type Message = {
+export type Message = {
 	type: string;
 	from: Uint8Array;
 	to: Uint8Array;
@@ -51,7 +49,7 @@ export class SignalingClient {
 
 		connection.onData(async data => {
 			// Parse incoming messages according to the AuthenticationSchema
-			const message = await parseBuffer(AuthenticationSchema, data);
+			const message = await safeParseBuffer(AuthenticationSchema, data);
 			void match(message)
 				.with({success: true, data: {type: 'challenge'}}, async ({data: {challenge}}) => {
 					// On receiving a challenge, sign the challenge and send it back
@@ -67,7 +65,6 @@ export class SignalingClient {
 					this.connection = connection;
 					this.authenticating.resolve();
 					this.onReady();
-					return console.log('Successfully authenticated');
 				})
 				.otherwise(() => console.error('Unexpected message', message));
 		});
@@ -91,7 +88,7 @@ export class SignalingClient {
 			throw new Error('Not authenticated');
 		}
 
-		const encryptedData = await this.encryptMessage(cbor.encode(message.data), message.to);
+		const encryptedData = await encryptMessage(cbor.encode(message.data), this.privateKey, message.to);
 		const encodedMessage = await encodeMessage(EncryptedMessageSchema, {
 			type: message.type,
 			from: this.publicKey,
@@ -110,9 +107,9 @@ export class SignalingClient {
 	 */
 	private onReady() {
 		this.connection?.onData(async (data: Uint8Array) => {
-			const message = await parseBuffer(EncryptedMessageSchema, data);
+			const message = await safeParseBuffer(EncryptedMessageSchema, data);
 			if (message.success) {
-				const decrypted = await this.decryptMessage(message.data.data, message.data.from);
+				const decrypted = await decryptMessage(message.data.data, this.privateKey, message.data.from);
 				this.handleMessage?.({
 					type: message.data.type,
 					from: message.data.from,
@@ -121,67 +118,5 @@ export class SignalingClient {
 				});
 			}
 		});
-	}
-
-	/**
-	 * Generates an AES key using HKDF with a shared secret and a salt
-	 * @param publicKey The recipient's public key
-	 * @param salt A random salt
-	 */
-	private async generateAESKey(publicKey: Uint8Array, salt?: Uint8Array | string) {
-		const secret = secp256k1.getSharedSecret(this.privateKey, publicKey);
-		return crypto.subtle.importKey(
-			'raw',
-			hkdf(sha256, secret, salt, undefined, 32),
-			{name: 'AES-GCM'},
-			false,
-			['encrypt', 'decrypt'],
-		);
-	}
-
-	/**
-	 * Encrypts a message using AES-GCM
-	 * @param data The data to encrypt
-	 * @param publicKey The recipient's public key
-	 */
-	private async encryptMessage(data: Uint8Array, publicKey: Uint8Array) {
-		// Generate Initialization Vector (iv) and salt
-		const iv = crypto.getRandomValues(new Uint8Array(12));
-		const salt = crypto.getRandomValues(new Uint8Array(16));
-
-		// Generate AES Key based on public key and salt
-		const key = await this.generateAESKey(publicKey, salt);
-
-		// Encrypt the data
-		const ciphertext = new Uint8Array(await crypto.subtle.encrypt({name: 'AES-GCM', iv}, key, data));
-
-		// Prepare the result - concatenate iv, salt and ciphertext
-		const result = new Uint8Array(iv.length + salt.length + ciphertext.length);
-		result.set(iv, 0);
-		result.set(salt, iv.length);
-		result.set(ciphertext, iv.length + salt.length);
-
-		return result;
-	}
-
-	/**
-	 * Decrypts the provided data using the given public key.
-	 *
-	 * @param data - The data to be decrypted, which includes the initialization vector (IV), salt, and the ciphertext.
-	 * @param publicKey - The public key to use for decryption.
-	 *
-	 * @returns The decrypted message as a Uint8Array.
-	 */
-	private async decryptMessage(data: Uint8Array, publicKey: Uint8Array): Promise<Uint8Array> {
-		// Extract the initialization vector (iv), salt, and ciphertext from the data
-		const iv = data.subarray(0, 12);
-		const salt = data.subarray(12, 28);
-		const ciphertext = data.subarray(28);
-
-		// Generate the AES key from the public key and salt
-		const key = await this.generateAESKey(publicKey, salt);
-
-		// Decrypt the ciphertext and return the decrypted data
-		return new Uint8Array(await crypto.subtle.decrypt({name: 'AES-GCM', iv}, key, ciphertext));
 	}
 }

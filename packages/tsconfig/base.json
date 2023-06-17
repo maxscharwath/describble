@@ -19,7 +19,7 @@
     "module": "ESNext",
     "target": "es6",
     "lib": [
-      "ES2015",
+      "ESNext",
       "DOM"
     ]
   },

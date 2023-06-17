@@ -1,6 +1,6 @@
 import {WebSocket, WebSocketServer} from 'ws';
-import {PublicKeyHelper} from './Server';
 import {Server} from 'http';
+import {PublicKeyHelper} from '../utils';
 
 /**
  * The interface for a connection.
@@ -120,7 +120,7 @@ export interface ConnectionServerAdapter {
 	/**
 	 * Stop listening for new connections.
 	 */
-	stop: (callback?: () => void) => void;
+	stop: () => Promise<void>;
 
 	/**
 	 * Send data over a connection.
@@ -169,9 +169,23 @@ export class WebSocketServerAdapter implements ConnectionServerAdapter {
 	/**
 	 * Stop listening for new connections.
 	 */
-	stop(callback?: () => void) {
-		this.wss.close(() => {
-			this.server.close(callback);
+	async stop() {
+		return new Promise<void>((resolve, reject) => {
+			this.wss.close(error => {
+				console.log('WebSocket server is closed', error);
+				if (error) {
+					reject(error);
+				} else {
+					this.server.close(error => {
+						console.log('Server is closed', error);
+						if (error) {
+							reject(error);
+						} else {
+							resolve();
+						}
+					});
+				}
+			});
 		});
 	}
 

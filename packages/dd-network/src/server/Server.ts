@@ -1,33 +1,8 @@
-import base58 from 'bs58';
 import {authenticateClient} from './authenticateClient';
-import {encodeMessage, parseBuffer} from './serialization';
+import {encodeMessage, safeParseBuffer} from './serialization';
 import {EncryptedMessageSchema} from './schemas';
 import {type Connection, type ConnectionServerAdapter} from './adapter';
-
-type PublicKey = Uint8Array | string;
-
-/**
- * Helper for public key operations
- */
-export const PublicKeyHelper = {
-	/**
-	 * Parses a public key.
-	 * If the key is a string, it's decoded from base58,
-	 * otherwise the original Uint8Array is returned.
-	 * @param publicKey - The public key to parse
-	 */
-	parse: (publicKey: PublicKey): Uint8Array =>
-		typeof publicKey === 'string' ? base58.decode(publicKey) : publicKey,
-
-	/**
-	 * Encodes a public key.
-	 * If the key is a string, it's returned as is,
-	 * otherwise it's encoded to base58.
-	 * @param publicKey - The public key to encode
-	 */
-	encode: (publicKey: PublicKey): string =>
-		typeof publicKey === 'string' ? publicKey : base58.encode(publicKey),
-};
+import {type PublicKey, PublicKeyHelper} from '../utils';
 
 /**
  * Class for representing a client.
@@ -128,17 +103,15 @@ export class SignalingServer {
 
 	/**
 	 * Stops the server from listening for new connections.
-	 * This will not disconnect any existing connections.
 	 */
-	public stop(callback?: () => void) {
-		this.adapter.stop(callback);
+	public async stop() {
+		return this.adapter.stop();
 	}
 
 	private addConnection(publicKey: PublicKey, connection: Connection) {
 		const address = PublicKeyHelper.encode(publicKey);
 		let client = this.clients.get(address);
 		if (!client) {
-			console.log(`New client: ${address}`);
 			client = new Client(address);
 			client.setMessageHandler((connection, data) => {
 				void this.handleMessage(client!, connection, data);
@@ -161,7 +134,7 @@ export class SignalingServer {
 	}
 
 	private async handleMessage(client: Client, _connection: Connection, data: Uint8Array) {
-		const message = await parseBuffer(EncryptedMessageSchema, data);
+		const message = await safeParseBuffer(EncryptedMessageSchema, data);
 		if (!message.success) {
 			console.error('Could not decode incoming message', message.error);
 			return;
@@ -170,7 +143,7 @@ export class SignalingServer {
 		const address = PublicKeyHelper.encode(message.data.to);
 		const toClient = this.clients.get(address);
 		if (!toClient) {
-			console.log(`Client ${address} not found`);
+			console.warn(`Client ${address} not found`);
 			return;
 		}
 

@@ -1,6 +1,5 @@
-import {verifySignature} from '../utils';
-import {PublicKeyHelper} from './Server';
-import {encodeMessage, parseBuffer} from './serialization';
+import {PublicKeyHelper, verifySignature} from '../utils';
+import {encodeMessage, safeParseBuffer} from './serialization';
 import {AuthenticatedMessageSchema, ChallengeMessageSchema, ChallengeResponseMessageSchema} from './schemas';
 import {type Connection} from './adapter';
 
@@ -98,7 +97,7 @@ class Authenticator {
 			return this.closeConnection(ErrorMessages.TOO_MANY_TRIES);
 		}
 
-		const response = await parseBuffer(ChallengeResponseMessageSchema, data);
+		const response = await safeParseBuffer(ChallengeResponseMessageSchema, data);
 		if (!response.success) {
 			return this.closeConnection(ErrorMessages.INVALID_MESSAGE_TYPE);
 		}

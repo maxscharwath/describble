@@ -1,7 +1,8 @@
-import {PublicKeyHelper, SignalingServer} from './server/Server';
+import {SignalingServer} from './server/Server';
 import {SignalingClient} from './server/Client';
 import * as secp256k1 from '@noble/secp256k1';
 import {webSocketAdapter, WebSocketServerAdapter} from './server/adapter';
+import {PublicKeyHelper} from './utils';
 
 const genKeyPair = () => {
 	const privateKey = secp256k1.utils.randomPrivateKey();
@@ -32,20 +33,27 @@ const genKeyPair = () => {
 		...bobKeys,
 	});
 
-	await aliceClient.connect();
-	await bobClient.connect();
+	await aliceClient.connect().catch(() => console.log('Alice failed to connect'));
+	await bobClient.connect().catch(() => console.log('Bob failed to connect'));
+
+	bobClient.onMessage(message => {
+		console.log(`Bob got: ${message.type}: ${PublicKeyHelper.encode(message.from)} -> ${PublicKeyHelper.encode(message.to)}: `, message.data);
+	});
 
 	aliceClient.onMessage(message => {
-		console.log(`Got: ${message.type}: ${PublicKeyHelper.encode(message.from)} -> ${PublicKeyHelper.encode(message.to)}: `, message.data);
+		console.log(`Alice got: ${message.type}: ${PublicKeyHelper.encode(message.from)} -> ${PublicKeyHelper.encode(message.to)}: `, message.data);
+	});
+
+	await aliceClient.send({
+		type: 'offer',
+		to: aliceKeys.publicKey,
+		data: 'Hello Bob!',
 	});
 
 	await bobClient.send({
 		type: 'offer',
-		to: aliceKeys.publicKey,
-		data: {
-			type: 'offer',
-			sdp: 'alice',
-		},
+		to: bobKeys.publicKey,
+		data: 'Hello Alice!',
 	});
 })();
 
