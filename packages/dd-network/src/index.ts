@@ -2,7 +2,8 @@ import {SignalingServer} from './server/Server';
 import {SignalingClient} from './server/Client';
 import * as secp256k1 from '@noble/secp256k1';
 import {webSocketAdapter, WebSocketServerAdapter} from './server/adapter';
-import {PublicKeyHelper} from './utils';
+import SimplePeer, {type SignalData} from 'simple-peer';
+import wrtc from '@koush/wrtc';
 
 const genKeyPair = () => {
 	const privateKey = secp256k1.utils.randomPrivateKey();
@@ -33,27 +34,50 @@ const genKeyPair = () => {
 		...bobKeys,
 	});
 
-	await aliceClient.connect().catch(() => console.log('Alice failed to connect'));
-	await bobClient.connect().catch(() => console.log('Bob failed to connect'));
+	await aliceClient.connect().catch(reason => console.log('Alice failed to connect', reason));
+	await bobClient.connect().catch(reason => console.log('Bob failed to connect', reason));
 
-	bobClient.onMessage(message => {
-		console.log(`Bob got: ${message.type}: ${PublicKeyHelper.encode(message.from)} -> ${PublicKeyHelper.encode(message.to)}: `, message.data);
+	const alicePeer = new SimplePeer({initiator: true, wrtc});
+	const bobPeer = new SimplePeer({initiator: false, wrtc});
+	alicePeer.on('connect', () => {
+		console.log('Alice connected');
+		alicePeer.send('Hello Bob');
+	});
+	alicePeer.on('data', (data: Uint8Array) => {
+		console.log('Alice received', data.toString());
+	});
+	bobPeer.on('connect', () => {
+		console.log('Bob connected');
+		bobPeer.send('Hello Alice');
+	});
+	bobPeer.on('data', (data: Uint8Array) => {
+		console.log('Bob received', data.toString());
 	});
 
-	aliceClient.onMessage(message => {
-		console.log(`Alice got: ${message.type}: ${PublicKeyHelper.encode(message.from)} -> ${PublicKeyHelper.encode(message.to)}: `, message.data);
+	bobClient.onMessage<SignalData>(message => {
+		console.log('Bob received signal', message.data);
+		bobPeer.signal(message.data);
 	});
 
-	await aliceClient.send({
-		type: 'offer',
-		to: aliceKeys.publicKey,
-		data: 'Hello Bob!',
+	aliceClient.onMessage<SignalData>(message => {
+		console.log('Alice received signal', message.data);
+		alicePeer.signal(message.data);
 	});
 
-	await bobClient.send({
-		type: 'offer',
-		to: bobKeys.publicKey,
-		data: 'Hello Alice!',
+	alicePeer.on('signal', data => {
+		void aliceClient.send({
+			type: 'signal',
+			to: bobKeys.publicKey,
+			data,
+		});
+	});
+
+	bobPeer.on('signal', data => {
+		void bobClient.send({
+			type: 'signal',
+			to: aliceKeys.publicKey,
+			data,
+		});
 	});
 })();
 

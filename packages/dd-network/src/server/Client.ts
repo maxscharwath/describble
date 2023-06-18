@@ -12,11 +12,11 @@ type SignalingClientConfig = {
 	adapter: (publicKey: Uint8Array) => Connection;
 };
 
-export type Message = {
+export type Message<T=unknown> = {
 	type: string;
 	from: Uint8Array;
 	to: Uint8Array;
-	data: unknown;
+	data: T;
 };
 
 export class SignalingClient {
@@ -88,7 +88,12 @@ export class SignalingClient {
 			throw new Error('Not authenticated');
 		}
 
-		const encryptedData = await encryptMessage(cbor.encode(message.data), this.privateKey, message.to);
+		const encryptedData = await encryptMessage(
+			cbor.encode(message.data),
+			this.privateKey,
+			message.to,
+		);
+
 		const encodedMessage = await encodeMessage(EncryptedMessageSchema, {
 			type: message.type,
 			from: this.publicKey,
@@ -98,8 +103,8 @@ export class SignalingClient {
 		this.connection.send(encodedMessage);
 	}
 
-	public onMessage(callback: (data: Message) => void) {
-		this.handleMessage = callback;
+	public onMessage<T>(callback: (data: Message<T>) => void) {
+		this.handleMessage = callback as (data: Message) => void;
 	}
 
 	/**
@@ -107,6 +112,7 @@ export class SignalingClient {
 	 */
 	private onReady() {
 		this.connection?.onData(async (data: Uint8Array) => {
+			console.log('Received data', data);
 			const message = await safeParseBuffer(EncryptedMessageSchema, data);
 			if (message.success) {
 				const decrypted = await decryptMessage(message.data.data, this.privateKey, message.data.from);
@@ -116,6 +122,8 @@ export class SignalingClient {
 					to: message.data.to,
 					data: cbor.decode(decrypted),
 				});
+			} else {
+				console.error('Failed to parse message', message);
 			}
 		});
 	}

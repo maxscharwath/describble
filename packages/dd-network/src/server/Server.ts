@@ -13,25 +13,25 @@ class Client {
 	private messageHandler?: (connection: Connection, data: Uint8Array) => void;
 
 	/**
-	 * Create a new client.
-	 * @param publicKey - The public key of the client
-	 */
+   * Create a new client.
+   * @param publicKey - The public key of the client
+   */
 	constructor(publicKey: PublicKey) {
 		this.publicKey = PublicKeyHelper.parse(publicKey);
 	}
 
 	/**
-	 * Get the client's public key.
-	 */
+   * Get the client's public key.
+   */
 	get public() {
 		return this.publicKey;
 	}
 
 	/**
-	 * Adds a WebSocket to the client's set of sockets.
-	 * Also removes the socket from the set when it closes.
-	 * @param connection - The Connection to add
-	 */
+   * Adds a WebSocket to the client's set of sockets.
+   * Also removes the socket from the set when it closes.
+   * @param connection - The Connection to add
+   */
 	addSocket(connection: Connection) {
 		this.sockets.add(connection);
 		connection.onData((data: Uint8Array) => {
@@ -43,9 +43,9 @@ class Client {
 	}
 
 	/**
-	 * Removes a WebSocket from the client's set of sockets.
-	 * @param connection - The Connection to remove
-	 */
+   * Removes a WebSocket from the client's set of sockets.
+   * @param connection - The Connection to remove
+   */
 	removeSocket(connection: Connection) {
 		this.sockets.delete(connection);
 	}
@@ -80,8 +80,8 @@ export class SignalingServer {
 	private readonly config: Required<Omit<SignalingServerConfig, 'adapter'>>;
 
 	/**
-	 * Create a new signaling server.
-	 */
+   * Create a new signaling server.
+   */
 	constructor({adapter, ...config}: SignalingServerConfig) {
 		this.config = {
 			maxAuthAttempts: 3,
@@ -95,15 +95,15 @@ export class SignalingServer {
 	}
 
 	/**
-	 * Starts the server listening for connections.
-	 */
+   * Starts the server listening for connections.
+   */
 	public listen() {
 		this.adapter.listen();
 	}
 
 	/**
-	 * Stops the server from listening for new connections.
-	 */
+   * Stops the server from listening for new connections.
+   */
 	public async stop() {
 		return this.adapter.stop();
 	}

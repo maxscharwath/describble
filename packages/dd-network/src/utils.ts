@@ -1,6 +1,6 @@
 import * as secp256k1 from '@noble/secp256k1';
 import {sha256} from '@noble/hashes/sha256';
-import * as base58 from 'bs58';
+import base58 from 'bs58';
 
 export class Deferred<T> {
 	resolve!: (value: T) => void;

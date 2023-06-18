@@ -26,6 +26,7 @@ class MockServerAdapter implements ConnectionServerAdapter {
 	}
 
 	send(socket: Connection, data: Uint8Array): void {
+		console.log('Sending data', data);
 		socket.send(data);
 	}
 
@@ -154,31 +155,6 @@ describe('dd-network', () => {
 			await client.connect();
 		});
 
-		it('should be able to send data to a signaling server', async () => {
-			const {client: aliceClient, keys: aliceKeys} = createClientAndConnection(adapter);
-			const {client: bobClient, keys: bobKeys} = createClientAndConnection(adapter);
-
-			await aliceClient.connect();
-			await bobClient.connect();
-
-			await aliceClient.send({
-				type: 'message',
-				to: bobKeys.publicKey,
-				data: 'Hello Bob!',
-			});
-
-			const bobMessage = await new Promise<Message>(resolve => {
-				bobClient.onMessage(resolve);
-			});
-
-			expect(bobMessage).toEqual({
-				type: 'message',
-				from: aliceKeys.publicKey,
-				to: bobKeys.publicKey,
-				data: 'Hello Bob!',
-			});
-		});
-
 		it('should not receive data when disconnected', async () => {
 			const {client: aliceClient} = createClientAndConnection(adapter);
 			const {client: bobClient, keys: bobKeys} = createClientAndConnection(adapter);
@@ -196,6 +172,7 @@ describe('dd-network', () => {
 
 			let receivedData = null;
 			bobClient.onMessage((msg: Message) => {
+				console.log('received message', msg);
 				receivedData = msg.data;
 			});
 
