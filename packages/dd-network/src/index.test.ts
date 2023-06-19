@@ -7,6 +7,7 @@ import {Deferred} from './utils';
 import {parseBuffer} from './server/serialization';
 import {EncryptedMessageSchema} from './server/schemas';
 import * as cbor from 'cbor-x';
+import Emittery from 'emittery';
 import {decryptMessage, generateAESKey} from './crypto';
 
 const genKeyPair = () => {
@@ -15,83 +16,111 @@ const genKeyPair = () => {
 	return {privateKey, publicKey};
 };
 
-class MockServerAdapter implements ConnectionServerAdapter {
-	public handleConnection?: (connection: MockConnection, publicKey: Uint8Array) => void;
-	listen(): void {
-		// Do nothing
-	}
-
-	onConnection(callback: (connection: MockConnection, publicKey: Uint8Array) => void): void {
-		this.handleConnection = callback;
-	}
-
-	send(socket: Connection, data: Uint8Array): void {
-		console.log('Sending data', data);
-		socket.send(data);
-	}
-
-	async stop(): Promise<void> {
-		return Promise.resolve();
-	}
-}
-
-class MockConnection implements Connection {
+/**
+ * Mock connection for testing.
+ */
+export class MockConnection implements Connection {
 	public onSentData?: (data: Uint8Array) => void;
-	public onReceivedData?: (data: Uint8Array) => void;
-	public handleClose?: (error: Error) => void;
-	public handleData?: (data: Uint8Array) => void;
-	private peerConnection?: MockConnection;
+	private readonly emitter = new Emittery();
 
-	constructor(public readonly publicKey: Uint8Array, public readonly server: MockServerAdapter) {
+	private correspondingConnection?: MockConnection;
+
+	public onData(callback: (data: Uint8Array) => void) {
+		this.emitter.on('data', callback);
 	}
 
-	connect(peerConnection?: MockConnection): this {
-		if (peerConnection) {
-			this.peerConnection = peerConnection;
-		} else {
-			this.peerConnection = new MockConnection(this.publicKey, this.server);
-			this.peerConnection.connect(this);
-			this.server.handleConnection?.(this.peerConnection, this.publicKey);
-		}
+	public onClose(callback: (error: Error) => void) {
+		this.emitter.on('close', callback);
+	}
 
+	public off() {
+		this.emitter.clearListeners();
+	}
+
+	public send(data: Uint8Array) {
+		this.onSentData?.(data);
+		// Send data to the corresponding connection
+		this.correspondingConnection?.simulateIncomingData(data);
+	}
+
+	public close(cause: string) {
+		// Simulate a close event.
+		void this.emitter.emit('close', new Error(cause));
+
+		// Check if there is a corresponding connection
+		if (this.correspondingConnection) {
+			const tempConnection = this.correspondingConnection;
+			// Nullify the corresponding connection before calling close on it
+			this.correspondingConnection = undefined;
+			tempConnection.correspondingConnection = undefined;
+			// Close the temporary connection
+			tempConnection.close(cause);
+		}
+	}
+
+	// Used to simulate incoming data.
+	public simulateIncomingData(data: Uint8Array) {
+		// Simulate incoming data
+		void this.emitter.emit('data', data);
+	}
+
+	// Used to connect to a MockConnectionServerAdapter.
+	public connect(adapter: MockConnectionServerAdapter, publicKey: Uint8Array) {
+		// Create a corresponding connection
+		const correspondingConnection = new MockConnection();
+		this.setCorrespondingConnection(correspondingConnection);
+		correspondingConnection.setCorrespondingConnection(this);
+
+		// Notify the adapter of the new connection
+		adapter.simulateConnection(correspondingConnection, publicKey);
 		return this;
 	}
 
-	close(cause: string): void {
-		this.handleClose?.(new Error(cause));
-		const {peerConnection} = this;
-		this.peerConnection = undefined;
-		peerConnection?.close(cause);
+	// Used to set corresponding connection.
+	private setCorrespondingConnection(connection: MockConnection) {
+		this.correspondingConnection = connection;
+	}
+}
+
+/**
+ * Mock server adapter for testing.
+ */
+export class MockConnectionServerAdapter implements ConnectionServerAdapter {
+	private readonly emitter = new Emittery<{
+		connection: [connection: Connection, publicKey: Uint8Array];
+	}>();
+
+	public onConnection(callback: (connection: Connection, publicKey: Uint8Array) => void) {
+		this.emitter.on('connection', ([connection, publicKey]) => {
+			callback(connection, publicKey);
+		});
 	}
 
-	off(): void {
-		this.handleClose = undefined;
-		this.handleData = undefined;
+	public listen() {
+		// Simulate server start
 	}
 
-	onClose(callback: (error: Error) => void): void {
-		this.handleClose = callback;
+	public async stop() {
+		// Simulate server stop
+		this.emitter.clearListeners();
 	}
 
-	onData(callback: (data: Uint8Array) => void): void {
-		this.handleData = data => {
-			this.onReceivedData?.(data);
-			callback(data);
-		};
+	public send(socket: Connection, data: Uint8Array) {
+		// Send data to the corresponding connection
+		(socket as MockConnection).send(data);
 	}
 
-	send(data: Uint8Array): void {
-		this.onSentData?.(data);
-		this.peerConnection?.handleData?.(data);
+	public simulateConnection(connection: Connection, publicKey: Uint8Array) {
+		void this.emitter.emit('connection', [connection, publicKey]);
 	}
 }
 
 // Helper function to create client and its MockConnection
-const createClientAndConnection = (adapter: MockServerAdapter) => {
+const createClientAndConnection = (adapter: MockConnectionServerAdapter) => {
 	const keys = genKeyPair();
-	const connection = new MockConnection(keys.publicKey, adapter);
+	const connection = new MockConnection();
 	const client = new SignalingClient({
-		adapter: () => connection.connect(),
+		adapter: () => connection.connect(adapter, keys.publicKey),
 		...keys,
 	});
 	return {client, connection, keys};
@@ -140,10 +169,10 @@ describe('dd-network', () => {
 	});
 	describe('use cases', () => {
 		let server: SignalingServer;
-		let adapter: MockServerAdapter;
+		let adapter: MockConnectionServerAdapter;
 
 		beforeEach(() => {
-			adapter = new MockServerAdapter();
+			adapter = new MockConnectionServerAdapter();
 			server = new SignalingServer({
 				adapter,
 			});
@@ -155,6 +184,33 @@ describe('dd-network', () => {
 			await client.connect();
 		});
 
+		it('should be able to send data to another client', async () => {
+			const {client: aliceClient} = createClientAndConnection(adapter);
+			const {client: bobClient, keys: bobKeys} = createClientAndConnection(adapter);
+
+			await aliceClient.connect();
+			await bobClient.connect();
+
+			const data = {
+				message: 'Hello Bob!',
+				from: 'Alice',
+			};
+			const pendingMessage = new Promise<Message>(resolve => {
+				bobClient.onMessage((msg: Message) => {
+					resolve(msg);
+				});
+			});
+
+			await aliceClient.send({
+				type: 'message',
+				to: bobKeys.publicKey,
+				data,
+			});
+
+			const msg = await pendingMessage;
+			expect(msg.data).toEqual(data);
+		});
+
 		it('should not receive data when disconnected', async () => {
 			const {client: aliceClient} = createClientAndConnection(adapter);
 			const {client: bobClient, keys: bobKeys} = createClientAndConnection(adapter);
@@ -164,16 +220,16 @@ describe('dd-network', () => {
 			bobClient.disconnect();
 
 			const data = 'Hello Bob!';
+
+			let receivedData = null;
+			bobClient.onMessage((msg: Message) => {
+				receivedData = msg.data;
+			});
+
 			await aliceClient.send({
 				type: 'message',
 				to: bobKeys.publicKey,
 				data,
-			});
-
-			let receivedData = null;
-			bobClient.onMessage((msg: Message) => {
-				console.log('received message', msg);
-				receivedData = msg.data;
 			});
 
 			// Wait for some time to see if the disconnected client receives data

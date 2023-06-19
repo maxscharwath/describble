@@ -1,6 +1,6 @@
 import * as secp256k1 from '@noble/secp256k1';
 import {sha256} from '@noble/hashes/sha256';
-import base58 from 'bs58';
+import {base58} from 'base-x';
 
 export class Deferred<T> {
 	resolve!: (value: T) => void;
@@ -52,7 +52,8 @@ export const PublicKeyHelper = {
 	 * otherwise it's encoded to base58.
 	 * @param publicKey - The public key to encode
 	 */
-	encode: (publicKey: PublicKey): string =>
-		typeof publicKey === 'string' ? publicKey : base58.encode(publicKey),
+	encode(publicKey: PublicKey): string {
+		return typeof publicKey === 'string' ? publicKey : base58.encode(publicKey);
+	},
 };
 

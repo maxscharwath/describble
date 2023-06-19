@@ -1,6 +1,7 @@
-import {WebSocket, WebSocketServer} from 'ws';
 import {Server} from 'http';
+import WebSocket from 'universal-ws-client';
 import {PublicKeyHelper} from '../utils';
+import {WebSocketServer} from 'ws';
 
 /**
  * The interface for a connection.
@@ -9,7 +10,7 @@ export interface Connection {
 	/**
 	 * Handle incoming data from the connection.
 	 */
-	onData: (callback: (data: Uint8Array) => void) => void;
+	onData: (callback: (data: Uint8Array) => void | Promise<void>) => void;
 
 	/**
 	 * Handle when the connection closes or encounters an error.
@@ -80,7 +81,7 @@ export class WebSocketConnection implements Connection {
 	}
 
 	/**
-	 * Create a new WebSocketConnection from a url and a public key.
+	 * Create a new WebSocketConnection from an url and a public key.
 	 */
 	public static create(url: string, publicKey: Uint8Array) {
 		return new WebSocketConnection(new WebSocket(url, {

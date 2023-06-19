@@ -85,7 +85,11 @@ class Authenticator {
 		clearTimeout(this.timeout);
 		this.connection.off();
 		this.connection.send(await encodeMessage(AuthenticatedMessageSchema, {type: 'authenticated'}, false));
-		return this.callback(this.connection, this.publicKey);
+		try {
+			this.callback(this.connection, this.publicKey);
+		} catch (e) {
+			console.error(e);
+		}
 	};
 
 	/**

@@ -112,7 +112,6 @@ export class SignalingClient {
 	 */
 	private onReady() {
 		this.connection?.onData(async (data: Uint8Array) => {
-			console.log('Received data', data);
 			const message = await safeParseBuffer(EncryptedMessageSchema, data);
 			if (message.success) {
 				const decrypted = await decryptMessage(message.data.data, this.privateKey, message.data.from);
