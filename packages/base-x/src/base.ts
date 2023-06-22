@@ -1,4 +1,4 @@
-type BaseMap = {
+export type BaseMap = {
 	encode: (source: ArrayBuffer | Uint8Array | number[]) => string;
 	decodeUnsafe: (source: string) => Uint8Array | undefined;
 	decode: (source: string) => Uint8Array;
