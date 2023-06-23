@@ -1,8 +1,4 @@
 import {type Connection} from '../Connection';
-import {base58, baseHelper, type BufferLike} from 'base-x';
-
-// Helper object for base58 encoding/decoding.
-const base58Helper = baseHelper(base58);
 
 /**
  * Class for managing connections.
@@ -17,7 +13,7 @@ export class ConnectionRegistry {
    * @param clientId - The client ID of the connection.
    * @param connection - The connection object.
    */
-	public registerConnection(publicKey: BufferLike, clientId: BufferLike, connection: Connection) {
+	public registerConnection(publicKey: Uint8Array, clientId: Uint8Array, connection: Connection) {
 		// Check if the connection is active.
 		if (!connection.isConnected()) {
 			console.warn('Connection is not connected');
@@ -25,8 +21,8 @@ export class ConnectionRegistry {
 		}
 
 		// Convert the public key and client ID to base58 for storage.
-		const encodedPublicKey = base58Helper.encode(publicKey);
-		const encodedClientId = base58Helper.encode(clientId);
+		const encodedPublicKey = this.encodeBuffer(publicKey);
+		const encodedClientId = this.encodeBuffer(clientId);
 
 		// Retrieve the connections for the public key.
 		const connectionsForPublicKey = this.registry.get(encodedPublicKey);
@@ -50,8 +46,8 @@ export class ConnectionRegistry {
    * @param publicKey - The public key to get the connections for.
    * @returns - A map of client IDs to connection objects.
    */
-	public getConnections(publicKey: BufferLike): Map<string, Connection> | undefined {
-		return this.registry.get(base58Helper.encode(publicKey));
+	public getConnections(publicKey: Uint8Array): Map<string, Connection> | undefined {
+		return this.registry.get(this.encodeBuffer(publicKey));
 	}
 
 	/**
@@ -60,8 +56,8 @@ export class ConnectionRegistry {
    * @param clientId - The client ID to get the connection for.
    * @returns - The connection object, or undefined if no such connection exists.
    */
-	public getConnection(publicKey: BufferLike, clientId: BufferLike): Connection | undefined {
-		return this.registry.get(base58Helper.encode(publicKey))?.get(base58Helper.encode(clientId));
+	public getConnection(publicKey: Uint8Array, clientId: Uint8Array): Connection | undefined {
+		return this.registry.get(this.encodeBuffer(publicKey))?.get(this.encodeBuffer(clientId));
 	}
 
 	/**
@@ -70,9 +66,9 @@ export class ConnectionRegistry {
    * @param publicKey - The public key of the connection to be removed.
    * @param clientId - The client ID of the connection to be removed.
    */
-	public removeConnection(publicKey: BufferLike, clientId: BufferLike) {
-		const encodedPublicKey = base58Helper.encode(publicKey);
-		const encodedClientId = base58Helper.encode(clientId);
+	public removeConnection(publicKey: Uint8Array, clientId: Uint8Array) {
+		const encodedPublicKey = this.encodeBuffer(publicKey);
+		const encodedClientId = this.encodeBuffer(clientId);
 		const connectionsForPublicKey = this.registry.get(encodedPublicKey);
 		if (connectionsForPublicKey) {
 			const connection = connectionsForPublicKey.get(encodedClientId);
@@ -95,5 +91,9 @@ export class ConnectionRegistry {
 		this.registry.forEach(connectionsForPublicKey => {
 			connectionsForPublicKey.forEach(callback);
 		});
+	}
+
+	private encodeBuffer(buffer: Uint8Array): string {
+		return new TextDecoder().decode(buffer);
 	}
 }

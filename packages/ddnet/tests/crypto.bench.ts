@@ -1,5 +1,5 @@
 import {bench, describe} from 'vitest';
-import {generateKeyPair, uint8ArrayEquals} from '../src/crypto';
+import {generateKeyPair, mergeUint8Arrays, uint8ArrayEquals} from '../src/crypto';
 import {base58} from 'base-x';
 
 describe('crypto', () => {
@@ -13,13 +13,34 @@ describe('crypto', () => {
 	const encodedPublicKey = base58.encode(keyPair.publicKey);
 	const encodedPrivateKey = base58.encode(keyPair.privateKey);
 
-	describe('base58 encoding / decoding', () => {
+	describe('base58 encoding / TextEncoder', () => {
 		bench('base58 encoding', () => {
 			base58.encode(keyPair.publicKey);
 		});
 
+		bench('TextDecoder', () => {
+			new TextDecoder().decode(keyPair.publicKey);
+		});
+	});
+
+	describe('base58 decoding / TextEncoder', () => {
+		bench('TextDecoder', () => {
+			new TextEncoder().encode('Hello World!');
+		});
+
 		bench('base58 decoding', () => {
 			base58.decode(encodedPublicKey);
+		});
+	});
+
+	describe('uint8ArrayMerge', () => {
+		bench('Uint8Array with spread operator', () => {
+			// eslint-disable-next-line no-new
+			new Uint8Array([...keyPair.publicKey, ...keyPair.privateKey]);
+		});
+
+		bench('mergeUint8Arrays', () => {
+			mergeUint8Arrays([keyPair.publicKey, keyPair.privateKey]);
 		});
 	});
 

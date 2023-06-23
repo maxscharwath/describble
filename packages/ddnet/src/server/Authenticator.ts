@@ -4,7 +4,6 @@ import {type Network} from './Network';
 import {sha256} from '@noble/hashes/sha256';
 import * as secp256k1 from '@noble/secp256k1';
 import {decode, encode} from 'cbor-x';
-import {base58} from 'base-x';
 
 // Defining the different types of messages that can be sent during the authentication process.
 type ChallengeMessage = {type: 'challenge'; challenge: Uint8Array};
@@ -22,7 +21,7 @@ type AuthenticatorConfig = {
  * Events emitted by the Authenticator.
  */
 type AuthenticatorEvents = {
-	authenticated: {publicKey: string; clientId: string; connection: Connection};
+	authenticated: {publicKey: Uint8Array; clientId: Uint8Array; connection: Connection};
 };
 
 /**
@@ -55,7 +54,7 @@ export class Authenticator extends Emittery<AuthenticatorEvents> {
 				clearTimeout(timeoutId);
 
 				// Verify the client's response.
-				if (this.verifyResponse(challenge, response, base58.decode(publicKey))) {
+				if (this.verifyResponse(challenge, response, publicKey)) {
 					this.sendValidations(connection);
 
 					// Emit the 'authenticated' event if the response is valid.

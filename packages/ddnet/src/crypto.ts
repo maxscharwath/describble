@@ -2,6 +2,8 @@ import * as secp256k1 from '@noble/secp256k1';
 import {hkdf} from '@noble/hashes/hkdf';
 import {sha256} from '@noble/hashes/sha256';
 
+export {sha256} from '@noble/hashes/sha256';
+
 /**
  * Generates a new private key.
  */
@@ -125,4 +127,19 @@ export function uint8ArrayEquals(a: Uint8Array, b: Uint8Array) {
 	return b.byteLength === a.byteLength
 		? a.every((value, index) => value === b[index])
 		: false;
+}
+
+export function mergeUint8Arrays(arrays: Uint8Array[]) {
+	const result = new Uint8Array(arrays.reduce((a, b) => a + b.byteLength, 0));
+	let offset = 0;
+	for (const array of arrays) {
+		result.set(array, offset);
+		offset += array.length;
+	}
+
+	return result;
+}
+
+export function sha256Some(...data: Uint8Array[]) {
+	return sha256(mergeUint8Arrays(data));
 }

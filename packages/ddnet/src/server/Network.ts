@@ -2,6 +2,7 @@ import Emittery from 'emittery';
 import {type Connection, WebSocketConnection} from '../Connection';
 import {Server} from 'http';
 import {WebSocketServer} from 'ws';
+import {base58} from 'base-x';
 
 /**
  * Events emitted by the Network class.
@@ -11,7 +12,7 @@ type NetworkEvents = {
 	 * This event is emitted when a new connection is made to the network.
 	 * Note: The connection is not yet authenticated at this point and should not be trusted.
 	 */
-	connection: {publicKey: string; clientId: string; connection: Connection};
+	connection: {publicKey: Uint8Array; clientId: Uint8Array; connection: Connection};
 };
 
 /**
@@ -61,8 +62,9 @@ export class WebSocketNetwork extends Network {
 
 		// Listen for 'connection' events on the WebSocketServer.
 		this.wss.on('connection', (ws, req) => {
-			const publicKey = req.headers['x-public-key'] as string;
-			const clientId = req.headers['x-client-id'] as string;
+			// Public key and client ID are sent as headers in base58 encoding.
+			const publicKey = base58.decode(req.headers['x-public-key'] as string);
+			const clientId = base58.decode(req.headers['x-client-id'] as string);
 
 			// Create a new WebSocketConnection from the WebSocket object.
 			const connection = WebSocketConnection.fromSocket(ws);

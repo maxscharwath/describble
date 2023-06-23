@@ -1,7 +1,6 @@
 import {Connection} from '../src/Connection';
 import {Network} from '../src/server/Network';
 import {type NetworkAdapter} from '../src/client/Network';
-import {base58} from 'base-x';
 
 export class MockConnection extends Connection {
 	public relatedConnection?: MockConnection;
@@ -49,8 +48,8 @@ export class MockNetworkAdapter implements NetworkAdapter {
 		const connection = new MockConnection();
 		if (connection.relatedConnection) {
 			void this.server.emit('connection', {
-				publicKey: base58.encode(publicKey),
-				clientId: base58.encode(clientId),
+				publicKey,
+				clientId,
 				connection: connection.relatedConnection,
 			});
 		}
