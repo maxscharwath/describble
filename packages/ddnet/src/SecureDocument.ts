@@ -19,8 +19,8 @@ type RawDocument = {
  * Error indicating that a document is invalid
  */
 export class DocumentValidationError extends Error {
-	constructor(message?: string) {
-		super(message);
+	constructor(message?: string, options?: ErrorOptions) {
+		super(message, options);
 		this.name = 'DocumentValidationError';
 	}
 }
@@ -29,8 +29,8 @@ export class DocumentValidationError extends Error {
  * Error indicating unauthorized access
  */
 export class UnauthorizedAccessError extends Error {
-	constructor(message?: string) {
-		super(message);
+	constructor(message?: string, options?: ErrorOptions) {
+		super(message, options);
 		this.name = 'UnauthorizedAccessError';
 	}
 }
@@ -154,7 +154,11 @@ export class SecureDocument {
 	 */
 	private refreshHeaderCache(): void {
 		// Decode header for further use
-		this.decodedHeader = decode(this.rawDocument.header) as DocumentHeader;
+		try {
+			this.decodedHeader = decode(this.rawDocument.header) as DocumentHeader;
+		} catch (cause) {
+			throw new DocumentValidationError('Invalid document header.', {cause});
+		}
 	}
 
 	/**
@@ -224,11 +228,12 @@ export class SecureDocument {
 	public static async create(privateKey: Uint8Array, content: Uint8Array, allowedClients: Uint8Array[] = []): Promise<SecureDocument> {
 		const owner = getPublicKey(privateKey);
 		const header = encode({
-			id: uuidv4({}, new Uint8Array(16)),
+			id: uuidv4({}, new Uint8Array(16)), // Generate a random ID
 			owner,
 			allowedClients,
 		});
 
+		// Sign the header and content in parallel
 		const [headerSignature, contentSignature] = await Promise.all([
 			createSignature(header, privateKey),
 			createSignature(content, privateKey),
@@ -252,8 +257,8 @@ export class SecureDocument {
 		let rawDocument: RawDocument;
 		try {
 			rawDocument = decode(data) as RawDocument;
-		} catch (error) {
-			throw new DocumentValidationError('Document is not a valid CBOR-encoded object');
+		} catch (cause) {
+			throw new DocumentValidationError('Document is not a valid CBOR-encoded object', {cause});
 		}
 
 		return new SecureDocument(rawDocument);
