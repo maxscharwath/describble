@@ -1,5 +1,5 @@
 import Emittery from 'emittery';
-import {type Connection} from '../Connection';
+import {type Connection} from '../network';
 import {z} from 'zod';
 import {decode, encode} from 'cbor-x';
 
@@ -33,7 +33,7 @@ const challengeResponseMessageSchema = z.object({
  * If the response is valid, the connection is considered authenticated and trusted.
  * If the response is invalid, the connection is closed.
  */
-export abstract class Authenticator<T={}> extends Emittery<T> {
+export abstract class Authenticator<T = {}> extends Emittery<T> {
 	// A verifier that validates messages based on predefined schemas.
 	protected readonly verifier = z.discriminatedUnion('type', [challengeMessageSchema, validationMessageSchema, challengeResponseMessageSchema]);
 

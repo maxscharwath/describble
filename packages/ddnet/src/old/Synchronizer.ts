@@ -16,6 +16,7 @@ export abstract class Synchronizer extends Emittery<SynchronizerEvents> {
 export class DocumentSynchronizer extends Synchronizer {
 	private pendingSyncMessages: Array<{publicKey: string; message: Uint8Array}> = [];
 	private readonly syncStates = new Map<string, A.SyncState>();
+
 	constructor(private readonly document: Document<unknown>) {
 		super();
 		document.on('change', () => {

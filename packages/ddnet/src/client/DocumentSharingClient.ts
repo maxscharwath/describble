@@ -1,10 +1,10 @@
-import {SignalingClient, type SignalingClientConfig} from './SignalingClient';
-import {SecureDocument} from '../SecureDocument';
 import {base58} from 'base-x';
 import {encode} from 'cbor-x';
 import Emittery from 'emittery';
-import {MessageExchanger} from './MessageExchanger';
 import {z} from 'zod';
+import {SignalingClient, type SignalingClientConfig} from './SignalingClient';
+import {SecureDocument} from '../SecureDocument';
+import {MessageExchanger} from './MessageExchanger';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
 type DocumentSharingClientConfig = SignalingClientConfig;
@@ -46,9 +46,9 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 	private readonly exchanger: MessageExchanger<[typeof RequestDocumentMessageSchema, typeof ResponseDocumentMessageSchema]>;
 
 	/**
-	 * Creates a new DocumentSharingClient.
-	 * @param config - The configuration for the signaling client and the document sharing client.
-	 */
+   * Creates a new DocumentSharingClient.
+   * @param config - The configuration for the signaling client and the document sharing client.
+   */
 	constructor(private readonly config: DocumentSharingClientConfig) {
 		super();
 		this.client = new SignalingClient(config);
@@ -102,11 +102,11 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 	}
 
 	/**
-	 * Creates a new document, encodes it, and adds it to the documents map.
-	 * @param data - The data to be added to the document.
-	 * @param allowedClients - An array of public keys of clients who are allowed to access the document.
-	 * @returns The created document.
-	 */
+   * Creates a new document, encodes it, and adds it to the documents map.
+   * @param data - The data to be added to the document.
+   * @param allowedClients - An array of public keys of clients who are allowed to access the document.
+   * @returns The created document.
+   */
 	public async createDocument(data: any, allowedClients: Uint8Array[] = []) {
 		const document = await SecureDocument.create(
 			this.config.privateKey,
@@ -121,10 +121,10 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 	}
 
 	/**
-	 * Sends a request document message to the signaling server.
-	 * @param documentAddress - The address of the document to be requested.
-	 * @returns A promise that resolves when the message is sent.
-	 */
+   * Sends a request document message to the signaling server.
+   * @param documentAddress - The address of the document to be requested.
+   * @returns A promise that resolves when the message is sent.
+   */
 	public async requestDocument(documentAddress: Uint8Array) {
 		return this.exchanger.sendMessage({
 			type: 'request-document',

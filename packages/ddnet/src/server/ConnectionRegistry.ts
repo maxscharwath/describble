@@ -1,4 +1,4 @@
-import {type Connection} from '../Connection';
+import {type Connection} from '../network';
 
 /**
  * Class for managing connections.

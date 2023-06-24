@@ -9,15 +9,16 @@ type DocumentEvents<T> = {
 };
 
 type DocumentState =
-	| 'idle'
-	| 'loading'
-	| 'requesting'
-	| 'ready'
-	| 'deleted';
+  | 'idle'
+  | 'loading'
+  | 'requesting'
+  | 'ready'
+  | 'deleted';
 
 export class Document<T> extends Emittery<DocumentEvents<T>> {
 	private doc?: A.Doc<T>;
 	private readonly state = new State<DocumentState>('idle');
+
 	constructor(public readonly documentId: string, {isNew = false} = {}) {
 		super();
 		this.doc = A.init<T>({
@@ -26,6 +27,14 @@ export class Document<T> extends Emittery<DocumentEvents<T>> {
 			},
 		});
 		this.state.value = isNew ? 'ready' : 'loading';
+	}
+
+	public get value() {
+		if (!this.doc) {
+			throw new Error('Document is deleted');
+		}
+
+		return this.doc;
 	}
 
 	public update(callback: (doc: A.Doc<T>) => A.Doc<T>) {
@@ -67,14 +76,6 @@ export class Document<T> extends Emittery<DocumentEvents<T>> {
 		this.doc = undefined;
 	}
 
-	public get value() {
-		if (!this.doc) {
-			throw new Error('Document is deleted');
-		}
-
-		return this.doc;
-	}
-
 	public async waitReadyOrRequesting() {
 		await this.state.waitTransition(['ready', 'requesting'], 5000);
 		return this.doc!;
@@ -85,10 +86,10 @@ export class Document<T> extends Emittery<DocumentEvents<T>> {
 	}
 }
 
-export const arraysAreEqual = <T>(a: T[], b: T[]) =>
+export const arraysAreEqual = <T> (a: T[], b: T[]) =>
 	a.length === b.length && a.every((element, index) => element === b[index]);
 
-export const headsAreSame = <T>(a: A.Doc<T>, b: A.Doc<T>) => {
+export const headsAreSame = <T> (a: A.Doc<T>, b: A.Doc<T>) => {
 	const aHeads = A.getHeads(a);
 	const bHeads = A.getHeads(b);
 	return arraysAreEqual(aHeads, bHeads);

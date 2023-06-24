@@ -28,11 +28,11 @@ export class MessageExchanger<TSchemas extends TypedSchemas> extends Emittery<Me
 	private readonly verifier: z.ZodDiscriminatedUnion<'type', TSchemas>;
 
 	/**
-	 * The constructor takes in a list of zod schemas, and creates a discriminated union schema from them.
-	 * This union schema is used to parse and validate incoming and outgoing messages.
-	 * @param client - The signaling client to be used for sending and receiving messages.
-	 * @param schemas - A list of zod schemas, where each schema has a discriminated 'type' field.
-	 */
+   * The constructor takes in a list of zod schemas, and creates a discriminated union schema from them.
+   * This union schema is used to parse and validate incoming and outgoing messages.
+   * @param client - The signaling client to be used for sending and receiving messages.
+   * @param schemas - A list of zod schemas, where each schema has a discriminated 'type' field.
+   */
 	constructor(private readonly client: SignalingClient, schemas: TSchemas) {
 		super();
 		this.verifier = z.discriminatedUnion('type', schemas);
@@ -40,11 +40,11 @@ export class MessageExchanger<TSchemas extends TypedSchemas> extends Emittery<Me
 	}
 
 	/**
-	 * This method sends a message to the signaling server.
-	 * The data is parsed and validated using the zod union schema.
-	 * @param data - The data to be sent.
-	 * @param to - The recipient of the message. If not specified, the message is sent to all clients.
-	 */
+   * This method sends a message to the signaling server.
+   * The data is parsed and validated using the zod union schema.
+   * @param data - The data to be sent.
+   * @param to - The recipient of the message. If not specified, the message is sent to all clients.
+   */
 	public async sendMessage(data: z.infer<TSchemas[number]>, to?: {publicKey: Uint8Array; clientId?: Uint8Array}) {
 		return this.client.sendMessage({
 			to,
@@ -53,14 +53,14 @@ export class MessageExchanger<TSchemas extends TypedSchemas> extends Emittery<Me
 	}
 
 	/**
-	 * This method handles incoming messages.
-	 * It tries to parse and validate the data of the message using the zod union schema.
-	 * If the parsing and validation are successful, it emits an event with the 'type' field of the data as the event name,
-	 * and the entire message as the event data. The data field of the message is guaranteed to be of the corresponding schema.
-	 * If the parsing and validation fail, it logs the error to the console.
-	 * @param message - The incoming message to be handled.
-	 * @private
-	 */
+   * This method handles incoming messages.
+   * It tries to parse and validate the data of the message using the zod union schema.
+   * If the parsing and validation are successful, it emits an event with the 'type' field of the data as the event name,
+   * and the entire message as the event data. The data field of the message is guaranteed to be of the corresponding schema.
+   * If the parsing and validation fail, it logs the error to the console.
+   * @param message - The incoming message to be handled.
+   * @private
+   */
 	private async handle(message: Message<unknown>) {
 		const safeParsed = await this.verifier.safeParseAsync(message.data);
 		if (safeParsed.success) {

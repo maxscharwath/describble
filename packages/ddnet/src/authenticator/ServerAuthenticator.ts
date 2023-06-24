@@ -1,5 +1,4 @@
-import {type Connection} from '../Connection';
-import {type Network} from '../server/Network';
+import type {Connection, Network} from '../network';
 import {Authenticator} from './Authenticator';
 import {verifySignature} from '../crypto';
 
@@ -25,10 +24,10 @@ type AuthenticatorConfig = {
  */
 export class ServerAuthenticator extends Authenticator<AuthenticatorEvents> {
 	/**
-	 * The Authenticator constructor.
-	 * @param network - The network object to be used.
-	 * @param authenticatorTimeout - The timeout duration for the authentication process. Default is 10,000 ms.
-	 */
+   * The Authenticator constructor.
+   * @param network - The network object to be used.
+   * @param authenticatorTimeout - The timeout duration for the authentication process. Default is 10,000 ms.
+   */
 	public constructor(private readonly network: Network, {authenticatorTimeout = 10000}: AuthenticatorConfig = {}) {
 		super();
 
@@ -61,10 +60,10 @@ export class ServerAuthenticator extends Authenticator<AuthenticatorEvents> {
 	}
 
 	/**
-	 * Generate a random challenge and send it to the client.
-	 * @param connection - The connection object representing the client's connection.
-	 * @returns - The challenge sent to the client.
-	 */
+   * Generate a random challenge and send it to the client.
+   * @param connection - The connection object representing the client's connection.
+   * @returns - The challenge sent to the client.
+   */
 	private async sendChallenge(connection: Connection) {
 		const challenge = crypto.getRandomValues(new Uint8Array(32));
 		await this.sendData(connection, {
@@ -75,12 +74,12 @@ export class ServerAuthenticator extends Authenticator<AuthenticatorEvents> {
 	}
 
 	/**
-	 * Verify the client's response.
-	 * @param challenge - The challenge sent to the client.
-	 * @param response - The client's response.
-	 * @param publicKey - The client's public key.
-	 * @returns - true if the response is valid; false otherwise.
-	 */
+   * Verify the client's response.
+   * @param challenge - The challenge sent to the client.
+   * @param response - The client's response.
+   * @param publicKey - The client's public key.
+   * @returns - true if the response is valid; false otherwise.
+   */
 	private async verifyResponse(challenge: Uint8Array, response: Uint8Array, publicKey: Uint8Array) {
 		const message = await this.decodeData(response);
 		if (message.type !== 'challenge-response') {
@@ -91,9 +90,9 @@ export class ServerAuthenticator extends Authenticator<AuthenticatorEvents> {
 	}
 
 	/**
-	 * Send a validation message to the client.
-	 * @param connection - The connection object representing the client's connection.
-	 */
+   * Send a validation message to the client.
+   * @param connection - The connection object representing the client's connection.
+   */
 	private async sendValidations(connection: Connection) {
 		return this.sendData(connection, {
 			type: 'validation',

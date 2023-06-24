@@ -1,5 +1,6 @@
 // @ts-expect-error - no types @koush/wrtc
 import wrtc from '@koush/wrtc';
+
 export type Wrtc = {
 	RTCPeerConnection: typeof RTCPeerConnection;
 	RTCSessionDescription: typeof RTCSessionDescription;

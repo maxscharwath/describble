@@ -39,7 +39,7 @@ export class DecodeError extends Error {
  * @param privateKey - The private key to sign the message with.
  * @returns The encoded and encrypted message data.
  */
-const encodeAndEncryptMessageData = async <TData>(message: Message<TData>, privateKey: Uint8Array): Promise<Uint8Array> => message.to?.publicKey
+const encodeAndEncryptMessageData = async <TData> (message: Message<TData>, privateKey: Uint8Array): Promise<Uint8Array> => message.to?.publicKey
 	? encryptMessage(encode(message.data), privateKey, message.to.publicKey)
 	: encode(message.data);
 

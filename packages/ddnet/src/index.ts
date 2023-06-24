@@ -1,7 +1,6 @@
 import {SignalingServer} from './server/SignalingServer';
-import {WebSocketNetwork} from './server/Network';
+import {WebSocketNetwork, WebSocketNetworkAdapter} from './network/websocket';
 import {generateKeyPair} from './crypto';
-import {WebsocketAdapter} from './client/Network';
 import {DocumentSharingClient} from './client/DocumentSharingClient';
 import {encode} from 'cbor-x';
 
@@ -18,12 +17,12 @@ import {encode} from 'cbor-x';
 
 	const clientAlice = new DocumentSharingClient({
 		...generateKeyPair(),
-		network: new WebsocketAdapter('ws://localhost:8080'),
+		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 	});
 
 	const clientBob = new DocumentSharingClient({
 		...generateKeyPair(),
-		network: new WebsocketAdapter('ws://localhost:8080'),
+		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 	});
 
 	const document = await clientAlice.createDocument('Hello World!', [

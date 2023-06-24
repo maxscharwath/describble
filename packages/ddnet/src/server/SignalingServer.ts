@@ -1,7 +1,7 @@
-import {type Network} from './Network';
 import {ServerAuthenticator} from '../authenticator/ServerAuthenticator';
 import {MessageRouter} from './MessageRouter';
 import {ConnectionRegistry} from './ConnectionRegistry';
+import {type Network} from '../network';
 
 /**
  * Configuration object for the SignalingServer.
@@ -31,15 +31,15 @@ export class SignalingServer {
 	}
 
 	/**
-	 * Begin listening for connections.
-	 */
+   * Begin listening for connections.
+   */
 	public async listen() {
 		return this.network.listen();
 	}
 
 	/**
-	 * Close the server and all active connections.
-	 */
+   * Close the server and all active connections.
+   */
 	public async close() {
 		return this.network.close();
 	}

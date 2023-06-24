@@ -1,8 +1,7 @@
-import {type Connection} from '../Connection';
-import {type NetworkAdapter} from './Network';
-import {decodeMessage, encodeMessage, type Message} from '../Message';
 import {v4 as uuidv4} from 'uuid';
 import Emittery from 'emittery';
+import type {Connection, NetworkAdapter} from '../network';
+import {decodeMessage, encodeMessage, type Message} from '../Message';
 import {ClientAuthenticator} from '../authenticator/ClientAuthenticator';
 
 /**
@@ -34,29 +33,36 @@ export class SignalingClient extends Emittery<SignalingClientEvent> {
 	}
 
 	/**
-	 * Getter for the client's public key.
-	 */
+   * Getter for the client's public key.
+   */
 	public get publicKey() {
 		return new Uint8Array(this.config.publicKey);
 	}
 
 	/**
-	 * Getter for the client's ID.
-	 */
+   * Getter for the client's ID.
+   */
 	public get clientId() {
 		return new Uint8Array(this._clientId);
 	}
 
 	/**
-	 * Returns whether the client is connected to the signaling server.
-	 */
+   * Returns whether the client is connected to the signaling server.
+   */
 	public get connected() {
 		return this.connection?.isConnected() ?? false;
 	}
 
 	/**
-	 * Connects the client to the signaling server.
-	 */
+   * Generates a unique client ID.
+   */
+	private static generateClientId() {
+		return uuidv4({}, new Uint8Array(16));
+	}
+
+	/**
+   * Connects the client to the signaling server.
+   */
 	public async connect() {
 		const {publicKey, privateKey, network} = this.config;
 		const authenticator = new ClientAuthenticator(privateKey);
@@ -69,8 +75,8 @@ export class SignalingClient extends Emittery<SignalingClientEvent> {
 	}
 
 	/**
-	 * Disconnects the client from the signaling server.
-	 */
+   * Disconnects the client from the signaling server.
+   */
 	public async disconnect() {
 		if (!this.connection) {
 			throw new Error('Not connected');
@@ -80,9 +86,9 @@ export class SignalingClient extends Emittery<SignalingClientEvent> {
 	}
 
 	/**
-	 * Sends a message to the signaling server.
-	 * @param message - The message to send.
-	 */
+   * Sends a message to the signaling server.
+   * @param message - The message to send.
+   */
 	public async sendMessage<TData>(message: Omit<Message<TData>, 'from'>) {
 		if (!this.connection) {
 			throw new Error('Not connected');
@@ -97,12 +103,5 @@ export class SignalingClient extends Emittery<SignalingClientEvent> {
 				},
 			}, this.config.privateKey),
 		);
-	}
-
-	/**
-	 * Generates a unique client ID.
-	 */
-	private static generateClientId() {
-		return uuidv4({}, new Uint8Array(16));
 	}
 }

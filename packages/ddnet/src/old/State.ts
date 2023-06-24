@@ -3,12 +3,12 @@ import Emittery from 'emittery';
 export class State<TState> extends Emittery<{
 	transition: {from: TState; to: TState};
 }> {
-	private _value: TState;
-
 	constructor(initialState: TState) {
 		super();
 		this._value = initialState;
 	}
+
+	private _value: TState;
 
 	public get value(): TState {
 		return this._value;

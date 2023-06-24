@@ -1,14 +1,18 @@
 type KeyValue = number | string | symbol | bigint | boolean;
 export type Hashable = {
-	hashCode(): KeyValue;
+	hashCode (): KeyValue;
 };
 
 export class HashMap<T extends Hashable, U> implements Map<T, U> {
+	readonly #map = new Map<KeyValue, {originalKey: T; value: U}>();
+
 	get [Symbol.toStringTag]() {
 		return 'HashMap';
 	}
 
-	readonly #map = new Map<KeyValue, {originalKey: T; value: U}>();
+	get size(): number {
+		return this.#map.size;
+	}
 
 	get(key: T): U | undefined {
 		const hash = this.#getKey(key);
@@ -63,10 +67,6 @@ export class HashMap<T extends Hashable, U> implements Map<T, U> {
 
 	clear(): void {
 		this.#map.clear();
-	}
-
-	get size(): number {
-		return this.#map.size;
 	}
 
 	[Symbol.iterator](): IterableIterator<[T, U]> {
