@@ -1,9 +1,9 @@
 import {type Connection} from '../Connection';
-import {authenticate} from './Authenticator';
 import {type NetworkAdapter} from './Network';
 import {decodeMessage, encodeMessage, type Message} from '../Message';
 import {v4 as uuidv4} from 'uuid';
 import Emittery from 'emittery';
+import {ClientAuthenticator} from '../authenticator/ClientAuthenticator';
 
 /**
  * Configuration for the SignalingClient.
@@ -59,9 +59,9 @@ export class SignalingClient extends Emittery<SignalingClientEvent> {
 	 */
 	public async connect() {
 		const {publicKey, privateKey, network} = this.config;
-		this.connection = await authenticate(
+		const authenticator = new ClientAuthenticator(privateKey);
+		this.connection = await authenticator.authenticate(
 			network.createConnection(publicKey, this._clientId),
-			privateKey,
 		);
 		this.connection.on('data', async data => {
 			void this.emit('message', await decodeMessage(data, privateKey));

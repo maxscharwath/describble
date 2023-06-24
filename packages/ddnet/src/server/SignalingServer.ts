@@ -1,5 +1,5 @@
 import {type Network} from './Network';
-import {Authenticator} from './Authenticator';
+import {ServerAuthenticator} from '../authenticator/ServerAuthenticator';
 import {MessageRouter} from './MessageRouter';
 import {ConnectionRegistry} from './ConnectionRegistry';
 
@@ -19,7 +19,7 @@ export class SignalingServer {
 
 	public constructor({network}: SignalingServerConfig) {
 		this.network = network;
-		const authenticator = new Authenticator(network);
+		const authenticator = new ServerAuthenticator(network);
 		const messageRouter = new MessageRouter(this.registry, network);
 
 		// Once a connection is authenticated, register it in the registry
