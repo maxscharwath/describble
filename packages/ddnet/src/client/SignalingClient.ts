@@ -54,13 +54,6 @@ export class SignalingClient extends Emittery<SignalingClientEvent> {
 	}
 
 	/**
-   * Generates a unique client ID.
-   */
-	private static generateClientId() {
-		return uuidv4({}, new Uint8Array(16));
-	}
-
-	/**
    * Connects the client to the signaling server.
    */
 	public async connect() {
@@ -103,5 +96,12 @@ export class SignalingClient extends Emittery<SignalingClientEvent> {
 				},
 			}, this.config.privateKey),
 		);
+	}
+
+	/**
+   * Generates a unique client ID.
+   */
+	private static generateClientId() {
+		return uuidv4({}, new Uint8Array(16));
 	}
 }

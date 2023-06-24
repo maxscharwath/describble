@@ -52,53 +52,6 @@ export class SecureDocument {
 	}
 
 	/**
-   * Creates a new SecureDocument.
-   *
-   * @param privateKey - The private key to sign the document
-   * @param content - The content of the document
-   * @param allowedClients - The list of clients allowed to modify the document, defaults to an empty list
-   * @returns The newly created SecureDocument
-   */
-	public static async create(privateKey: Uint8Array, content: Uint8Array, allowedClients: Uint8Array[] = []): Promise<SecureDocument> {
-		const owner = getPublicKey(privateKey);
-		const header = encode({
-			id: uuidv4({}, new Uint8Array(16)), // Generate a random ID
-			owner,
-			allowedClients,
-		});
-
-		// Sign the header and content in parallel
-		const [headerSignature, contentSignature] = await Promise.all([
-			createSignature(header, privateKey),
-			createSignature(content, privateKey),
-		]);
-
-		return new SecureDocument({
-			header,
-			headerSignature,
-			content,
-			contentSignature,
-		});
-	}
-
-	/**
-   * Decodes a CBOR-encoded document and constructs a SecureDocument instance.
-   *
-   * @param data - The encoded document
-   * @returns The constructed SecureDocument instance
-   */
-	public static importDocument(data: Uint8Array): SecureDocument {
-		let rawDocument: RawDocument;
-		try {
-			rawDocument = decode(data) as RawDocument;
-		} catch (cause) {
-			throw new DocumentValidationError('Document is not a valid CBOR-encoded object', {cause});
-		}
-
-		return new SecureDocument(rawDocument);
-	}
-
-	/**
    * Updates the document's content and re-signs it.
    *
    * @param newContent - The new content to update
@@ -262,5 +215,52 @@ export class SecureDocument {
 	private verifyContentSignature(content: Uint8Array, signature: Uint8Array): boolean {
 		// Verify the content signature using the owner's public key or one of the allowed clients' public key
 		return verifySignature(content, signature, this.decodedHeader.owner) || this.decodedHeader.allowedClients.some(client => verifySignature(content, signature, client));
+	}
+
+	/**
+   * Creates a new SecureDocument.
+   *
+   * @param privateKey - The private key to sign the document
+   * @param content - The content of the document
+   * @param allowedClients - The list of clients allowed to modify the document, defaults to an empty list
+   * @returns The newly created SecureDocument
+   */
+	public static async create(privateKey: Uint8Array, content: Uint8Array, allowedClients: Uint8Array[] = []): Promise<SecureDocument> {
+		const owner = getPublicKey(privateKey);
+		const header = encode({
+			id: uuidv4({}, new Uint8Array(16)), // Generate a random ID
+			owner,
+			allowedClients,
+		});
+
+		// Sign the header and content in parallel
+		const [headerSignature, contentSignature] = await Promise.all([
+			createSignature(header, privateKey),
+			createSignature(content, privateKey),
+		]);
+
+		return new SecureDocument({
+			header,
+			headerSignature,
+			content,
+			contentSignature,
+		});
+	}
+
+	/**
+   * Decodes a CBOR-encoded document and constructs a SecureDocument instance.
+   *
+   * @param data - The encoded document
+   * @returns The constructed SecureDocument instance
+   */
+	public static importDocument(data: Uint8Array): SecureDocument {
+		let rawDocument: RawDocument;
+		try {
+			rawDocument = decode(data) as RawDocument;
+		} catch (cause) {
+			throw new DocumentValidationError('Document is not a valid CBOR-encoded object', {cause});
+		}
+
+		return new SecureDocument(rawDocument);
 	}
 }

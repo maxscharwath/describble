@@ -30,30 +30,6 @@ export class WebSocketConnection extends Connection {
 	}
 
 	/**
-   * Create a new WebSocketConnection from an url, a public key, and a client id.
-   * @param url - The URL to connect to.
-   * @param publicKey - The public key to use.
-   * @param clientId - The client id to use.
-   */
-	public static create(url: string, publicKey: Uint8Array, clientId: Uint8Array) {
-		// Create a new WebSocketConnection by wrapping a new WebSocket object
-		return new WebSocketConnection(new WebSocket(url, {
-			headers: {
-				'x-public-key': base58.encode(publicKey),
-				'x-client-id': base58.encode(clientId),
-			},
-		}));
-	}
-
-	/**
-   * Create a new WebSocketConnection from an existing WebSocket.
-   * @param socket - The existing WebSocket to wrap.
-   */
-	public static fromSocket(socket: WebSocket) {
-		return new WebSocketConnection(socket);
-	}
-
-	/**
    * Close the WebSocket connection for a specific reason.
    * @param cause - The reason for closing the connection.
    */
@@ -78,5 +54,29 @@ export class WebSocketConnection extends Connection {
 	public isConnected(): boolean {
 		// The connection is open if the readyState of the socket is OPEN
 		return this.socket.readyState === WebSocket.OPEN;
+	}
+
+	/**
+   * Create a new WebSocketConnection from an url, a public key, and a client id.
+   * @param url - The URL to connect to.
+   * @param publicKey - The public key to use.
+   * @param clientId - The client id to use.
+   */
+	public static create(url: string, publicKey: Uint8Array, clientId: Uint8Array) {
+		// Create a new WebSocketConnection by wrapping a new WebSocket object
+		return new WebSocketConnection(new WebSocket(url, {
+			headers: {
+				'x-public-key': base58.encode(publicKey),
+				'x-client-id': base58.encode(clientId),
+			},
+		}));
+	}
+
+	/**
+   * Create a new WebSocketConnection from an existing WebSocket.
+   * @param socket - The existing WebSocket to wrap.
+   */
+	public static fromSocket(socket: WebSocket) {
+		return new WebSocketConnection(socket);
 	}
 }

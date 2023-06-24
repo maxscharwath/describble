@@ -1,4 +1,4 @@
-import {base, type BaseMap} from './base';
+import {base} from './base';
 
 export {base, type BaseMap} from './base';
 export const base2 = base('01');
@@ -12,15 +12,3 @@ export const base58 = base('123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrst
 export const base62 = base('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
 export const base64 = base('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/');
 export const base67 = base('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.!~');
-
-export type BufferLike = Uint8Array | string;
-
-/**
- * Helper for encoding and decoding using a base map that can handle both strings and Uint8Arrays
- * @param base - The base map
- */
-export const baseHelper = <T extends BaseMap> (base: T) => ({
-	decode: (source: BufferLike) => typeof source === 'string' ? base.decode(source) : source,
-	decodeUnsafe: (source: BufferLike) => typeof source === 'string' ? base.decodeUnsafe(source) : source,
-	encode: (source: BufferLike) => typeof source === 'string' ? source : base.encode(source),
-});

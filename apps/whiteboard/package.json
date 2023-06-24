@@ -24,7 +24,7 @@
     "automerge-repo-network-websocket": "^0.1.0",
     "automerge-repo-storage-localforage": "^0.1.0",
     "clsx": "^1.2.1",
-    "framer-motion": "^10.12.16",
+    "framer-motion": "^10.12.17",
     "idb-keyval": "^6.2.1",
     "nanoid": "^4.0.2",
     "perfect-freehand": "^1.2.0",
@@ -42,7 +42,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
-    "@types/react": "^18.2.13",
+    "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@types/testing-library__jest-dom": "^5.14.6",
     "@vitejs/plugin-react-swc": "^3.3.2",
