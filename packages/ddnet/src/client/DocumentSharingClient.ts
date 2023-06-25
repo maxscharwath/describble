@@ -33,6 +33,12 @@ const ResponseDocumentMessageSchema = z.object({
 	document: z.instanceof(Uint8Array),
 });
 
+const SignalMessageSchema = z.object({
+	type: z.literal('signal'),
+	documentAddress: z.instanceof(Uint8Array),
+	signal: z.any(),
+});
+
 /**
  * The DocumentSharingClient class handles the sharing of documents over the signaling server.
  * It uses the MessageExchanger class to send and receive fully verified and typed messages.
@@ -43,7 +49,11 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 	// A map of documents, keyed by their base58 encoded addresses
 	private readonly documents = new Map<string, SecureDocument>();
 	// The message exchanger for sending and receiving messages
-	private readonly exchanger: MessageExchanger<[typeof RequestDocumentMessageSchema, typeof ResponseDocumentMessageSchema]>;
+	private readonly exchanger = new MessageExchanger([
+		RequestDocumentMessageSchema,
+		ResponseDocumentMessageSchema,
+		SignalMessageSchema,
+	]);
 
 	/**
    * Creates a new DocumentSharingClient.
@@ -52,10 +62,7 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 	constructor(private readonly config: DocumentSharingClientConfig) {
 		super();
 		this.client = new SignalingClient(config);
-		this.exchanger = new MessageExchanger(this.client, [
-			RequestDocumentMessageSchema,
-			ResponseDocumentMessageSchema,
-		]);
+		this.exchanger.setClient(this.client);
 
 		// Handle request document messages
 		this.exchanger.on('request-document', async message => {
@@ -78,6 +85,11 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 			void this.emit('document', SecureDocument.importDocument(
 				message.data.document,
 			));
+		});
+
+		// Handle signal messages
+		this.exchanger.on('signal', message => {
+			console.log('signal', message);
 		});
 	}
 

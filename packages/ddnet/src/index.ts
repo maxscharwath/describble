@@ -25,9 +25,8 @@ import {encode} from 'cbor-x';
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 	});
 
-	const document = await clientAlice.createDocument('Hello World!', [
-		clientBob.publicKey,
-	]);
+	const document = await clientAlice.createDocument('Hello World!');
+	await document.updateAllowedUsers([clientBob.publicKey], clientAlice.privateKey);
 
 	await Promise.all([
 		clientAlice.connect(),
@@ -36,7 +35,7 @@ import {encode} from 'cbor-x';
 	console.log('All clients connected');
 
 	clientAlice.on('share-document', async ({document, to}) => {
-		console.log('Sharing document:', document.getDocumentData(), 'to:', to);
+		console.log('Sharing document:', document.getDocumentHeader(), 'to:', to);
 	});
 
 	clientBob.on('document', async document => {

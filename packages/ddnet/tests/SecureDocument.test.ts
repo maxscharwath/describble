@@ -33,6 +33,7 @@ describe('SecureDocument', () => {
 		expect(doc.getDocumentAddress()).toEqual(expectedAddress);
 		expect(doc.getDocumentData()).toEqual(new Uint8Array([1, 2, 3]));
 		expect(doc.hasAllowedUser(clientKeys1.publicKey)).toBe(true);
+		expect(doc.getDocumentHeaderVersion()).toBe(1);
 	});
 
 	it('should update the document content correctly', async () => {
@@ -46,6 +47,8 @@ describe('SecureDocument', () => {
 
 	it('should not allow to update the allowed users list by an unauthorized user', async () => {
 		await expect(doc.updateAllowedUsers(newAllowedClients, clientKeys1.privateKey)).rejects.toThrow(UnauthorizedAccessError);
+		expect(doc.hasAllowedUser(clientKeys2.publicKey)).toBe(false);
+		expect(doc.getDocumentHeaderVersion()).toBe(1);
 	});
 
 	it('should correctly verify document address', () => {
@@ -68,6 +71,7 @@ describe('SecureDocument', () => {
 	it('should correctly update allowed users', async () => {
 		await doc.updateAllowedUsers(newAllowedClients, ownerKeys.privateKey);
 		expect(doc.hasAllowedUser(clientKeys2.publicKey)).toBe(true);
+		expect(doc.getDocumentHeaderVersion()).toBe(2);
 	});
 
 	it('should not allow to update the document content after removing the user from allowed users list', async () => {
@@ -82,6 +86,7 @@ describe('SecureDocument', () => {
 	it('should correctly remove a user from the allowed users list using updateAllowedUsers', async () => {
 		await doc.updateAllowedUsers(newAllowedClients, ownerKeys.privateKey);
 		expect(doc.hasAllowedUser(clientKeys2.publicKey)).toBe(true);
+		expect(doc.getDocumentHeaderVersion()).toBe(2);
 
 		const updatedAllowedClients = newAllowedClients.filter(
 			user => !uint8ArrayEquals(user, clientKeys2.publicKey),
@@ -89,6 +94,7 @@ describe('SecureDocument', () => {
 
 		await doc.updateAllowedUsers(updatedAllowedClients, ownerKeys.privateKey);
 		expect(doc.hasAllowedUser(clientKeys2.publicKey)).toBe(false);
+		expect(doc.getDocumentHeaderVersion()).toBe(3);
 	});
 
 	it('should correctly get document header', () => {
@@ -97,5 +103,6 @@ describe('SecureDocument', () => {
 		expect(header.owner).not.toBe(ownerKeys.publicKey); // Should be a copy
 		expect(header.allowedClients).toEqual([clientKeys1.publicKey]);
 		expect(header.allowedClients[0]).not.toBe(clientKeys1.publicKey); // Should be a copy
+		expect(header.version).toBe(1);
 	});
 });

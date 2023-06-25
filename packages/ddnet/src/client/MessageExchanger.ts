@@ -19,6 +19,14 @@ type MessageExchangerEvent<TSchemas extends TypedSchemas> = {
 };
 
 /**
+ * A type representing a client and its unsubscribe function.
+ */
+type ClientHandler = {
+	client: SignalingClient;
+	unsubscribe: () => void;
+};
+
+/**
  * A class for exchange messages based on their 'type' field.
  * This class extends from Emittery, a simple event emitter library.
  * Each event name is the 'type' field of a schema, and each event emits a Message whose data matches the schema.
@@ -27,16 +35,30 @@ export class MessageExchanger<TSchemas extends TypedSchemas> extends Emittery<Me
 	// This holds the zod union schema which is used to parse and validate incoming messages
 	private readonly verifier: z.ZodDiscriminatedUnion<'type', TSchemas>;
 
+	private clientHandler?: ClientHandler;
+
 	/**
    * The constructor takes in a list of zod schemas, and creates a discriminated union schema from them.
    * This union schema is used to parse and validate incoming and outgoing messages.
-   * @param client - The signaling client to be used for sending and receiving messages.
    * @param schemas - A list of zod schemas, where each schema has a discriminated 'type' field.
    */
-	constructor(private readonly client: SignalingClient, schemas: TSchemas) {
+	constructor(schemas: TSchemas) {
 		super();
 		this.verifier = z.discriminatedUnion('type', schemas);
-		this.client.on('message', async message => this.handle(message));
+	}
+
+	/**
+	 * This method sets the signaling client to be used for sending and receiving messages.
+	 * @param client - The signaling client to be used for sending and receiving messages.
+	 */
+	public setClient(client: SignalingClient) {
+		if (this.clientHandler?.client !== client) {
+			this.clientHandler?.unsubscribe();
+			this.clientHandler = {
+				client,
+				unsubscribe: client.on('message', async message => this.handle(message)),
+			};
+		}
 	}
 
 	/**
@@ -46,7 +68,11 @@ export class MessageExchanger<TSchemas extends TypedSchemas> extends Emittery<Me
    * @param to - The recipient of the message. If not specified, the message is sent to all clients.
    */
 	public async sendMessage(data: z.infer<TSchemas[number]>, to?: {publicKey: Uint8Array; clientId?: Uint8Array}) {
-		return this.client.sendMessage({
+		if (!this.clientHandler) {
+			throw new Error('Cannot send message without a signaling client');
+		}
+
+		return this.clientHandler.client.sendMessage({
 			to,
 			data: await this.verifier.parseAsync(data),
 		});

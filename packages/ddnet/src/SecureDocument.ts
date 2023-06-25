@@ -3,16 +3,17 @@ import {createSignature, getPublicKey, uint8ArrayEquals, verifySignature} from '
 import {decode, encode} from 'cbor-x';
 
 type DocumentHeader = {
-	id: Uint8Array;
-	owner: Uint8Array;
-	allowedClients: Uint8Array[];
+	id: Uint8Array; // Document ID
+	owner: Uint8Array; // Owner's public key
+	allowedClients: Uint8Array[]; // Allowed users' public keys
+	version: number; // DocumentHeader version, incremented on each update
 };
 
 type RawDocument = {
-	header: Uint8Array;
-	headerSignature: Uint8Array;
-	content: Uint8Array;
-	contentSignature: Uint8Array;
+	header: Uint8Array; // Document header in CBOR format
+	headerSignature: Uint8Array; // Document header signature
+	content: Uint8Array; // Document content
+	contentSignature: Uint8Array; // Document content signature, signed with one of the allowed users' private keys
 };
 
 /**
@@ -93,6 +94,14 @@ export class SecureDocument {
 	}
 
 	/**
+	 * Returns the document header version number.
+	 * @returns The document header version number
+	 */
+	public getDocumentHeaderVersion(): number {
+		return this.decodedHeader.version;
+	}
+
+	/**
    * Checks if a user is allowed to access the document.
    *
    * @param publicKey - The public key of the user
@@ -142,7 +151,7 @@ export class SecureDocument {
    */
 	private async updateHeader(newFields: Partial<DocumentHeader>, privateKey: Uint8Array): Promise<void> {
 		// Update the document header with new fields and re-sign
-		this.decodedHeader = {...this.decodedHeader, ...newFields};
+		this.decodedHeader = {...this.decodedHeader, ...newFields, version: this.decodedHeader.version + 1};
 		this.rawDocument.header = encode(this.decodedHeader);
 		this.rawDocument.headerSignature = await createSignature(this.rawDocument.header, privateKey);
 	}
@@ -231,7 +240,8 @@ export class SecureDocument {
 			id: uuidv4({}, new Uint8Array(16)), // Generate a random ID
 			owner,
 			allowedClients,
-		});
+			version: 1,
+		} satisfies DocumentHeader);
 
 		// Sign the header and content in parallel
 		const [headerSignature, contentSignature] = await Promise.all([
@@ -250,13 +260,13 @@ export class SecureDocument {
 	/**
    * Decodes a CBOR-encoded document and constructs a SecureDocument instance.
    *
-   * @param data - The encoded document
+   * @param documentData - The encoded document
    * @returns The constructed SecureDocument instance
    */
-	public static importDocument(data: Uint8Array): SecureDocument {
+	public static importDocument(documentData: Uint8Array): SecureDocument {
 		let rawDocument: RawDocument;
 		try {
-			rawDocument = decode(data) as RawDocument;
+			rawDocument = decode(documentData) as RawDocument;
 		} catch (cause) {
 			throw new DocumentValidationError('Document is not a valid CBOR-encoded object', {cause});
 		}
