@@ -5,6 +5,9 @@ import {z} from 'zod';
 import {SignalingClient, type SignalingClientConfig} from './SignalingClient';
 import {SecureDocument} from '../SecureDocument';
 import {MessageExchanger} from './MessageExchanger';
+import SimplePeer from 'simple-peer';
+import wrtc from '../wrtc';
+import {sha256Some} from '../crypto';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
 type DocumentSharingClientConfig = SignalingClientConfig;
@@ -15,6 +18,13 @@ type DocumentSharingClientEvent = {
 	'share-document': {
 		document: SecureDocument;
 		to: {
+			publicKey: Uint8Array;
+			clientId: Uint8Array;
+		};
+	};
+	'peer-connected': {
+		peer: SimplePeer.Instance;
+		client: {
 			publicKey: Uint8Array;
 			clientId: Uint8Array;
 		};
@@ -35,8 +45,7 @@ const ResponseDocumentMessageSchema = z.object({
 
 const SignalMessageSchema = z.object({
 	type: z.literal('signal'),
-	documentAddress: z.instanceof(Uint8Array),
-	signal: z.any(),
+	signal: z.any().refine((value): value is SimplePeer.SignalData => true),
 });
 
 /**
@@ -48,6 +57,8 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 	private readonly client: SignalingClient;
 	// A map of documents, keyed by their base58 encoded addresses
 	private readonly documents = new Map<string, SecureDocument>();
+	// A map of peers, keyed by their base58 encoded client hashes
+	private readonly peers = new Map<string, SimplePeer.Instance>();
 	// The message exchanger for sending and receiving messages
 	private readonly exchanger = new MessageExchanger([
 		RequestDocumentMessageSchema,
@@ -77,6 +88,8 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 					type: 'document-response',
 					document: document.exportDocument(),
 				}, message.from);
+
+				this.createPeer(true, message.from);
 			}
 		});
 
@@ -89,7 +102,8 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 
 		// Handle signal messages
 		this.exchanger.on('signal', message => {
-			console.log('signal', message);
+			const peer = this.createPeer(false, message.from);
+			peer.signal(message.data.signal);
 		});
 	}
 
@@ -132,6 +146,14 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 		return document;
 	}
 
+	public addDocument(document: SecureDocument) {
+		this.documents.set(
+			base58.encode(document.getDocumentAddress()),
+			document,
+		);
+		return document;
+	}
+
 	/**
    * Sends a request document message to the signaling server.
    * @param documentAddress - The address of the document to be requested.
@@ -142,5 +164,53 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 			type: 'request-document',
 			documentAddress,
 		});
+	}
+
+	private computeClientHash(publicKey: Uint8Array, clientId: Uint8Array) {
+		return base58.encode(sha256Some(publicKey, clientId));
+	}
+
+	/**
+	 * Creates a new peer and adds it to the peers map.
+	 * if the peer already exists, it is returned.
+	 * @param initiator - Whether or not the peer should be the initiator.
+	 * @param messageFrom - The message from which the peer was created.
+	 * @private
+	 */
+	private createPeer(initiator: boolean, messageFrom: {publicKey: Uint8Array; clientId: Uint8Array}) {
+		const clientHash = this.computeClientHash(messageFrom.publicKey, messageFrom.clientId);
+
+		if (this.peers.has(clientHash)) { // Peer already exists
+			return this.peers.get(clientHash)!;
+		}
+
+		const peer = new SimplePeer({initiator, wrtc});
+
+		peer.on('signal', signal => {
+			void this.exchanger.sendMessage({
+				type: 'signal',
+				signal,
+			}, messageFrom);
+		});
+
+		peer.on('connect', () => {
+			void this.emit('peer-connected', {
+				peer,
+				client: messageFrom,
+			});
+		});
+
+		peer.on('close', () => {
+			console.log(`Connection to ${clientHash} closed`);
+			this.peers.delete(clientHash);
+		});
+
+		peer.on('error', err => {
+			console.error(`Error occurred in peer connection to ${clientHash}:`, err);
+		});
+
+		this.peers.set(clientHash, peer);
+
+		return peer;
 	}
 }
