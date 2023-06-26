@@ -3,7 +3,7 @@ import {hkdf} from '@noble/hashes/hkdf';
 import {sha256} from '@noble/hashes/sha256';
 
 export {sha256} from '@noble/hashes/sha256';
-export {generateMnemonic, mnemonicToSeedSync} from 'bip39';
+export {generateMnemonic, mnemonicToSeedSync} from 'srp';
 
 /**
  * Generates a new private key.

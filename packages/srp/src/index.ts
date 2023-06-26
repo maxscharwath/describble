@@ -1,29 +1,34 @@
+// Import cryptographic and utility functions
 import {sha256} from '@noble/hashes/sha256';
 import {sha512} from '@noble/hashes/sha512';
 import {pbkdf2, pbkdf2Async} from '@noble/hashes/pbkdf2';
 import {randomBytes} from '@noble/hashes/utils';
+
+// Import the wordlist for mnemonic generation and validation
 import wordlist from './wordlist.json' assert { type: 'json' };
 
+// Constant error messages
 const INVALID_MNEMONIC = 'Invalid mnemonic';
 const INVALID_ENTROPY = 'Invalid entropy';
 const INVALID_CHECKSUM = 'Invalid mnemonic checksum';
 
+// Text encoder for encoding strings into Uint8Array format
+const textEncoder = new TextEncoder();
+
 /**
- * Normalizes a string by removing diacritical marks and converting it to a standardized form.
+ * Normalize a string using Unicode Normalization Form KC.
  */
-function normalize(str?: string): string {
-	return (str ?? '').normalize('NFKD');
+function normalize(str = ''): string {
+	return str.normalize('NFKD');
 }
 
 /**
- * Pads a string on the left with a specified pad string until it reaches the desired length.
+ * Normalize the mnemonic and password inputs.
  */
-function lpad(str: string, padString: string, length: number): string {
-	while (str.length < length) {
-		str = padString + str;
-	}
-
-	return str;
+function normalizeInputs(mnemonic: string, password = ''): [string, string] {
+	const normalizedMnemonic = normalize(mnemonic);
+	const normalizedPassword = normalize(password);
+	return [normalizedMnemonic, normalizedPassword];
 }
 
 /**
@@ -37,10 +42,7 @@ function binaryToByte(bin: string): number {
  * Converts an array of bytes to a binary string representation.
  */
 function bytesToBinary(bytes: Uint8Array): string {
-	return bytes.reduce(
-		(bin: string, byte: number): string => bin + lpad(byte.toString(2), '0', 8),
-		'',
-	);
+	return bytes.reduce((bin, byte) => bin + byte.toString(2).padStart(8, '0'), '');
 }
 
 /**
@@ -56,20 +58,18 @@ function deriveChecksumBits(entropyBytes: Uint8Array): string {
 /**
  * Generates a salt string by appending the word "mnemonic" to the provided password (if any).
  */
-function salt(password?: string): string {
-	return 'mnemonic' + (password ?? '');
+function salt(password = ''): string {
+	return `mnemonic${password}`;
 }
 
 /**
  * Converts a mnemonic phrase and an optional password into a cryptographic seed using PBKDF2 with SHA512.
  * This is the synchronous version.
  */
-export function mnemonicToSeedSync(
-	mnemonic: string,
-	password?: string,
-): Uint8Array {
-	const mnemonicBuffer = new TextEncoder().encode(normalize(mnemonic));
-	const saltBuffer = new TextEncoder().encode(salt(normalize(password)));
+export function mnemonicToSeedSync(mnemonic: string, password?: string): Uint8Array {
+	const [normalizedMnemonic, normalizedPassword] = normalizeInputs(mnemonic, password);
+	const mnemonicBuffer = textEncoder.encode(normalizedMnemonic);
+	const saltBuffer = textEncoder.encode(salt(normalizedPassword));
 	return pbkdf2(sha512, mnemonicBuffer, saltBuffer, {
 		c: 2048,
 		dkLen: 64,
@@ -80,12 +80,10 @@ export function mnemonicToSeedSync(
  * Converts a mnemonic phrase and an optional password into a cryptographic seed using PBKDF2 with SHA512.
  * This is the asynchronous version.
  */
-export async function mnemonicToSeed(
-	mnemonic: string,
-	password?: string,
-): Promise<Uint8Array> {
-	const mnemonicBuffer = new TextEncoder().encode(normalize(mnemonic));
-	const saltBuffer = new TextEncoder().encode(salt(normalize(password)));
+export async function mnemonicToSeed(mnemonic: string, password?: string): Promise<Uint8Array> {
+	const [normalizedMnemonic, normalizedPassword] = normalizeInputs(mnemonic, password);
+	const mnemonicBuffer = textEncoder.encode(normalizedMnemonic);
+	const saltBuffer = textEncoder.encode(salt(normalizedPassword));
 	return pbkdf2Async(sha512, mnemonicBuffer, saltBuffer, {
 		c: 2048,
 		dkLen: 64,
@@ -102,18 +100,17 @@ export function mnemonicToEntropy(mnemonic: string): string {
 	}
 
 	// Convert word indices to 11-bit binary strings
-	const bits = words
-		.map((word: string): string => {
+	const bits = words.reduce(
+		(bin, word) => {
 			const index = wordlist.indexOf(word);
 			if (index === -1) {
 				throw new Error(INVALID_MNEMONIC);
 			}
 
-			return lpad(index.toString(2), '0', 11);
-		})
-		.join('');
-
-	// Split the binary string into ENT/CS
+			return bin + index.toString(2).padStart(11, '0');
+		},
+		'');
+	// Derive entropy and checksum bits
 	const dividerIndex = Math.floor(bits.length / 33) * 32;
 	const entropyBits = bits.slice(0, dividerIndex);
 	const checksumBits = bits.slice(dividerIndex);
@@ -130,13 +127,11 @@ export function mnemonicToEntropy(mnemonic: string): string {
 		throw new Error(INVALID_CHECKSUM);
 	}
 
-	return Array.from(entropy)
-		.map(b => b.toString(16).padStart(2, '0'))
-		.join('');
+	return entropy.reduce((hex, byte) => hex + byte.toString(16).padStart(2, '0'), '');
 }
 
 /**
- * Converts an entropy value (either as a Uint8Array or a hexadecimal string) into a mnemonic phrase.
+ * Converts an entropy value into its corresponding mnemonic phrase.
  */
 export function entropyToMnemonic(entropy: Uint8Array | string): string {
 	if (typeof entropy === 'string') {
@@ -145,7 +140,6 @@ export function entropyToMnemonic(entropy: Uint8Array | string): string {
 		);
 	}
 
-	// 128 <= ENT <= 256
 	if (entropy.length < 16 || entropy.length > 32 || entropy.length % 4 !== 0) {
 		throw new TypeError(INVALID_ENTROPY);
 	}
@@ -155,35 +149,31 @@ export function entropyToMnemonic(entropy: Uint8Array | string): string {
 
 	const bits = entropyBits + checksumBits;
 	const chunks = bits.match(/(.{1,11})/g)!;
+
 	const words = chunks.map((binary: string): string => {
 		const index = binaryToByte(binary);
 		return wordlist[index];
 	});
 
-	return wordlist[0] === '\u3042\u3044\u3053\u304f\u3057\u3093' // Japanese wordlist
-		? words.join('\u3000')
-		: words.join(' ');
+	return words.join(' ');
 }
 
 /**
- * Generates a new mnemonic phrase of the specified strength (in bits).
- * It uses a random number generator function (rng) to generate the entropy.
+ * Generates a mnemonic phrase with the given strength (in bits) using the provided random number generator (or a default one if none is provided).
  */
-export function generateMnemonic(
-	strength?: number,
-	rng?: (size: number) => Uint8Array,
-): string {
+export function generateMnemonic(strength?: number, rng?: (size: number) => Uint8Array): string {
 	strength = strength ?? 128;
 	if (strength % 32 !== 0) {
 		throw new TypeError(INVALID_ENTROPY);
 	}
 
-	rng = rng ?? ((size: number): Uint8Array => randomBytes(size));
+	rng = rng ?? (size => randomBytes(size));
 	return entropyToMnemonic(rng(strength / 8));
 }
 
 /**
- * Validates a mnemonic phrase by attempting to convert it into entropy and checking for any errors.
+ * Validates a mnemonic phrase by attempting to convert it into entropy.
+ * Returns true if the conversion is successful, false otherwise.
  */
 export function validateMnemonic(mnemonic: string): boolean {
 	try {

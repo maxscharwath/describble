@@ -1,8 +1,8 @@
-# 👋 TypeScript BIP39 Library
+# 🔐 SRP - Secret Recovery Phrase Library
 
-This TypeScript BIP39 library is a revamped version of the original [bitcoinjs/bip39](https://github.com/bitcoinjs/bip39) library. BIP39 describes the implementation of a mnemonic sentence, i.e., generating a human-readable, pronounceable, and memorable group of words that can be used to back-up and restore a private key.
+This TypeScript SRP (Secret Recovery Phrase) library is an enhanced version of the original [bitcoinjs/bip39](https://github.com/bitcoinjs/bip39) library. SRP, originally described by the BIP39 specification, pertains to the creation of a mnemonic sentence. This sentence forms a human-readable, pronounceable, and memorable group of words that can be used for backing up and restoring a private key.
 
-Unlike the original library, this version does not rely on Node.js Buffer but Uint8Array and currently only supports the English language dictionary for mnemonic generation.
+This updated version is designed to be compatible with both browser and Node.js environments. It utilizes Uint8Array instead of Node.js Buffer and currently supports the English language dictionary for mnemonic generation.
 
 ## 🚀 Usage
 
@@ -28,13 +28,13 @@ console.log(randomMnemonic);
 
 ## ⚙️ How it Works
 
-The library follows the BIP39 specification, which describes the process of converting a binary seed to a mnemonic sentence and vice versa. Each word in the mnemonic sentence represents 11 bits of data, and the overall length of the mnemonic determines the entropy of the generated seed.
+The library adheres to the BIP39 specification, outlining the process of converting a binary seed into a mnemonic sentence and vice versa. Each word in the mnemonic sentence symbolizes 11 bits of data. The total length of the mnemonic determines the entropy of the produced seed.
 
-By leveraging the provided functions, you can:
+Through the provided functions, you can:
 
 - Convert a mnemonic sentence to the associated entropy.
 - Convert entropy to a mnemonic sentence.
-- Generate a mnemonic sentence of a particular length.
+- Generate a mnemonic sentence of a specific length.
 - Validate a mnemonic sentence.
 
 ## 🚧 Caution
