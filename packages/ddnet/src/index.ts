@@ -1,6 +1,6 @@
 import {SignalingServer} from './server/SignalingServer';
 import {WebSocketNetwork, WebSocketNetworkAdapter} from './network/websocket';
-import {generateKeyPair, mnemonicToSeed} from './crypto';
+import {generateKeyPair, mnemonicToSeedSync} from './crypto';
 import {DocumentSharingClient} from './client/DocumentSharingClient';
 import {base58} from 'base-x';
 
@@ -17,7 +17,7 @@ import {base58} from 'base-x';
 
 	const mnemonic = 'arrow armor boat cart circle tenant couple beef luggage ginger color effort';
 	console.log('Mnemonic:', mnemonic);
-	const seed = mnemonicToSeed(mnemonic);
+	const seed = mnemonicToSeedSync(mnemonic);
 
 	const clientAlice = new DocumentSharingClient({
 		...generateKeyPair(seed),
