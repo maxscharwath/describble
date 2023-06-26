@@ -118,6 +118,11 @@ export function uint8ArrayEquals(a: Uint8Array, b: Uint8Array) {
 		: false;
 }
 
+/**
+ * Merges the provided Uint8Arrays into a single Uint8Array.
+ * @param arrays - The Uint8Arrays to be merged.
+ * @returns The merged Uint8Array.
+ */
 export function mergeUint8Arrays(arrays: Uint8Array[]) {
 	const result = new Uint8Array(arrays.reduce((a, b) => a + b.byteLength, 0));
 	let offset = 0;
@@ -129,6 +134,11 @@ export function mergeUint8Arrays(arrays: Uint8Array[]) {
 	return result;
 }
 
+/**
+ * Hashes multiple Uint8Arrays using SHA-256.
+ * @param data - The Uint8Arrays to be hashed.
+ * @returns The hash.
+ */
 export function sha256Some(...data: Uint8Array[]) {
 	return sha256(mergeUint8Arrays(data));
 }

@@ -1,8 +1,6 @@
-import {SignalingServer} from '../src/server/SignalingServer';
-import {SignalingClient} from '../src/client/SignalingClient';
 import {MockNetwork, MockNetworkAdapter} from './MockNetwork';
-import {generateKeyPair} from '../src/crypto';
 import {expect} from 'vitest';
+import {generateKeyPair, SignalingClient, SignalingServer} from '../src';
 
 /**
  * Creates a number of clients and connects them to the server.
