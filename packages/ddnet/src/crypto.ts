@@ -3,12 +3,15 @@ import {hkdf} from '@noble/hashes/hkdf';
 import {sha256} from '@noble/hashes/sha256';
 
 export {sha256} from '@noble/hashes/sha256';
+export {generateMnemonic, mnemonicToSeedSync} from 'bip39';
 
 /**
  * Generates a new private key.
  */
-export function generatePrivateKey() {
-	return secp256k1.utils.randomPrivateKey();
+export function generatePrivateKey(seed?: Uint8Array) {
+	return seed
+		? secp256k1.etc.hashToPrivateKey(seed)
+		: secp256k1.utils.randomPrivateKey();
 }
 
 /**
@@ -24,8 +27,8 @@ export function getPublicKey(privateKey: Uint8Array) {
  * Generates a new key pair.
  * @returns An object containing the privateKey and publicKey.
  */
-export function generateKeyPair() {
-	const privateKey = generatePrivateKey(); // Generate a new private key.
+export function generateKeyPair(seed?: Uint8Array) {
+	const privateKey = generatePrivateKey(seed); // Generate a new private key.
 	const publicKey = getPublicKey(privateKey); // Generate the corresponding public key.
 	return {privateKey, publicKey};
 }
@@ -102,20 +105,6 @@ export async function createSignature(message: Uint8Array, privateKey: Uint8Arra
  */
 export function verifySignature(message: Uint8Array, signature: Uint8Array, publicKey: Uint8Array) {
 	return secp256k1.verify(signature, sha256(message), publicKey);
-}
-
-/**
- * Recovers the public key used to sign the provided message using the provided signature.
- * The message is hashed using SHA-256 before being verified.
- * @param message - The non-hashed message that was signed.
- * @param signature - The signature to be verified.
- */
-export function recoverPublicKey(message: Uint8Array, signature: Uint8Array) {
-	return secp256k1.Signature
-		.fromCompact(signature)
-		.addRecoveryBit(0)
-		.recoverPublicKey(sha256(message))
-		.toRawBytes(true);
 }
 
 /**

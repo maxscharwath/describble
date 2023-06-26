@@ -1,0 +1,29 @@
+{
+  "name": "bip39",
+  "description": "BIP39: Mnemonic code for generating deterministic keys",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "author": "Maxime Scharwath <maxime@scharwath.ch>",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "eslint-config-custom": "workspace:*",
+    "tsconfig": "workspace:*",
+    "typescript": "^5.1.3",
+    "vite": "^4.3.9",
+    "vitest": "0.32.2"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@noble/hashes": "^1.3.1"
+  }
+}

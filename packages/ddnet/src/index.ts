@@ -1,8 +1,7 @@
 import {SignalingServer} from './server/SignalingServer';
 import {WebSocketNetwork, WebSocketNetworkAdapter} from './network/websocket';
-import {generateKeyPair} from './crypto';
+import {generateKeyPair, mnemonicToSeed} from './crypto';
 import {DocumentSharingClient} from './client/DocumentSharingClient';
-import {encode} from 'cbor-x';
 import {base58} from 'base-x';
 
 (async () => {
@@ -16,8 +15,12 @@ import {base58} from 'base-x';
 	await server.listen();
 	console.log('Signaling server listening on port 8080');
 
+	const mnemonic = 'arrow armor boat cart circle tenant couple beef luggage ginger color effort';
+	console.log('Mnemonic:', mnemonic);
+	const seed = mnemonicToSeed(mnemonic);
+
 	const clientAlice = new DocumentSharingClient({
-		...generateKeyPair(),
+		...generateKeyPair(seed),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 	});
 
@@ -55,14 +58,20 @@ import {base58} from 'base-x';
 	});
 
 	clientAlice.on('peer-connected', async ({peer, client}) => {
+		peer.on('data', (data: Buffer) => console.log(`Alice received data from ${base58.encode(client.publicKey)}`, data.toString()));
+		peer.send('Hello I am Alice');
 		console.log(`Alice is connected to ${base58.encode(client.publicKey)}`, peer.address());
 	});
 
 	clientBob.on('peer-connected', async ({peer, client}) => {
+		peer.on('data', (data: Buffer) => console.log(`Bob received data from ${base58.encode(client.publicKey)}`, data.toString()));
+		peer.send('Hello I am Bob');
 		console.log(`Bob is connected to ${base58.encode(client.publicKey)}`, peer.address());
 	});
 
 	clientCharlie.on('peer-connected', async ({peer, client}) => {
+		peer.on('data', (data: Buffer) => console.log(`Charlie received data from ${base58.encode(client.publicKey)}`, data.toString()));
+		peer.send('Hello I am Charlie');
 		console.log(`Charlie is connected to ${base58.encode(client.publicKey)}`, peer.address());
 	});
 
