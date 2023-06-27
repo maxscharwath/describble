@@ -58,7 +58,7 @@ describe('crypto', () => {
 	it('createSignature and verifySignature should correctly sign and verify a message', async () => {
 		const {privateKey, publicKey} = generateKeyPair();
 		const message = new TextEncoder().encode('Hello, world!');
-		const signature = await createSignature(message, privateKey);
+		const signature = createSignature(message, privateKey);
 		expect(verifySignature(message, signature, publicKey)).toBe(true);
 	});
 

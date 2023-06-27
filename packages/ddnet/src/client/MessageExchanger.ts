@@ -8,14 +8,14 @@ import {type SignalingClient} from './SignalingClient';
  * A type representing a list of zod schemas, where each schema has a discriminated 'type' field.
  * This is used as a helper for creating the MessageExchangerEvent type.
  */
-type TypedSchemas = [ZodDiscriminatedUnionOption<'type'>, ...Array<ZodDiscriminatedUnionOption<'type'>>];
+type TypedSchemas = ZodDiscriminatedUnionOption<'type'>;
 
 /**
  * A mapped type which extracts the 'type' field from each schema in TSchemas,
  * and maps it to a Message whose data is of the corresponding schema.
  */
-type MessageExchangerEvent<TSchemas extends TypedSchemas> = {
-	[K in z.infer<TSchemas[number]>['type']]: Message<Extract<z.infer<TSchemas[number]>, {type: K}>>;
+type MessageExchangerEvent<T extends TypedSchemas> = {
+	[K in T['_type']['type']]: Message<Extract<T['_type'], {type: K}>>;
 };
 
 /**
@@ -33,7 +33,7 @@ type ClientHandler = {
  */
 export class MessageExchanger<TSchemas extends TypedSchemas> extends Emittery<MessageExchangerEvent<TSchemas>> {
 	// This holds the zod union schema which is used to parse and validate incoming messages
-	private readonly verifier: z.ZodDiscriminatedUnion<'type', TSchemas>;
+	private readonly verifier: z.ZodDiscriminatedUnion<'type', TSchemas[]>;
 
 	private clientHandler?: ClientHandler;
 
@@ -42,9 +42,9 @@ export class MessageExchanger<TSchemas extends TypedSchemas> extends Emittery<Me
    * This union schema is used to parse and validate incoming and outgoing messages.
    * @param schemas - A list of zod schemas, where each schema has a discriminated 'type' field.
    */
-	constructor(schemas: TSchemas) {
+	constructor(schemas: TSchemas[]) {
 		super();
-		this.verifier = z.discriminatedUnion('type', schemas);
+		this.verifier = z.discriminatedUnion('type', schemas as [TSchemas, ...TSchemas[]]);
 	}
 
 	/**
@@ -67,7 +67,7 @@ export class MessageExchanger<TSchemas extends TypedSchemas> extends Emittery<Me
    * @param data - The data to be sent.
    * @param to - The recipient of the message. If not specified, the message is sent to all clients.
    */
-	public async sendMessage(data: z.infer<TSchemas[number]>, to?: {publicKey: Uint8Array; clientId?: Uint8Array}) {
+	public async sendMessage(data: z.infer<TSchemas>, to?: {publicKey: Uint8Array; clientId?: Uint8Array}) {
 		if (!this.clientHandler) {
 			throw new Error('Cannot send message without a signaling client');
 		}

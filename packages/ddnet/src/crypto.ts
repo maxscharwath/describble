@@ -1,10 +1,12 @@
 import * as secp256k1 from '@noble/secp256k1';
 import {hkdf} from '@noble/hashes/hkdf';
 import {sha256} from '@noble/hashes/sha256';
+import {hmac} from '@noble/hashes/hmac';
 
 export {sha256} from '@noble/hashes/sha256';
 export {generateMnemonic, mnemonicToSeedSync} from 'srp';
 
+secp256k1.etc.hmacSha256Sync = (k, ...m) => hmac(sha256, k, secp256k1.etc.concatBytes(...m));
 /**
  * Generates a new private key.
  */
@@ -92,8 +94,8 @@ export async function decryptMessage(data: Uint8Array, privateKey: Uint8Array, p
  * @param message - The non-hashed message to be signed.
  * @param privateKey - The private key used in the signing.
  */
-export async function createSignature(message: Uint8Array, privateKey: Uint8Array) {
-	return (await secp256k1.signAsync(sha256(message), privateKey)).toCompactRawBytes();
+export function createSignature(message: Uint8Array, privateKey: Uint8Array) {
+	return (secp256k1.sign(sha256(message), privateKey)).toCompactRawBytes();
 }
 
 /**

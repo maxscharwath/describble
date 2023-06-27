@@ -38,8 +38,7 @@ import {base58} from 'base-x';
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 	});
 
-	const document = await clientAlice.createDocument('Hello World!');
-	await document.updateAllowedUsers([clientBob.publicKey], clientAlice.privateKey);
+	const document = await clientAlice.createDocument([clientBob.publicKey, clientCharlie.publicKey]);
 	clientCharlie.addDocument(document);
 
 	await Promise.all([
@@ -50,34 +49,16 @@ import {base58} from 'base-x';
 	console.log('All clients connected');
 
 	clientAlice.on('share-document', async ({document, to}) => {
-		console.log(`Alice(${base58.encode(clientAlice.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, base58.encode(document.getDocumentAddress()));
+		console.log(`Alice(${base58.encode(clientAlice.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, base58.encode(document.header.address));
 	});
 
 	clientCharlie.on('share-document', async ({document, to}) => {
-		console.log(`Charlie(${base58.encode(clientCharlie.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, base58.encode(document.getDocumentAddress()));
+		console.log(`Charlie(${base58.encode(clientCharlie.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, base58.encode(document.header.address));
 	});
 
 	clientBob.on('document', async document => {
-		console.log(`Bob(${base58.encode(clientBob.publicKey)}) received a document`, base58.encode(document.getDocumentAddress()));
+		console.log(`Bob(${base58.encode(clientBob.publicKey)}) received a document`, base58.encode(document.header.address));
 	});
 
-	clientAlice.on('peer-connected', async ({peer, client}) => {
-		peer.on('data', (data: Buffer) => console.log(`Alice received data from ${base58.encode(client.publicKey)}`, data.toString()));
-		peer.send('Hello I am Alice');
-		console.log(`Alice is connected to ${base58.encode(client.publicKey)}`, peer.address());
-	});
-
-	clientBob.on('peer-connected', async ({peer, client}) => {
-		peer.on('data', (data: Buffer) => console.log(`Bob received data from ${base58.encode(client.publicKey)}`, data.toString()));
-		peer.send('Hello I am Bob');
-		console.log(`Bob is connected to ${base58.encode(client.publicKey)}`, peer.address());
-	});
-
-	clientCharlie.on('peer-connected', async ({peer, client}) => {
-		peer.on('data', (data: Buffer) => console.log(`Charlie received data from ${base58.encode(client.publicKey)}`, data.toString()));
-		peer.send('Hello I am Charlie');
-		console.log(`Charlie is connected to ${base58.encode(client.publicKey)}`, peer.address());
-	});
-
-	await clientBob.requestDocument(document.getDocumentAddress()).then(() => console.log('Bob broadcasted a document request'));
+	await clientBob.requestDocument(document.header.address).then(() => console.log('Bob broadcasted a document request'));
 })();

@@ -36,7 +36,7 @@ export class ClientAuthenticator extends Authenticator {
 				switch (message.type) {
 					case 'challenge':
 						try {
-							const signature = await createSignature(message.challenge, this.privateKey);
+							const signature = createSignature(message.challenge, this.privateKey);
 							await this.sendData(connection, {type: 'challenge-response', signature});
 						} catch (error) {
 							connection.close('Failed to sign challenge');

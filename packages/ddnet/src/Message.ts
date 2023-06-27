@@ -53,7 +53,7 @@ export async function encodeMessage<TData>(message: Message<TData>, privateKey: 
 	const encodedData = await encodeAndEncryptMessageData(message, privateKey);
 	const encodedMessage = encode({...message, data: encodedData});
 
-	const signature = await createSignature(encodedMessage, privateKey);
+	const signature = createSignature(encodedMessage, privateKey);
 
 	const data = new Uint8Array(signature.length + encodedMessage.length);
 	data.set(signature, 0);

@@ -1,108 +1,51 @@
-import {DocumentValidationError, SecureDocument, UnauthorizedAccessError} from '../src/SecureDocument';
-import {generateKeyPair, uint8ArrayEquals} from '../src/crypto';
-import {v5 as uuidv5} from 'uuid';
+import {generateKeyPair} from '../src';
 import {expect} from 'vitest';
+import {DocumentValidationError, SecureDocument, UnauthorizedAccessError} from '../src/document/SecureDocument';
 
 describe('SecureDocument', () => {
 	let ownerKeys: {privateKey: Uint8Array; publicKey: Uint8Array};
 	let clientKeys1: {privateKey: Uint8Array; publicKey: Uint8Array};
 	let clientKeys2: {privateKey: Uint8Array; publicKey: Uint8Array};
 	let doc: SecureDocument;
-	let newContent: Uint8Array;
-	let newAllowedClients: Uint8Array[];
 
-	beforeEach(async () => {
+	beforeEach(() => {
 		ownerKeys = generateKeyPair();
 		clientKeys1 = generateKeyPair();
 		clientKeys2 = generateKeyPair();
-		const content = new Uint8Array([1, 2, 3]);
 		const allowedClients = [clientKeys1.publicKey];
-		doc = await SecureDocument.create(ownerKeys.privateKey, content, allowedClients);
-		newContent = new Uint8Array([4, 5, 6]);
-		newAllowedClients = [clientKeys1.publicKey, clientKeys2.publicKey];
+		doc = SecureDocument.create(ownerKeys.privateKey, allowedClients);
 	});
 
 	it('should create a new secure document correctly', () => {
-		const documentHeader = doc.getDocumentHeader();
-		const expectedAddress = uuidv5(
-			documentHeader.owner,
-			documentHeader.id,
-			new Uint8Array(16),
-		);
-
-		expect(doc.getDocumentAddress()).toEqual(expectedAddress);
-		expect(doc.getDocumentData()).toEqual(new Uint8Array([1, 2, 3]));
-		expect(doc.hasAllowedUser(clientKeys1.publicKey)).toBe(true);
-		expect(doc.getDocumentHeaderVersion()).toBe(1);
-	});
-
-	it('should update the document content correctly', async () => {
-		await doc.updateDocument(newContent, ownerKeys.privateKey);
-		expect(doc.getDocumentData()).toEqual(newContent);
-	});
-
-	it('should not allow to update the document content by an unauthorized user', async () => {
-		await expect(doc.updateDocument(newContent, clientKeys2.privateKey)).rejects.toThrow(UnauthorizedAccessError);
-	});
-
-	it('should not allow to update the allowed users list by an unauthorized user', async () => {
-		await expect(doc.updateAllowedUsers(newAllowedClients, clientKeys1.privateKey)).rejects.toThrow(UnauthorizedAccessError);
-		expect(doc.hasAllowedUser(clientKeys2.publicKey)).toBe(false);
-		expect(doc.getDocumentHeaderVersion()).toBe(1);
-	});
-
-	it('should correctly verify document address', () => {
-		expect(doc.verifyDocumentAddress(doc.getDocumentAddress())).toBe(true);
-		expect(doc.verifyDocumentAddress(new Uint8Array([1, 2, 3]))).toBe(false);
-	});
-
-	it('should correctly import document', () => {
-		const exportedDoc = doc.exportDocument();
-		const importedDoc = SecureDocument.importDocument(exportedDoc);
-		expect(importedDoc.getDocumentData()).toEqual(doc.getDocumentData());
-	});
-
-	it('should throw DocumentValidationError when importing a corrupted document', () => {
-		const exportedDoc = doc.exportDocument();
-		exportedDoc[0]++; // Corrupt the document
-		expect(() => SecureDocument.importDocument(exportedDoc)).toThrow(DocumentValidationError);
-	});
-
-	it('should correctly update allowed users', async () => {
-		await doc.updateAllowedUsers(newAllowedClients, ownerKeys.privateKey);
-		expect(doc.hasAllowedUser(clientKeys2.publicKey)).toBe(true);
-		expect(doc.getDocumentHeaderVersion()).toBe(2);
-	});
-
-	it('should not allow to update the document content after removing the user from allowed users list', async () => {
-		await doc.updateAllowedUsers([clientKeys2.publicKey], ownerKeys.privateKey); // ClientKeys1 is now unauthorized
-		await expect(doc.updateDocument(newContent, clientKeys1.privateKey)).rejects.toThrow(UnauthorizedAccessError);
-	});
-
-	it('should correctly check if a user is not an allowed user', () => {
-		expect(doc.hasAllowedUser(clientKeys2.publicKey)).toBe(false);
-	});
-
-	it('should correctly remove a user from the allowed users list using updateAllowedUsers', async () => {
-		await doc.updateAllowedUsers(newAllowedClients, ownerKeys.privateKey);
-		expect(doc.hasAllowedUser(clientKeys2.publicKey)).toBe(true);
-		expect(doc.getDocumentHeaderVersion()).toBe(2);
-
-		const updatedAllowedClients = newAllowedClients.filter(
-			user => !uint8ArrayEquals(user, clientKeys2.publicKey),
-		);
-
-		await doc.updateAllowedUsers(updatedAllowedClients, ownerKeys.privateKey);
-		expect(doc.hasAllowedUser(clientKeys2.publicKey)).toBe(false);
-		expect(doc.getDocumentHeaderVersion()).toBe(3);
-	});
-
-	it('should correctly get document header', () => {
-		const header = doc.getDocumentHeader();
+		const {header} = doc;
 		expect(header.owner).toEqual(ownerKeys.publicKey);
-		expect(header.owner).not.toBe(ownerKeys.publicKey); // Should be a copy
-		expect(header.allowedClients).toEqual([clientKeys1.publicKey]);
-		expect(header.allowedClients[0]).not.toBe(clientKeys1.publicKey); // Should be a copy
+		expect(header.hasAllowedUser(clientKeys1.publicKey)).toBe(true);
 		expect(header.version).toBe(1);
+	});
+
+	it('should export the document correctly', async () => {
+		const exportedDoc = doc.export(ownerKeys.privateKey);
+		const importedDoc = SecureDocument.import(exportedDoc);
+		expect(importedDoc.header.id).toEqual(doc.header.id);
+	});
+
+	it('should throw UnauthorizedAccessError when exporting with unauthorized user', async () => {
+		expect(() => doc.export(clientKeys2.privateKey)).toThrow(UnauthorizedAccessError);
+	});
+
+	it('should throw Error when importing a corrupted document', () => {
+		const exportedDoc = doc.export(ownerKeys.privateKey);
+		exportedDoc[0]++; // Corrupt the document
+		expect(() => SecureDocument.import(exportedDoc)).toThrow();
+	});
+
+	it('should correctly set allowed users', () => {
+		doc.header.setAllowedClients([clientKeys2.publicKey], ownerKeys.privateKey);
+		expect(doc.header.hasAllowedUser(clientKeys2.publicKey)).toBe(true);
+		expect(doc.header.version).toBe(2);
+	});
+
+	it('should throw UnauthorizedAccessError when setting allowed users with unauthorized user', () => {
+		expect(() => doc.header.setAllowedClients([clientKeys2.publicKey], clientKeys1.privateKey)).toThrow(UnauthorizedAccessError);
 	});
 });
