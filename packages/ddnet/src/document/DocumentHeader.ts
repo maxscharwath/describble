@@ -1,13 +1,14 @@
 import {decode, encode} from 'cbor-x';
 import {createSignature, getPublicKey, mergeUint8Arrays, uint8ArrayEquals, verifySignature} from '../crypto';
 import {v4 as uuidv4, v5 as uuidv5} from 'uuid';
-import {DocumentValidationError, UnauthorizedAccessError} from './SecureDocument';
+import {DocumentValidationError, UnauthorizedAccessError} from './Document';
 
 export type DocumentHeaderData = {id: Uint8Array; owner: Uint8Array; allowedClients: Uint8Array[]; version: number};
 
 export class DocumentHeader {
 	#data: DocumentHeaderData;
 	#signature: Uint8Array;
+	#address: Uint8Array;
 
 	private constructor(data: DocumentHeaderData, signature: Uint8Array) {
 		if (!verifySignature(encode(data), signature, data.owner)) {
@@ -15,6 +16,7 @@ export class DocumentHeader {
 		}
 
 		this.#data = data;
+		this.#address = uuidv5(this.#data.owner, this.#data.id, new Uint8Array(16));
 		this.#signature = signature;
 	}
 
@@ -38,7 +40,7 @@ export class DocumentHeader {
 	}
 
 	public get address(): Uint8Array {
-		return uuidv5(this.#data.owner, this.#data.id, new Uint8Array(16));
+		return this.#address;
 	}
 
 	public get id(): Uint8Array {

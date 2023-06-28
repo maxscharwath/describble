@@ -1,7 +1,7 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {generateKeyPair, SignalingClient, SignalingServer} from '../src';
 import {MockNetwork, MockNetworkAdapter} from './MockNetwork';
-import {MessageExchanger} from '../src/client/MessageExchanger';
+import {MessageExchanger} from '../src/exchanger/MessageExchanger';
 import {z} from 'zod';
 
 const wait = async (ms: number) => new Promise(resolve => {

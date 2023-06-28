@@ -1,19 +1,19 @@
 import {generateKeyPair} from '../src';
 import {expect} from 'vitest';
-import {DocumentValidationError, SecureDocument, UnauthorizedAccessError} from '../src/document/SecureDocument';
+import {Document, UnauthorizedAccessError} from '../src/document/Document';
 
-describe('SecureDocument', () => {
+describe('Document', () => {
 	let ownerKeys: {privateKey: Uint8Array; publicKey: Uint8Array};
 	let clientKeys1: {privateKey: Uint8Array; publicKey: Uint8Array};
 	let clientKeys2: {privateKey: Uint8Array; publicKey: Uint8Array};
-	let doc: SecureDocument;
+	let doc: Document<unknown>;
 
 	beforeEach(() => {
 		ownerKeys = generateKeyPair();
 		clientKeys1 = generateKeyPair();
 		clientKeys2 = generateKeyPair();
 		const allowedClients = [clientKeys1.publicKey];
-		doc = SecureDocument.create(ownerKeys.privateKey, allowedClients);
+		doc = Document.create(ownerKeys.privateKey, allowedClients);
 	});
 
 	it('should create a new secure document correctly', () => {
@@ -25,7 +25,7 @@ describe('SecureDocument', () => {
 
 	it('should export the document correctly', async () => {
 		const exportedDoc = doc.export(ownerKeys.privateKey);
-		const importedDoc = SecureDocument.import(exportedDoc);
+		const importedDoc = Document.import(exportedDoc);
 		expect(importedDoc.header.id).toEqual(doc.header.id);
 	});
 
@@ -36,7 +36,7 @@ describe('SecureDocument', () => {
 	it('should throw Error when importing a corrupted document', () => {
 		const exportedDoc = doc.export(ownerKeys.privateKey);
 		exportedDoc[0]++; // Corrupt the document
-		expect(() => SecureDocument.import(exportedDoc)).toThrow();
+		expect(() => Document.import(exportedDoc)).toThrow();
 	});
 
 	it('should correctly set allowed users', () => {

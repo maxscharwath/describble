@@ -30,25 +30,17 @@ export function base(ALPHABET: string): BaseMap {
 	const iFACTOR = Math.log(256) / Math.log(BASE);
 
 	function encode(source: ArrayBuffer | Uint8Array | number[]): string {
-		if (ArrayBuffer.isView(source)) {
-			source = new Uint8Array(source.buffer, source.byteOffset, source.byteLength);
-		} else if (Array.isArray(source)) {
-			source = Uint8Array.from(source);
-		}
+		const buffer = new Uint8Array(source);
 
-		if (!(source instanceof Uint8Array)) {
-			throw new TypeError('Expected Uint8Array');
-		}
-
-		if (source.length === 0) {
+		if (buffer.length === 0) {
 			return '';
 		}
 
 		let zeroes = 0;
 		let length = 0;
 		let pbegin = 0;
-		const pend = source.length;
-		while (pbegin !== pend && source[pbegin] === 0) {
+		const pend = buffer.length;
+		while (pbegin !== pend && buffer[pbegin] === 0) {
 			pbegin++;
 			zeroes++;
 		}
@@ -57,7 +49,7 @@ export function base(ALPHABET: string): BaseMap {
 		const b58 = new Uint8Array(size);
 
 		while (pbegin !== pend) {
-			let carry = source[pbegin];
+			let carry = buffer[pbegin];
 			let i = 0;
 			for (let it1 = size - 1; (carry !== 0 || i < length) && (it1 !== -1); it1--, i++) {
 				carry += (256 * b58[it1]) >>> 0;

@@ -180,7 +180,7 @@ importers:
         version: 4.3.9(@types/node@20.3.1)(sass@1.63.6)
       vite-plugin-top-level-await:
         specifier: ^1.3.1
-        version: 1.3.1(vite@4.3.9)
+        version: 1.3.1(rollup@2.79.1)(vite@4.3.9)
       vite-plugin-wasm:
         specifier: ^3.2.2
         version: 3.2.2(vite@4.3.9)
@@ -212,8 +212,8 @@ importers:
   packages/ddnet:
     dependencies:
       '@automerge/automerge':
-        specifier: ^2.0.3
-        version: 2.0.3
+        specifier: ^2.1.0-alpha.5
+        version: 2.1.0-alpha.5
       '@koush/wrtc':
         specifier: ^0.5.3
         version: 0.5.3
@@ -290,6 +290,12 @@ importers:
       vite:
         specifier: ^4.3.9
         version: 4.3.9(@types/node@20.3.1)(sass@1.63.6)
+      vite-plugin-top-level-await:
+        specifier: ^1.3.1
+        version: 1.3.1(rollup@2.79.1)(vite@4.3.9)
+      vite-plugin-wasm:
+        specifier: ^3.2.2
+        version: 3.2.2(vite@4.3.9)
       vitest:
         specifier: 0.32.2
         version: 0.32.2(@vitest/browser@0.32.2)(webdriverio@8.11.2)
@@ -459,10 +465,21 @@ packages:
     resolution: {integrity: sha512-NLH7KpErTuy2O1VIA0uE+48e0u69o0qL8/9RZYjLd2uEZeWBzIWbhyDJGfUPDMIYXtkcy8z2H7h6YcwusG0BXA==}
     dev: false
 
+  /@automerge/automerge-wasm@0.2.6:
+    resolution: {integrity: sha512-pbH2ETAq891BDNb4VgeAem9EGkhm9uuetRiRcBvNA0BaW8lqheAu2Ll4E32+RRQL7WXCM172FLQdu/de/kkUBg==}
+    dev: false
+
   /@automerge/automerge@2.0.3:
     resolution: {integrity: sha512-ihfyW/pt+bmHNmPzf4nyH9OzfowAlOaK+1XD8wbtbsJeaGL/8Kap88xMO0lU3wgrddsrZtX5uTbrB/6kMl1PEA==}
     dependencies:
       '@automerge/automerge-wasm': 0.1.26
+      uuid: 9.0.0
+    dev: false
+
+  /@automerge/automerge@2.1.0-alpha.5:
+    resolution: {integrity: sha512-b9GKSja7cBbBpY1ydI5vT2ibm/9iLp+KD+1VoTEIVRCrrSFosmD7h6e27++LSYHQoZx5fTS411vcDUW9uvHZaQ==}
+    dependencies:
+      '@automerge/automerge-wasm': 0.2.6
       uuid: 9.0.0
     dev: false
 
@@ -1438,7 +1455,7 @@ packages:
       - supports-color
     dev: true
 
-  /@rollup/plugin-virtual@3.0.1:
+  /@rollup/plugin-virtual@3.0.1(rollup@2.79.1):
     resolution: {integrity: sha512-fK8O0IL5+q+GrsMLuACVNk2x21g3yaw+sG2qn16SnUd3IlBsQyvWxLMGHmCmXRMecPjGRSZ/1LmZB4rjQm68og==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
@@ -1446,6 +1463,8 @@ packages:
     peerDependenciesMeta:
       rollup:
         optional: true
+    dependencies:
+      rollup: 2.79.1
     dev: true
 
   /@rollup/pluginutils@3.1.0(rollup@2.79.1):
@@ -7243,12 +7262,12 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-top-level-await@1.3.1(vite@4.3.9):
+  /vite-plugin-top-level-await@1.3.1(rollup@2.79.1)(vite@4.3.9):
     resolution: {integrity: sha512-55M1h4NAwkrpxPNOJIBzKZFihqLUzIgnElLSmPNPMR2Fn9+JHKaNg3sVX1Fq+VgvuBksQYxiD3OnwQAUu7kaPQ==}
     peerDependencies:
       vite: '>=2.8'
     dependencies:
-      '@rollup/plugin-virtual': 3.0.1
+      '@rollup/plugin-virtual': 3.0.1(rollup@2.79.1)
       '@swc/core': 1.3.49
       uuid: 9.0.0
       vite: 4.3.9(@types/node@20.3.1)(sass@1.63.6)

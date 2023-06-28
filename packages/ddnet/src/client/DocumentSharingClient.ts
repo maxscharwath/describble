@@ -1,25 +1,19 @@
 import {base58} from 'base-x';
-import Emittery from 'emittery';
 import {z} from 'zod';
 import {SignalingClient, type SignalingClientConfig} from './SignalingClient';
-import {SecureDocument} from '../document/SecureDocument';
-import {MessageExchanger} from './MessageExchanger';
+import {MessageExchanger} from '../exchanger/MessageExchanger';
 import {PeerManager, SignalMessageSchema} from './PeerManager';
+import {DocumentRegistry} from './DocumentRegistry';
+import {Document} from '../document/Document';
+import {DocumentSynchronizer} from '../synchronizer/DocumentSynchronizer';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
 type DocumentSharingClientConfig = SignalingClientConfig;
 
-export type ClientIdentity = {
-	publicKey: Uint8Array;
-	clientId: Uint8Array;
-};
-
-// The types of events that the document-sharing client can emit
 type DocumentSharingClientEvent = {
-	document: SecureDocument;
 	'share-document': {
-		document: SecureDocument;
-		to: ClientIdentity;
+		document: Document<any>;
+		to: {publicKey: Uint8Array;clientId: Uint8Array};
 	};
 };
 
@@ -39,11 +33,9 @@ export const ResponseDocumentMessageSchema = z.object({
  * The DocumentSharingClient class handles the sharing of documents over the signaling server.
  * It uses the MessageExchanger class to send and receive fully verified and typed messages.
  */
-export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> {
+export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClientEvent> {
 	// The signaling client used for communication
 	private readonly client: SignalingClient;
-	// A map of documents, keyed by their base58 encoded addresses
-	private readonly documents = new Map<string, SecureDocument>();
 	// The message exchanger for sending and receiving messages
 	private readonly exchanger = new MessageExchanger([
 		RequestDocumentMessageSchema,
@@ -53,25 +45,35 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 
 	private readonly peerManager: PeerManager;
 
+	private readonly synchronizers = new Map<string, DocumentSynchronizer>();
+
 	/**
    * Creates a new DocumentSharingClient.
    * @param config - The configuration for the signaling client and the document-sharing client.
    */
 	constructor(private readonly config: DocumentSharingClientConfig) {
-		super();
+		super(config.privateKey);
 		this.client = new SignalingClient(config);
 		this.exchanger.setClient(this.client);
 		this.peerManager = new PeerManager({
 			exchanger: this.exchanger as MessageExchanger<typeof SignalMessageSchema>,
 		});
 
-		this.peerManager.on('peer-created', event => {
-			console.log(`[${base58.encode(this.publicKey)}] Peer created for document ${base58.encode(event.documentAddress)} with peer ${base58.encode(event.peer.client.publicKey)}`);
+		this.on('document', document => {
+			this.synchronizers.set(base58.encode(document.header.address), new DocumentSynchronizer(document));
+		});
+
+		this.peerManager.on('peer-created', ({documentAddress, peer}) => {
+			this.synchronizers.get(base58.encode(documentAddress))?.addPeer(peer);
+		});
+
+		this.peerManager.on('peer-destroyed', ({documentAddress, peer}) => {
+			this.synchronizers.get(base58.encode(documentAddress))?.removePeer(peer);
 		});
 
 		// Handle request document messages
 		this.exchanger.on('request-document', async message => {
-			const document = this.documents.get(base58.encode(message.data.documentAddress));
+			const document = this.find(message.data.documentAddress);
 			if (document?.header.hasAllowedUser(message.from.publicKey)) {
 				await this.exchanger.sendMessage({
 					type: 'document-response',
@@ -89,19 +91,13 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 
 		// Handle document response messages
 		this.exchanger.on('document-response', message => {
-			const document = this.addDocument(SecureDocument.import(message.data.document));
-			void this.emit('document', document);
+			this.add(Document.import(message.data.document));
 		});
 	}
 
 	// Public key getter
 	public get publicKey() {
 		return this.client.publicKey;
-	}
-
-	// Private key getter
-	public get privateKey() {
-		return this.config.privateKey;
 	}
 
 	// Connect method
@@ -112,31 +108,6 @@ export class DocumentSharingClient extends Emittery<DocumentSharingClientEvent> 
 	// Disconnect method
 	public async disconnect() {
 		return this.client.disconnect();
-	}
-
-	/**
-   * Creates a new document, encodes it, and adds it to the document map.
-   * @param allowedClients - An array of clients' public keys who are allowed to access the document.
-   * @returns The created document.
-   */
-	public async createDocument(allowedClients: Uint8Array[] = []) {
-		const document = SecureDocument.create(
-			this.config.privateKey,
-			allowedClients,
-		);
-		this.documents.set(
-			base58.encode(document.header.address),
-			document,
-		);
-		return document;
-	}
-
-	public addDocument(document: SecureDocument) {
-		this.documents.set(
-			base58.encode(document.header.address),
-			document,
-		);
-		return document;
 	}
 
 	/**

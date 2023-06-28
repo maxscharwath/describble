@@ -2,7 +2,7 @@ import Emittery from 'emittery';
 import {z} from 'zod';
 import {type Message} from '../Message';
 import {type ZodDiscriminatedUnionOption} from 'zod/lib/types';
-import {type SignalingClient} from './SignalingClient';
+import {type SignalingClient} from '../client/SignalingClient';
 
 /**
  * A type representing a list of zod schemas, where each schema has a discriminated 'type' field.

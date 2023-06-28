@@ -38,8 +38,8 @@ import {base58} from 'base-x';
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 	});
 
-	const document = await clientAlice.createDocument([clientBob.publicKey, clientCharlie.publicKey]);
-	clientCharlie.addDocument(document);
+	const document = clientAlice.create<{title: string}>([clientBob.publicKey, clientCharlie.publicKey]);
+	clientCharlie.add(document.clone());
 
 	await Promise.all([
 		clientAlice.connect(),
@@ -56,9 +56,16 @@ import {base58} from 'base-x';
 		console.log(`Charlie(${base58.encode(clientCharlie.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, base58.encode(document.header.address));
 	});
 
-	clientBob.on('document', async document => {
-		console.log(`Bob(${base58.encode(clientBob.publicKey)}) received a document`, base58.encode(document.header.address));
-	});
-
 	await clientBob.requestDocument(document.header.address).then(() => console.log('Bob broadcasted a document request'));
+
+	setTimeout(() => {
+		console.log('Alice will change the document title to "Hello world"');
+		document.change(doc => {
+			doc.title = 'Hello world';
+		});
+
+		console.log('Alice', clientAlice.list());
+		console.log('Bob', clientBob.list());
+		console.log('Charlie', clientCharlie.list());
+	}, 1000);
 })();

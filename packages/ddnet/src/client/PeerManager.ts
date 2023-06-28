@@ -1,5 +1,5 @@
 import SimplePeer from 'simple-peer';
-import {type MessageExchanger} from './MessageExchanger';
+import {type MessageExchanger} from '../exchanger/MessageExchanger';
 import {base58} from 'base-x';
 import {sha256Some} from '../crypto';
 import wrtc from '../wrtc';
@@ -14,7 +14,7 @@ export type ClientIdentity = {
 	clientId: Uint8Array;
 };
 
-type Peer = {
+export type Peer = {
 	peerId: PeerId;
 	connection: SimplePeer.Instance;
 	client: ClientIdentity;

@@ -1,6 +1,7 @@
 import Emittery from 'emittery';
 import * as A from '@automerge/automerge';
 import {type Document} from '../document/Document';
+import {type Peer} from '../client/PeerManager';
 
 type PeerId = string;
 
@@ -11,8 +12,15 @@ type DocumentSynchronizerEvent = {
 	};
 };
 
+type PeerInfo = {
+	peer: Peer;
+	clear: () => void;
+	syncState: A.SyncState;
+};
+
 export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
-	private readonly peers = new Map<PeerId, A.SyncState>();
+	private readonly peers = new Map<PeerId, PeerInfo>();
+
 	constructor(private readonly document: Document<unknown>) {
 		super();
 		document.on('change', () => {
@@ -20,19 +28,28 @@ export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
 		});
 	}
 
-	public beginSync(peerId: PeerId) {
-		const syncStateRaw = this.getSyncState(peerId);
-		const syncState = A.decodeSyncState(A.encodeSyncState(syncStateRaw));
-		this.setSyncState(peerId, syncState);
-		this.sendSyncMessage(peerId, this.document.value);
+	public addPeer(peer: Peer) {
+		if (this.peers.has(peer.peerId)) {
+			return;
+		}
+
+		const handler = (message: Uint8Array) => this.processSyncMessage(peer.peerId, message);
+		peer.connection.on('data', handler);
+
+		const peerInfo: PeerInfo = {
+			peer,
+			clear() {
+				peer.connection.off('message', handler);
+			},
+			syncState: A.initSyncState(),
+		};
+		this.peers.set(peer.peerId, peerInfo);
+		this.sendSyncMessage(peer.peerId, this.document.value);
 	}
 
-	public endSync(peerId: PeerId) {
+	public removePeer({peerId}: Peer) {
+		this.peers.get(peerId)?.clear();
 		this.peers.delete(peerId);
-	}
-
-	public receiveSyncMessage(peerId: PeerId, message: Uint8Array) {
-		this.processSyncMessage(peerId, message);
 	}
 
 	private processSyncMessage(peerId: PeerId, message: Uint8Array) {
@@ -50,8 +67,9 @@ export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
 
 	private syncWithPeers() {
 		const doc = this.document.value;
-		this.peers.forEach((_, peer) => {
-			this.sendSyncMessage(peer, doc);
+		console.log(`Syncing with ${this.peers.size} peers`);
+		this.peers.forEach((_, peerId) => {
+			this.sendSyncMessage(peerId, doc);
 		});
 	}
 
@@ -64,14 +82,18 @@ export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
 				peerId,
 				message,
 			});
+			this.peers.get(peerId)?.peer.connection.send(message);
 		}
 	}
 
 	private getSyncState(peerId: PeerId) {
-		return this.peers.get(peerId) ?? A.initSyncState();
+		return this.peers.get(peerId)?.syncState ?? A.initSyncState();
 	}
 
 	private setSyncState(peerId: PeerId, syncState: A.SyncState) {
-		this.peers.set(peerId, syncState);
+		const peerInfo = this.peers.get(peerId);
+		if (peerInfo) {
+			peerInfo.syncState = syncState;
+		}
 	}
 }
