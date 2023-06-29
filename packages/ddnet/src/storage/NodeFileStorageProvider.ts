@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import path from 'path';
-import {type StorageProvider, type DocumentId} from './StorageProvider';
+import {type StorageProvider} from './StorageProvider';
 import {glob} from 'glob';
+import {type DocumentId} from '../types';
 
 export class NodeFileStorageProvider implements StorageProvider {
 	constructor(private readonly dir: string) {
@@ -12,20 +13,20 @@ export class NodeFileStorageProvider implements StorageProvider {
 
 	async addDocument(documentId: DocumentId, header: Uint8Array): Promise<void> {
 		const filePath = path.join(this.dir, `${documentId}.header`);
-		await fs.promises.writeFile(filePath, header);
+		fs.writeFileSync(filePath, header);
 	}
 
 	async deleteSnapshot(documentId: DocumentId): Promise<void> {
 		const filePath = path.join(this.dir, `${documentId}.snapshot`);
 		if (fs.existsSync(filePath)) {
-			await fs.promises.unlink(filePath);
+			fs.unlinkSync(filePath);
 		}
 	}
 
 	async getDocumentHeader(documentId: DocumentId): Promise<Uint8Array | undefined> {
 		const filePath = path.join(this.dir, `${documentId}.header`);
 		if (fs.existsSync(filePath)) {
-			return fs.promises.readFile(filePath);
+			return fs.readFileSync(filePath);
 		}
 
 		return undefined;
@@ -42,7 +43,7 @@ export class NodeFileStorageProvider implements StorageProvider {
 			return [];
 		}
 
-		const fileContent = await fs.promises.readFile(filePath);
+		const fileContent = fs.readFileSync(filePath);
 		let offset = 0;
 		const chunks: Uint8Array[] = [];
 
@@ -61,7 +62,7 @@ export class NodeFileStorageProvider implements StorageProvider {
 	async loadSnapshot(documentId: DocumentId): Promise<Uint8Array | undefined> {
 		const filePath = path.join(this.dir, `${documentId}.snapshot`);
 		if (fs.existsSync(filePath)) {
-			return fs.promises.readFile(filePath);
+			return fs.readFileSync(filePath);
 		}
 
 		return undefined;
@@ -73,15 +74,15 @@ export class NodeFileStorageProvider implements StorageProvider {
 		const snapshotPath = path.join(this.dir, `${documentId}.snapshot`);
 
 		if (fs.existsSync(headerPath)) {
-			await fs.promises.unlink(headerPath);
+			fs.unlinkSync(headerPath);
 		}
 
 		if (fs.existsSync(chunksPath)) {
-			await fs.promises.unlink(chunksPath);
+			fs.unlinkSync(chunksPath);
 		}
 
 		if (fs.existsSync(snapshotPath)) {
-			await fs.promises.unlink(snapshotPath);
+			fs.unlinkSync(snapshotPath);
 		}
 	}
 
@@ -91,16 +92,16 @@ export class NodeFileStorageProvider implements StorageProvider {
 		const chunkSizeBuffer = Buffer.alloc(4);
 		chunkSizeBuffer.writeInt32BE(chunk.length);
 
-		await fs.promises.appendFile(filePath, Buffer.concat([chunkSizeBuffer, chunk]));
+		fs.appendFileSync(filePath, Buffer.concat([chunkSizeBuffer, chunk]));
 	}
 
 	async saveSnapshot(documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {
 		const filePath = path.join(this.dir, `${documentId}.snapshot`);
-		await fs.promises.writeFile(filePath, binary);
+		fs.writeFileSync(filePath, binary);
 		if (clearChunks) {
 			const chunkPath = path.join(this.dir, `${documentId}.chunks`);
 			if (fs.existsSync(chunkPath)) {
-				await fs.promises.unlink(chunkPath);
+				fs.unlinkSync(chunkPath);
 			}
 		}
 	}

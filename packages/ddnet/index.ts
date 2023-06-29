@@ -5,7 +5,7 @@ import {
 	WebSocketNetworkAdapter,
 	DocumentSharingClient,
 	generateKeyPair,
-	mnemonicToSeedSync, generateMnemonic,
+	mnemonicToSeedSync,
 } from './src';
 import {base58} from 'base-x';
 import {NodeFileStorageProvider} from './src/storage/NodeFileStorageProvider';
@@ -53,8 +53,8 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 		document = clientAlice.create<{title: string}>([clientBob.publicKey, clientCharlie.publicKey]);
 	}
 
-	console.log('Document:', document.value);
-	clientCharlie.add(document.clone());
+	const document2 = document.clone();
+	clientCharlie.add(document2);
 
 	await Promise.all([
 		clientAlice.connect(),
@@ -64,14 +64,14 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 	console.log('All clients connected');
 
 	clientAlice.on('share-document', async ({document, to}) => {
-		console.log(`Alice(${base58.encode(clientAlice.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, base58.encode(document.header.address));
+		console.log(`Alice(${base58.encode(clientAlice.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, document.id);
 	});
 
 	clientCharlie.on('share-document', async ({document, to}) => {
-		console.log(`Charlie(${base58.encode(clientCharlie.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, base58.encode(document.header.address));
+		console.log(`Charlie(${base58.encode(clientCharlie.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, document.id);
 	});
 
-	await clientBob.requestDocument(document.header.address).then(() => console.log('Bob broadcasted a document request'));
+	await clientBob.requestDocument(document.id).then(() => console.log('Bob broadcasted a document request'));
 
 	setInterval(() => {
 		document?.change(doc => {

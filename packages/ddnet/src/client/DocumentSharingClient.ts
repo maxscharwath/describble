@@ -1,14 +1,14 @@
-import {base58} from 'base-x';
 import {z} from 'zod';
 import {SignalingClient, type SignalingClientConfig} from './SignalingClient';
 import {MessageExchanger} from '../exchanger/MessageExchanger';
 import {PeerManager, SignalMessageSchema} from './PeerManager';
-import {type DocumentAddress, DocumentRegistry} from './DocumentRegistry';
+import {DocumentRegistry} from './DocumentRegistry';
 import {Document} from '../document/Document';
 import {DocumentSynchronizer} from '../synchronizer/DocumentSynchronizer';
 import {Storage} from '../storage/Storage';
 import {type StorageProvider} from '../storage/StorageProvider';
 import {SecureStorageProvider} from '../storage/SecureStorageProvider';
+import {type DocumentId} from '../types';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
 type DocumentSharingClientConfig = SignalingClientConfig & {
@@ -25,7 +25,7 @@ type DocumentSharingClientEvent = {
 // Schema for a request document message
 export const RequestDocumentMessageSchema = z.object({
 	type: z.literal('request-document'),
-	documentAddress: z.instanceof(Uint8Array),
+	documentId: z.string(),
 });
 
 // Schema for a document response message
@@ -50,7 +50,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 
 	private readonly peerManager: PeerManager;
 	private readonly storage: Storage;
-	private readonly synchronizers = new Map<string, DocumentSynchronizer>();
+	private readonly synchronizers = new Map<DocumentId, DocumentSynchronizer>();
 
 	/**
    * Creates a new DocumentSharingClient.
@@ -72,26 +72,26 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		);
 
 		this.on('document', async document => {
-			const documentId = base58.encode(document.header.address);
 			// TODO: Check document address and header version, to avoid saving old headers
-			void this.storage.addDocument(documentId, document.header.export());
+			void this.storage.addDocument(document.id, document.header.export());
 			document.on('change', () => {
-				void this.storage.save(documentId, document.value);
+				void this.storage.save(document.id, document.data);
 			});
-			this.synchronizers.set(documentId, new DocumentSynchronizer(document));
+			this.synchronizers.set(document.id, new DocumentSynchronizer(document));
 		});
 
-		this.peerManager.on('peer-created', ({documentAddress, peer}) => {
-			this.synchronizers.get(base58.encode(documentAddress))?.addPeer(peer);
+		this.peerManager.on('peer-created', ({documentId, peer}) => {
+			this.synchronizers.get(documentId)?.addPeer(peer);
 		});
 
-		this.peerManager.on('peer-destroyed', ({documentAddress, peer}) => {
-			this.synchronizers.get(base58.encode(documentAddress))?.removePeer(peer);
+		this.peerManager.on('peer-destroyed', ({documentId, peer}) => {
+			this.synchronizers.get(documentId)?.removePeer(peer);
 		});
 
 		// Handle request document messages
 		this.exchanger.on('request-document', async message => {
-			const document = await this.find(message.data.documentAddress);
+			const {documentId} = message.data;
+			const document = await this.find(documentId);
 			if (document?.header.hasAllowedUser(message.from.publicKey)) {
 				await this.exchanger.sendMessage({
 					type: 'document-response',
@@ -103,7 +103,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 					to: message.from,
 				});
 
-				this.peerManager.createPeer(true, message.data.documentAddress, message.from);
+				this.peerManager.createPeer(true, documentId, message.from);
 			}
 		});
 
@@ -129,27 +129,26 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 	}
 
 	/**
-   * Sends a request document message to the signaling server.
-   * @param documentAddress - The address of the document to be requested.
-   * @returns A promise that resolves when the message is sent.
-   */
-	public async requestDocument(documentAddress: Uint8Array) {
+	 * Sends a request document message to the signaling server.
+	 * @returns A promise that resolves when the message is sent.
+	 * @param documentId
+	 */
+	public async requestDocument(documentId: DocumentId) {
 		return this.exchanger.sendMessage({
 			type: 'request-document',
-			documentAddress,
+			documentId,
 		});
 	}
 
-	async find<TData>(id: DocumentAddress): Promise<Document<TData> | undefined> {
-		const documentId = this.encodeId(id);
-		const document = await super.find<TData>(documentId);
+	async find<TData>(id: DocumentId): Promise<Document<TData> | undefined> {
+		const document = await super.find<TData>(id);
 		if (document) {
 			return document;
 		}
 
-		const rawHeader = await this.storage.loadHeader(documentId);
+		const rawHeader = await this.storage.loadHeader(id);
 		if (rawHeader) {
-			const binary = await this.storage.loadBinary(documentId);
+			const binary = await this.storage.loadBinary(id);
 			return this.add(Document.fromRawHeader(rawHeader, binary));
 		}
 	}

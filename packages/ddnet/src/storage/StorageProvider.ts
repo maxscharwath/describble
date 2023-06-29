@@ -1,4 +1,4 @@
-export type DocumentId = string;
+import {type DocumentId} from '../types';
 
 export interface StorageProvider {
 	/**

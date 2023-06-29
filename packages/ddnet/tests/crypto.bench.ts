@@ -1,5 +1,5 @@
 import {bench, describe} from 'vitest';
-import {generateKeyPair, mergeUint8Arrays, uint8ArrayEquals} from '../src/crypto';
+import {generateKeyPair, bytesEquals, concatBytes} from '../src';
 import {base58} from 'base-x';
 
 describe('crypto', () => {
@@ -40,17 +40,17 @@ describe('crypto', () => {
 		});
 
 		bench('mergeUint8Arrays', () => {
-			mergeUint8Arrays([keyPair.publicKey, keyPair.privateKey]);
+			concatBytes([keyPair.publicKey, keyPair.privateKey]);
 		});
 	});
 
 	describe('equality', () => {
 		bench('uint8ArrayEquals (true)', () => {
-			uint8ArrayEquals(keyPair.privateKey, keyPair.privateKey);
+			bytesEquals(keyPair.privateKey, keyPair.privateKey);
 		});
 
 		bench('uint8ArrayEquals (false)', () => {
-			uint8ArrayEquals(keyPair.privateKey, keyPair.publicKey);
+			bytesEquals(keyPair.privateKey, keyPair.publicKey);
 		});
 
 		bench('base58 encoding equality runtime (true)', () => {

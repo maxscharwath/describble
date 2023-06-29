@@ -7,9 +7,9 @@ import {
 	generateMnemonic,
 	mnemonicToSeedSync,
 	generatePrivateKey,
-	mergeUint8Arrays,
+	concatBytes,
 	sha256Some,
-	uint8ArrayEquals,
+	bytesEquals,
 	verifySignature,
 } from '../src/crypto';
 import {randomBytes} from '@noble/hashes/utils';
@@ -65,13 +65,13 @@ describe('crypto', () => {
 	it('uint8ArrayEquals should return true if two Uint8Arrays are equal', () => {
 		const a = randomBytes(32);
 		const b = Uint8Array.from(a);
-		expect(uint8ArrayEquals(a, b)).toBe(true);
+		expect(bytesEquals(a, b)).toBe(true);
 	});
 
 	it('mergeUint8Arrays should correctly merge two Uint8Arrays', () => {
 		const a = randomBytes(32);
 		const b = randomBytes(32);
-		const merged = mergeUint8Arrays([a, b]);
+		const merged = concatBytes([a, b]);
 		expect(merged).toEqual(Uint8Array.from([...a, ...b]));
 	});
 

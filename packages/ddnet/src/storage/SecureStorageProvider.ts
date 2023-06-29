@@ -1,5 +1,6 @@
 import {decryptData, encryptData} from '../crypto';
-import {type DocumentId, type StorageProvider} from './StorageProvider';
+import {type StorageProvider} from './StorageProvider';
+import {type DocumentId} from '../types';
 
 export class SecureStorageProvider implements StorageProvider {
 	constructor(

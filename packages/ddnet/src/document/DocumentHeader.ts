@@ -1,6 +1,6 @@
 import {decode, encode} from 'cbor-x';
-import {concatBytes, createSignature, getPublicKey, uint8ArrayEquals, verifySignature} from '../crypto';
-import {v4 as uuidv4, v5 as uuidv5} from 'uuid';
+import {concatBytes, createSignature, getPublicKey, sha256Some, bytesEquals, verifySignature} from '../crypto';
+import {v4 as uuidv4} from 'uuid';
 import {DocumentValidationError, UnauthorizedAccessError} from './Document';
 
 export type DocumentHeaderData = {id: Uint8Array; owner: Uint8Array; allowedClients: Uint8Array[]; version: number};
@@ -16,12 +16,12 @@ export class DocumentHeader {
 		}
 
 		this.#data = data;
-		this.#address = uuidv5(this.#data.owner, this.#data.id, new Uint8Array(16));
+		this.#address = sha256Some(this.#data.id, this.#data.owner);
 		this.#signature = signature;
 	}
 
 	public setAllowedClients(allowedClients: Uint8Array[], privateKey: Uint8Array) {
-		if (!uint8ArrayEquals(getPublicKey(privateKey), this.#data.owner) || !verifySignature(encode(this.#data), this.#signature, this.#data.owner)) {
+		if (!bytesEquals(getPublicKey(privateKey), this.#data.owner) || !verifySignature(encode(this.#data), this.#signature, this.#data.owner)) {
 			throw new UnauthorizedAccessError('Only the document owner can update the allowed users list.');
 		}
 
@@ -36,23 +36,23 @@ export class DocumentHeader {
 	}
 
 	public hasAllowedUser(publicKey: Uint8Array): boolean {
-		return this.#data.allowedClients.some(client => uint8ArrayEquals(client, publicKey)) || uint8ArrayEquals(this.#data.owner, publicKey);
+		return this.#data.allowedClients.some(client => bytesEquals(client, publicKey)) || bytesEquals(this.#data.owner, publicKey);
 	}
 
 	public get address(): Uint8Array {
-		return this.#address;
+		return new Uint8Array(this.#address);
 	}
 
 	public get id(): Uint8Array {
-		return this.#data.id;
+		return new Uint8Array(this.#data.id);
 	}
 
 	public get owner(): Uint8Array {
-		return this.#data.owner;
+		return new Uint8Array(this.#data.owner);
 	}
 
 	public get allowedClients(): Uint8Array[] {
-		return this.#data.allowedClients;
+		return this.#data.allowedClients.map(client => new Uint8Array(client));
 	}
 
 	public get version(): number {
@@ -90,5 +90,29 @@ export class DocumentHeader {
 		const data = decode(rawData.slice(64)) as DocumentHeaderData;
 
 		return new DocumentHeader(data, signature);
+	}
+
+	public static upgrade(oldHeader: DocumentHeader, newHeader: DocumentHeader): DocumentHeader {
+		// Ensure the old and new headers have the same owner
+		if (!bytesEquals(oldHeader.owner, newHeader.owner)) {
+			throw new DocumentValidationError('Owners do not match.');
+		}
+
+		// Ensure the old and new headers have the same ID
+		if (!bytesEquals(oldHeader.id, newHeader.id)) {
+			throw new DocumentValidationError('IDs do not match.');
+		}
+
+		// Ensure the new version is higher
+		if (newHeader.version <= oldHeader.version) {
+			throw new DocumentValidationError('New version must be higher.');
+		}
+
+		// Ensure the new header's signature is valid
+		if (!newHeader.verifySignature(encode(newHeader.#data), newHeader.#signature)) {
+			throw new DocumentValidationError('Invalid document header signature in new header.');
+		}
+
+		return newHeader;
 	}
 }

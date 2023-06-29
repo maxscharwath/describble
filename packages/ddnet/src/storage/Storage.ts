@@ -1,8 +1,7 @@
 import * as A from '@automerge/automerge';
 import {type StorageProvider} from './StorageProvider';
 import {type Doc} from '@automerge/automerge';
-
-type DocumentId = string;
+import {type DocumentId} from '../types';
 
 export class Storage {
 	private readonly changeCount = new Map<DocumentId, number>();

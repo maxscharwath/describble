@@ -1,10 +1,10 @@
 import SimplePeer from 'simple-peer';
 import {type MessageExchanger} from '../exchanger/MessageExchanger';
-import {base58} from 'base-x';
 import {sha256Some} from '../crypto';
 import wrtc from '../wrtc';
 import {z} from 'zod';
 import Emittery from 'emittery';
+import {base58} from 'base-x';
 
 type DocumentId = string;
 export type PeerId = string;
@@ -22,7 +22,7 @@ export type Peer = {
 
 export const SignalMessageSchema = z.object({
 	type: z.literal('signal'),
-	documentAddress: z.instanceof(Uint8Array),
+	documentId: z.string(),
 	signal: z.any().refine((value): value is SimplePeer.SignalData => true),
 });
 
@@ -33,11 +33,11 @@ type PeerManagerConfig = {
 
 type PeerManagerEvent = {
 	'peer-created': {
-		documentAddress: Uint8Array;
+		documentId: DocumentId;
 		peer: Peer;
 	};
 	'peer-destroyed': {
-		documentAddress: Uint8Array;
+		documentId: DocumentId;
 		peer: Peer;
 	};
 };
@@ -53,7 +53,7 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 		this.connectionTimeout = config.timeout ?? 10000;
 		this.exchanger = config.exchanger;
 		this.exchanger.on('signal', message => {
-			const {connection} = this.createPeer(false, message.data.documentAddress, message.from);
+			const {connection} = this.createPeer(false, message.data.documentId, message.from);
 			connection.signal(message.data.signal);
 		});
 	}
@@ -62,13 +62,12 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 	 * Creates a new peer and adds it to the peers map.
 	 * If the peer already exists, it is returned.
 	 * @param initiator - Whether the peer should be the initiator.
-	 * @param documentAddress - The address of the document to which the peer belongs.
+	 * @param documentId - The document ID for which the peer should be created.
 	 * @param client - The message from which the peer was created.
 	 * @returns The created peer.
 	 */
-	public createPeer(initiator: boolean, documentAddress: Uint8Array, client: ClientIdentity) {
-		const peerId = this.computePeerId(documentAddress, client);
-
+	public createPeer(initiator: boolean, documentId: DocumentId, client: ClientIdentity) {
+		const peerId = this.computePeerId(documentId, client);
 		if (this.pendingPeer.has(peerId)) {
 			return this.pendingPeer.get(peerId)!;
 		}
@@ -78,8 +77,6 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 			connection: new SimplePeer({initiator, wrtc}),
 			client,
 		};
-
-		const documentId: DocumentId = base58.encode(documentAddress);
 
 		const timeout = setTimeout(() => {
 			this.removePeer(documentId, peer);
@@ -91,21 +88,21 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 				this.pendingPeer.delete(peerId);
 				this.addPeer(documentId, peer);
 				void this.emit('peer-created', {
-					documentAddress,
+					documentId,
 					peer,
 				});
 			})
 			.on('close', () => {
 				this.removePeer(documentId, peer);
 				void this.emit('peer-destroyed', {
-					documentAddress,
+					documentId,
 					peer,
 				});
 			})
 			.on('signal', signal => {
 				void this.exchanger.sendMessage({
 					type: 'signal',
-					documentAddress,
+					documentId,
 					signal,
 				}, client);
 			});
@@ -143,11 +140,11 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 
 	/**
 	 * Computes a unique ID for the peer.
-	 * @param documentAddress - The address of the document.
+	 * @param documentId - The ID of the document.
 	 * @param client - The client identity.
 	 * @returns The computed peer ID.
 	 */
-	private computePeerId(documentAddress: Uint8Array, client: ClientIdentity): PeerId {
-		return base58.encode(sha256Some(documentAddress, client.publicKey, client.clientId));
+	private computePeerId(documentId: DocumentId, client: ClientIdentity): PeerId {
+		return base58.encode(sha256Some(new TextEncoder().encode(documentId), client.publicKey, client.clientId));
 	}
 }

@@ -44,7 +44,7 @@ export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
 			syncState: A.initSyncState(),
 		};
 		this.peers.set(peer.peerId, peerInfo);
-		this.sendSyncMessage(peer.peerId, this.document.value);
+		this.sendSyncMessage(peer.peerId, this.document.data);
 	}
 
 	public removePeer({peerId}: Peer) {
@@ -66,7 +66,7 @@ export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
 	}
 
 	private syncWithPeers() {
-		const doc = this.document.value;
+		const doc = this.document.data;
 		console.log(`Syncing with ${this.peers.size} peers`);
 		this.peers.forEach((_, peerId) => {
 			this.sendSyncMessage(peerId, doc);

@@ -207,7 +207,7 @@ importers:
         version: 4.3.9(@types/node@20.3.1)(sass@1.63.6)
       vitest:
         specifier: 0.32.2
-        version: 0.32.2(@vitest/browser@0.32.2)(webdriverio@8.11.2)
+        version: 0.32.2(@vitest/ui@0.32.2)(jsdom@22.1.0)(sass@1.63.6)
 
   packages/ddnet:
     dependencies:
@@ -274,10 +274,10 @@ importers:
         version: 8.5.5
       '@vitest/browser':
         specifier: ^0.32.2
-        version: 0.32.2(rollup@2.79.1)(vitest@0.32.2)
+        version: 0.32.2(rollup@2.79.1)(vitest@0.31.1)
       '@vitest/coverage-istanbul':
         specifier: ^0.32.2
-        version: 0.32.2(vitest@0.32.2)
+        version: 0.32.2(vitest@0.31.1)
       eslint-config-custom:
         specifier: workspace:*
         version: link:../eslint-config-custom
@@ -306,8 +306,8 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(vite@4.3.9)
       vitest:
-        specifier: 0.32.2
-        version: 0.32.2(@vitest/browser@0.32.2)(webdriverio@8.11.2)
+        specifier: 0.31.1
+        version: 0.31.1(@vitest/browser@0.32.2)(webdriverio@8.11.2)
       webdriverio:
         specifier: ^8.11.2
         version: 8.11.2(typescript@5.1.6)
@@ -411,7 +411,7 @@ importers:
         version: 4.3.9(@types/node@20.3.1)(sass@1.63.6)
       vitest:
         specifier: 0.31.1
-        version: 0.31.1
+        version: 0.31.1(@vitest/browser@0.32.2)(webdriverio@8.11.2)
 
   packages/tsconfig: {}
 
@@ -1997,7 +1997,7 @@ packages:
     resolution: {integrity: sha512-Cn6WYCm0tXv8p6k+A8PvbDG763EDpBoTzHdA+Q/MF6H3sapGjCm9NzoaJncJS9tUKSuCoDs9XHxYYsQDgxR6kw==}
     requiresBuild: true
     dependencies:
-      '@types/node': 20.3.1
+      '@types/node': 20.3.2
     dev: true
     optional: true
 
@@ -2155,14 +2155,14 @@ packages:
       - '@swc/helpers'
     dev: true
 
-  /@vitest/browser@0.32.2(rollup@2.79.1)(vitest@0.32.2):
+  /@vitest/browser@0.32.2(rollup@2.79.1)(vitest@0.31.1):
     resolution: {integrity: sha512-wDI404MSEbU0Ffs3jWDsQVigp0SE51Q3fHvwdWy5Lg20reUKbyH9fHIRjcTXqB4WG5h3RpaUFCCVsE0WF39DYA==}
     peerDependencies:
       vitest: '>=0.31.0'
     dependencies:
       modern-node-polyfills: 0.1.3(rollup@2.79.1)
       sirv: 2.0.3
-      vitest: 0.32.2(@vitest/browser@0.32.2)(webdriverio@8.11.2)
+      vitest: 0.31.1(@vitest/browser@0.32.2)(webdriverio@8.11.2)
     transitivePeerDependencies:
       - rollup
     dev: true
@@ -2180,7 +2180,7 @@ packages:
       vitest: 0.32.2(@vitest/ui@0.32.2)(jsdom@22.1.0)(sass@1.63.6)
     dev: true
 
-  /@vitest/coverage-istanbul@0.32.2(vitest@0.32.2):
+  /@vitest/coverage-istanbul@0.32.2(vitest@0.31.1):
     resolution: {integrity: sha512-B5VSvfzwTsDt9HjFmQ4sZ2tQHivmHJpAoG/BJwNNQeBtSCSdY1L6tfCjwZLo7ryOmZEDA3ck/DAmHCUZqa+MWA==}
     peerDependencies:
       vitest: '>=0.32.0 <1'
@@ -2191,7 +2191,7 @@ packages:
       istanbul-lib-source-maps: 4.0.1
       istanbul-reports: 3.1.5
       test-exclude: 6.0.0
-      vitest: 0.32.2(@vitest/browser@0.32.2)(webdriverio@8.11.2)
+      vitest: 0.31.1(@vitest/browser@0.32.2)(webdriverio@8.11.2)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -7217,7 +7217,7 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
-  /vite-node@0.31.1(@types/node@20.3.1):
+  /vite-node@0.31.1(@types/node@20.3.2):
     resolution: {integrity: sha512-BajE/IsNQ6JyizPzu9zRgHrBwczkAs0erQf/JRpgTIESpKvNj9/Gd0vxX905klLkb0I0SJVCKbdrl5c6FnqYKA==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -7227,7 +7227,7 @@ packages:
       mlly: 1.4.0
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.3.9(@types/node@20.3.1)(sass@1.63.6)
+      vite: 4.3.9(@types/node@20.3.2)(sass@1.63.6)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -7292,7 +7292,7 @@ packages:
     peerDependencies:
       vite: ^2 || ^3 || ^4
     dependencies:
-      vite: 4.3.9(@types/node@20.3.1)(sass@1.63.6)
+      vite: 4.3.9(@types/node@20.3.2)(sass@1.63.6)
     dev: true
 
   /vite@4.3.9(@types/node@20.3.1)(sass@1.63.6):
@@ -7363,7 +7363,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vitest@0.31.1:
+  /vitest@0.31.1(@vitest/browser@0.32.2)(webdriverio@8.11.2):
     resolution: {integrity: sha512-/dOoOgzoFk/5pTvg1E65WVaobknWREN15+HF+0ucudo3dDG/vCZoXTQrjIfEaWvQXmqScwkRodrTbM/ScMpRcQ==}
     engines: {node: '>=v14.18.0'}
     hasBin: true
@@ -7396,7 +7396,8 @@ packages:
     dependencies:
       '@types/chai': 4.3.5
       '@types/chai-subset': 1.3.3
-      '@types/node': 20.3.1
+      '@types/node': 20.3.2
+      '@vitest/browser': 0.32.2(rollup@2.79.1)(vitest@0.31.1)
       '@vitest/expect': 0.31.1
       '@vitest/runner': 0.31.1
       '@vitest/snapshot': 0.31.1
@@ -7416,74 +7417,8 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.5.0
-      vite: 4.3.9(@types/node@20.3.1)(sass@1.63.6)
-      vite-node: 0.31.1(@types/node@20.3.1)
-      why-is-node-running: 2.2.2
-    transitivePeerDependencies:
-      - less
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-    dev: true
-
-  /vitest@0.32.2(@vitest/browser@0.32.2)(webdriverio@8.11.2):
-    resolution: {integrity: sha512-hU8GNNuQfwuQmqTLfiKcqEhZY72Zxb7nnN07koCUNmntNxbKQnVbeIS6sqUgR3eXSlbOpit8+/gr1KpqoMgWCQ==}
-    engines: {node: '>=v14.18.0'}
-    hasBin: true
-    peerDependencies:
-      '@edge-runtime/vm': '*'
-      '@vitest/browser': '*'
-      '@vitest/ui': '*'
-      happy-dom: '*'
-      jsdom: '*'
-      playwright: '*'
-      safaridriver: '*'
-      webdriverio: '*'
-    peerDependenciesMeta:
-      '@edge-runtime/vm':
-        optional: true
-      '@vitest/browser':
-        optional: true
-      '@vitest/ui':
-        optional: true
-      happy-dom:
-        optional: true
-      jsdom:
-        optional: true
-      playwright:
-        optional: true
-      safaridriver:
-        optional: true
-      webdriverio:
-        optional: true
-    dependencies:
-      '@types/chai': 4.3.5
-      '@types/chai-subset': 1.3.3
-      '@types/node': 20.3.1
-      '@vitest/browser': 0.32.2(rollup@2.79.1)(vitest@0.32.2)
-      '@vitest/expect': 0.32.2
-      '@vitest/runner': 0.32.2
-      '@vitest/snapshot': 0.32.2
-      '@vitest/spy': 0.32.2
-      '@vitest/utils': 0.32.2
-      acorn: 8.9.0
-      acorn-walk: 8.2.0
-      cac: 6.7.14
-      chai: 4.3.7
-      concordance: 5.0.4
-      debug: 4.3.4
-      local-pkg: 0.4.3
-      magic-string: 0.30.0
-      pathe: 1.1.1
-      picocolors: 1.0.0
-      std-env: 3.3.3
-      strip-literal: 1.0.1
-      tinybench: 2.5.0
-      tinypool: 0.5.0
-      vite: 4.3.9(@types/node@20.3.1)(sass@1.63.6)
-      vite-node: 0.32.2(@types/node@20.3.1)(sass@1.63.6)
+      vite: 4.3.9(@types/node@20.3.2)(sass@1.63.6)
+      vite-node: 0.31.1(@types/node@20.3.2)
       webdriverio: 8.11.2(typescript@5.1.6)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:

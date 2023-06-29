@@ -1,9 +1,10 @@
-import {type DocumentId, type StorageProvider} from './StorageProvider';
+import {type StorageProvider} from './StorageProvider';
 import {
 	type DBSchema,
 	type IDBPDatabase,
 	openDB,
 } from 'idb/with-async-ittr';
+import {type DocumentId} from '../types';
 
 interface DDNetDB extends DBSchema {
 	documents: {

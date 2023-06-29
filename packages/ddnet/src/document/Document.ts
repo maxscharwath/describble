@@ -3,6 +3,8 @@ import Emittery from 'emittery';
 import {DocumentHeader} from './DocumentHeader';
 import {createSignature, getPublicKey} from '../crypto';
 import {decode, encode} from 'cbor-x';
+import {type DocumentId} from '../types';
+import {base58} from 'base-x';
 
 export class UnauthorizedAccessError extends Error {
 	constructor(message?: string, options?: ErrorOptions) {
@@ -24,11 +26,15 @@ type DocumentEvent<TData> = {
 };
 
 export class Document<TData> extends Emittery<DocumentEvent<TData>> {
-	private document: A.Doc<TData>;
+	#document: A.Doc<TData>;
+	readonly #id: DocumentId;
+	#header: DocumentHeader;
 
-	protected constructor(public readonly header: DocumentHeader) {
+	protected constructor(header: DocumentHeader) {
 		super();
-		this.document = A.init<TData>({
+		this.#header = header;
+		this.#id = base58.encode(this.#header.address);
+		this.#document = A.init<TData>({
 			patchCallback: (patches, {before, after}) => {
 				void this.emit('patch', {document: this, patches, before, after});
 			},
@@ -36,17 +42,17 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	}
 
 	public load(binary: Uint8Array) {
-		this.document = A.loadIncremental(this.document, binary);
+		this.#document = A.loadIncremental(this.#document, binary);
 	}
 
 	public update(callback: (document: A.Doc<TData>) => A.Doc<TData>) {
-		const newDocument = callback(this.document);
+		const newDocument = callback(this.#document);
 		if (this.hasChanged(newDocument)) {
 			console.log('Document changed', newDocument);
 			void this.emit('change', {document: this, data: newDocument});
 		}
 
-		this.document = newDocument;
+		this.#document = newDocument;
 	}
 
 	public change(callback: A.ChangeFn<TData>, options: A.ChangeOptions<TData> = {}) {
@@ -57,18 +63,26 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 		this.update(document => A.changeAt(document, heads, options, callback));
 	}
 
-	public get value() {
-		return this.document;
+	public get id(): DocumentId {
+		return this.#id;
+	}
+
+	public get data() {
+		return this.#document;
+	}
+
+	public get header() {
+		return this.#header;
 	}
 
 	public export(privateKey: Uint8Array): Uint8Array {
-		const header = this.header.export();
+		const header = this.#header.export();
 
-		if (!this.header.hasAllowedUser(getPublicKey(privateKey))) {
+		if (!this.#header.hasAllowedUser(getPublicKey(privateKey))) {
 			throw new UnauthorizedAccessError('Only the document owner or an allowed user can export the document.');
 		}
 
-		const content = A.save(this.value);
+		const content = A.save(this.data);
 		const signature = createSignature(content, privateKey);
 		return encode({
 			header,
@@ -78,13 +92,17 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	}
 
 	public clone() {
-		const document = new Document<TData>(this.header);
-		document.document = A.clone(this.document);
+		const document = new Document<TData>(this.#header);
+		document.#document = A.clone(this.#document);
 		return document;
 	}
 
+	public upgrade(newHeader: DocumentHeader) {
+		this.#header = DocumentHeader.upgrade(this.#header, newHeader);
+	}
+
 	private hasChanged(document: A.Doc<TData>) {
-		const aHeads = A.getHeads(this.document);
+		const aHeads = A.getHeads(this.#document);
 		const bHeads = A.getHeads(document);
 		return !(aHeads.length === bHeads.length && aHeads.every(head => bHeads.includes(head)));
 	}

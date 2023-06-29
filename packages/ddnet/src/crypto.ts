@@ -5,6 +5,7 @@ import {hmac} from '@noble/hashes/hmac';
 
 export {sha256} from '@noble/hashes/sha256';
 export {generateMnemonic, mnemonicToSeedSync} from 'srp';
+export {bytesToHex, hexToBytes} from '@noble/hashes/utils';
 
 /**
  * Generates a new private key.
@@ -129,7 +130,7 @@ export function verifySignature(message: Uint8Array, signature: Uint8Array, publ
  * @param a - The first Uint8Array.
  * @param b - The second Uint8Array.
  */
-export function uint8ArrayEquals(a: Uint8Array, b: Uint8Array) {
+export function bytesEquals(a: Uint8Array, b: Uint8Array) {
 	return b.byteLength === a.byteLength
 		? a.every((value, index) => value === b[index])
 		: false;
