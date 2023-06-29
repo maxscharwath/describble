@@ -1,5 +1,5 @@
 import {decode, encode} from 'cbor-x';
-import {createSignature, getPublicKey, mergeUint8Arrays, uint8ArrayEquals, verifySignature} from '../crypto';
+import {concatBytes, createSignature, getPublicKey, uint8ArrayEquals, verifySignature} from '../crypto';
 import {v4 as uuidv4, v5 as uuidv5} from 'uuid';
 import {DocumentValidationError, UnauthorizedAccessError} from './Document';
 
@@ -8,7 +8,7 @@ export type DocumentHeaderData = {id: Uint8Array; owner: Uint8Array; allowedClie
 export class DocumentHeader {
 	#data: DocumentHeaderData;
 	#signature: Uint8Array;
-	#address: Uint8Array;
+	readonly #address: Uint8Array;
 
 	private constructor(data: DocumentHeaderData, signature: Uint8Array) {
 		if (!verifySignature(encode(data), signature, data.owner)) {
@@ -69,7 +69,7 @@ export class DocumentHeader {
 			throw new DocumentValidationError('Invalid document header signature.');
 		}
 
-		return mergeUint8Arrays([this.#signature, data]);
+		return concatBytes([this.#signature, data]);
 	}
 
 	public static create(privateKey: Uint8Array, allowedClients: Uint8Array[] = []): DocumentHeader {

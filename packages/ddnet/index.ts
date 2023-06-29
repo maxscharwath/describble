@@ -1,3 +1,4 @@
+import 'fake-indexeddb/auto';
 import {
 	SignalingServer,
 	WebSocketNetwork,
@@ -7,6 +8,8 @@ import {
 	mnemonicToSeedSync,
 } from './src';
 import {base58} from 'base-x';
+import {NodeFileStorageProvider} from './src/storage/NodeFileStorageProvider';
+import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 
 (async () => {
 	const server = new SignalingServer({
@@ -26,16 +29,19 @@ import {base58} from 'base-x';
 	const clientAlice = new DocumentSharingClient({
 		...generateKeyPair(seed),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
+		storageProvider: new IDBStorageProvider(),
 	});
 
 	const clientBob = new DocumentSharingClient({
 		...generateKeyPair(),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
+		storageProvider: new NodeFileStorageProvider('.ddnet/bob'),
 	});
 
 	const clientCharlie = new DocumentSharingClient({
 		...generateKeyPair(),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
+		storageProvider: new NodeFileStorageProvider('.ddnet/charlie'),
 	});
 
 	const document = clientAlice.create<{title: string}>([clientBob.publicKey, clientCharlie.publicKey]);
@@ -58,14 +64,9 @@ import {base58} from 'base-x';
 
 	await clientBob.requestDocument(document.header.address).then(() => console.log('Bob broadcasted a document request'));
 
-	setTimeout(() => {
-		console.log('Alice will change the document title to "Hello world"');
-		document.change(doc => {
-			doc.title = 'Hello world';
+	setInterval(() => {
+		document.change(draft => {
+			draft.title = `It is now ${new Date().toLocaleTimeString()}`;
 		});
-
-		console.log('Alice', clientAlice.list());
-		console.log('Bob', clientBob.list());
-		console.log('Charlie', clientCharlie.list());
 	}, 1000);
 })();

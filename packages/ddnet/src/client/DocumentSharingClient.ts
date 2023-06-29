@@ -6,9 +6,14 @@ import {PeerManager, SignalMessageSchema} from './PeerManager';
 import {DocumentRegistry} from './DocumentRegistry';
 import {Document} from '../document/Document';
 import {DocumentSynchronizer} from '../synchronizer/DocumentSynchronizer';
+import {Storage} from '../storage/Storage';
+import {type StorageProvider} from '../storage/StorageProvider';
+import {SecureStorageProvider} from '../storage/SecureStorageProvider';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
-type DocumentSharingClientConfig = SignalingClientConfig;
+type DocumentSharingClientConfig = SignalingClientConfig & {
+	storageProvider: StorageProvider;
+};
 
 type DocumentSharingClientEvent = {
 	'share-document': {
@@ -59,8 +64,19 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 			exchanger: this.exchanger as MessageExchanger<typeof SignalMessageSchema>,
 		});
 
+		const storage = new Storage(
+			new SecureStorageProvider(
+				config.storageProvider,
+				config.privateKey,
+			),
+		);
+
 		this.on('document', document => {
-			this.synchronizers.set(base58.encode(document.header.address), new DocumentSynchronizer(document));
+			const documentId = base58.encode(document.header.address);
+			document.on('change', () => {
+				void storage.save(documentId, document.value);
+			});
+			this.synchronizers.set(documentId, new DocumentSynchronizer(document));
 		});
 
 		this.peerManager.on('peer-created', ({documentAddress, peer}) => {

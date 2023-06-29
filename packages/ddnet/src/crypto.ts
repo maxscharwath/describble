@@ -6,7 +6,6 @@ import {hmac} from '@noble/hashes/hmac';
 export {sha256} from '@noble/hashes/sha256';
 export {generateMnemonic, mnemonicToSeedSync} from 'srp';
 
-secp256k1.etc.hmacSha256Sync = (k, ...m) => hmac(sha256, k, secp256k1.etc.concatBytes(...m));
 /**
  * Generates a new private key.
  */
@@ -36,15 +35,11 @@ export function generateKeyPair(seed?: Uint8Array) {
 }
 
 /**
- * Generates an AES key based on the provided private key, public key and an optional salt.
- * @param privateKey - The private key used in the generation of the AES key.
- * @param publicKey - The public key used in the generation of the AES key.
+ * Generates a new AES key based on the provided secret and salt.
+ * @param secret - The secret used in the generation of the AES key.
  * @param salt - An optional salt to add randomness to the generation of the AES key.
- * @returns A Promise that resolves with the generated AES key.
  */
-export async function generateAESKey(privateKey: Uint8Array, publicKey: Uint8Array, salt?: Uint8Array | string) {
-	const secret = secp256k1.getSharedSecret(privateKey, publicKey); // Compute the shared secret.
-	// Import the key derived from the secret into a usable format for AES-GCM.
+export async function generateAESKey(secret: Uint8Array, salt?: Uint8Array | string) {
 	return crypto.subtle.importKey(
 		'raw',
 		hkdf(sha256, secret, salt, undefined, 32), // Use HKDF to derive a key from the secret.
@@ -55,6 +50,38 @@ export async function generateAESKey(privateKey: Uint8Array, publicKey: Uint8Arr
 }
 
 /**
+ * Generates an AES key based on the provided private key, public key and an optional salt.
+ * @param privateKey - The private key used in the generation of the AES key.
+ * @param publicKey - The public key used in the generation of the AES key.
+ * @param salt - An optional salt to add randomness to the generation of the AES key.
+ * @returns A Promise that resolves with the generated AES key.
+ */
+export async function generateSharedAESKey(privateKey: Uint8Array, publicKey: Uint8Array, salt?: Uint8Array | string) {
+	const secret = secp256k1.getSharedSecret(privateKey, publicKey); // Compute the shared secret.
+	return generateAESKey(secret, salt); // Generate an AES key from the shared secret.
+}
+
+/**
+ * Encrypts the provided data using the provided secret.
+ * @param data - The data to be encrypted.
+ * @param secret - The secret used in the encryption.
+ * @returns A Promise that resolves with the encrypted data.
+ */
+export async function encryptData(data: Uint8Array, secret: Uint8Array) {
+	return encrypt(data, async salt => generateAESKey(secret, salt)); // Encrypt the data.
+}
+
+/**
+ * Decrypts the provided data using the provided secret.
+ * @param data - The data to be decrypted.
+ * @param secret - The secret used in the decryption.
+ * @returns A Promise that resolves with the decrypted data.
+ */
+export async function decryptData(data: Uint8Array, secret: Uint8Array) {
+	return decrypt(data, async salt => generateAESKey(secret, salt)); // Decrypt the data.
+}
+
+/**
  * Encrypts a message using the provided private key, public key and the AES-GCM mode.
  * @param data - The data to be encrypted.
  * @param privateKey - The private key used in the encryption.
@@ -62,15 +89,7 @@ export async function generateAESKey(privateKey: Uint8Array, publicKey: Uint8Arr
  * @returns A Promise that resolves with the encrypted data.
  */
 export async function encryptMessage(data: Uint8Array, privateKey: Uint8Array, publicKey: Uint8Array) {
-	const iv = crypto.getRandomValues(new Uint8Array(12)); // Generate a new random initialization vector (IV).
-	const salt = crypto.getRandomValues(new Uint8Array(16)); // Generate a new random salt.
-	const key = await generateAESKey(privateKey, publicKey, salt); // Generate an AES key.
-	const ciphertext = new Uint8Array(await crypto.subtle.encrypt({name: 'AES-GCM', iv}, key, data)); // Encrypt the data.
-	const result = new Uint8Array(iv.length + salt.length + ciphertext.length);
-	result.set(iv, 0);
-	result.set(salt, iv.length);
-	result.set(ciphertext, iv.length + salt.length);
-	return result;
+	return encrypt(data, async salt => generateSharedAESKey(privateKey, publicKey, salt)); // Encrypt the data.
 }
 
 /**
@@ -81,11 +100,7 @@ export async function encryptMessage(data: Uint8Array, privateKey: Uint8Array, p
  * @returns A Promise that resolves with the decrypted data.
  */
 export async function decryptMessage(data: Uint8Array, privateKey: Uint8Array, publicKey: Uint8Array) {
-	const iv = data.subarray(0, 12); // Extract the IV from the data.
-	const salt = data.subarray(12, 28); // Extract the salt from the data.
-	const ciphertext = data.subarray(28); // Extract the ciphertext from the data.
-	const key = await generateAESKey(privateKey, publicKey, salt); // Generate an AES key.
-	return new Uint8Array(await crypto.subtle.decrypt({name: 'AES-GCM', iv}, key, ciphertext)); // Decrypt the data.
+	return decrypt(data, async salt => generateSharedAESKey(privateKey, publicKey, salt)); // Decrypt the data.
 }
 
 /**
@@ -125,14 +140,13 @@ export function uint8ArrayEquals(a: Uint8Array, b: Uint8Array) {
  * @param arrays - The Uint8Arrays to be merged.
  * @returns The merged Uint8Array.
  */
-export function mergeUint8Arrays(arrays: Uint8Array[]) {
+export function concatBytes(arrays: Uint8Array[]) {
 	const result = new Uint8Array(arrays.reduce((a, b) => a + b.byteLength, 0));
 	let offset = 0;
-	for (const array of arrays) {
+	arrays.forEach(array => {
 		result.set(array, offset);
-		offset += array.length;
-	}
-
+		offset += array.byteLength;
+	});
 	return result;
 }
 
@@ -142,5 +156,22 @@ export function mergeUint8Arrays(arrays: Uint8Array[]) {
  * @returns The hash.
  */
 export function sha256Some(...data: Uint8Array[]) {
-	return sha256(mergeUint8Arrays(data));
+	return sha256(concatBytes(data));
 }
+
+async function encrypt(data: Uint8Array, key: (salt: Uint8Array) => PromiseLike<CryptoKey>) {
+	const iv = crypto.getRandomValues(new Uint8Array(12)); // Generate a new random initialization vector (IV).
+	const salt = crypto.getRandomValues(new Uint8Array(16)); // Generate a new random salt.
+	const ciphertext = new Uint8Array(await crypto.subtle.encrypt({name: 'AES-GCM', iv}, await key(salt), data)); // Encrypt the data.
+	return concatBytes([iv, salt, ciphertext]); // Concatenate the IV, salt and ciphertext.
+}
+
+async function decrypt(data: Uint8Array, key: (salt: Uint8Array) => PromiseLike<CryptoKey>) {
+	const iv = data.subarray(0, 12); // Extract the IV from the data.
+	const salt = data.subarray(12, 28); // Extract the salt from the data.
+	const ciphertext = data.subarray(28); // Extract the ciphertext from the data.
+	return new Uint8Array(await crypto.subtle.decrypt({name: 'AES-GCM', iv}, await key(salt), ciphertext)); // Decrypt the data.
+}
+
+// Allow hmacSha256Sync
+secp256k1.etc.hmacSha256Sync = (k, ...m) => hmac(sha256, k, concatBytes(m));
