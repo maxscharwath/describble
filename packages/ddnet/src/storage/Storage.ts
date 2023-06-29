@@ -15,8 +15,7 @@ export class Storage {
 			this.storageProvider.loadChunks(documentId),
 		]);
 
-		const length = binary?.byteLength ?? 0 + chunks.reduce((a, b) => a + b.byteLength, 0);
-
+		const length = (binary?.byteLength ?? 0) + chunks.reduce((a, b) => a + b.byteLength, 0);
 		const result = new Uint8Array(length);
 		let offset = 0;
 
@@ -35,10 +34,15 @@ export class Storage {
 		return result;
 	}
 
-	public async load<T>(documentId: DocumentId, prevDoc: A.Doc<T> = A.init<T>()): Promise<A.Doc<T>> {
-		const doc = A.loadIncremental(prevDoc, await this.loadBinary(documentId));
-		A.saveIncremental(doc);
-		return doc;
+	public async addDocument(documentId: DocumentId, header: Uint8Array): Promise<void> {
+		return this.storageProvider.addDocument(
+			documentId,
+			header,
+		);
+	}
+
+	public async loadHeader(documentId: DocumentId): Promise<Uint8Array | undefined> {
+		return this.storageProvider.getDocumentHeader(documentId);
 	}
 
 	public async save(documentId: DocumentId, doc: A.Doc<unknown>) {

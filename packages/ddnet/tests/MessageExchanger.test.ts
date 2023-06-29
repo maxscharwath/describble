@@ -25,8 +25,8 @@ async function createClient(network: MockNetwork): Promise<SignalingClient> {
 }
 
 describe('MessageExchanger', () => {
-	let messageExchangerAlice: MessageExchanger<[typeof testSchema]>;
-	let messageExchangerBob: MessageExchanger<[typeof testSchema]>;
+	let messageExchangerAlice: MessageExchanger<typeof testSchema>;
+	let messageExchangerBob: MessageExchanger<typeof testSchema>;
 	let mockClientAlice: SignalingClient;
 	let mockClientBob: SignalingClient;
 	let mockNetwork: MockNetwork;

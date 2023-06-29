@@ -46,11 +46,11 @@ export class SecureStorageProvider implements StorageProvider {
 
 	private async decrypt<T extends Uint8Array | undefined>(value: Promise<T> | T): Promise<T> {
 		const data = await value;
-		return (data && decryptData(this.privateKey, data)) as Promise<T>;
+		return (data && decryptData(data, this.privateKey)) as Promise<T>;
 	}
 
 	private async encrypt<T extends Uint8Array | undefined>(value: Promise<T> | T): Promise<T> {
 		const data = await value;
-		return (data && encryptData(this.privateKey, data)) as Promise<T>;
+		return (data && encryptData(data, this.privateKey)) as Promise<T>;
 	}
 }

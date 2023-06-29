@@ -97,8 +97,16 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 			throw new DocumentValidationError('Invalid document signature.');
 		}
 
+		return Document.fromRawHeader<TData>(rawHeader, content);
+	}
+
+	public static fromRawHeader<TData>(rawHeader: Uint8Array, binary?: Uint8Array): Document<TData> {
+		const header = DocumentHeader.import(rawHeader);
 		const document = new Document<TData>(header);
-		document.load(content);
+		if (binary) {
+			document.load(binary);
+		}
+
 		return document;
 	}
 

@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import path from 'path';
 import {type StorageProvider, type DocumentId} from './StorageProvider';
+import {glob} from 'glob';
 
 export class NodeFileStorageProvider implements StorageProvider {
 	constructor(private readonly dir: string) {
@@ -31,18 +32,30 @@ export class NodeFileStorageProvider implements StorageProvider {
 	}
 
 	async listDocuments(): Promise<DocumentId[]> {
-		const files = await fs.promises.readdir(this.dir);
-		return files.map(file => path.parse(file).name);
+		const files = await glob(`${this.dir}/*.header`);
+		return files.map(file => path.basename(file, '.header'));
 	}
 
 	async loadChunks(documentId: DocumentId): Promise<Uint8Array[]> {
 		const filePath = path.join(this.dir, `${documentId}.chunks`);
-		if (fs.existsSync(filePath)) {
-			const data = await fs.promises.readFile(filePath);
-			return [data];
+		if (!fs.existsSync(filePath)) {
+			return [];
 		}
 
-		return [];
+		const fileContent = await fs.promises.readFile(filePath);
+		let offset = 0;
+		const chunks: Uint8Array[] = [];
+
+		while (offset < fileContent.length) {
+			const chunkSize = fileContent.readInt32BE(offset);
+			offset += 4; // Size of 32-bit integer
+
+			const chunk = fileContent.subarray(offset, offset + chunkSize);
+			chunks.push(chunk);
+			offset += chunkSize;
+		}
+
+		return chunks;
 	}
 
 	async loadSnapshot(documentId: DocumentId): Promise<Uint8Array | undefined> {
@@ -74,7 +87,11 @@ export class NodeFileStorageProvider implements StorageProvider {
 
 	async saveChunk(documentId: DocumentId, chunk: Uint8Array, _index: number): Promise<void> {
 		const filePath = path.join(this.dir, `${documentId}.chunks`);
-		await fs.promises.appendFile(filePath, chunk);
+
+		const chunkSizeBuffer = Buffer.alloc(4);
+		chunkSizeBuffer.writeInt32BE(chunk.length);
+
+		await fs.promises.appendFile(filePath, Buffer.concat([chunkSizeBuffer, chunk]));
 	}
 
 	async saveSnapshot(documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {

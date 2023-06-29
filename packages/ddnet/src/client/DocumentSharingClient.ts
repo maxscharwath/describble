@@ -3,7 +3,7 @@ import {z} from 'zod';
 import {SignalingClient, type SignalingClientConfig} from './SignalingClient';
 import {MessageExchanger} from '../exchanger/MessageExchanger';
 import {PeerManager, SignalMessageSchema} from './PeerManager';
-import {DocumentRegistry} from './DocumentRegistry';
+import {type DocumentAddress, DocumentRegistry} from './DocumentRegistry';
 import {Document} from '../document/Document';
 import {DocumentSynchronizer} from '../synchronizer/DocumentSynchronizer';
 import {Storage} from '../storage/Storage';
@@ -49,7 +49,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 	]);
 
 	private readonly peerManager: PeerManager;
-
+	private readonly storage: Storage;
 	private readonly synchronizers = new Map<string, DocumentSynchronizer>();
 
 	/**
@@ -64,17 +64,19 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 			exchanger: this.exchanger as MessageExchanger<typeof SignalMessageSchema>,
 		});
 
-		const storage = new Storage(
+		this.storage = new Storage(
 			new SecureStorageProvider(
 				config.storageProvider,
 				config.privateKey,
 			),
 		);
 
-		this.on('document', document => {
+		this.on('document', async document => {
 			const documentId = base58.encode(document.header.address);
+			// TODO: Check document address and header version, to avoid saving old headers
+			void this.storage.addDocument(documentId, document.header.export());
 			document.on('change', () => {
-				void storage.save(documentId, document.value);
+				void this.storage.save(documentId, document.value);
 			});
 			this.synchronizers.set(documentId, new DocumentSynchronizer(document));
 		});
@@ -89,7 +91,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 
 		// Handle request document messages
 		this.exchanger.on('request-document', async message => {
-			const document = this.find(message.data.documentAddress);
+			const document = await this.find(message.data.documentAddress);
 			if (document?.header.hasAllowedUser(message.from.publicKey)) {
 				await this.exchanger.sendMessage({
 					type: 'document-response',
@@ -136,5 +138,23 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 			type: 'request-document',
 			documentAddress,
 		});
+	}
+
+	async find<TData>(id: DocumentAddress): Promise<Document<TData> | undefined> {
+		const documentId = this.encodeId(id);
+		const document = await super.find<TData>(documentId);
+		if (document) {
+			return document;
+		}
+
+		const rawHeader = await this.storage.loadHeader(documentId);
+		if (rawHeader) {
+			const binary = await this.storage.loadBinary(documentId);
+			return this.add(Document.fromRawHeader(rawHeader, binary));
+		}
+	}
+
+	async listDocumentIds(): Promise<string[]> {
+		return this.storage.list();
 	}
 }

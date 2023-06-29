@@ -5,7 +5,7 @@ import {
 	WebSocketNetworkAdapter,
 	DocumentSharingClient,
 	generateKeyPair,
-	mnemonicToSeedSync,
+	mnemonicToSeedSync, generateMnemonic,
 } from './src';
 import {base58} from 'base-x';
 import {NodeFileStorageProvider} from './src/storage/NodeFileStorageProvider';
@@ -22,29 +22,38 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 	await server.listen();
 	console.log('Signaling server listening on port 8080');
 
-	const mnemonic = 'arrow armor boat cart circle tenant couple beef luggage ginger color effort';
-	console.log('Mnemonic:', mnemonic);
-	const seed = mnemonicToSeedSync(mnemonic);
-
 	const clientAlice = new DocumentSharingClient({
-		...generateKeyPair(seed),
+		...generateKeyPair(
+			mnemonicToSeedSync('arrow armor boat cart circle tenant couple beef luggage ginger color effort'),
+		),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
-		storageProvider: new IDBStorageProvider(),
+		storageProvider: new NodeFileStorageProvider('.ddnet/alice'),
 	});
 
 	const clientBob = new DocumentSharingClient({
-		...generateKeyPair(),
+		...generateKeyPair(
+			mnemonicToSeedSync('accident observe boss minute mixture goddess trash craft candy smooth rubber coffee'),
+		),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 		storageProvider: new NodeFileStorageProvider('.ddnet/bob'),
 	});
 
 	const clientCharlie = new DocumentSharingClient({
-		...generateKeyPair(),
+		...generateKeyPair(
+			mnemonicToSeedSync('apology lazy vocal help film slice journey panic table either view hole'),
+		),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
-		storageProvider: new NodeFileStorageProvider('.ddnet/charlie'),
+		storageProvider: new IDBStorageProvider(),
 	});
 
-	const document = clientAlice.create<{title: string}>([clientBob.publicKey, clientCharlie.publicKey]);
+	const documentList = await clientAlice.listDocumentIds();
+	let document = documentList.length > 0 ? await clientAlice.find<{title: string}>(documentList[0]) : null;
+	if (!document) {
+		console.log('Creating new document');
+		document = clientAlice.create<{title: string}>([clientBob.publicKey, clientCharlie.publicKey]);
+	}
+
+	console.log('Document:', document.value);
 	clientCharlie.add(document.clone());
 
 	await Promise.all([
@@ -65,8 +74,8 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 	await clientBob.requestDocument(document.header.address).then(() => console.log('Bob broadcasted a document request'));
 
 	setInterval(() => {
-		document.change(draft => {
-			draft.title = `It is now ${new Date().toLocaleTimeString()}`;
+		document?.change(doc => {
+			doc.title = `It's ${new Date().toLocaleTimeString()}`;
 		});
 	}, 1000);
 })();

@@ -23,7 +23,7 @@ export class DocumentRegistry<TAdditionalEvent extends {} extends Partial<Docume
 		return document;
 	}
 
-	public find<TData>(id: DocumentAddress) {
+	public async find<TData>(id: DocumentAddress) {
 		return this.documents.get(this.encodeId(id)) as Document<TData> | undefined;
 	}
 
@@ -41,11 +41,7 @@ export class DocumentRegistry<TAdditionalEvent extends {} extends Partial<Docume
 		}
 	}
 
-	public list() {
-		return this.documents.values();
-	}
-
-	private encodeId(id: DocumentAddress) {
+	protected encodeId(id: DocumentAddress) {
 		return typeof id === 'string' ? id : base58.encode(id);
 	}
 }
