@@ -2,6 +2,7 @@ import * as A from '@automerge/automerge';
 import {type StorageProvider} from './StorageProvider';
 import {type Doc} from '@automerge/automerge';
 import {type DocumentId} from '../types';
+import {type Document} from '../document/Document';
 
 export class Storage {
 	private readonly changeCount = new Map<DocumentId, number>();
@@ -10,8 +11,8 @@ export class Storage {
 
 	public async loadBinary(documentId: DocumentId): Promise<Uint8Array> {
 		const [binary, chunks] = await Promise.all([
-			this.storageProvider.loadSnapshot(documentId),
-			this.storageProvider.loadChunks(documentId),
+			this.storageProvider.getSnapshot(documentId),
+			this.storageProvider.getChunks(documentId),
 		]);
 
 		const length = (binary?.byteLength ?? 0) + chunks.reduce((a, b) => a + b.byteLength, 0);
@@ -33,10 +34,10 @@ export class Storage {
 		return result;
 	}
 
-	public async addDocument(documentId: DocumentId, header: Uint8Array): Promise<void> {
-		return this.storageProvider.addDocument(
-			documentId,
-			header,
+	public async addDocument(document: Document<any>): Promise<void> {
+		return this.storageProvider.saveDocumentHeader(
+			document.id,
+			document.header.export(),
 		);
 	}
 
@@ -44,12 +45,13 @@ export class Storage {
 		return this.storageProvider.getDocumentHeader(documentId);
 	}
 
-	public async save(documentId: DocumentId, doc: A.Doc<unknown>) {
+	public async save(document: Document<any>) {
+		const documentId = document.id;
 		if (this.shouldCompact(documentId)) {
-			return this.saveTotal(documentId, doc);
+			return this.saveTotal(documentId, document.data);
 		}
 
-		return this.saveIncremental(documentId, doc);
+		return this.saveIncremental(documentId, document.data);
 	}
 
 	public async remove(documentId: DocumentId) {

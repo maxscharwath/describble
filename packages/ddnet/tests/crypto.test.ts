@@ -11,7 +11,7 @@ import {
 	sha256Some,
 	bytesEquals,
 	verifySignature,
-} from '../src/crypto';
+} from '../src';
 import {randomBytes} from '@noble/hashes/utils';
 
 describe('crypto', () => {

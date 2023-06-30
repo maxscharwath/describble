@@ -35,7 +35,7 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 			mnemonicToSeedSync('accident observe boss minute mixture goddess trash craft candy smooth rubber coffee'),
 		),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
-		storageProvider: new NodeFileStorageProvider('.ddnet/bob'),
+		storageProvider: new IDBStorageProvider(),
 	});
 
 	const clientCharlie = new DocumentSharingClient({
@@ -43,7 +43,7 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 			mnemonicToSeedSync('apology lazy vocal help film slice journey panic table either view hole'),
 		),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
-		storageProvider: new IDBStorageProvider(),
+		storageProvider: new NodeFileStorageProvider('.ddnet/charlie'),
 	});
 
 	const documentList = await clientAlice.listDocumentIds();
@@ -52,9 +52,6 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 		console.log('Creating new document');
 		document = clientAlice.create<{title: string}>([clientBob.publicKey, clientCharlie.publicKey]);
 	}
-
-	const document2 = document.clone();
-	clientCharlie.add(document2);
 
 	await Promise.all([
 		clientAlice.connect(),
@@ -71,7 +68,10 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 		console.log(`Charlie(${base58.encode(clientCharlie.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, document.id);
 	});
 
-	await clientBob.requestDocument(document.id).then(() => console.log('Bob broadcasted a document request'));
+	await clientBob.requestDocument(document.id)
+		.then(document => {
+			console.log('Bob received document', document.id);
+		});
 
 	setInterval(() => {
 		document?.change(doc => {

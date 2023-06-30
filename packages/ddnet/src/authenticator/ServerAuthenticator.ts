@@ -36,7 +36,7 @@ export class ServerAuthenticator extends Authenticator<AuthenticatorEvents> {
 			// Send a challenge to the client.
 			const challenge = await this.sendChallenge(connection);
 
-			// Setup a timer to close the connection if no response is received within the timeout duration.
+			// Set up a timer to close the connection if no response is received within the timeout duration.
 			const timeoutId = setTimeout(() => {
 				connection.close('Handshake timeout, did not receive response in time');
 			}, authenticatorTimeout);

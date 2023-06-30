@@ -166,7 +166,7 @@ describe('Signaling', () => {
 			const bobMessage = await bobReceivedMessage;
 			expect(bobMessage.data).toBe(message);
 
-			// Respond to message using the from fields
+			// Respond to message using the 'from' fields
 
 			await clientBob.sendMessage({
 				to: bobMessage.from,

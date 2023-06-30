@@ -11,12 +11,12 @@ export class NodeFileStorageProvider implements StorageProvider {
 		}
 	}
 
-	async addDocument(documentId: DocumentId, header: Uint8Array): Promise<void> {
+	async saveDocumentHeader(documentId: DocumentId, header: Uint8Array): Promise<void> {
 		const filePath = path.join(this.dir, `${documentId}.header`);
 		fs.writeFileSync(filePath, header);
 	}
 
-	async deleteSnapshot(documentId: DocumentId): Promise<void> {
+	async removeSnapshot(documentId: DocumentId): Promise<void> {
 		const filePath = path.join(this.dir, `${documentId}.snapshot`);
 		if (fs.existsSync(filePath)) {
 			fs.unlinkSync(filePath);
@@ -37,7 +37,7 @@ export class NodeFileStorageProvider implements StorageProvider {
 		return files.map(file => path.basename(file, '.header'));
 	}
 
-	async loadChunks(documentId: DocumentId): Promise<Uint8Array[]> {
+	async getChunks(documentId: DocumentId): Promise<Uint8Array[]> {
 		const filePath = path.join(this.dir, `${documentId}.chunks`);
 		if (!fs.existsSync(filePath)) {
 			return [];
@@ -59,7 +59,7 @@ export class NodeFileStorageProvider implements StorageProvider {
 		return chunks;
 	}
 
-	async loadSnapshot(documentId: DocumentId): Promise<Uint8Array | undefined> {
+	async getSnapshot(documentId: DocumentId): Promise<Uint8Array | undefined> {
 		const filePath = path.join(this.dir, `${documentId}.snapshot`);
 		if (fs.existsSync(filePath)) {
 			return fs.readFileSync(filePath);

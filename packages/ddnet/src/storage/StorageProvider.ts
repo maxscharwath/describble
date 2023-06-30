@@ -6,7 +6,7 @@ export interface StorageProvider {
 	 * @param documentId - Identifier for the document
 	 * @param header - Binary header data for the document
 	 */
-	addDocument(documentId: DocumentId, header: Uint8Array): Promise<void>;
+	saveDocumentHeader(documentId: DocumentId, header: Uint8Array): Promise<void>;
 
 	/**
 	 * Remove a document from storage.
@@ -33,13 +33,13 @@ export interface StorageProvider {
 	 * @param documentId - Identifier for the document
 	 * @returns A Promise resolving with the binary snapshot data for the document or undefined if not found
 	 */
-	loadSnapshot(documentId: DocumentId): Promise<Uint8Array | undefined>;
+	getSnapshot(documentId: DocumentId): Promise<Uint8Array | undefined>;
 
 	/**
 	 * Delete a snapshot for a specific document.
 	 * @param documentId - Identifier for the document
 	 */
-	deleteSnapshot(documentId: DocumentId): Promise<void>;
+	removeSnapshot(documentId: DocumentId): Promise<void>;
 
 	/**
 	 * Save a snapshot for a specific document.
@@ -55,7 +55,7 @@ export interface StorageProvider {
 	 * @param clear - Boolean indicating if the chunks should be cleared from storage after loading
 	 * @returns A Promise resolving with an array of binary chunk data for the document
 	 */
-	loadChunks(documentId: DocumentId, clear?: boolean): Promise<Uint8Array[]>;
+	getChunks(documentId: DocumentId, clear?: boolean): Promise<Uint8Array[]>;
 
 	/**
 	 * Save a chunk of data for a specific document.

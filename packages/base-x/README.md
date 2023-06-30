@@ -48,7 +48,7 @@ This library supports a variety of base encoding alphabets. Below is a list of c
 
 This library encodes octet arrays by performing long divisions on all significant digits in the array, creating a representation of that number in the new base. For every leading zero in the input (not significant as a number), it is encoded as a single leader character, the first character in the alphabet which decodes as 8 bits. The other characters' values depend upon the base. For instance, a base58 alphabet packs roughly 5.858 bits per character.
 
-Interestingly, the encoded string '000f' (using a base16, 0-f alphabet) will actually decode to 4 bytes unlike a canonical hex encoding which uniformly packs 4 bits into each character. Although this might seem unusual, it allows us to eliminate the need for padding and it also works for bases like 43.
+Interestingly, the encoded string '000f' (using a base16, 0-f alphabet) will actually decode to 4 bytes unlike a canonical hex encoding which uniformly packs 4 bits into each character. Although this might seem unusual, it allows us to eliminate the need for padding, and it also works for bases like 43.
 
 ## 🚧 Caution
 While using the `decodeUnsafe` and `decode` methods, please note that if the source string contains a character not recognized in the base encoding scheme, the `decodeUnsafe` function will return `undefined`, while `decode` will throw an `Error`. Always ensure the validity of your source string to prevent unexpected errors or results.

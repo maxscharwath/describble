@@ -8,8 +8,8 @@ export class SecureStorageProvider implements StorageProvider {
 		private readonly privateKey: Uint8Array,
 	) {}
 
-	async addDocument(documentId: DocumentId, header: Uint8Array): Promise<void> {
-		return this.storageProvider.addDocument(documentId, await this.encrypt(header));
+	async saveDocumentHeader(documentId: DocumentId, header: Uint8Array): Promise<void> {
+		return this.storageProvider.saveDocumentHeader(documentId, await this.encrypt(header));
 	}
 
 	async removeDocument(documentId: DocumentId): Promise<void> {
@@ -24,20 +24,20 @@ export class SecureStorageProvider implements StorageProvider {
 		return this.storageProvider.listDocuments();
 	}
 
-	async loadSnapshot(documentId: DocumentId): Promise<Uint8Array | undefined> {
-		return this.decrypt(await this.storageProvider.loadSnapshot(documentId));
+	async getSnapshot(documentId: DocumentId): Promise<Uint8Array | undefined> {
+		return this.decrypt(await this.storageProvider.getSnapshot(documentId));
 	}
 
-	async deleteSnapshot(documentId: DocumentId): Promise<void> {
-		return this.storageProvider.deleteSnapshot(documentId);
+	async removeSnapshot(documentId: DocumentId): Promise<void> {
+		return this.storageProvider.removeSnapshot(documentId);
 	}
 
 	async saveSnapshot(documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {
 		return this.storageProvider.saveSnapshot(documentId, await this.encrypt(binary), clearChunks);
 	}
 
-	async loadChunks(documentId: DocumentId, clear?: boolean): Promise<Uint8Array[]> {
-		const chunks = await this.storageProvider.loadChunks(documentId, clear);
+	async getChunks(documentId: DocumentId, clear?: boolean): Promise<Uint8Array[]> {
+		const chunks = await this.storageProvider.getChunks(documentId, clear);
 		return Promise.all(chunks.map(async chunk => this.decrypt(chunk)));
 	}
 
