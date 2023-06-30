@@ -27,7 +27,7 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 			mnemonicToSeedSync('arrow armor boat cart circle tenant couple beef luggage ginger color effort'),
 		),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
-		storageProvider: new NodeFileStorageProvider('.ddnet/alice'),
+		storageProvider: new NodeFileStorageProvider('.ddnet'),
 	});
 
 	const clientBob = new DocumentSharingClient({
@@ -43,14 +43,14 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 			mnemonicToSeedSync('apology lazy vocal help film slice journey panic table either view hole'),
 		),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
-		storageProvider: new NodeFileStorageProvider('.ddnet/charlie'),
+		storageProvider: new NodeFileStorageProvider('.ddnet'),
 	});
 
 	const documentList = await clientAlice.listDocumentIds();
-	let document = documentList.length > 0 ? await clientAlice.find<{title: string}>(documentList[0]) : null;
+	let document = documentList.length > 0 ? await clientAlice.findDocument<{title: string}>(documentList[0]) : null;
 	if (!document) {
 		console.log('Creating new document');
-		document = clientAlice.create<{title: string}>([clientBob.publicKey, clientCharlie.publicKey]);
+		document = clientAlice.createDocument<{title: string}>([clientBob.publicKey, clientCharlie.publicKey]);
 	}
 
 	await Promise.all([
@@ -68,10 +68,17 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 		console.log(`Charlie(${base58.encode(clientCharlie.publicKey)}) shared a document with ${base58.encode(to.publicKey)}`, document.id);
 	});
 
-	await clientBob.requestDocument(document.id)
-		.then(document => {
-			console.log('Bob received document', document.id);
-		});
+	await clientAlice.requestDocument(document.id).then(document => {
+		console.log('Alice received document', document.id);
+	});
+
+	await clientBob.requestDocument(document.id).then(document => {
+		console.log('Bob received document', document.id);
+	});
+
+	await clientCharlie.requestDocument(document.id).then(document => {
+		console.log('Charlie received document', document.id);
+	});
 
 	setInterval(() => {
 		document?.change(doc => {

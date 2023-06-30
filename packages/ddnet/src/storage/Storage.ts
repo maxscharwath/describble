@@ -11,8 +11,8 @@ export class Storage {
 
 	public async loadBinary(documentId: DocumentId): Promise<Uint8Array> {
 		const [binary, chunks] = await Promise.all([
-			this.storageProvider.getSnapshot(documentId),
-			this.storageProvider.getChunks(documentId),
+			this.storageProvider.getSnapshot('ddnet', documentId),
+			this.storageProvider.getChunks('ddnet', documentId),
 		]);
 
 		const length = (binary?.byteLength ?? 0) + chunks.reduce((a, b) => a + b.byteLength, 0);
@@ -34,15 +34,16 @@ export class Storage {
 		return result;
 	}
 
-	public async addDocument(document: Document<any>): Promise<void> {
+	public async setDocument(document: Document<any>): Promise<void> {
 		return this.storageProvider.saveDocumentHeader(
+			'ddnet',
 			document.id,
 			document.header.export(),
 		);
 	}
 
 	public async loadHeader(documentId: DocumentId): Promise<Uint8Array | undefined> {
-		return this.storageProvider.getDocumentHeader(documentId);
+		return this.storageProvider.getDocumentHeader('ddnet', documentId);
 	}
 
 	public async save(document: Document<any>) {
@@ -55,11 +56,11 @@ export class Storage {
 	}
 
 	public async remove(documentId: DocumentId) {
-		return this.storageProvider.removeDocument(documentId);
+		return this.storageProvider.removeDocument('ddnet', documentId);
 	}
 
 	public async list() {
-		return this.storageProvider.listDocuments();
+		return this.storageProvider.listDocuments('ddnet');
 	}
 
 	private shouldCompact(documentId: DocumentId) {
@@ -70,14 +71,14 @@ export class Storage {
 		const binary = A.saveIncremental(doc);
 		if (binary && binary.byteLength > 0) {
 			const changeCount = this.changeCount.get(documentId) ?? 0;
-			await this.storageProvider.saveChunk(documentId, binary, changeCount);
+			await this.storageProvider.saveChunk('ddnet', documentId, binary, changeCount);
 			this.changeCount.set(documentId, changeCount + 1);
 		}
 	}
 
 	private async saveTotal(documentId: DocumentId, doc: Doc<unknown>) {
 		const binary = A.save(doc);
-		await this.storageProvider.saveSnapshot(documentId, binary, true);
+		await this.storageProvider.saveSnapshot('ddnet', documentId, binary, true);
 		this.changeCount.set(documentId, 0);
 	}
 }

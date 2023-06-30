@@ -97,8 +97,9 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 		return document;
 	}
 
-	public upgrade(newHeader: DocumentHeader) {
-		this.#header = DocumentHeader.upgrade(this.#header, newHeader);
+	public mergeDocument(document: Document<TData>) {
+		this.#header = DocumentHeader.merge(this.#header, document.#header);
+		this.update(doc => A.merge(doc, document.#document));
 	}
 
 	private hasChanged(document: A.Doc<TData>) {

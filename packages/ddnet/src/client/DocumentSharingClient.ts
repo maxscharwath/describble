@@ -107,7 +107,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		});
 
 		return Promise.any<Document<TData>>([
-			this.find<TData>(documentId).then(document => {
+			this.findDocument<TData>(documentId).then(document => {
 				if (!document) {
 					throw new Error('Document not found');
 				}
@@ -130,8 +130,8 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 	 * @returns The found document or undefined if the document doesn't exist.
 	 * @param id - The ID of the document to find.
 	 */
-	public async find<TData>(id: DocumentId): Promise<Document<TData> | undefined> {
-		const document = await super.find<TData>(id);
+	public async findDocument<TData>(id: DocumentId): Promise<Document<TData> | undefined> {
+		const document = await super.findDocument<TData>(id);
 		if (document) {
 			return document;
 		}
@@ -139,7 +139,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		const rawHeader = await this.storage.loadHeader(id);
 		if (rawHeader) {
 			const binary = await this.storage.loadBinary(id);
-			return this.add(Document.fromRawHeader(rawHeader, binary));
+			return this.setDocument(Document.fromRawHeader(rawHeader, binary));
 		}
 	}
 
@@ -156,9 +156,12 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 	 * @private
 	 */
 	private setupEvents(): void {
-		this.on('document', async document => {
-			// TODO: Check document address and header version, to avoid saving old headers
-			await this.storage.addDocument(document);
+		this.on('document-updated', async document => {
+			await this.storage.setDocument(document);
+		});
+
+		this.on('document-added', async document => {
+			await this.storage.setDocument(document);
 			document.on('change', async () => {
 				await this.storage.save(document);
 			});
@@ -177,7 +180,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		// Handle request document messages
 		this.exchanger.on('request-document', async message => {
 			const {documentId} = message.data;
-			const document = await this.find(documentId);
+			const document = await this.findDocument(documentId);
 			if (document?.header.hasAllowedUser(message.from.publicKey)) {
 				await this.exchanger.sendMessage({
 					type: 'document-response',
@@ -195,7 +198,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 
 		// Handle document response messages
 		this.exchanger.on('document-response', message => {
-			this.add(Document.import(message.data.document));
+			void this.setDocument(Document.import(message.data.document));
 		});
 	}
 }

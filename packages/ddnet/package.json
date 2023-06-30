@@ -15,7 +15,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@automerge/automerge": "^2.1.0-alpha.5",
+    "@automerge/automerge": "2.1.0-alpha.8",
     "@koush/wrtc": "^0.5.3",
     "@noble/hashes": "^1.3.1",
     "@noble/secp256k1": "^2.0.0",

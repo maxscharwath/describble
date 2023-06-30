@@ -1,48 +1,52 @@
-import {decryptData, encryptData} from '../crypto';
+import {decryptData, encryptData, getPublicKey} from '../crypto';
 import {type StorageProvider} from './StorageProvider';
 import {type DocumentId} from '../types';
+import {base58} from 'base-x';
 
 export class SecureStorageProvider implements StorageProvider {
+	private readonly publicKey: string;
 	constructor(
 		private readonly storageProvider: StorageProvider,
 		private readonly privateKey: Uint8Array,
-	) {}
-
-	async saveDocumentHeader(documentId: DocumentId, header: Uint8Array): Promise<void> {
-		return this.storageProvider.saveDocumentHeader(documentId, await this.encrypt(header));
+	) {
+		this.publicKey = base58.encode(getPublicKey(privateKey));
 	}
 
-	async removeDocument(documentId: DocumentId): Promise<void> {
-		return this.storageProvider.removeDocument(documentId);
+	async saveDocumentHeader(namespace: string, documentId: DocumentId, header: Uint8Array): Promise<void> {
+		return this.storageProvider.saveDocumentHeader(`${namespace}:${this.publicKey}`, documentId, await this.encrypt(header));
 	}
 
-	async getDocumentHeader(documentId: DocumentId): Promise<Uint8Array | undefined> {
-		return this.decrypt(await this.storageProvider.getDocumentHeader(documentId));
+	async removeDocument(namespace: string, documentId: DocumentId): Promise<void> {
+		return this.storageProvider.removeDocument(`${namespace}:${this.publicKey}`, documentId);
 	}
 
-	async listDocuments(): Promise<DocumentId[]> {
-		return this.storageProvider.listDocuments();
+	async getDocumentHeader(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
+		return this.decrypt(await this.storageProvider.getDocumentHeader(`${namespace}:${this.publicKey}`, documentId));
 	}
 
-	async getSnapshot(documentId: DocumentId): Promise<Uint8Array | undefined> {
-		return this.decrypt(await this.storageProvider.getSnapshot(documentId));
+	async listDocuments(namespace: string): Promise<DocumentId[]> {
+		return this.storageProvider.listDocuments(`${namespace}:${this.publicKey}`);
 	}
 
-	async removeSnapshot(documentId: DocumentId): Promise<void> {
-		return this.storageProvider.removeSnapshot(documentId);
+	async getSnapshot(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
+		return this.decrypt(await this.storageProvider.getSnapshot(`${namespace}:${this.publicKey}`, documentId));
 	}
 
-	async saveSnapshot(documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {
-		return this.storageProvider.saveSnapshot(documentId, await this.encrypt(binary), clearChunks);
+	async removeSnapshot(namespace: string, documentId: DocumentId): Promise<void> {
+		return this.storageProvider.removeSnapshot(`${namespace}:${this.publicKey}`, documentId);
 	}
 
-	async getChunks(documentId: DocumentId, clear?: boolean): Promise<Uint8Array[]> {
-		const chunks = await this.storageProvider.getChunks(documentId, clear);
+	async saveSnapshot(namespace: string, documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {
+		return this.storageProvider.saveSnapshot(`${namespace}:${this.publicKey}`, documentId, await this.encrypt(binary), clearChunks);
+	}
+
+	async getChunks(namespace: string, documentId: DocumentId, clear?: boolean): Promise<Uint8Array[]> {
+		const chunks = await this.storageProvider.getChunks(`${namespace}:${this.publicKey}`, documentId, clear);
 		return Promise.all(chunks.map(async chunk => this.decrypt(chunk)));
 	}
 
-	async saveChunk(documentId: DocumentId, binary: Uint8Array, index: number): Promise<void> {
-		return this.storageProvider.saveChunk(documentId, await this.encrypt(binary), index);
+	async saveChunk(namespace: string, documentId: DocumentId, binary: Uint8Array, index: number): Promise<void> {
+		return this.storageProvider.saveChunk(`${namespace}:${this.publicKey}`, documentId, await this.encrypt(binary), index);
 	}
 
 	private async decrypt<T extends Uint8Array | undefined>(value: Promise<T> | T): Promise<T> {

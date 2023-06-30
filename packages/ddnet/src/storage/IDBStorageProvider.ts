@@ -18,47 +18,38 @@ interface DDNetDB extends DBSchema {
 }
 
 export class IDBStorageProvider implements StorageProvider {
-	private readonly dbPromise: Promise<IDBPDatabase<DDNetDB>>;
-	constructor() {
-		const name = 'ddnet';
-		this.dbPromise = openDB<DDNetDB>(name, 1, {
-			upgrade(db) {
-				db.createObjectStore('documents');
-				db.createObjectStore('saves');
-			},
-		});
-	}
+	private readonly dbPromises = new Map<string, Promise<IDBPDatabase<DDNetDB>>>();
 
-	async saveDocumentHeader(documentId: DocumentId, header: Uint8Array): Promise<void> {
-		const db = await this.dbPromise;
+	async saveDocumentHeader(namespace: string, documentId: DocumentId, header: Uint8Array): Promise<void> {
+		const db = await this.getDB(namespace);
 		await db.put('documents', header, documentId);
 	}
 
-	async getDocumentHeader(documentId: DocumentId): Promise<Uint8Array | undefined> {
-		const db = await this.dbPromise;
+	async getDocumentHeader(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
+		const db = await this.getDB(namespace);
 		return db.get('documents', documentId);
 	}
 
-	async removeDocument(documentId: DocumentId): Promise<void> {
-		const db = await this.dbPromise;
+	async removeDocument(namespace: string, documentId: DocumentId): Promise<void> {
+		const db = await this.getDB(namespace);
 		const tx = db.transaction(['documents', 'saves'], 'readwrite');
 		await tx.objectStore('documents').delete(documentId);
 		await tx.objectStore('saves').delete(IDBKeyRange.bound([documentId], [documentId, '\uffff']));
 		await tx.done;
 	}
 
-	async listDocuments(): Promise<DocumentId[]> {
-		const db = await this.dbPromise;
+	async listDocuments(namespace: string): Promise<DocumentId[]> {
+		const db = await this.getDB(namespace);
 		return db.getAllKeys('documents');
 	}
 
-	async saveChunk(documentId: DocumentId, binary: Uint8Array, index: number): Promise<void> {
-		const db = await this.dbPromise;
+	async saveChunk(namespace: string, documentId: DocumentId, binary: Uint8Array, index: number): Promise<void> {
+		const db = await this.getDB(namespace);
 		await db.put('saves', binary, [documentId, 'incremental', index]);
 	}
 
-	async getChunks(documentId: DocumentId, clear = false): Promise<Uint8Array[]> {
-		const db = await this.dbPromise;
+	async getChunks(namespace: string, documentId: DocumentId, clear = false): Promise<Uint8Array[]> {
+		const db = await this.getDB(namespace);
 		const keyRange = IDBKeyRange.bound(
 			[documentId, 'incremental'],
 			[documentId, 'incremental', '\uffff'],
@@ -78,8 +69,8 @@ export class IDBStorageProvider implements StorageProvider {
 		return chunks;
 	}
 
-	async saveSnapshot(documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {
-		const db = await this.dbPromise;
+	async saveSnapshot(namespace: string, documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {
+		const db = await this.getDB(namespace);
 		const tx = db.transaction('saves', 'readwrite');
 		await tx.store.put(binary, [documentId, 'snapshot']);
 		if (clearChunks) {
@@ -89,13 +80,28 @@ export class IDBStorageProvider implements StorageProvider {
 		await tx.done;
 	}
 
-	async getSnapshot(documentId: DocumentId): Promise<Uint8Array | undefined> {
-		const db = await this.dbPromise;
+	async getSnapshot(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
+		const db = await this.getDB(namespace);
 		return db.get('saves', [documentId, 'snapshot']);
 	}
 
-	async removeSnapshot(documentId: DocumentId): Promise<void> {
-		const db = await this.dbPromise;
+	async removeSnapshot(namespace: string, documentId: DocumentId): Promise<void> {
+		const db = await this.getDB(namespace);
 		await db.delete('saves', [documentId, 'snapshot']);
+	}
+
+	private async getDB(namespace: string): Promise<IDBPDatabase<DDNetDB>> {
+		let dbPromise = this.dbPromises.get(namespace);
+		if (!dbPromise) {
+			dbPromise = openDB<DDNetDB>(namespace, 1, {
+				upgrade(db) {
+					db.createObjectStore('documents');
+					db.createObjectStore('saves');
+				},
+			});
+			this.dbPromises.set(namespace, dbPromise);
+		}
+
+		return dbPromise;
 	}
 }

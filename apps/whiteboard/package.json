@@ -24,7 +24,7 @@
     "automerge-repo-network-websocket": "^0.1.0",
     "automerge-repo-storage-localforage": "^0.1.0",
     "clsx": "^1.2.1",
-    "framer-motion": "^10.12.17",
+    "framer-motion": "^10.12.18",
     "idb-keyval": "^6.2.1",
     "nanoid": "^4.0.2",
     "perfect-freehand": "^1.2.0",

@@ -115,4 +115,12 @@ export class DocumentHeader {
 
 		return newHeader;
 	}
+
+	public static merge(oldHeader: DocumentHeader, newHeader: DocumentHeader): DocumentHeader {
+		try {
+			return DocumentHeader.upgrade(oldHeader, newHeader);
+		} catch {
+			return oldHeader;
+		}
+	}
 }

@@ -85,7 +85,7 @@ export const StyleSidebar = () => {
 		<Sidebar title='Style'>
 			<div className='grid grid-cols-2 items-center justify-items-center gap-2'>
 				{/* Border Style */}
-				<p className='justify-self-start overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold dark:text-gray-200'>Border Style</p>
+				<p className='justify-self-start truncate text-sm font-semibold dark:text-gray-200'>Border Style</p>
 				<div className='grid grid-cols-3 justify-items-center gap-2'>
 					{/* Solid */}
 					<StyleButton
@@ -116,7 +116,7 @@ export const StyleSidebar = () => {
 				</div>
 
 				{/* Size */}
-				<p className='justify-self-start overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold dark:text-gray-200'>Size</p>
+				<p className='justify-self-start truncate text-sm font-semibold dark:text-gray-200'>Size</p>
 				<div className='grid grid-cols-3 justify-items-center gap-2'>
 					{/* Small */}
 					<StyleButton
@@ -145,7 +145,7 @@ export const StyleSidebar = () => {
 				</div>
 
 				{/* Fill Style */}
-				<p className='justify-self-start overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold dark:text-gray-200'>Fill Style</p>
+				<p className='justify-self-start truncate text-sm font-semibold dark:text-gray-200'>Fill Style</p>
 				<div className='grid grid-cols-3 justify-items-center gap-2'>
 					{/* Empty */}
 					<StyleButton

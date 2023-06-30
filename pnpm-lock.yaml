@@ -82,8 +82,8 @@ importers:
         specifier: ^1.2.1
         version: 1.2.1
       framer-motion:
-        specifier: ^10.12.17
-        version: 10.12.17(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^10.12.18
+        version: 10.12.18(react-dom@18.2.0)(react@18.2.0)
       idb-keyval:
         specifier: ^6.2.1
         version: 6.2.1
@@ -212,8 +212,8 @@ importers:
   packages/ddnet:
     dependencies:
       '@automerge/automerge':
-        specifier: ^2.1.0-alpha.5
-        version: 2.1.0-alpha.5
+        specifier: 2.1.0-alpha.8
+        version: 2.1.0-alpha.8
       '@koush/wrtc':
         specifier: ^0.5.3
         version: 0.5.3
@@ -421,8 +421,8 @@ importers:
         specifier: npm:class-variance-authority@^0.5.2
         version: /class-variance-authority@0.5.3(typescript@5.1.6)
       framer-motion:
-        specifier: ^10.12.17
-        version: 10.12.17(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^10.12.18
+        version: 10.12.18(react-dom@18.2.0)(react@18.2.0)
     devDependencies:
       '@types/react':
         specifier: ^18.2.14
@@ -474,8 +474,8 @@ packages:
     resolution: {integrity: sha512-NLH7KpErTuy2O1VIA0uE+48e0u69o0qL8/9RZYjLd2uEZeWBzIWbhyDJGfUPDMIYXtkcy8z2H7h6YcwusG0BXA==}
     dev: false
 
-  /@automerge/automerge-wasm@0.2.6:
-    resolution: {integrity: sha512-pbH2ETAq891BDNb4VgeAem9EGkhm9uuetRiRcBvNA0BaW8lqheAu2Ll4E32+RRQL7WXCM172FLQdu/de/kkUBg==}
+  /@automerge/automerge-wasm@0.2.7:
+    resolution: {integrity: sha512-z0LTg8+6kowLOhv7AO3sIU2l9SL9EOiO/eMPOgujQZtbNjiV74wOIlYptHYSl5lOg1dvUDFcor6sMNq9+l6cWA==}
     dev: false
 
   /@automerge/automerge@2.0.3:
@@ -485,10 +485,10 @@ packages:
       uuid: 9.0.0
     dev: false
 
-  /@automerge/automerge@2.1.0-alpha.5:
-    resolution: {integrity: sha512-b9GKSja7cBbBpY1ydI5vT2ibm/9iLp+KD+1VoTEIVRCrrSFosmD7h6e27++LSYHQoZx5fTS411vcDUW9uvHZaQ==}
+  /@automerge/automerge@2.1.0-alpha.8:
+    resolution: {integrity: sha512-KyeHWgw8QxZt/Txgfjm7OMFRPomcsYgRoywWpr0l+AzUtQb0mpLi50bWX85dTOIBpJR6UQ8cLotACXY8qJIZHw==}
     dependencies:
-      '@automerge/automerge-wasm': 0.2.6
+      '@automerge/automerge-wasm': 0.2.7
       uuid: 9.0.0
     dev: false
 
@@ -4239,8 +4239,8 @@ packages:
     resolution: {integrity: sha512-MhLuK+2gUcnZe8ZHlaaINnQLl0xRIGRfcGk2yl8xoQAfHrSsL3rYu6FCmBdkdbhc9EPlwyGHewaRsvwRMJtAlA==}
     dev: true
 
-  /framer-motion@10.12.17(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-IR+aAYntsyu6ofyxqQV4QYotmOqzcuKxhqNpfc3DXJjNWOPpOeSyH0A+In3IEBu49Yx/+PNht+YMeZSdCNaYbw==}
+  /framer-motion@10.12.18(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-cfhiUpPbj+0eEWKjuD+5cz5cMqH71xOtMxGiS/cSGfHn2OlHIEAqFnFyzEMENw5PxWR9bMVhatzzpD6lexmHZQ==}
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0

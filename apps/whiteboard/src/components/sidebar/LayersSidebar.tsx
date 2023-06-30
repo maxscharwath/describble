@@ -73,7 +73,7 @@ const LayerItem = memo(({layerId}: {layerId: string}) => {
 				className='h-8 w-8 shrink-0 rounded-lg border border-gray-300 bg-gray-100/50 p-0.5 shadow-sm dark:border-gray-600 dark:bg-gray-800/50'
 			/>
 			<span
-				className='overflow-hidden text-ellipsis whitespace-nowrap text-sm dark:text-gray-200'
+				className='truncate text-sm dark:text-gray-200'
 				title={layer.id}
 			>
 				{layer.type}

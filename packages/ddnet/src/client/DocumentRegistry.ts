@@ -3,7 +3,8 @@ import {Document} from '../document/Document';
 import {type DocumentId} from '../types';
 
 type DocumentRegistryEvent = {
-	'document': Document<unknown>;
+	'document-added': Document<unknown>;
+	'document-updated': Document<unknown>;
 	'document-destroyed': Document<unknown>;
 };
 
@@ -14,24 +15,33 @@ export class DocumentRegistry<TAdditionalEvent extends {} extends Partial<Docume
 		super();
 	}
 
-	public create<TData>(allowedClients: Uint8Array[] = []) {
+	public createDocument<TData>(allowedClients: Uint8Array[] = []) {
 		const document = Document.create<TData>(this.privateKey, allowedClients);
 		this.documents.set(document.id, document);
-		void this.emit('document', document as Document<unknown>);
+		void this.emit('document-added', document as Document<unknown>);
 		return document;
 	}
 
-	public async find<TData>(id: DocumentId) {
+	public async findDocument<TData>(id: DocumentId) {
 		return this.documents.get(id) as Document<TData> | undefined;
 	}
 
-	public add<TData>(document: Document<TData>) {
-		this.documents.set(document.id, document);
-		void this.emit('document', document as Document<unknown>);
-		return document;
+	public async setDocument<TData>(incomingDocument: Document<TData>) {
+		let targetDocument = this.documents.get(incomingDocument.id);
+
+		if (targetDocument) {
+			targetDocument.mergeDocument(incomingDocument);
+			void this.emit('document-updated', targetDocument as Document<unknown>);
+		} else {
+			targetDocument = incomingDocument;
+			this.documents.set(targetDocument.id, targetDocument);
+			void this.emit('document-added', targetDocument as Document<unknown>);
+		}
+
+		return targetDocument as Document<TData>;
 	}
 
-	public remove(id: DocumentId) {
+	public removeDocument(id: DocumentId) {
 		const document = this.documents.get(id);
 		if (document) {
 			this.documents.delete(id);
