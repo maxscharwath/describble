@@ -163,8 +163,12 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 
 		this.on('document-added', async document => {
 			await this.storage.setDocument(document);
+			let lastSaved = 0;
 			document.on('change', async () => {
-				await this.storage.save(document);
+				if (Date.now() - lastSaved > 500) {
+					lastSaved = Date.now();
+					await this.storage.save(document);
+				}
 			});
 			this.synchronizers.set(document.id, new DocumentSynchronizer(document));
 			await this.emit(`document-${document.id}`, document);
