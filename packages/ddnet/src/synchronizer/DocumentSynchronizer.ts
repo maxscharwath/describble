@@ -33,14 +33,13 @@ export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
 			return;
 		}
 
-		const handler = (message: Uint8Array) => this.processSyncMessage(peer.peerId, message);
-		peer.connection.on('data', handler);
+		const clear = peer.connection.on('data', message => {
+			this.processSyncMessage(peer.peerId, message);
+		});
 
 		const peerInfo: PeerInfo = {
 			peer,
-			clear() {
-				peer.connection.off('message', handler);
-			},
+			clear,
 			syncState: A.initSyncState(),
 		};
 		this.peers.set(peer.peerId, peerInfo);
@@ -67,7 +66,6 @@ export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
 
 	private syncWithPeers() {
 		const doc = this.document.data;
-		console.log(`Syncing with ${this.peers.size} peers`);
 		this.peers.forEach((_, peerId) => {
 			this.sendSyncMessage(peerId, doc);
 		});

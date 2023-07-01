@@ -48,7 +48,6 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	public update(callback: (document: A.Doc<TData>) => A.Doc<TData>) {
 		const newDocument = callback(this.#document);
 		if (this.hasChanged(newDocument)) {
-			console.log('Document changed', newDocument);
 			void this.emit('change', {document: this, data: newDocument});
 		}
 
@@ -99,7 +98,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 
 	public mergeDocument(document: Document<TData>) {
 		this.#header = DocumentHeader.merge(this.#header, document.#header);
-		this.update(doc => A.merge(doc, document.#document));
+		this.update(doc => A.merge(doc, A.clone(document.#document)));
 	}
 
 	private hasChanged(document: A.Doc<TData>) {

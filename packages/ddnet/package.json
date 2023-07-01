@@ -24,6 +24,7 @@
     "emittery": "^1.0.1",
     "glob": "^10.3.1",
     "idb": "^7.1.1",
+    "isomorphic-ws": "^5.0.0",
     "simple-peer": "^9.11.1",
     "srp": "workspace:*",
     "ts-pattern": "^5.0.1",

@@ -28,7 +28,7 @@ import {
 } from '~core/managers';
 import React from 'react';
 import {getCanvasBounds, getCanvasPoint, getScreenBounds, getScreenPoint} from '~core/utils';
-export type {Document, Asset} from '~core/managers/DocumentManager';
+export type {DocumentData, Asset} from '~core/managers/DocumentManager';
 export enum Status {
 	Idle = 'idle',
 }

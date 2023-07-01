@@ -1,7 +1,7 @@
 import Emittery from 'emittery';
-import {type Connection} from '../network';
 import {z} from 'zod';
 import {decode, encode} from 'cbor-x';
+import {type Connection} from '../network/Connection';
 
 /**
  * Define the structure of a challenge message using Zod schema.

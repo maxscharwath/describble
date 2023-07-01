@@ -1,8 +1,9 @@
 import {v4 as uuidv4} from 'uuid';
 import Emittery from 'emittery';
-import type {Connection, NetworkAdapter} from '../network';
 import {decodeMessage, encodeMessage, type Message} from '../Message';
 import {ClientAuthenticator} from '../authenticator/ClientAuthenticator';
+import {type NetworkAdapter} from '../network/NetworkAdapter';
+import {type Connection} from '../network/Connection';
 
 /**
  * Configuration for the SignalingClient.

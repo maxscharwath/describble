@@ -1,4 +1,4 @@
-import WebSocket from 'universal-ws-client';
+import WebSocket from 'isomorphic-ws';
 import {base58} from 'base-x';
 import {Connection} from '../Connection';
 
@@ -13,20 +13,23 @@ export class WebSocketConnection extends Connection {
    */
 	protected constructor(private readonly socket: WebSocket) {
 		super();
+		this.socket.binaryType = 'arraybuffer';
 
 		// Setup event listeners for the WebSocket events
-		this.socket.on('message', (data: Uint8Array) => {
-			// Emit a 'data' event whenever a message event is received from the socket
-			void this.emit('data', data);
-		});
-		this.socket.on('close', (code, reason) => {
+		this.socket.onmessage = event => {
+			// Emit a 'message' event whenever a message event is received from the socket
+			void this.emit('data', new Uint8Array(event.data as ArrayBuffer));
+		};
+
+		this.socket.onclose = event => {
 			// Emit a 'close' event whenever a close event is received from the socket
-			void this.emit('close', new Error(reason.toString()));
-		});
-		this.socket.on('error', error => {
+			void this.emit('close', new Error(event.reason));
+		};
+
+		this.socket.onerror = event => {
 			// Emit a 'close' event whenever an error event is received from the socket
-			void this.emit('close', error);
-		});
+			void this.emit('close', event.error as Error);
+		};
 	}
 
 	/**
@@ -36,7 +39,6 @@ export class WebSocketConnection extends Connection {
 	public close(cause: string): void {
 		// Close the socket connection and remove all listeners
 		this.socket.close(1000, cause);
-		this.socket.removeAllListeners();
 		this.clearListeners();
 	}
 
@@ -64,12 +66,10 @@ export class WebSocketConnection extends Connection {
    */
 	public static create(url: string, publicKey: Uint8Array, clientId: Uint8Array) {
 		// Create a new WebSocketConnection by wrapping a new WebSocket object
-		return new WebSocketConnection(new WebSocket(url, {
-			headers: {
-				'x-public-key': base58.encode(publicKey),
-				'x-client-id': base58.encode(clientId),
-			},
-		}));
+		const urlObject = new URL(url);
+		urlObject.searchParams.set('publicKey', base58.encode(publicKey));
+		urlObject.searchParams.set('clientId', base58.encode(clientId));
+		return new WebSocketConnection(new WebSocket(urlObject));
 	}
 
 	/**

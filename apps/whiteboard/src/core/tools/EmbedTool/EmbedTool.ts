@@ -12,7 +12,7 @@ export class EmbedTool extends BaseTool {
 		this.openUrlDialog();
 	}
 
-	onPointerDown = (event: React.PointerEvent) => {
+	onPointerDown = async (event: React.PointerEvent) => {
 		if (this.status !== Status.Idle || !this.url) {
 			return;
 		}
@@ -24,7 +24,7 @@ export class EmbedTool extends BaseTool {
 			position: initPoint,
 			style: this.app.state.appState.currentStyle,
 		});
-		this.app.document.layers.add(layer);
+		await this.app.document.layers.add(layer);
 		this.app.activity.startActivity(ResizeActivity, layer.id, true);
 		this.setStatus(Status.Creating);
 	};

@@ -1,7 +1,7 @@
 import {ServerAuthenticator} from '../authenticator/ServerAuthenticator';
 import {MessageRouter} from './MessageRouter';
 import {ConnectionRegistry} from './ConnectionRegistry';
-import {type Network} from '../network';
+import {type Network} from '../network/Network';
 
 /**
  * Configuration object for the SignalingServer.

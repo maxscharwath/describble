@@ -5,7 +5,7 @@ import {DrawActivity} from '~core/activities/DrawActivity';
 
 export class PathTool extends BaseTool {
 	type = 'path' as const;
-	onPointerDown = (event: React.PointerEvent) => {
+	onPointerDown = async (event: React.PointerEvent) => {
 		if (this.status !== Status.Idle) {
 			return;
 		}
@@ -16,7 +16,7 @@ export class PathTool extends BaseTool {
 			position: initPoint,
 			style: this.app.state.appState.currentStyle,
 		});
-		this.app.document.layers.add(layer);
+		await this.app.document.layers.add(layer);
 		this.app.activity.startActivity(DrawActivity, layer.id);
 		this.setStatus(Status.Creating);
 	};

@@ -1,7 +1,8 @@
 import {base58} from 'base-x';
 import {verifyMessage} from '../Message';
 import {type ConnectionRegistry} from './ConnectionRegistry';
-import type {Connection, Network} from '../network';
+import {type Network} from '../network/Network';
+import {type Connection} from '../network/Connection';
 
 /**
  * MessageRouter class handles routing of messages.

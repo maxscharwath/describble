@@ -7,12 +7,13 @@ import {Document} from '../document/Document';
 import {DocumentSynchronizer} from '../synchronizer/DocumentSynchronizer';
 import {Storage} from '../storage/Storage';
 import {type StorageProvider} from '../storage/StorageProvider';
-import {SecureStorageProvider} from '../storage/SecureStorageProvider';
 import {type DocumentId} from '../types';
+import {type Wrtc} from '../wrtc';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
 type DocumentSharingClientConfig = SignalingClientConfig & {
 	storageProvider: StorageProvider;
+	wrtc?: Wrtc;
 };
 
 type DocumentSharingClientEvent = {
@@ -62,13 +63,11 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 
 		this.peerManager = new PeerManager({
 			exchanger: this.exchanger as MessageExchanger<typeof SignalMessageSchema>,
+			wrtc: config.wrtc,
 		});
 
 		this.storage = new Storage(
-			new SecureStorageProvider(
-				config.storageProvider,
-				config.privateKey,
-			),
+			config.storageProvider,
 		);
 
 		this.setupEvents();
@@ -80,18 +79,20 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 
 	/**
 	 * Initiates a connection to the client.
-	 * @returns Promise<void>
+	 * @returns Promise<this>
 	 */
-	public async connect(): Promise<void> {
-		return this.client.connect();
+	public async connect(): Promise<this> {
+		await this.client.connect();
+		return this;
 	}
 
 	/**
 	 * Disconnects the client.
-	 * @returns Promise<void>
+	 * @returns Promise<this>
 	 */
-	public async disconnect(): Promise<void> {
-		return this.client.disconnect();
+	public async disconnect(): Promise<this> {
+		await this.client.disconnect();
+		return this;
 	}
 
 	/**

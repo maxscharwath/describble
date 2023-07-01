@@ -4,11 +4,16 @@ import {createUseStore, deepmerge} from '~core/utils';
 import {createStore, type StoreApi} from 'zustand/vanilla';
 import {nanoid} from 'nanoid';
 import {type WhiteboardApp} from '~core/WhiteboardApp';
-import {type DocHandle, type DocumentId, Repo} from 'automerge-repo';
-import {LocalForageStorageAdapter} from 'automerge-repo-storage-localforage';
-import type * as A from '@automerge/automerge';
 import {type UseBoundStore} from 'zustand';
-import {BrowserWebSocketClientAdapter} from 'automerge-repo-network-websocket';
+import {
+	type A,
+	type Document,
+	DocumentSharingClient,
+	generateKeyPair,
+	IDBStorageProvider,
+	mnemonicToSeedSync,
+	WebSocketNetworkAdapter,
+} from 'ddnet';
 
 type SyncedDocument = {
 	layers: Record<string, Layer>;
@@ -20,7 +25,7 @@ type BaseDocument = {
 	camera: Camera;
 };
 
-export type Document = BaseDocument & SyncedDocument;
+export type DocumentData = BaseDocument & SyncedDocument;
 
 export type Asset = {
 	id: string;
@@ -65,11 +70,11 @@ class LayerManager {
 		return Object.keys(this.documentHandle.state.layers);
 	}
 
-	patch<T extends Layer>(layer: PatchId<T>, message?: string): void;
-	patch(layers: Array<PatchId<Layer>>, message?: string): void;
-	patch(layers: PatchId<Layer> | Array<PatchId<Layer>>, message?: string): void {
+	async patch<T extends Layer>(layer: PatchId<T>, message?: string): Promise<void>;
+	async patch(layers: Array<PatchId<Layer>>, message?: string): Promise<void>;
+	async patch(layers: PatchId<Layer> | Array<PatchId<Layer>>, message?: string): Promise<void> {
 		const patches = Array.isArray(layers) ? layers : [layers];
-		this.documentHandle.change(state => {
+		return this.documentHandle.change(state => {
 			for (const patch of patches) {
 				const currentLayer = state.layers[patch.id];
 				if (!currentLayer) {
@@ -82,8 +87,8 @@ class LayerManager {
 		}, message ?? `Patch ${patches.length} layers`);
 	}
 
-	change<T extends Layer>(layers: Array<[string, (layer: T) => void]>, message?: string): void {
-		this.documentHandle.change(state => {
+	async change<T extends Layer>(layers: Array<[string, (layer: T) => void]>, message?: string): Promise<void> {
+		return this.documentHandle.change(state => {
 			for (const [id, fn] of layers) {
 				const currentLayer = state.layers[id];
 				if (!currentLayer) {
@@ -96,21 +101,22 @@ class LayerManager {
 		}, message ?? `Set ${layers.length} layers`);
 	}
 
-	add(layer: Layer, message?: string): void;
-	add(layers: Layer[], message?: string): void;
-	add(layers: Layer | Layer[], message?: string) {
+	async add(layer: Layer, message?: string): Promise<void>;
+	async add(layers: Layer[], message?: string): Promise<void>;
+	async add(layers: Layer | Layer[], message?: string): Promise<void> {
 		const newLayers = Array.isArray(layers) ? layers : [layers];
-		this.documentHandle.change(state => {
+		return this.documentHandle.change(state => {
 			for (const layer of newLayers) {
 				state.layers[layer.id] = layer as never;
 				state.layers[layer.id].timestamp = Date.now();
+				console.log('add', layer.id);
 			}
 		}, message ?? `Set ${newLayers.length} layers`);
 	}
 
-	delete(id: string | string[], message?: string) {
+	async delete(id: string | string[], message?: string) {
 		const ids = Array.isArray(id) ? id : [id];
-		this.documentHandle.change(state => {
+		return this.documentHandle.change(state => {
 			for (const id of ids) {
 				// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 				delete state.layers[id];
@@ -118,8 +124,8 @@ class LayerManager {
 		}, message ?? `Delete layer ${ids.join(', ')}`);
 	}
 
-	deleteAll(message?: string) {
-		this.documentHandle.change(state => {
+	async deleteAll(message?: string) {
+		return this.documentHandle.change(state => {
 			state.layers = {};
 		}, message ?? 'Delete all layers');
 	}
@@ -156,56 +162,55 @@ class AssetManager {
 			return existingAsset;
 		}
 
-		this.documentHandle.change(state => {
+		void this.documentHandle.change(state => {
 			state.assets[asset.id] = asset;
 		}, message ?? `Create asset ${asset.id}`);
 		return asset;
 	}
 
 	delete(id: string, message?: string) {
-		this.documentHandle.change(state => {
+		void this.documentHandle.change(state => {
 			// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 			delete state.assets[id];
 		}, message ?? `Delete asset ${id}`);
 	}
 }
 
-const repo = new Repo({
-	network: [
-		new BrowserWebSocketClientAdapter('ws://192.168.2.3:3030'),
-	],
-	storage: new LocalForageStorageAdapter(),
+const repo = new DocumentSharingClient({
+	...generateKeyPair(
+		mnemonicToSeedSync('accident observe boss minute mixture goddess trash craft candy smooth rubber coffee'),
+	),
+	network: new WebSocketNetworkAdapter('wss://ddnet-server.fly.dev'),
+	storageProvider: new IDBStorageProvider(),
 });
+const connected = repo.connect();
 
 export class DocumentHandle {
-	public readonly useStore: UseBoundStore<StoreApi<Document>>;
+	public readonly useStore: UseBoundStore<StoreApi<DocumentData>>;
 	public readonly layers = new LayerManager(this);
 	public readonly assets = new AssetManager(this);
-	private readonly store: StoreApi<Document>;
-	constructor(private readonly docHandle: DocHandle<SyncedDocument>) {
+	private readonly store: StoreApi<DocumentData>;
+	constructor(documentId: string, private readonly docHandle: Promise<Document<SyncedDocument>>) {
 		this.store = createStore(() => ({
-			id: docHandle.documentId,
+			id: documentId,
 			camera: {x: 0, y: 0, zoom: 1},
 			layers: {},
 			assets: {},
 		}));
-		this.docHandle = docHandle;
-		void this.docHandle.value().then(value => {
-			this.store.setState(value);
-		});
-		this.docHandle.on('patch', ({after}) => {
-			this.store.setState(after);
+		void this.docHandle.then(doc => {
+			this.store.setState(doc.data);
+			doc.on('patch', ({after}) => {
+				this.store.setState(after);
+			});
 		});
 		this.useStore = createUseStore(this.store);
 	}
 
-	public change(fn: A.ChangeFn<SyncedDocument>, message?: string) {
-		this.docHandle.change(fn, {
-			message,
-		});
+	public async change(fn: A.ChangeFn<SyncedDocument>, message?: string) {
+		(await this.docHandle).change(fn, {message});
 	}
 
-	public get state(): Readonly<Document> {
+	public get state(): Readonly<DocumentData> {
 		return this.store.getState();
 	}
 
@@ -239,20 +244,19 @@ export class DocumentManager {
 	}
 
 	public create() {
-		const doc = this.repo.create<SyncedDocument>();
+		const doc = this.repo.createDocument<SyncedDocument>();
 		doc.change(state => {
 			state.layers = {};
 			state.assets = {};
 		});
-		return doc.documentId;
+		return doc.id;
 	}
 
 	public open(id: string) {
-		const doc = this.repo.find<SyncedDocument>(id as DocumentId);
-		this.currentDocumentHandle = new DocumentHandle(doc);
+		this.currentDocumentHandle = new DocumentHandle(id, connected.then(async () => this.repo.requestDocument(id)));
 	}
 
-	public list() {
-		return Object.keys(this.repo.handles);
+	public async list() {
+		return this.repo.listDocumentIds();
 	}
 }

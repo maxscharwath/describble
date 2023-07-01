@@ -1,4 +1,6 @@
-import {Connection, Network, type NetworkAdapter} from '../src/network';
+import {Connection} from '../src/network/Connection';
+import {Network} from '../src/network/Network';
+import {type NetworkAdapter} from '../src/network/NetworkAdapter';
 
 export class MockConnection extends Connection {
 	public relatedConnection?: MockConnection;

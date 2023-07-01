@@ -12,7 +12,7 @@ export class ImageTool extends BaseTool {
 		this.openFileDialog();
 	}
 
-	onPointerDown = (event: React.PointerEvent) => {
+	onPointerDown = async (event: React.PointerEvent) => {
 		if (this.status !== Status.Idle) {
 			return;
 		}
@@ -24,7 +24,7 @@ export class ImageTool extends BaseTool {
 			assetId: this.assetId!,
 			style: this.app.state.appState.currentStyle,
 		});
-		this.app.document.layers.add(layer);
+		await this.app.document.layers.add(layer);
 		this.app.activity.startActivity(ResizeActivity, layer.id, true);
 		this.setStatus(Status.Creating);
 	};

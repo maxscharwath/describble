@@ -5,7 +5,7 @@ import {BaseTool, Status} from '../BaseTool';
 
 export class LineTool extends BaseTool {
 	type = 'line' as const;
-	onPointerDown = (event: React.PointerEvent) => {
+	onPointerDown = async (event: React.PointerEvent) => {
 		if (this.status !== Status.Idle) {
 			return;
 		}
@@ -16,7 +16,7 @@ export class LineTool extends BaseTool {
 			position: initPoint,
 			style: this.app.state.appState.currentStyle,
 		});
-		this.app.document.layers.add(layer);
+		await this.app.document.layers.add(layer);
 		this.app.activity.startActivity(ResizeActivity, layer.id, true);
 		this.setStatus(Status.Creating);
 	};

@@ -13,7 +13,7 @@ export class DrawActivity extends BaseActivity {
 	}
 
 	abort() {
-		this.app.document.layers.delete(this.layerId);
+		void this.app.document.layers.delete(this.layerId);
 	}
 
 	complete(): void {
@@ -37,7 +37,7 @@ export class DrawActivity extends BaseActivity {
 			return;
 		}
 
-		this.app.document.layers.change([
+		void this.app.document.layers.change([
 			[layer.id, (layer: PathLayer) => {
 				const {x, y, pressure} = this.app.currentPoint;
 				const initPoint = this.initLayer!.position;

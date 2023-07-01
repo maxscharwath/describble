@@ -1,15 +1,16 @@
 import 'fake-indexeddb/auto';
+import {base58} from 'base-x';
+import wrtc from './src/wrtc';
+import {SignalingServer} from './src/server/SignalingServer';
+import {WebSocketNetwork} from './src/network/websocket/WebSocketNetwork';
 import {
-	SignalingServer,
-	WebSocketNetwork,
-	WebSocketNetworkAdapter,
 	DocumentSharingClient,
 	generateKeyPair,
+	IDBStorageProvider,
 	mnemonicToSeedSync,
+	WebSocketNetworkAdapter,
 } from './src';
-import {base58} from 'base-x';
 import {NodeFileStorageProvider} from './src/storage/NodeFileStorageProvider';
-import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 
 (async () => {
 	const server = new SignalingServer({
@@ -28,6 +29,7 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 		),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 		storageProvider: new NodeFileStorageProvider('.ddnet'),
+		wrtc,
 	});
 
 	const clientBob = new DocumentSharingClient({
@@ -36,6 +38,7 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 		),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 		storageProvider: new IDBStorageProvider(),
+		wrtc,
 	});
 
 	const clientCharlie = new DocumentSharingClient({
@@ -44,6 +47,7 @@ import {IDBStorageProvider} from './src/storage/IDBStorageProvider';
 		),
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 		storageProvider: new NodeFileStorageProvider('.ddnet'),
+		wrtc,
 	});
 
 	const documentList = await clientAlice.listDocumentIds();

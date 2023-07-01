@@ -1,6 +1,8 @@
 import {MockNetwork, MockNetworkAdapter} from './MockNetwork';
 import {expect} from 'vitest';
-import {generateKeyPair, SignalingClient, SignalingServer} from '../src';
+import {SignalingClient} from '../src/client/SignalingClient';
+import {generateKeyPair} from '../src';
+import {SignalingServer} from '../src/server/SignalingServer';
 
 /**
  * Creates a number of clients and connects them to the server.

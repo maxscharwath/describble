@@ -1,10 +1,10 @@
-import SimplePeer from 'simple-peer';
 import {type MessageExchanger} from '../exchanger/MessageExchanger';
 import {sha256Some} from '../crypto';
-import wrtc from '../wrtc';
+import {type Wrtc} from '../wrtc';
 import {z} from 'zod';
 import Emittery from 'emittery';
 import {base58} from 'base-x';
+import {PeerConnection, type SignalData} from '../network/PeerConnection';
 
 type DocumentId = string;
 export type PeerId = string;
@@ -16,18 +16,19 @@ export type ClientIdentity = {
 
 export type Peer = {
 	peerId: PeerId;
-	connection: SimplePeer.Instance;
+	connection: PeerConnection;
 	client: ClientIdentity;
 };
 
 export const SignalMessageSchema = z.object({
 	type: z.literal('signal'),
 	documentId: z.string(),
-	signal: z.any().refine((value): value is SimplePeer.SignalData => true),
+	signal: z.any().refine((value): value is SignalData => true),
 });
 
 type PeerManagerConfig = {
 	exchanger: MessageExchanger<typeof SignalMessageSchema>;
+	wrtc?: Wrtc;
 	timeout?: number;
 };
 
@@ -47,14 +48,16 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 	private readonly documentPeers = new Map<DocumentId, Set<Peer>>();
 	private readonly connectionTimeout: number;
 	private readonly exchanger: MessageExchanger<typeof SignalMessageSchema>;
+	private readonly wrtc?: Wrtc;
 
 	constructor(config: PeerManagerConfig) {
 		super();
 		this.connectionTimeout = config.timeout ?? 10000;
 		this.exchanger = config.exchanger;
+		this.wrtc = config.wrtc;
 		this.exchanger.on('signal', message => {
 			const {connection} = this.createPeer(false, message.data.documentId, message.from);
-			connection.signal(message.data.signal);
+			void connection.signal(message.data.signal);
 		});
 	}
 
@@ -74,7 +77,7 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 
 		const peer: Peer = {
 			peerId,
-			connection: new SimplePeer({initiator, wrtc}),
+			connection: new PeerConnection({initiator, wrtc: this.wrtc}),
 			client,
 		};
 
@@ -84,6 +87,7 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 
 		peer.connection
 			.on('connect', () => {
+				console.log('Peer connected', peerId);
 				clearTimeout(timeout);
 				this.pendingPeer.delete(peerId);
 				this.addPeer(documentId, peer);
@@ -91,21 +95,23 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 					documentId,
 					peer,
 				});
-			})
-			.on('close', () => {
-				this.removePeer(documentId, peer);
-				void this.emit('peer-destroyed', {
-					documentId,
-					peer,
-				});
-			})
-			.on('signal', signal => {
-				void this.exchanger.sendMessage({
-					type: 'signal',
-					documentId,
-					signal,
-				}, client);
 			});
+
+		peer.connection.on('close', () => {
+			this.removePeer(documentId, peer);
+			void this.emit('peer-destroyed', {
+				documentId,
+				peer,
+			});
+		});
+
+		peer.connection.on('signal', signal => {
+			void this.exchanger.sendMessage({
+				type: 'signal',
+				documentId,
+				signal: JSON.parse(JSON.stringify(signal)) as SignalData,
+			}, client);
+		});
 
 		this.pendingPeer.set(peerId, peer);
 

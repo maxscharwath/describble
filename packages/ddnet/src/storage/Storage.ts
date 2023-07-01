@@ -64,7 +64,7 @@ export class Storage {
 	}
 
 	private shouldCompact(documentId: DocumentId) {
-		return (this.changeCount.get(documentId) ?? 0) >= 20;
+		return (this.changeCount.get(documentId) ?? 0) >= 50;
 	}
 
 	private async saveIncremental(documentId: DocumentId, doc: Doc<unknown>) {

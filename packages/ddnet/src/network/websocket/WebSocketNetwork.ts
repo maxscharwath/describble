@@ -27,8 +27,9 @@ export class WebSocketNetwork extends Network {
 		// Listen for 'connection' events on the WebSocketServer.
 		this.wss.on('connection', (ws, req) => {
 			// Public key and client ID are sent as headers in base58 encoding.
-			const publicKey = base58.decode(req.headers['x-public-key'] as string);
-			const clientId = base58.decode(req.headers['x-client-id'] as string);
+			const url = new URL(req.url!, 'ddnet://');
+			const publicKey = base58.decode(url.searchParams.get('publicKey')!);
+			const clientId = base58.decode(url.searchParams.get('clientId')!);
 
 			// Create a new WebSocketConnection from the WebSocket object.
 			const connection = WebSocketConnection.fromSocket(ws);

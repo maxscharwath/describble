@@ -1,7 +1,6 @@
 import {Authenticator} from './Authenticator';
 import {createSignature} from '../crypto';
-import {type Connection} from '../network';
-
+import {type Connection} from '../network/Connection';
 /**
  * The ClientAuthenticator is a helper class that can be used to authenticate client connections.
  * It handles the authentication process by responding to a server challenge and waiting for server validation.

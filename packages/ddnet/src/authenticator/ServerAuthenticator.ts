@@ -1,6 +1,7 @@
-import type {Connection, Network} from '../network';
 import {Authenticator} from './Authenticator';
 import {verifySignature} from '../crypto';
+import {type Connection} from '../network/Connection';
+import {type Network} from '../network/Network';
 
 /**
  * Events emitted by the Authenticator.
