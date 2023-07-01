@@ -6,6 +6,7 @@ import {normalizeBounds} from '~core/utils';
 
 export interface BaseLayer {
 	id: string;
+	timestamp?: number;
 	name: string;
 	type: string;
 	assetId?: string;
@@ -32,35 +33,26 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 		return this.getLayer(props);
 	}
 
-	public resize(layer: T, bounds: Bounds): Partial<T> {
+	public resize(current: T, layer: T, bounds: Bounds): T {
 		const {x, y} = normalizeBounds(bounds);
-		return {
-			position: {
-				x,
-				y,
-			},
-		} satisfies Partial<BaseLayer> as Partial<T>;
+		current.position.x = x;
+		current.position.y = y;
+		return current;
 	}
 
-	public translate(layer: T, delta: Point): Partial<T> {
-		return {
-			position: {
-				x: layer.position.x + delta.x,
-				y: layer.position.y + delta.y,
-			},
-		} satisfies Partial<BaseLayer> as Partial<T>;
+	public translate(current: T, layer: T, delta: Point): T {
+		current.position.x = layer.position.x + delta.x;
+		current.position.y = layer.position.y + delta.y;
+		return current;
 	}
 
-	public setHandle(layer: T, index: number, handle: Handle): Partial<T> {
+	public setHandle(layer: T, index: number, handle: Handle): T {
 		if (!layer.handles) {
-			return {};
+			return layer;
 		}
 
-		const handles = [...layer.handles];
-		handles[index] = handle;
-		return {
-			handles,
-		} satisfies Partial<BaseLayer> as Partial<T>;
+		layer.handles[index] = handle;
+		return layer;
 	}
 
 	public getCenter(layer: T): Point {

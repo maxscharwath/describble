@@ -1,5 +1,7 @@
 export type Patch<T> = Partial<{[P in keyof T]: Patch<T[P]>}>;
 
+export type PatchId<T extends {id: string}> = Patch<T> & {id: string};
+
 export interface Command<T extends Record<string, any>> {
 	id?: string;
 	before: Patch<T>;

@@ -6,12 +6,12 @@ import {layerSelector} from '~core/selectors';
 
 export const LayerElement = React.memo(({layerId, selected}: {layerId: string; selected?: boolean}) => {
 	const app = useWhiteboard();
-	const layer = app.useStore(layerSelector(layerId));
+	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.timestamp === b.timestamp);
 	if (!layer) {
 		return null;
 	}
 
-	const asset = layer.assetId ? app.asset.getAsset(layer.assetId) : undefined;
+	const asset = app.document.assets.get(layer.assetId);
 
 	const {Component} = getLayerUtil(layer);
 	const events = useLayerEvents(layerId);
@@ -25,7 +25,7 @@ LayerElement.displayName = 'Layer';
 
 export const PreviewLayerElement = memo(({layer, ...props}: {layer: TLayer} & React.SVGProps<SVGSVGElement>) => {
 	const app = useWhiteboard();
-	const asset = layer.assetId ? app.asset.getAsset(layer.assetId) : undefined;
+	const asset = app.document.assets.get(layer.assetId);
 	const {PreviewComponent, Component, getBounds} = getLayerUtil(layer);
 	if (PreviewComponent) {
 		return (

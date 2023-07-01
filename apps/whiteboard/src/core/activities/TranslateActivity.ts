@@ -1,8 +1,8 @@
 import {BaseActivity} from '~core/activities/BaseActivity';
 import {getLayerUtil, type Layer} from '~core/layers';
 import {type Point} from '~core/types';
-import {type WhiteboardCommand, type WhiteboardPatch} from '~core/WhiteboardApp';
 import {Vector} from '~core/utils';
+import {type BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 
 export class TranslateActivity extends BaseActivity {
 	type = 'translate' as const;
@@ -11,76 +11,36 @@ export class TranslateActivity extends BaseActivity {
 
 	start(): void {
 		this.iniPos = this.app.currentPoint;
-		this.initialLayers = this.app.getLayers(this.app.state.appState.selectedLayers);
+		this.initialLayers = this.app.document.layers.get(this.app.state.appState.selectedLayers);
 	}
 
-	update(): WhiteboardPatch | void {
+	update(): void {
 		if (!this.iniPos) {
 			return;
 		}
 
 		const delta = Vector.subtract(this.app.currentPoint, this.iniPos);
-		const layers: Record<string, Partial<Layer>> = {};
-
-		for (const layer of this.initialLayers) {
-			const layerUtil = getLayerUtil(layer);
-			layers[layer.id] = layerUtil.translate(layer as never, delta);
-		}
-
-		return {
-			documents: {
-				[this.app.currentDocumentId]: {
-					layers,
-				},
-			},
-		};
+		this.app.document.layers.change(this.initialLayers.map(layer => {
+			const util = getLayerUtil(layer) as BaseLayerUtil<Layer>;
+			return [layer.id, (l: Layer) => {
+				util.translate(l, layer, delta);
+			}];
+		}, 'translate-layer'));
 	}
 
-	complete(): WhiteboardCommand {
-		const beforeLayers: Record<string, Partial<Layer>> = {};
-		const afterLayers: Record<string, Partial<Layer>> = {};
-
-		for (const layer of this.initialLayers) {
-			beforeLayers[layer.id] = layer;
-			afterLayers[layer.id] = this.app.getLayer(layer.id)!;
-		}
-
-		return {
-			id: 'translate-layer',
-			before: {
-				documents: {
-					[this.app.currentDocumentId]: {
-						layers: beforeLayers,
-					},
-				},
-			},
-			after: {
-				documents: {
-					[this.app.currentDocumentId]: {
-						layers: afterLayers,
-					},
-				},
-			},
-		};
+	complete(): void {
+		// Do nothing
 	}
 
-	abort(): WhiteboardPatch | void {
+	abort(): void {
 		if (!this.iniPos) {
 			return;
 		}
 
-		const layers: Record<string, Partial<Layer>> = {};
-
-		for (const layer of this.initialLayers) {
-			layers[layer.id] = layer;
-		}
-
-		return {
-			documents: {
-				[this.app.currentDocumentId]: {
-					layers,
-				},
-			},
-		};
+		this.app.document.change(document => {
+			for (const layer of this.initialLayers) {
+				document.layers[layer.id] = layer as never;
+			}
+		}, 'abort-translate-layer');
 	}
 }

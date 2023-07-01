@@ -13,6 +13,8 @@ type TLayer = PathLayer;
 export interface PathLayer extends BaseLayer {
 	type: typeof type;
 	path: number[][];
+	scaleX: number;
+	scaleY: number;
 }
 
 export class PathLayerUtil extends BaseLayerUtil<TLayer> {
@@ -58,6 +60,8 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 				type,
 				visible: true,
 				position: {x: 0, y: 0},
+				scaleX: 1,
+				scaleY: 1,
 				rotation: 0,
 				path: [],
 				style: defaultLayerStyle,
@@ -72,10 +76,10 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 
 		const bounds = path.reduce(
 			(acc, [x, y]) => ({
-				minX: Math.min(acc.minX, x),
-				minY: Math.min(acc.minY, y),
-				maxX: Math.max(acc.maxX, x),
-				maxY: Math.max(acc.maxY, y),
+				minX: Math.min(acc.minX, x * layer.scaleX),
+				minY: Math.min(acc.minY, y * layer.scaleY),
+				maxX: Math.max(acc.maxX, x * layer.scaleX),
+				maxY: Math.max(acc.maxY, y * layer.scaleY),
 			}),
 			{minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity},
 		);
@@ -103,24 +107,14 @@ export class PathLayerUtil extends BaseLayerUtil<TLayer> {
 		return distance <= delta;
 	}
 
-	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+	public resize(current: TLayer, layer: TLayer, bounds: Bounds): TLayer {
 		const oldBounds = this.getBounds(layer);
-
 		const scaleX = bounds.width / oldBounds.width;
 		const scaleY = bounds.height / oldBounds.height;
-
-		const path = layer.path.map(([x, y, ...rest]) => [
-			x * scaleX,
-			y * scaleY,
-			...rest,
-		]);
-
-		return {
-			path,
-			position: {
-				x: ((layer.position.x - oldBounds.x) * scaleX) + bounds.x,
-				y: ((layer.position.y - oldBounds.y) * scaleY) + bounds.y,
-			},
-		};
+		current.scaleX = layer.scaleX * scaleX;
+		current.scaleY = layer.scaleY * scaleY;
+		current.position.x = ((layer.position.x - oldBounds.x) * scaleX) + bounds.x;
+		current.position.y = ((layer.position.y - oldBounds.y) * scaleY) + bounds.y;
+		return current;
 	}
 }

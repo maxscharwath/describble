@@ -2,7 +2,7 @@ import {BaseActivity} from '~core/activities/BaseActivity';
 import {getLayerUtil, type Layer} from '~core/layers';
 import {type BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 import {type Bounds, BoundsHandle} from '~core/types';
-import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '~core/WhiteboardApp';
+import {type WhiteboardApp} from '~core/WhiteboardApp';
 import {resizeBounds} from '~core/activities/ResizeActivity';
 
 export class ResizeManyActivity extends BaseActivity {
@@ -17,7 +17,7 @@ export class ResizeManyActivity extends BaseActivity {
 		this.initLayers = {};
 		this.utils = {};
 		layerIds.forEach(id => {
-			const layer = app.getLayer(id);
+			const layer = app.document.layers.get(id);
 			if (layer) {
 				this.initLayers[id] = layer;
 				this.utils[id] = getLayerUtil(layer);
@@ -29,49 +29,27 @@ export class ResizeManyActivity extends BaseActivity {
 		}
 	}
 
-	public abort(): WhiteboardPatch {
-		return {
-			documents: {
-				[this.app.currentDocumentId]: {
-					layers: this.create ? undefined : {...this.initLayers},
-				},
-			},
-		};
+	public abort(): void {
+		if (this.create) {
+			this.app.document.layers.delete(this.layerIds, 'reset-layer');
+		} else {
+			this.app.document.change(doc => {
+				for (const [id, layer] of Object.entries(this.initLayers)) {
+					doc.layers[id] = layer as never;
+				}
+			}, 'reset-layer');
+		}
 	}
 
-	public complete(): WhiteboardCommand | WhiteboardPatch | void {
-		const newLayers: Record<string, Layer> = {};
-		for (const id of this.layerIds) {
-			const layer = this.app.getLayer(id);
-			if (layer) {
-				newLayers[id] = layer;
-			}
-		}
-
-		return {
-			id: 'resize-layers',
-			before: {
-				documents: {
-					[this.app.currentDocumentId]: {
-						layers: this.create ? undefined : {...this.initLayers},
-					},
-				},
-			},
-			after: {
-				documents: {
-					[this.app.currentDocumentId]: {
-						layers: newLayers,
-					},
-				},
-			},
-		};
+	public complete(): void {
+		//
 	}
 
 	public start(): void {
 		//
 	}
 
-	public update(): WhiteboardPatch | void {
+	public update(): void {
 		// Compute new overall bounds
 		const {x, y, width, height} = this.initBounds;
 
@@ -89,27 +67,24 @@ export class ResizeManyActivity extends BaseActivity {
 		const deltaY = newBounds.y - y;
 
 		// Apply scaling and translation to each layer
-		const newLayers: Record<string, Partial<Layer>> = {};
+		const newLayers: Array<[string, (layer: Layer) => void]> = [];
 		for (const id of this.layerIds) {
 			const layer = this.initLayers[id];
 			const util = this.utils[id];
-			const {x: lx, y: ly, width: lw, height: lh} = util.getBounds(layer);
+			const originalBounds = util.getBounds(layer);
+			const {x: lx, y: ly, width: lw, height: lh} = originalBounds;
 			const resizedBounds = {
 				x: x + ((lx - x) * scaleX) + deltaX,
 				y: y + ((ly - y) * scaleY) + deltaY,
 				width: lw * scaleX,
 				height: lh * scaleY,
 			};
-			newLayers[id] = util.resize(layer, resizedBounds);
+			newLayers.push([id, (l: Layer) => {
+				util.resize(l, layer, resizedBounds);
+			}]);
 		}
 
-		return {
-			documents: {
-				[this.app.currentDocumentId]: {
-					layers: newLayers,
-				},
-			},
-		};
+		this.app.document.layers.change(newLayers, 'resize-many');
 	}
 
 	private getMultiLayerBounds(): Bounds {

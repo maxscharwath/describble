@@ -4,23 +4,24 @@ import {ClosedEyeIcon, OpenEyeIcon, TargetIcon, TrashIcon} from 'ui/components/I
 import {Button} from '~components/ui/Buttons';
 import {Spacer} from '~components/ui/Utils';
 import {useWhiteboard} from '~core/hooks/useWhiteboard';
-import {shallow} from 'zustand/shallow';
 import {PreviewLayerElement} from '~components/LayerElement';
 import {Sidebar} from '~components/ui/Sidebar';
 import {layerSelector, layersSelector} from '~core/selectors';
+import {shallow} from 'zustand/shallow';
 
 export const LayersSidebar = () => {
 	const app = useWhiteboard();
-	const layerIds = app.useStore(state =>
+	const layerIds = app.document.useStore(state =>
 		Object.values(layersSelector(state))
 			.sort((a, b) => (b.zIndex ?? Infinity) - (a.zIndex ?? Infinity))
 			.map(layer => layer.id)
 	, shallow);
 	function handleLayerReorder(layers: string[]) {
-		const newLayers = Object.fromEntries(layers.map((layer, index, {length}) => [layer, {zIndex: length - index}]));
-		app.patchDocument({
-			layers: newLayers,
-		});
+		app.document.change(doc => {
+			layers.forEach((layerId, index) => {
+				doc.layers[layerId].zIndex = layers.length - index;
+			});
+		}, 'reorder_layers');
 	}
 
 	if (layerIds.length === 0) {
@@ -49,19 +50,16 @@ export const LayersSidebar = () => {
 
 const LayerItem = memo(({layerId}: {layerId: string}) => {
 	const app = useWhiteboard();
-	const layer = app.useStore(layerSelector(layerId));
+	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.timestamp === b.timestamp);
 	function handleLayerVisibilityChange() {
-		app.patchDocument({
-			layers: {
-				[layer.id]: {
-					visible: !layer.visible,
-				},
-			},
+		app.document.layers.patch({
+			id: layer.id,
+			visible: !layer.visible,
 		}, 'set_layer_visibility');
 	}
 
 	function handleLayerDelete() {
-		app.removeLayer(layer.id);
+		app.document.layers.delete(layer.id);
 	}
 
 	function handleTargetLayer() {
@@ -75,7 +73,7 @@ const LayerItem = memo(({layerId}: {layerId: string}) => {
 				className='h-8 w-8 shrink-0 rounded-lg border border-gray-300 bg-gray-100/50 p-0.5 shadow-sm dark:border-gray-600 dark:bg-gray-800/50'
 			/>
 			<span
-				className='overflow-hidden text-ellipsis whitespace-nowrap text-sm dark:text-gray-200'
+				className='truncate text-sm dark:text-gray-200'
 				title={layer.id}
 			>
 				{layer.type}

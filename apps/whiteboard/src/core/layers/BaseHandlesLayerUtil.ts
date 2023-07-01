@@ -7,8 +7,8 @@ export interface BaseHandlesLayer extends BaseLayer {
 
 export abstract class BaseHandlesLayerUtil<TLayer extends BaseHandlesLayer> extends BaseLayerUtil<TLayer> {
 	public getBounds(layer: TLayer): Bounds {
-		const start = layer.handles.at(0) ?? {x: 0, y: 0};
-		const end = layer.handles.at(-1) ?? {x: 0, y: 0};
+		const start = layer.handles[0] ?? {x: 0, y: 0};
+		const end = layer.handles[layer.handles.length - 1] ?? {x: 0, y: 0};
 
 		return {
 			x: Math.min(start.x, end.x) + layer.position.x,
@@ -18,22 +18,22 @@ export abstract class BaseHandlesLayerUtil<TLayer extends BaseHandlesLayer> exte
 		};
 	}
 
-	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+	public resize(current: TLayer, layer: TLayer, bounds: Bounds): TLayer {
 		const oldBounds = this.getBounds(layer);
 
 		const scaleX = bounds.width / (oldBounds.width || 1);
 		const scaleY = bounds.height / (oldBounds.height || 1);
 
-		return {
-			handles: layer.handles.map(({x, y, ...rest}) => ({
-				x: x * scaleX,
-				y: y * scaleY,
-				...rest,
-			})),
-			position: {
-				x: ((layer.position.x - oldBounds.x) * scaleX) + bounds.x,
-				y: ((layer.position.y - oldBounds.y) * scaleY) + bounds.y,
-			},
-		} satisfies Partial<BaseHandlesLayer> as Partial<TLayer>;
+		layer.handles.forEach((handle, index) => {
+			current.handles[index] = {
+				x: handle.x * scaleX,
+				y: handle.y * scaleY,
+			};
+		});
+
+		current.position.x = ((layer.position.x - oldBounds.x) * scaleX) + bounds.x;
+		current.position.y = ((layer.position.y - oldBounds.y) * scaleY) + bounds.y;
+
+		return current;
 	}
 }

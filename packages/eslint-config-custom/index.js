@@ -76,5 +76,6 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     'react/prop-types': 'off',
     'no-bitwise': 'off',
+    'no-return-assign': 'off',
   },
 }

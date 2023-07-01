@@ -1,13 +1,12 @@
 import {StateManager} from '~core/state/StateManager';
 import {
 	type Bounds,
-	type Camera,
 	type Command,
 	type Patch,
 	type Point,
 	type Pointer,
 } from '~core/types';
-import {getLayerUtil, type Layer} from '~core/layers';
+import {getLayerUtil} from '~core/layers';
 import {
 	ArrowTool,
 	type BaseTool,
@@ -21,42 +20,31 @@ import {
 	type ToolsKey,
 } from '~core/tools';
 import {defaultLayerStyle, type LayerStyle} from '~core/layers/shared';
-import {ActivityManager, AssetManager, KeyboardEventManager, PointerEventManager} from '~core/managers';
-import {createLayersCommand, removeLayersCommand} from '~core/commands';
-import {patchLayersCommand} from '~core/commands/PatchLayersCommand';
+import {
+	ActivityManager,
+	DocumentManager,
+	KeyboardEventManager,
+	PointerEventManager,
+} from '~core/managers';
 import React from 'react';
 import {getCanvasBounds, getCanvasPoint, getScreenBounds, getScreenPoint} from '~core/utils';
-
+export type {DocumentData, Asset} from '~core/managers/DocumentManager';
 export enum Status {
 	Idle = 'idle',
 }
-
-type Document = {
-	id: string;
-	layers: Record<string, Layer>;
-	assets: Record<string, Asset>;
-	camera: Camera;
-};
-
-export type Asset = {
-	id: string;
-	type: string;
-	src: string;
-};
 
 export type WhiteboardState = {
 	settings: {
 		darkMode: boolean;
 	};
 	appState: {
-		currentDocumentId: string;
+		currentDocumentId: string | null;
 		currentTool: Tools;
 		currentStyle: LayerStyle;
 		selectedLayers: string[];
 		selection: Bounds | null;
 		status: string;
 	};
-	documents: Record<string, Document>;
 };
 
 export type WhiteboardCallbacks = {
@@ -86,30 +74,19 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	public readonly pointerEvent = new PointerEventManager(this);
 	public readonly keyboardEvent = new KeyboardEventManager(this);
 	public readonly activity = new ActivityManager(this);
-	public readonly asset = new AssetManager(this);
+	public readonly documentManager = new DocumentManager(this);
 
 	constructor(id: string, private readonly callbacks: WhiteboardCallbacks = {}) {
 		super(WhiteboardApp.defaultState, id);
+		console.log('WhiteboardApp constructor');
 	}
 
-	public get currentDocumentId() {
-		return this.state.appState.currentDocumentId;
-	}
-
-	public get documentState() {
-		return this.state.documents[this.currentDocumentId];
+	public get document() {
+		return this.documentManager.current;
 	}
 
 	public get selectedLayers() {
 		return this.state.appState.selectedLayers;
-	}
-
-	public get camera() {
-		return this.documentState.camera;
-	}
-
-	public setCamera(camera: Partial<Camera>) {
-		this.patchDocument({camera}, 'set_camera');
 	}
 
 	public setStatus(status: string) {
@@ -139,7 +116,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	public selectAll() {
 		this.patchState({
 			appState: {
-				selectedLayers: Object.keys(this.documentState.layers),
+				selectedLayers: this.document?.layers.getAllIds() ?? [],
 			},
 		});
 	}
@@ -156,67 +133,6 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.currentTool?.onAbort();
 	}
 
-	public patchDocument(patch: Patch<Document>, id?: string) {
-		this.patchState({documents: {[this.currentDocumentId]: patch}}, id);
-	}
-
-	public patchStyle(patch: Patch<LayerStyle>, id?: string) {
-		this.patchState({appState: {currentStyle: patch}}, id);
-		const {selectedLayers} = this.state.appState;
-		if (selectedLayers.length) {
-			this.setState(patchLayersCommand(this, selectedLayers, {style: patch}));
-		}
-	}
-
-	public getLayer<TLayer extends Layer>(id: string): TLayer | undefined {
-		return this.documentState.layers[id] as TLayer;
-	}
-
-	public getLayers(ids?: string[]): Layer[] {
-		if (!ids) {
-			return Object.values(this.documentState.layers);
-		}
-
-		const layers: Layer[] = [];
-		for (const id of ids) {
-			const layer = this.documentState.layers[id];
-			if (layer) {
-				layers.push(layer);
-			}
-		}
-
-		return layers;
-	}
-
-	public addLayer(...layers: Layer[]) {
-		if (!layers.length) {
-			return this;
-		}
-
-		this.setState(createLayersCommand(this, layers));
-	}
-
-	public removeLayer(...layersId: string[]) {
-		if (!layersId.length) {
-			return this;
-		}
-
-		this.setState(removeLayersCommand(this, layersId));
-	}
-
-	public clearLayers() {
-		const layers = Object.keys(this.documentState.layers);
-		this.setState(removeLayersCommand(this, layers));
-	}
-
-	public patchLayer(...layers: Layer[]) {
-		if (!layers.length) {
-			return this;
-		}
-
-		this.patchState(createLayersCommand(this, layers).after, 'patch_layer');
-	}
-
 	public updateInput(event: React.PointerEvent) {
 		const {viewport} = this;
 		this.currentPoint = {
@@ -226,19 +142,33 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		};
 	}
 
+	public patchStyle(style: Patch<LayerStyle>, message?: string) {
+		this.patchState({appState: {currentStyle: style}}, message);
+		const {selectedLayers} = this.state.appState;
+		if (selectedLayers.length) {
+			this.document?.layers.patch(
+				selectedLayers.map(id => ({id, style})),
+				message,
+			);
+		}
+	}
+
+	public get camera() {
+		return this.document?.camera ?? {x: 0, y: 0, zoom: 1};
+	}
+
 	public targetLayer(layerId: string) {
-		const layer = this.getLayer(layerId);
+		const layer = this.document?.layers.get(layerId);
 		if (!layer) {
 			return this;
 		}
 
 		const {width, height} = this.viewport;
 		const {x, y} = getLayerUtil(layer).getCenter(layer as never);
-
-		this.setCamera({
-			x: (width / 2) - (x * this.camera.zoom),
-			y: (height / 2) - (y * this.camera.zoom),
-		});
+		this.document?.setCamera(({zoom}) => ({
+			x: (width / 2) - (x * zoom),
+			y: (height / 2) - (y * zoom),
+		}));
 	}
 
 	public getCanvasPoint(point: Point) {
@@ -282,32 +212,12 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.callbacks.onPatch?.(patch, id ?? 'unknown');
 	};
 
-	protected preparePersist({documents, settings}: WhiteboardState): Patch<WhiteboardState> {
+	protected preparePersist(state: WhiteboardState): Patch<WhiteboardState> {
+		const {settings} = state;
 		return {
-			documents,
 			settings,
 		};
 	}
-
-	protected cleanup(state: WhiteboardState): WhiteboardState {
-		const next = {...state};
-		Object.entries(next.documents).forEach(([documentId, document]) => {
-			Object.entries(document.layers).forEach(([layerId, layer]) => {
-				if (!layer) {
-					// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-					delete next.documents[documentId].layers[layerId];
-				}
-			});
-		});
-		return next;
-	}
-
-	static defaultDocument: Document = {
-		id: 'demo',
-		layers: {},
-		camera: {x: 0, y: 0, zoom: 1},
-		assets: {},
-	};
 
 	static defaultState: WhiteboardState = {
 		settings: {
@@ -319,10 +229,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			selectedLayers: [],
 			selection: null,
 			currentTool: 'select',
-			currentDocumentId: 'demo',
-		},
-		documents: {
-			demo: WhiteboardApp.defaultDocument,
+			currentDocumentId: null,
 		},
 	};
 }

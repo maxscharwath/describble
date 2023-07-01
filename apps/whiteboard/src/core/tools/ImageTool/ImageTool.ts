@@ -12,7 +12,7 @@ export class ImageTool extends BaseTool {
 		this.openFileDialog();
 	}
 
-	onPointerDown = (event: React.PointerEvent) => {
+	onPointerDown = async (event: React.PointerEvent) => {
 		if (this.status !== Status.Idle) {
 			return;
 		}
@@ -24,7 +24,7 @@ export class ImageTool extends BaseTool {
 			assetId: this.assetId!,
 			style: this.app.state.appState.currentStyle,
 		});
-		this.app.patchLayer(layer);
+		await this.app.document.layers.add(layer);
 		this.app.activity.startActivity(ResizeActivity, layer.id, true);
 		this.setStatus(Status.Creating);
 	};
@@ -39,7 +39,7 @@ export class ImageTool extends BaseTool {
 			if (file) {
 				const reader = new FileReader();
 				reader.onloadend = () => {
-					const asset = this.app.asset.createAsset(reader.result as string, 'image');
+					const asset = this.app.document.assets.create(reader.result as string, 'image');
 					this.assetId = asset.id;
 				};
 

@@ -70,17 +70,12 @@ export class TextLayerUtil extends BaseLayerUtil<TLayer> {
 		};
 	}
 
-	public resize(layer: TLayer, bounds: Bounds): Partial<TLayer> {
+	public resize(current: TLayer, layer: TLayer, bounds: Bounds): TLayer {
 		const {x, y, width, height} = normalizeBounds(bounds);
-		return {
-			position: {
-				x,
-				y,
-			},
-			dimensions: {
-				width,
-				height,
-			},
-		};
+		current.position.x = x;
+		current.position.y = y;
+		current.dimensions.width = width;
+		current.dimensions.height = height;
+		return current;
 	}
 }

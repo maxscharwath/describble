@@ -6,6 +6,7 @@
     "declaration": true,
     "declarationMap": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "inlineSources": false,
     "isolatedModules": true,
@@ -16,7 +17,12 @@
     "preserveWatchOutput": true,
     "strict": true,
     "resolveJsonModule": true,
-    "target": "esNext"
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": [
+      "ESNext",
+      "DOM"
+    ]
   },
   "exclude": [
     "node_modules"

@@ -1,0 +1,12 @@
+app = "ddnet-server"
+[[services]]
+http_checks = []
+internal_port = 8080
+
+[[services.ports]]
+handlers = ["tls", "http"]
+port = 443
+
+[[services.tcp_checks]]
+interval = "5s"
+timeout = "2s"

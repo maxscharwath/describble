@@ -35,9 +35,9 @@ export function strokeToPath(stroke: Stroke, closePath = true) {
 }
 
 export function toStroke(layer: PathLayer, options?: StrokeOptions) {
-	return getStroke(layer.path, options) as Stroke;
+	return getStroke(layer.path.map(([x, y, ...rest]) => [x * layer.scaleX, y * layer.scaleY, ...rest]), options) as Stroke;
 }
 
 export function toPath(layer: PathLayer, options?: StrokeOptions) {
-	return getStrokePoints(layer.path, options).map(stroke => stroke.point);
+	return getStrokePoints(layer.path, options).map(({point: [x, y, ...rest]}) => [x * layer.scaleX, y * layer.scaleY, ...rest]) as Stroke;
 }
