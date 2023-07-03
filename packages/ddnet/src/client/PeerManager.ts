@@ -2,9 +2,9 @@ import {type MessageExchanger} from '../exchanger/MessageExchanger';
 import {sha256Some} from '../crypto';
 import {type Wrtc} from '../wrtc';
 import {z} from 'zod';
-import Emittery from 'emittery';
+import Emittery, {type UnsubscribeFunction} from 'emittery';
 import {base58} from 'base-x';
-import {PeerConnection, type SignalData} from '../network/PeerConnection';
+import {type ChannelId, PeerConnection, type SignalData} from '../network/PeerConnection';
 
 type DocumentId = string;
 export type PeerId = string;
@@ -33,6 +33,12 @@ type PeerManagerConfig = {
 };
 
 type PeerManagerEvent = {
+	data: {
+		peer: Peer;
+		documentId: DocumentId;
+		channelId: ChannelId;
+		data: Uint8Array;
+	};
 	'peer-created': {
 		documentId: DocumentId;
 		peer: Peer;
@@ -41,6 +47,14 @@ type PeerManagerEvent = {
 		documentId: DocumentId;
 		peer: Peer;
 	};
+};
+
+export type DocumentPeers = {
+	onData: (callback: (peer: Peer, data: Uint8Array) => void) => UnsubscribeFunction;
+	onJoin: (callback: (peer: Peer) => void) => UnsubscribeFunction;
+	onLeave: (callback: (peer: Peer) => void) => UnsubscribeFunction;
+	send: (peer: Peer, data: Uint8Array) => void;
+	broadcast: (data: Uint8Array) => void;
 };
 
 export class PeerManager extends Emittery<PeerManagerEvent> {
@@ -59,6 +73,34 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 			const {connection} = this.createPeer(false, message.data.documentId, message.from);
 			void connection.signal(message.data.signal);
 		});
+	}
+
+	public getDocumentPeers(documentId: DocumentId, channelId: ChannelId): DocumentPeers {
+		return {
+			onData: (callback: (peer: Peer, data: Uint8Array) => void) => this.on('data', event => {
+				if (event.documentId === documentId && event.channelId === channelId) {
+					callback(event.peer, event.data);
+				}
+			}),
+			onJoin: (callback: (peer: Peer) => void) => this.on('peer-created', event => {
+				if (event.documentId === documentId) {
+					callback(event.peer);
+				}
+			}),
+			onLeave: (callback: (peer: Peer) => void) => this.on('peer-destroyed', event => {
+				if (event.documentId === documentId) {
+					callback(event.peer);
+				}
+			}),
+			send(peer: Peer, data: Uint8Array) {
+				peer.connection.send(channelId, data);
+			},
+			broadcast: (data: Uint8Array) => {
+				this.documentPeers.get(documentId)?.forEach(peer => {
+					peer.connection.send(channelId, data);
+				});
+			},
+		};
 	}
 
 	/**
@@ -87,7 +129,6 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 
 		peer.connection
 			.on('connect', () => {
-				console.log('Peer connected', peerId);
 				clearTimeout(timeout);
 				this.pendingPeer.delete(peerId);
 				this.addPeer(documentId, peer);
@@ -129,6 +170,15 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 			peers = new Set();
 			this.documentPeers.set(documentId, peers);
 		}
+
+		peer.connection.on('data', ({channelId, data}) => {
+			void this.emit('data', {
+				peer,
+				documentId,
+				channelId,
+				data,
+			});
+		});
 
 		peers.add(peer);
 	}

@@ -10,6 +10,7 @@ import {type StorageProvider} from '../storage/StorageProvider';
 import {type DocumentId} from '../types';
 import {type Wrtc} from '../wrtc';
 import {throttle} from '../utils';
+import {DocumentPresence} from '../presence/DocumentPresence';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
 type DocumentSharingClientConfig = SignalingClientConfig & {
@@ -153,6 +154,10 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		return this.storage.list();
 	}
 
+	public getPresence(documentId: DocumentId) {
+		return new DocumentPresence(documentId, this.peerManager);
+	}
+
 	/**
 	 * The method sets up all the events needed for the class.
 	 * @private
@@ -169,16 +174,8 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 			document.on('change', async () => {
 				await throttledSave();
 			});
-			this.synchronizers.set(document.id, new DocumentSynchronizer(document));
+			this.synchronizers.set(document.id, new DocumentSynchronizer(document, this.peerManager));
 			await this.emit(`document-${document.id}`, document);
-		});
-
-		this.peerManager.on('peer-created', ({documentId, peer}) => {
-			this.synchronizers.get(documentId)?.addPeer(peer);
-		});
-
-		this.peerManager.on('peer-destroyed', ({documentId, peer}) => {
-			this.synchronizers.get(documentId)?.removePeer(peer);
 		});
 
 		// Handle request document messages

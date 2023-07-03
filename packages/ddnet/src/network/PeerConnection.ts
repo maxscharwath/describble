@@ -1,11 +1,13 @@
-import Emittery from 'emittery';
+import Emittery, {type UnsubscribeFunction} from 'emittery';
 import {concatBytes} from '../crypto';
 
 export type SignalData = RTCIceCandidate | RTCSessionDescription;
 
+export type ChannelId = number;
+
 type PeerEvents = {
+	data: {channelId: ChannelId; data: Uint8Array};
 	signal: SignalData;
-	data: Uint8Array;
 	connect: undefined;
 	close: undefined;
 };
@@ -19,10 +21,15 @@ type PeerConfig = {
 	};
 };
 
+export type Channel = {
+	send: (data: Uint8Array) => void;
+	onmessage: (callback: (data: Uint8Array) => void) => UnsubscribeFunction;
+};
+
 export class PeerConnection extends Emittery<PeerEvents> {
 	private readonly chunkSize: number = 16 * 1024; // 16 KB
 	private readonly connection: RTCPeerConnection;
-	private readonly channel: RTCDataChannel;
+	private readonly dataChannel: RTCDataChannel;
 	private readonly wrtc: {
 		RTCPeerConnection: typeof RTCPeerConnection;
 		RTCSessionDescription: typeof RTCSessionDescription;
@@ -49,8 +56,8 @@ export class PeerConnection extends Emittery<PeerEvents> {
 				},
 			],
 		});
-		this.channel = this.connection.createDataChannel('dataChannel', {ordered: true});
-		this.channel.binaryType = 'arraybuffer';
+		this.dataChannel = this.connection.createDataChannel('dataChannel', {ordered: true});
+		this.dataChannel.binaryType = 'arraybuffer';
 
 		this.connection.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
 			if (event.candidate) {
@@ -60,16 +67,49 @@ export class PeerConnection extends Emittery<PeerEvents> {
 
 		this.setupDataChannel();
 
-		this.channel.onopen = () => {
+		this.dataChannel.onopen = () => {
 			void this.emit('connect');
 		};
 
-		this.channel.onclose = () => {
+		this.dataChannel.onclose = () => {
 			void this.emit('close');
 		};
 
+		window?.addEventListener('beforeunload', () => {
+			this.destroy();
+		});
+
 		if (initiator) {
 			void this.initiateConnection();
+		}
+	}
+
+	public send(channelId: number, data: Uint8Array) {
+		if (this.dataChannel.readyState !== 'open') {
+			throw new Error('Channel is not open');
+		}
+
+		const buffer = new Uint8Array(data.length + 4);
+		const view = new DataView(buffer.buffer);
+		view.setUint32(0, channelId);
+		buffer.set(data, 4);
+
+		const totalChunks = Math.ceil(buffer.length / this.chunkSize);
+		for (let i = 0; i < totalChunks; i++) {
+			const chunkStart = i * this.chunkSize;
+			const chunkEnd = chunkStart + this.chunkSize < buffer.length ? chunkStart + this.chunkSize : buffer.length;
+
+			const chunk = buffer.subarray(chunkStart, chunkEnd);
+
+			// Prepare header: totalChunks (32-bit Int) + current chunk index (32-bit Int)
+			const header = new Uint8Array(new Uint32Array([totalChunks, i]).buffer);
+
+			// Merge the header and the chunk
+			const chunkWithHeader = new Uint8Array(header.length + chunk.length);
+			chunkWithHeader.set(header);
+			chunkWithHeader.set(chunk, header.length);
+
+			this.dataChannel.send(chunkWithHeader);
 		}
 	}
 
@@ -93,32 +133,8 @@ export class PeerConnection extends Emittery<PeerEvents> {
 		}
 	}
 
-	public send(data: Uint8Array) {
-		if (this.channel.readyState !== 'open') {
-			throw new Error('Channel is not open');
-		}
-
-		const totalChunks = Math.ceil(data.length / this.chunkSize);
-		for (let i = 0; i < totalChunks; i++) {
-			const chunkStart = i * this.chunkSize;
-			const chunkEnd = chunkStart + this.chunkSize < data.length ? chunkStart + this.chunkSize : data.length;
-
-			const chunk = data.subarray(chunkStart, chunkEnd);
-
-			// Prepare header: totalChunks (32-bit Int) + current chunk index (32-bit Int)
-			const header = new Uint8Array(new Uint32Array([totalChunks, i]).buffer);
-
-			// Merge the header and the chunk
-			const chunkWithHeader = new Uint8Array(header.length + chunk.length);
-			chunkWithHeader.set(header);
-			chunkWithHeader.set(chunk, header.length);
-
-			this.channel.send(chunkWithHeader);
-		}
-	}
-
 	public destroy() {
-		this.channel.close();
+		this.dataChannel.close();
 		this.connection.close();
 		void this.emit('close');
 		this.clearListeners();
@@ -161,7 +177,11 @@ export class PeerConnection extends Emittery<PeerEvents> {
 
 				if (receivedChunks === totalChunks) {
 					const combined = concatBytes(Object.values(buffers));
-					void this.emit('data', combined);
+					const view = new DataView(combined.buffer);
+					const channelId = view.getUint32(0);
+					const data = combined.subarray(4);
+
+					void this.emit('data', {channelId, data});
 					// Reset state for next message
 					totalChunks = null;
 					receivedChunks = 0;

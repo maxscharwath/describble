@@ -1,7 +1,7 @@
 import Emittery from 'emittery';
 import * as A from '@automerge/automerge';
 import {type Document} from '../document/Document';
-import {type Peer} from '../client/PeerManager';
+import {type DocumentPeers, type Peer, type PeerManager} from '../client/PeerManager';
 import {throttle} from '../utils';
 
 type PeerId = string;
@@ -15,42 +15,49 @@ type DocumentSynchronizerEvent = {
 
 type PeerInfo = {
 	peer: Peer;
-	clear: () => void;
 	syncState: A.SyncState;
 };
 
 export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
 	private readonly peers = new Map<PeerId, PeerInfo>();
+	private readonly documentPeers: DocumentPeers;
 
-	constructor(private readonly document: Document<unknown>) {
+	constructor(private readonly document: Document<unknown>, peerManager: PeerManager) {
 		super();
 		// Throttle the syncWithPeers function to only run every 33ms (30fps)
 		const throttledSync = throttle(() => this.syncWithPeers(), 33);
 		document.on('change', () => {
 			throttledSync();
 		});
+
+		this.documentPeers = peerManager.getDocumentPeers(document.id, 0x01);
+		this.documentPeers.onJoin(peer => {
+			this.addPeer(peer);
+		});
+		this.documentPeers.onLeave(peer => {
+			this.removePeer(peer);
+		});
+
+		this.documentPeers.onData((peer, message) => {
+			this.processSyncMessage(peer.peerId, message);
+		});
 	}
 
-	public addPeer(peer: Peer) {
+	private addPeer(peer: Peer) {
 		if (this.peers.has(peer.peerId)) {
 			return;
 		}
 
-		const clear = peer.connection.on('data', message => {
-			this.processSyncMessage(peer.peerId, message);
-		});
-
-		const peerInfo: PeerInfo = {
+		console.log('addPeer', peer.peerId);
+		this.peers.set(peer.peerId, {
 			peer,
-			clear,
 			syncState: A.initSyncState(),
-		};
-		this.peers.set(peer.peerId, peerInfo);
+		});
 		this.sendSyncMessage(peer.peerId, this.document.data);
 	}
 
-	public removePeer({peerId}: Peer) {
-		this.peers.get(peerId)?.clear();
+	private removePeer({peerId}: Peer) {
+		console.log('removePeer', peerId);
 		this.peers.delete(peerId);
 	}
 
@@ -83,7 +90,10 @@ export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
 				peerId,
 				message,
 			});
-			this.peers.get(peerId)?.peer.connection.send(message);
+			const peerInfo = this.peers.get(peerId);
+			if (peerInfo) {
+				this.documentPeers.send(peerInfo.peer, message);
+			}
 		}
 	}
 
