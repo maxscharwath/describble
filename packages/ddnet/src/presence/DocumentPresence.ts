@@ -3,17 +3,18 @@ import {throttle} from '../utils';
 import {type ClientIdentity, type DocumentPeers, type Peer, type PeerId, type PeerManager} from '../client/PeerManager';
 import {decode, encode} from 'cbor-x';
 
-type PresenceMessage = {
+type PresenceMessage<T> = {
 	peerId: string;
 	client: ClientIdentity;
-	presence: unknown;
+	presence: T;
 };
 
-type DocumentPresenceEvent = {
-	change: PresenceMessage;
+type DocumentPresenceEvent<T> = {
+	change: PresenceMessage<T>;
+	update: ReadonlyMap<PeerId, PresenceMessage<T>>;
 };
 
-export class DocumentPresence extends Emittery<DocumentPresenceEvent> {
+export class DocumentPresence<T=unknown> extends Emittery<DocumentPresenceEvent<T>> {
 	public readonly sendPresenceMessage = throttle(<T>(message: T) => {
 		this.documentPeers.broadcast(encode(message));
 	}, 33);
@@ -22,7 +23,7 @@ export class DocumentPresence extends Emittery<DocumentPresenceEvent> {
 
 	private readonly documentPeers: DocumentPeers;
 
-	private readonly presence = new Map<PeerId, PresenceMessage>();
+	private readonly presence = new Map<PeerId, PresenceMessage<T>>();
 
 	constructor(documentId: string, peerManager: PeerManager) {
 		super();
@@ -32,6 +33,7 @@ export class DocumentPresence extends Emittery<DocumentPresenceEvent> {
 		});
 		const unsubOnLeave = this.documentPeers.onLeave(peer => {
 			this.presence.delete(peer.peerId);
+			void this.emit('update', this.getPresence());
 		});
 
 		this.stop = () => {
@@ -42,19 +44,20 @@ export class DocumentPresence extends Emittery<DocumentPresenceEvent> {
 		};
 	}
 
-	public getPresence(): PresenceMessage[] {
-		return Array.from(this.presence.values());
+	public getPresence(): ReadonlyMap<PeerId, PresenceMessage<T>> {
+		return this.presence as ReadonlyMap<PeerId, PresenceMessage<T>>;
 	}
 
 	private processPresenceMessage(peer: Peer, message: Uint8Array) {
 		try {
-			const presence: PresenceMessage = {
+			const presence: PresenceMessage<T> = {
 				peerId: peer.peerId,
 				client: peer.client,
-				presence: decode(message),
+				presence: decode(message) as T,
 			};
 			this.presence.set(peer.peerId, presence);
 			void this.emit('change', presence);
+			void this.emit('update', this.getPresence());
 		} catch (e) {
 			console.error(e);
 		}

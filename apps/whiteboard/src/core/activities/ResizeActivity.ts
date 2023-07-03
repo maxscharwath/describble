@@ -24,9 +24,9 @@ export class ResizeActivity extends BaseActivity {
 
 	abort(): void {
 		if (this.create) {
-			this.app.document.layers.delete(this.layerId, 'reset-layer');
+			void this.app.document.layers.delete(this.layerId, 'reset-layer');
 		} else {
-			this.app.document.layers.patch(this.initLayer, 'reset-layer');
+			void this.app.document.layers.patch(this.initLayer, 'reset-layer');
 		}
 	}
 
@@ -59,7 +59,7 @@ export class ResizeActivity extends BaseActivity {
 		}
 
 		const newBounds = resizeBounds(this.initBounds, this.app.currentPoint, this.resizeCorner, aspectRatio);
-		this.app.document.layers.change([
+		void this.app.document.layers.change([
 			[this.layerId, layer => {
 				this.utils.resize(layer, this.initLayer, newBounds);
 			}],

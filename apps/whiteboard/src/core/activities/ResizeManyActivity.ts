@@ -31,9 +31,9 @@ export class ResizeManyActivity extends BaseActivity {
 
 	public abort(): void {
 		if (this.create) {
-			this.app.document.layers.delete(this.layerIds, 'reset-layer');
+			void this.app.document.layers.delete(this.layerIds, 'reset-layer');
 		} else {
-			this.app.document.change(doc => {
+			void this.app.document.change(doc => {
 				for (const [id, layer] of Object.entries(this.initLayers)) {
 					doc.layers[id] = layer as never;
 				}
@@ -84,7 +84,7 @@ export class ResizeManyActivity extends BaseActivity {
 			}]);
 		}
 
-		this.app.document.layers.change(newLayers, 'resize-many');
+		void this.app.document.layers.change(newLayers, 'resize-many');
 	}
 
 	private getMultiLayerBounds(): Bounds {

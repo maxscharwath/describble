@@ -7,7 +7,7 @@ import {type WhiteboardApp} from '~core/WhiteboardApp';
 import {type UseBoundStore} from 'zustand';
 import {
 	type A,
-	type Document,
+	type Document, type DocumentPresence,
 	DocumentSharingClient,
 	generateKeyPair,
 	IDBStorageProvider,
@@ -226,6 +226,7 @@ export class DocumentHandle {
 }
 
 export class DocumentManager {
+	public presence!: DocumentPresence;
 	private readonly repo = repo;
 	private currentDocumentHandle!: DocumentHandle;
 	constructor(private readonly app: WhiteboardApp) {
@@ -254,6 +255,8 @@ export class DocumentManager {
 
 	public open(id: string) {
 		this.currentDocumentHandle = new DocumentHandle(id, connected.then(async () => this.repo.requestDocument(id)));
+		this.presence?.stop();
+		this.presence = repo.getPresence(id);
 	}
 
 	public async list() {

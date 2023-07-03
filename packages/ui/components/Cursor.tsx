@@ -74,7 +74,7 @@ export const Cursor = React.forwardRef<CursorRef, CursorProps>(
 
 		return (
 			<motion.div
-				className='pointer-events-none fixed drop-shadow-md'
+				className='pointer-events-none fixed left-0 top-0 drop-shadow-md'
 				style={{x: xPos, y: yPos, perspective: 1000, opacity: motionValues.opacity}}
 			>
 				<motion.svg

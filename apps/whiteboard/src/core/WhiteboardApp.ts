@@ -146,7 +146,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.patchState({appState: {currentStyle: style}}, message);
 		const {selectedLayers} = this.state.appState;
 		if (selectedLayers.length) {
-			this.document?.layers.patch(
+			void this.document?.layers.patch(
 				selectedLayers.map(id => ({id, style})),
 				message,
 			);

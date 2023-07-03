@@ -34,7 +34,7 @@ export const useShortcuts = () => {
 	}, undefined, [app]);
 
 	useHotkeys('backspace,del', () => {
-		app.document.layers.delete(app.selectedLayers);
+		void app.document.layers.delete(app.selectedLayers);
 	}, undefined, [app]);
 
 	useHotkeys('meta+a,ctrl+a', e => {
