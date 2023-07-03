@@ -2,6 +2,7 @@ import Emittery from 'emittery';
 import * as A from '@automerge/automerge';
 import {type Document} from '../document/Document';
 import {type Peer} from '../client/PeerManager';
+import {throttle} from '../utils';
 
 type PeerId = string;
 
@@ -23,8 +24,10 @@ export class DocumentSynchronizer extends Emittery<DocumentSynchronizerEvent> {
 
 	constructor(private readonly document: Document<unknown>) {
 		super();
+		// Throttle the syncWithPeers function to only run every 33ms (30fps)
+		const throttledSync = throttle(() => this.syncWithPeers(), 33);
 		document.on('change', () => {
-			this.syncWithPeers();
+			throttledSync();
 		});
 	}
 

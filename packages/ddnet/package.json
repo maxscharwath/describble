@@ -25,17 +25,12 @@
     "glob": "^10.3.1",
     "idb": "^7.1.1",
     "isomorphic-ws": "^5.0.0",
-    "simple-peer": "^9.11.1",
     "srp": "workspace:*",
-    "ts-pattern": "^5.0.1",
-    "universal-ws-client": "^1.0.4",
     "uuid": "^9.0.0",
     "ws": "^8.7.0",
-    "xstate": "^4.38.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@types/simple-peer": "^9.11.5",
     "@types/uuid": "^9.0.2",
     "@types/ws": "^8.5.5",
     "@vitest/browser": "^0.32.2",

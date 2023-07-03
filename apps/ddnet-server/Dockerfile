@@ -5,6 +5,6 @@ USER node
 RUN mkdir -p /home/node/app
 WORKDIR /home/node/app
 
-COPY --chown=node:node dest/index.js .
+COPY dest/index.js .
 
 CMD ["node","index.js"]

@@ -9,6 +9,7 @@ import {Storage} from '../storage/Storage';
 import {type StorageProvider} from '../storage/StorageProvider';
 import {type DocumentId} from '../types';
 import {type Wrtc} from '../wrtc';
+import {throttle} from '../utils';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
 type DocumentSharingClientConfig = SignalingClientConfig & {
@@ -163,12 +164,10 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 
 		this.on('document-added', async document => {
 			await this.storage.setDocument(document);
-			let lastSaved = 0;
+			// Throttle the save method to avoid saving too often
+			const throttledSave = throttle(async () => this.storage.save(document), 500);
 			document.on('change', async () => {
-				if (Date.now() - lastSaved > 500) {
-					lastSaved = Date.now();
-					await this.storage.save(document);
-				}
+				await throttledSave();
 			});
 			this.synchronizers.set(document.id, new DocumentSynchronizer(document));
 			await this.emit(`document-${document.id}`, document);
