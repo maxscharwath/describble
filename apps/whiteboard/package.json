@@ -24,7 +24,6 @@
     "idb-keyval": "^6.2.1",
     "nanoid": "^4.0.2",
     "perfect-freehand": "^1.2.0",
-    "presence": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.10",
