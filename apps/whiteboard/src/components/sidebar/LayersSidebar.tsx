@@ -17,7 +17,7 @@ export const LayersSidebar = () => {
 			.map(layer => layer.id)
 	, shallow);
 	function handleLayerReorder(layers: string[]) {
-		void app.document.change(doc => {
+		app.document.change(doc => {
 			layers.forEach((layerId, index) => {
 				doc.layers[layerId].zIndex = layers.length - index;
 			});
@@ -52,14 +52,14 @@ const LayerItem = memo(({layerId}: {layerId: string}) => {
 	const app = useWhiteboard();
 	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.timestamp === b.timestamp);
 	function handleLayerVisibilityChange() {
-		void app.document.layers.patch({
+		app.document.layers.patch({
 			id: layer.id,
 			visible: !layer.visible,
 		}, 'set_layer_visibility');
 	}
 
 	function handleLayerDelete() {
-		void app.document.layers.delete(layer.id);
+		app.document.layers.delete(layer.id);
 	}
 
 	function handleTargetLayer() {

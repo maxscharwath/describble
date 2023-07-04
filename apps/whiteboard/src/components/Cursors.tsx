@@ -23,7 +23,7 @@ export const Cursors = () => {
 	const app = useWhiteboard();
 	const [mousesState, setMousesState] = React.useState<Map<string, MouseState>>(new Map());
 	useEffect(() => {
-		const presence = app.documentManager.presence as DocumentPresence<MouseState>;
+		const presence = app.presence as DocumentPresence<MouseState>;
 		const unsubscribe = presence.on('update', map => {
 			let changed = false;
 			map.forEach(presenceMessage => {
@@ -57,11 +57,11 @@ export const Cursors = () => {
 		return () => {
 			unsubscribe();
 		};
-	}, [app.documentManager.presence]);
+	}, [app.presence]);
 
 	useMouseState(state => {
 		const pos = app.getCanvasPoint(state);
-		app.documentManager.presence.sendPresenceMessage({
+		app.presence.sendPresenceMessage({
 			x: pos.x,
 			y: pos.y,
 			clicked: state.clicked,

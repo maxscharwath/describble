@@ -70,9 +70,9 @@ class LayerManager {
 		return Object.keys(this.documentHandle.state.layers);
 	}
 
-	async patch<T extends Layer>(layer: PatchId<T>, message?: string): Promise<void>;
-	async patch(layers: Array<PatchId<Layer>>, message?: string): Promise<void>;
-	async patch(layers: PatchId<Layer> | Array<PatchId<Layer>>, message?: string): Promise<void> {
+	patch<T extends Layer>(layer: PatchId<T>, message?: string): void;
+	patch(layers: Array<PatchId<Layer>>, message?: string): void;
+	patch(layers: PatchId<Layer> | Array<PatchId<Layer>>, message?: string): void {
 		const patches = Array.isArray(layers) ? layers : [layers];
 		return this.documentHandle.change(state => {
 			for (const patch of patches) {
@@ -87,10 +87,10 @@ class LayerManager {
 		}, message ?? `Patch ${patches.length} layers`);
 	}
 
-	async change<T extends Layer>(layers: Array<[string, (layer: T) => void]>, message?: string): Promise<void> {
+	change<T extends Layer>(layers: Array<[string, (layer: T) => void]>, message?: string): void {
 		return this.documentHandle.change(state => {
 			for (const [id, fn] of layers) {
-				const currentLayer = state.layers[id];
+				const currentLayer = state?.layers[id];
 				if (!currentLayer) {
 					continue;
 				}
@@ -101,20 +101,19 @@ class LayerManager {
 		}, message ?? `Set ${layers.length} layers`);
 	}
 
-	async add(layer: Layer, message?: string): Promise<void>;
-	async add(layers: Layer[], message?: string): Promise<void>;
-	async add(layers: Layer | Layer[], message?: string): Promise<void> {
+	add(layer: Layer, message?: string): void;
+	add(layers: Layer[], message?: string): void;
+	add(layers: Layer | Layer[], message?: string): void {
 		const newLayers = Array.isArray(layers) ? layers : [layers];
 		return this.documentHandle.change(state => {
 			for (const layer of newLayers) {
 				state.layers[layer.id] = layer as never;
 				state.layers[layer.id].timestamp = Date.now();
-				console.log('add', layer.id);
 			}
 		}, message ?? `Set ${newLayers.length} layers`);
 	}
 
-	async delete(id: string | string[], message?: string) {
+	delete(id: string | string[], message?: string) {
 		const ids = Array.isArray(id) ? id : [id];
 		return this.documentHandle.change(state => {
 			for (const id of ids) {
@@ -124,7 +123,7 @@ class LayerManager {
 		}, message ?? `Delete layer ${ids.join(', ')}`);
 	}
 
-	async deleteAll(message?: string) {
+	deleteAll(message?: string) {
 		return this.documentHandle.change(state => {
 			state.layers = {};
 		}, message ?? 'Delete all layers');
@@ -162,14 +161,14 @@ class AssetManager {
 			return existingAsset;
 		}
 
-		void this.documentHandle.change(state => {
+		this.documentHandle.change(state => {
 			state.assets[asset.id] = asset;
 		}, message ?? `Create asset ${asset.id}`);
 		return asset;
 	}
 
 	delete(id: string, message?: string) {
-		void this.documentHandle.change(state => {
+		this.documentHandle.change(state => {
 			// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 			delete state.assets[id];
 		}, message ?? `Delete asset ${id}`);
@@ -187,27 +186,31 @@ const connected = repo.connect();
 
 export class DocumentHandle {
 	public readonly useStore: UseBoundStore<StoreApi<DocumentData>>;
-	public readonly layers = new LayerManager(this);
-	public readonly assets = new AssetManager(this);
+	public readonly layers: LayerManager;
+	public readonly assets: AssetManager;
 	private readonly store: StoreApi<DocumentData>;
-	constructor(documentId: string, private readonly docHandle: Promise<Document<SyncedDocument>>) {
+	constructor(documentId: string, private readonly document: Document<SyncedDocument>) {
 		this.store = createStore(() => ({
 			id: documentId,
 			camera: {x: 0, y: 0, zoom: 1},
 			layers: {},
 			assets: {},
 		}));
-		void this.docHandle.then(doc => {
-			this.store.setState(doc.data);
-			doc.on('patch', ({after}) => {
-				this.store.setState(after);
-			});
+		this.store.setState(this.document.data);
+		this.document.on('patch', ({after}) => {
+			this.store.setState(after);
 		});
 		this.useStore = createUseStore(this.store);
+		this.layers = new LayerManager(this);
+		this.assets = new AssetManager(this);
 	}
 
-	public async change(fn: A.ChangeFn<SyncedDocument>, message?: string) {
-		(await this.docHandle).change(fn, {message});
+	public change(fn: A.ChangeFn<SyncedDocument>, message?: string) {
+		this.document.change(state => {
+			state.layers ??= {};
+			state.assets ??= {};
+			fn(state);
+		}, {message});
 	}
 
 	public get state(): Readonly<DocumentData> {
@@ -226,22 +229,21 @@ export class DocumentHandle {
 }
 
 export class DocumentManager {
-	public presence!: DocumentPresence;
 	private readonly repo = repo;
 	private currentDocumentHandle!: DocumentHandle;
+	private currentPresence!: DocumentPresence;
 	constructor(private readonly app: WhiteboardApp) {
-		let documentId = document.location.hash.slice(1);
-		console.log('documentId', documentId);
-		if (!documentId) {
-			documentId = this.create();
-			document.location.hash = documentId;
-		}
+	}
 
-		this.open(documentId);
+	public isLoaded() {
+		return this.currentDocumentHandle !== undefined;
 	}
 
 	public get current() {
-		return this.currentDocumentHandle;
+		return {
+			handle: this.currentDocumentHandle,
+			presence: this.currentPresence,
+		};
 	}
 
 	public create() {
@@ -250,13 +252,21 @@ export class DocumentManager {
 			state.layers = {};
 			state.assets = {};
 		});
-		return doc.id;
+		return doc;
 	}
 
-	public open(id: string) {
-		this.currentDocumentHandle = new DocumentHandle(id, connected.then(async () => this.repo.requestDocument(id)));
-		this.presence?.stop();
-		this.presence = repo.getPresence(id);
+	public async open(id: string) {
+		await connected;
+		const doc = await this.repo.requestDocument<SyncedDocument>(id);
+		this.currentDocumentHandle = new DocumentHandle(id, doc);
+		this.currentPresence?.stop();
+		this.currentPresence = repo.getPresence(id);
+		console.log('opened', doc);
+		return doc;
+	}
+
+	public async delete(id: string) {
+		return this.repo.removeDocument(id);
 	}
 
 	public async list() {

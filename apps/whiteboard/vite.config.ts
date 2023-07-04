@@ -12,6 +12,7 @@ export default defineConfig({
 			{find: '~core', replacement: fileURLToPath(new URL('./src/core', import.meta.url))},
 			{find: '~components', replacement: fileURLToPath(new URL('./src/components', import.meta.url))},
 			{find: '~utils', replacement: fileURLToPath(new URL('./src/utils', import.meta.url))},
+			{find: '~pages', replacement: fileURLToPath(new URL('./src/pages', import.meta.url))},
 		],
 	},
 	test: {

@@ -6,17 +6,15 @@ import {Cursors} from '~components/Cursors';
 import {SelectionsToolbar} from '~components/toolbar/SelectionsToolbar';
 import {DebugBar} from '~components/toolbar/DebugBar';
 import {StyleSidebar} from '~components/sidebar/StyleSidebar';
-import {WhiteboardApp, type WhiteboardCallbacks} from '~core/WhiteboardApp';
-import {WhiteboardProvider} from '~core/hooks';
+import {useWhiteboard} from '~core/hooks';
 import clsx from 'clsx';
 import {shallow} from 'zustand/shallow';
 import {ErrorBoundary} from 'react-error-boundary';
 
 type WhiteboardProps = {
-	id: string;
 	className?: string;
 	style?: React.CSSProperties;
-} & WhiteboardCallbacks;
+};
 
 function ErrorFallback({error, resetErrorBoundary}: {error: Error; resetErrorBoundary: () => void}) {
 	return (
@@ -27,6 +25,7 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error; resetErrorBou
 				</h2>
 				<pre className='mb-6 overflow-x-auto font-mono text-sm text-red-700 dark:text-red-400'>
 					{error.message}
+					<code className='block'>{error.stack}</code>
 				</pre>
 				<div className='flex justify-end'>
 					<button
@@ -41,43 +40,38 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error; resetErrorBou
 	);
 }
 
-export default function Whiteboard({id, className, style, ...callbacks}: WhiteboardProps) {
-	const [app, setApp] = React.useState(() =>
-		new WhiteboardApp(id, callbacks),
-	);
+export default function Whiteboard({className, style}: WhiteboardProps) {
+	const app = useWhiteboard();
 
 	const settings = app.useStore(state => state.settings, shallow);
 
 	const hardReset = React.useCallback(() => {
 		app.reset();
-		setApp(new WhiteboardApp(id, callbacks));
-	}, [app, id, callbacks]);
+	}, [app]);
 
 	return (
-		<WhiteboardProvider value={app}>
-			<div className={clsx(className, settings.darkMode && 'dark')} style={style}>
-				<ErrorBoundary FallbackComponent={ErrorFallback} onReset={hardReset}>
-					<div className='relative h-full w-full overflow-hidden'>
-						<Canvas />
-						<div className='pointer-events-none flex h-full w-full flex-col'>
-							<div className='m-2 flex w-full flex-col items-center justify-center portrait:standalone:mt-14'>
-								<Toolbar />
-								<SelectionsToolbar />
-							</div>
-							<div className='flex grow flex-row justify-end overflow-y-auto'>
-								<div className='m-2 flex h-full w-48 flex-col justify-start space-y-2 md:w-72'>
-									<StyleSidebar />
-									<LayersSidebar />
-								</div>
-							</div>
-							<div className='flex w-full flex-row items-center justify-center'>
-								<DebugBar />
+		<div className={clsx(className, settings.darkMode && 'dark')} style={style}>
+			<ErrorBoundary FallbackComponent={ErrorFallback} onReset={hardReset}>
+				<div className='relative h-full w-full overflow-hidden'>
+					<Canvas />
+					<div className='pointer-events-none flex h-full w-full flex-col'>
+						<div className='m-2 flex w-full flex-col items-center justify-center portrait:standalone:mt-14'>
+							<Toolbar />
+							<SelectionsToolbar />
+						</div>
+						<div className='flex grow flex-row justify-end overflow-y-auto'>
+							<div className='m-2 flex h-full w-48 flex-col justify-start space-y-2 md:w-72'>
+								<StyleSidebar />
+								<LayersSidebar />
 							</div>
 						</div>
-						<Cursors />
+						<div className='flex w-full flex-row items-center justify-center'>
+							<DebugBar />
+						</div>
 					</div>
-				</ErrorBoundary>
-			</div>
-		</WhiteboardProvider>
+					<Cursors />
+				</div>
+			</ErrorBoundary>
+		</div>
 	);
 }

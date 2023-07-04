@@ -20,7 +20,7 @@ export class TranslateActivity extends BaseActivity {
 		}
 
 		const delta = Vector.subtract(this.app.currentPoint, this.iniPos);
-		void this.app.document.layers.change(this.initialLayers.map(layer => {
+		this.app.document.layers.change(this.initialLayers.map(layer => {
 			const util = getLayerUtil(layer) as BaseLayerUtil<Layer>;
 			return [layer.id, (l: Layer) => {
 				util.translate(l, layer, delta);
@@ -37,10 +37,8 @@ export class TranslateActivity extends BaseActivity {
 			return;
 		}
 
-		void this.app.document.change(document => {
-			for (const layer of this.initialLayers) {
-				document.layers[layer.id] = layer as never;
-			}
-		}, 'abort-translate-layer');
+		this.app.document.layers.change(this.initialLayers.map(layer => [layer.id, (l: Layer) => {
+			l.position = {...layer.position};
+		}], 'abort-translate-layer'));
 	}
 }

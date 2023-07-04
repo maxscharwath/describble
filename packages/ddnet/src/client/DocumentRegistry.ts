@@ -41,7 +41,7 @@ export class DocumentRegistry<TAdditionalEvent extends {} extends Partial<Docume
 		return targetDocument as Document<TData>;
 	}
 
-	public removeDocument(id: DocumentId) {
+	public async removeDocument(id: DocumentId) {
 		const document = this.documents.get(id);
 		if (document) {
 			this.documents.delete(id);

@@ -6,7 +6,7 @@
   "author": "Maxime Scharwath <maxime@scharwath.ch>",
   "type": "module",
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "tsc --noEmit && vite build",
     "clean": "tsc --build --clean",
     "dev": "vite --host --port 3000",
     "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
@@ -28,6 +28,7 @@
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.10",
     "react-hotkeys-hook": "^4.4.0",
+    "react-router-dom": "^6.14.1",
     "tailwind-merge": "^1.13.2",
     "ts-pattern": "^5.0.1",
     "ui": "workspace:*",

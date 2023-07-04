@@ -146,6 +146,13 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		}
 	}
 
+	async removeDocument(id: DocumentId) {
+		await Promise.all([
+			super.removeDocument(id),
+			this.storage.remove(id),
+		]);
+	}
+
 	/**
 	 * Lists all document IDs available in the storage.
 	 * @returns An array of document IDs.

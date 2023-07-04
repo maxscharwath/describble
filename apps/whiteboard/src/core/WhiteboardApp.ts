@@ -76,13 +76,16 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	public readonly activity = new ActivityManager(this);
 	public readonly documentManager = new DocumentManager(this);
 
-	constructor(id: string, private readonly callbacks: WhiteboardCallbacks = {}) {
+	constructor(id: string) {
 		super(WhiteboardApp.defaultState, id);
-		console.log('WhiteboardApp constructor');
 	}
 
 	public get document() {
-		return this.documentManager.current;
+		return this.documentManager.current.handle;
+	}
+
+	public get presence() {
+		return this.documentManager.current.presence;
 	}
 
 	public get selectedLayers() {
@@ -146,7 +149,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.patchState({appState: {currentStyle: style}}, message);
 		const {selectedLayers} = this.state.appState;
 		if (selectedLayers.length) {
-			void this.document?.layers.patch(
+			this.document?.layers.patch(
 				selectedLayers.map(id => ({id, style})),
 				message,
 			);
@@ -201,15 +204,6 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 			},
 		});
 		this.setTool(this.state.appState.currentTool);
-		this.callbacks.onMount?.(this);
-	};
-
-	protected onStateDidChange = (state: WhiteboardState, id?: string) => {
-		this.callbacks.onChange?.(state, id ?? 'unknown');
-	};
-
-	protected onPatch = (patch: Patch<WhiteboardState>, id?: string) => {
-		this.callbacks.onPatch?.(patch, id ?? 'unknown');
 	};
 
 	protected preparePersist(state: WhiteboardState): Patch<WhiteboardState> {

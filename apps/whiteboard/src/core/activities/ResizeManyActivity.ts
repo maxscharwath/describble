@@ -7,20 +7,22 @@ import {resizeBounds} from '~core/activities/ResizeActivity';
 
 export class ResizeManyActivity extends BaseActivity {
 	type = 'resize-many' as const;
-	private readonly initLayers: Record<string, Layer>;
-	private readonly utils: Record<string, BaseLayerUtil<any>>;
+	private readonly initLayers: Record<string, {layer: Layer; util: BaseLayerUtil<any>; bounds: Bounds}>;
 	private readonly initBounds: Bounds;
 	private readonly aspectRatio?: number;
 
 	constructor(app: WhiteboardApp, private readonly layerIds: string[], private readonly create = false, private readonly resizeCorner: BoundsHandle = BoundsHandle.BOTTOM + BoundsHandle.RIGHT) {
 		super(app);
 		this.initLayers = {};
-		this.utils = {};
 		layerIds.forEach(id => {
 			const layer = app.document.layers.get(id);
 			if (layer) {
-				this.initLayers[id] = layer;
-				this.utils[id] = getLayerUtil(layer);
+				const util = getLayerUtil(layer);
+				this.initLayers[id] = {
+					layer,
+					util,
+					bounds: util.getBounds(layer as never),
+				};
 			}
 		});
 		this.initBounds = this.getMultiLayerBounds();
@@ -31,13 +33,11 @@ export class ResizeManyActivity extends BaseActivity {
 
 	public abort(): void {
 		if (this.create) {
-			void this.app.document.layers.delete(this.layerIds, 'reset-layer');
+			this.app.document.layers.delete(this.layerIds, 'reset-layer');
 		} else {
-			void this.app.document.change(doc => {
-				for (const [id, layer] of Object.entries(this.initLayers)) {
-					doc.layers[id] = layer as never;
-				}
-			}, 'reset-layer');
+			this.app.document.layers.change(Object.values(this.initLayers).map(({layer, util, bounds}) => [layer.id, (l: Layer) => {
+				util.resize(l, layer, bounds);
+			}], 'abort-translate-layer'));
 		}
 	}
 
@@ -69,10 +69,8 @@ export class ResizeManyActivity extends BaseActivity {
 		// Apply scaling and translation to each layer
 		const newLayers: Array<[string, (layer: Layer) => void]> = [];
 		for (const id of this.layerIds) {
-			const layer = this.initLayers[id];
-			const util = this.utils[id];
-			const originalBounds = util.getBounds(layer);
-			const {x: lx, y: ly, width: lw, height: lh} = originalBounds;
+			const {layer, util, bounds} = this.initLayers[id];
+			const {x: lx, y: ly, width: lw, height: lh} = bounds;
 			const resizedBounds = {
 				x: x + ((lx - x) * scaleX) + deltaX,
 				y: y + ((ly - y) * scaleY) + deltaY,
@@ -84,7 +82,7 @@ export class ResizeManyActivity extends BaseActivity {
 			}]);
 		}
 
-		void this.app.document.layers.change(newLayers, 'resize-many');
+		this.app.document.layers.change(newLayers, 'resize-many');
 	}
 
 	private getMultiLayerBounds(): Bounds {
@@ -93,8 +91,8 @@ export class ResizeManyActivity extends BaseActivity {
 		let minY = Infinity;
 		let maxX = -Infinity;
 		let maxY = -Infinity;
-		Object.values(this.initLayers).forEach(layer => {
-			const {x, y, width, height} = this.utils[layer.id].getBounds(layer);
+		Object.values(this.initLayers).forEach(({bounds}) => {
+			const {x, y, width, height} = bounds;
 			minX = Math.min(minX, x);
 			minY = Math.min(minY, y);
 			maxX = Math.max(maxX, x + width);

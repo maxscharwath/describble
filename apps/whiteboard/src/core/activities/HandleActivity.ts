@@ -18,7 +18,13 @@ export class HandleActivity extends BaseActivity {
 	}
 
 	abort() {
-		void this.app.document.layers.patch(this.initLayer, 'reset-layer');
+		this.app.document.layers.change([
+			[this.layerId, layer => {
+				this.initLayer.handles?.forEach((handle, index) => {
+					this.utils.setHandle(layer, index, handle);
+				});
+			}],
+		], 'reset-layer');
 	}
 
 	complete(): void {
@@ -30,7 +36,7 @@ export class HandleActivity extends BaseActivity {
 	}
 
 	update(): void {
-		void this.app.document.layers.change([
+		this.app.document.layers.change([
 			[this.layerId, layer => {
 				const {handles, position} = layer;
 				const handle = handles?.[this.handleIndex];

@@ -51,7 +51,7 @@ export abstract class BaseLayerUtil<T extends BaseLayer> {
 			return layer;
 		}
 
-		layer.handles[index] = handle;
+		layer.handles[index] = {...handle};
 		return layer;
 	}
 

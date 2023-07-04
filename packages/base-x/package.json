@@ -6,8 +6,8 @@
   "license": "MIT",
   "author": "Maxime Scharwath <maxime@scharwath.ch>",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
     "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src",

@@ -34,7 +34,7 @@ export const useDropImageTool = (canvasRef: React.RefObject<Element>) => {
 						},
 						style: app.state.appState.currentStyle,
 					});
-					void app.document.layers.add(layer);
+					app.document.layers.add(layer);
 				};
 			};
 
