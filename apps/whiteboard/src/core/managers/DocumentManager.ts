@@ -197,8 +197,8 @@ export class DocumentHandle {
 			assets: {},
 		}));
 		this.store.setState(this.document.data);
-		this.document.on('patch', ({after}) => {
-			this.store.setState(after);
+		this.document.on('change', ({data}) => {
+			this.store.setState(data);
 		});
 		this.useStore = createUseStore(this.store);
 		this.layers = new LayerManager(this);
@@ -206,11 +206,12 @@ export class DocumentHandle {
 	}
 
 	public change(fn: A.ChangeFn<SyncedDocument>, message?: string) {
-		this.document.change(state => {
+		const data = this.document.change(state => {
 			state.layers ??= {};
 			state.assets ??= {};
 			fn(state);
 		}, {message});
+		this.store.setState(data);
 	}
 
 	public get state(): Readonly<DocumentData> {
@@ -261,7 +262,6 @@ export class DocumentManager {
 		this.currentDocumentHandle = new DocumentHandle(id, doc);
 		this.currentPresence?.stop();
 		this.currentPresence = repo.getPresence(id);
-		console.log('opened', doc);
 		return doc;
 	}
 

@@ -52,10 +52,11 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 		}
 
 		this.#document = newDocument;
+		return this.#document;
 	}
 
 	public change(callback: A.ChangeFn<TData>, options: A.ChangeOptions<TData> = {}) {
-		this.update(document => A.change(document, options, callback));
+		return this.update(document => A.change(document, options, callback));
 	}
 
 	public changeAt(heads: A.Heads, callback: A.ChangeFn<TData>, options: A.ChangeOptions<TData> = {}) {
