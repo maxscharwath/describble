@@ -1,4 +1,12 @@
-# 🎨 DeScribble - Unleash Your Imagination! 🌟
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/maxscharwath/DeScribble/assets/6887819/b2059ad0-22a8-4fbc-b19b-989050093a9d">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/maxscharwath/DeScribble/assets/6887819/5c73ecf2-7840-4ca0-aec0-416233ff0fc8">
+    <img alt="Describble logo" width="50%" src="https://github.com/maxscharwath/DeScribble/assets/6887819/5c73ecf2-7840-4ca0-aec0-416233ff0fc8">
+  </picture>
+</h1>
+🎨 Unleash Your Imagination! 🌟
+
 Welcome to DeScribble, an innovative whiteboard application designed to help you collaborate and bring your ideas to life. Created by Maxime Scharwath for his bachelor's thesis at HEIG-VD, DeScribble provides a dynamic platform where people can come together to brainstorm, visualize, and share their ideas in a decentralized environment.
 
 With DeScribble's infinite whiteboard canvas, you have the perfect space to nurture your ideas and watch them flourish. Whether you're planning projects, teaching, or simply letting your imagination run wild, DeScribble empowers you to turn abstract concepts into vibrant visual representations.
