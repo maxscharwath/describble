@@ -1,5 +1,6 @@
 import React, {memo} from 'react';
-import {Reorder} from 'framer-motion';
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
+import List, {type ListRowProps} from 'react-virtualized/dist/commonjs/List';
 import {ClosedEyeIcon, OpenEyeIcon, TargetIcon, TrashIcon} from 'ui/components/Icons';
 import {Button} from '~components/ui/Buttons';
 import {Spacer} from '~components/ui/Utils';
@@ -16,13 +17,6 @@ export const LayersSidebar = () => {
 			.sort((a, b) => (b.zIndex ?? Infinity) - (a.zIndex ?? Infinity))
 			.map(layer => layer.id)
 	, shallow);
-	function handleLayerReorder(layers: string[]) {
-		app.document.change(doc => {
-			layers.forEach((layerId, index) => {
-				doc.layers[layerId].zIndex = layers.length - index;
-			});
-		}, 'reorder_layers');
-	}
 
 	if (layerIds.length === 0) {
 		return null;
@@ -30,23 +24,65 @@ export const LayersSidebar = () => {
 
 	return (
 		<Sidebar title='Layers'>
-			<Reorder.Group
-				axis='y'
-				values={layerIds}
-				onReorder={handleLayerReorder}
-				className='flex w-full flex-col space-y-1 overflow-y-auto'
-				layoutScroll
+			<div
+				className='h-72 w-full'
 			>
-				{layerIds.map(layerId => (
-					<Reorder.Item key={layerId} value={layerId}
-						className='flex w-full items-center space-x-2 rounded-lg bg-gray-200/50 p-1 backdrop-blur hover:bg-gray-200 dark:bg-gray-800/50 dark:hover:bg-gray-800'>
-						<LayerItem layerId={layerId}/>
-					</Reorder.Item>
-				))}
-			</Reorder.Group>
+				<AutoSizer>
+					{({width, height}) => (
+						<List
+							width={width}
+							height={height}
+							rowHeight={50}
+							rowCount={layerIds.length}
+							rowRenderer={props => rowRenderer({
+								layerId: layerIds[props.index],
+								...props,
+							})}
+						/>
+					)}
+				</AutoSizer>
+			</div>
 		</Sidebar>
 	);
 };
+
+const rowRenderer = ({layerId, key, style, isScrolling}: ListRowProps & {layerId: string}) => (
+	<div key={key} style={style}>
+		<div className='flex w-full items-center space-x-2 rounded-lg bg-gray-200/50 p-2 backdrop-blur hover:bg-gray-200 dark:bg-gray-800/50 dark:hover:bg-gray-800'>
+			{isScrolling ? <LayerItemBase/> : <LayerItem layerId={layerId}/>}
+		</div>
+	</div>
+);
+
+const LayerItemBase = () => (
+	<>
+		<div
+			className='h-8 w-8 shrink-0 rounded-lg border border-gray-300 bg-gray-100/50 p-0.5 shadow-sm dark:border-gray-600 dark:bg-gray-800/50'
+		/>
+		<span
+			className='truncate text-sm dark:text-gray-200'
+		>
+				...
+		</span>
+		<Spacer />
+		<Button
+			aria-label='Target layer'
+		>
+			<TargetIcon/>
+		</Button>
+		<Button
+			aria-label='Toggle layer visibility'
+			activeSlot={<OpenEyeIcon/>}
+			inactiveSlot={<ClosedEyeIcon/>}
+		/>
+		<Button
+			aria-label='Delete layer'
+			className='text-red-900 dark:text-red-500'
+		>
+			<TrashIcon/>
+		</Button>
+	</>
+);
 
 const LayerItem = memo(({layerId}: {layerId: string}) => {
 	const app = useWhiteboard();

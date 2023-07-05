@@ -4,7 +4,10 @@
 @tailwind utilities;
 
 body {
-    --cursor: pointer;
+    --cursor: auto;
+}
+
+.whiteboard {
     cursor: var(--cursor);
 }
 

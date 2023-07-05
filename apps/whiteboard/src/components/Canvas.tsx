@@ -20,7 +20,6 @@ export const Canvas = () => {
 	const layersId = app.document.useStore(state =>
 		Object.values(layersSelector(state))
 			.filter(layer => layer.visible)
-			.sort((a, b) => (a.zIndex ?? Infinity) - (b.zIndex ?? Infinity))
 			.map(layer => layer.id)
 	, shallow);
 	const camera = app.document.useStore(cameraSelector, shallow);
@@ -32,7 +31,7 @@ export const Canvas = () => {
 
 	const tree = useLayersTree(app, layersId);
 
-	const layers = React.useMemo(() => tree.query(app.getCanvasBounds(app.viewport)), [tree, app.viewport, camera]);
+	const layers = tree.query(app.getCanvasBounds(app.viewport));
 
 	useKeyEvents();
 	const {bounds, selectedLayers} = useSelection();

@@ -9,7 +9,7 @@ import {Storage} from '../storage/Storage';
 import {type StorageProvider} from '../storage/StorageProvider';
 import {type DocumentId} from '../types';
 import {type Wrtc} from '../wrtc';
-import {throttle} from '../utils';
+import {Deferred, throttle} from '../utils';
 import {DocumentPresence} from '../presence/DocumentPresence';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
@@ -50,6 +50,8 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		SignalMessageSchema,
 	]);
 
+	private readonly connecting = new Deferred<void>();
+
 	private readonly peerManager: PeerManager;
 	private readonly storage: Storage;
 	private readonly synchronizers = new Map<DocumentId, DocumentSynchronizer>();
@@ -60,6 +62,11 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 	public constructor(private readonly config: DocumentSharingClientConfig) {
 		super(config.privateKey);
 		this.client = new SignalingClient(config);
+
+		this.client.on('connect', () => {
+			console.log('Connected to signaling server');
+			this.connecting.resolve();
+		});
 
 		this.exchanger.setClient(this.client);
 
@@ -84,8 +91,14 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 	 * @returns Promise<this>
 	 */
 	public async connect(): Promise<this> {
+		this.connecting.reset();
 		await this.client.connect();
 		return this;
+	}
+
+	public async waitForConnection(): Promise<boolean> {
+		await this.connecting.promise;
+		return this.client.connected;
 	}
 
 	/**

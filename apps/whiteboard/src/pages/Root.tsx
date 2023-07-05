@@ -2,8 +2,8 @@ import {Link, useNavigate} from 'react-router-dom';
 import React from 'react';
 import {useWhiteboard} from '~core/hooks';
 import {CloudIcon, TrashIcon} from 'ui/components/Icons';
-import {Button} from '~components/ui/Buttons';
 import {DescribbleLogo} from '~components/DescribbleLogo';
+import {Thumbnail} from '~components/Thumbnail';
 
 const useList = () => {
 	const app = useWhiteboard();
@@ -36,18 +36,18 @@ export const Root = () => {
 	};
 
 	return (
-		<div className='flex min-h-screen flex-col bg-gray-200 p-4 dark:bg-gray-900'>
+		<div className='flex min-h-screen flex-col bg-gray-200 px-4 dark:bg-gray-900'>
 			<div className='mx-auto flex w-full max-w-7xl flex-col items-center justify-center'>
-				<div
-					className='pointer-events-auto fixed inset-x-0 top-0 z-50 m-4 flex h-32 flex-col items-center justify-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur dark:border-gray-600 dark:bg-gray-800/80 dark:text-gray-200'
-				>
-					<div className='m-2 h-16 text-slate-900 dark:text-slate-100'>
-						<DescribbleLogo className='h-full' />
+				<div className='navbar rounded-box glass sticky top-4 z-50 mb-8 bg-base-100/50 shadow-xl'>
+					<div className='mr-8 flex-1 text-slate-800 dark:text-slate-100'>
+						<DescribbleLogo className='absolute m-2 h-8 w-auto' textClassName='hidden sm:block'/>
 					</div>
-					<Button onClick={handleCreate}>
-						<CloudIcon className='h-6 w-6'/>
-						<span>Create New Whiteboard</span>
-					</Button>
+					<div className='flex-none'>
+						<button className='btn-ghost btn' onClick={handleCreate}>
+							<CloudIcon className='h-6 w-6'/>
+							<span>Create New Whiteboard</span>
+						</button>
+					</div>
 				</div>
 				<List list={list} onDelete={handleDelete}/>
 			</div>
@@ -56,22 +56,25 @@ export const Root = () => {
 };
 
 const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}) => (
-	<div className='mt-36 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+	<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
 		{list.map((item, index) => (
-			<div key={index} className='m-2 flex min-w-full flex-col rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur dark:border-gray-600 dark:bg-gray-800/80 dark:text-gray-200'>
-				<img className='h-48 w-full object-cover' src='https://source.unsplash.com/random' alt='Random Image'/>
-				<div className='flex grow flex-col justify-between px-6 py-4'>
-					<div className='mb-2 overflow-hidden text-ellipsis text-xl font-bold'>Document: {item}</div>
-					<div className='flex justify-end gap-4'>
-						<Button className='bg-red-500 text-white hover:bg-red-600' onClick={async () => onDelete(item)}>
+			<div key={index} className='card glass min-w-full shadow-lg'>
+				<figure className='h-48 bg-gradient-to-b from-black/0 to-black/10 object-cover'>
+					<Thumbnail documentId={item} camera={{x: 0, y: 0, zoom: 0.25}} dimension={{width: 300, height: 200}}/>
+				</figure>
+				<div className='card-body overflow-hidden'>
+					<h2 className='card-title'>Document #{index}</h2>
+					<div className='badge badge-neutral max-w-full'><span className='overflow-hidden text-ellipsis text-xs'>{item}</span></div>
+					<div className='card-actions justify-end'>
+						<button className='btn-error btn-sm btn' onClick={() => onDelete(item)}>
 							<TrashIcon fontSize={20}/>
 							<span>Delete</span>
-						</Button>
+						</button>
 						<Link to={`/document/${item}`}>
-							<Button>
+							<button className='btn-neutral btn-sm btn'>
 								<CloudIcon fontSize={20}/>
 								<span>Open</span>
-							</Button>
+							</button>
 						</Link>
 					</div>
 				</div>

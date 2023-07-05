@@ -50,7 +50,7 @@ export default function Whiteboard({className, style}: WhiteboardProps) {
 	}, [app]);
 
 	return (
-		<div className={clsx(className, settings.darkMode && 'dark')} style={style}>
+		<div className={clsx(className, settings.darkMode && 'dark', 'whiteboard')} style={style}>
 			<ErrorBoundary FallbackComponent={ErrorFallback} onReset={hardReset}>
 				<div className='relative h-full w-full overflow-hidden'>
 					<Canvas />

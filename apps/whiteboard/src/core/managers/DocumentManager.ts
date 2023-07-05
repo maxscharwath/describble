@@ -3,19 +3,14 @@ import {type Camera, type Patch, type PatchId} from '~core/types';
 import {createUseStore, deepmerge} from '~core/utils';
 import {createStore, type StoreApi} from 'zustand/vanilla';
 import {nanoid} from 'nanoid';
-import {type WhiteboardApp} from '~core/WhiteboardApp';
 import {type UseBoundStore} from 'zustand';
 import {
 	type A,
 	type Document, type DocumentPresence,
-	DocumentSharingClient,
-	generateKeyPair,
-	IDBStorageProvider,
-	mnemonicToSeedSync,
-	WebSocketNetworkAdapter,
+	type DocumentSharingClient,
 } from 'ddnet';
 
-type SyncedDocument = {
+export type SyncedDocument = {
 	layers: Record<string, Layer>;
 	assets: Record<string, Asset>;
 };
@@ -175,15 +170,6 @@ class AssetManager {
 	}
 }
 
-const repo = new DocumentSharingClient({
-	...generateKeyPair(
-		mnemonicToSeedSync('accident observe boss minute mixture goddess trash craft candy smooth rubber coffee'),
-	),
-	network: new WebSocketNetworkAdapter('wss://ddnet-server.fly.dev'),
-	storageProvider: new IDBStorageProvider(),
-});
-const connected = repo.connect();
-
 export class DocumentHandle {
 	public readonly useStore: UseBoundStore<StoreApi<DocumentData>>;
 	public readonly layers: LayerManager;
@@ -230,10 +216,9 @@ export class DocumentHandle {
 }
 
 export class DocumentManager {
-	private readonly repo = repo;
 	private currentDocumentHandle!: DocumentHandle;
 	private currentPresence!: DocumentPresence;
-	constructor(private readonly app: WhiteboardApp) {
+	constructor(private readonly repo: DocumentSharingClient) {
 	}
 
 	public isLoaded() {
@@ -257,12 +242,16 @@ export class DocumentManager {
 	}
 
 	public async open(id: string) {
-		await connected;
+		await this.repo.waitForConnection();
 		const doc = await this.repo.requestDocument<SyncedDocument>(id);
 		this.currentDocumentHandle = new DocumentHandle(id, doc);
 		this.currentPresence?.stop();
-		this.currentPresence = repo.getPresence(id);
+		this.currentPresence = this.repo.getPresence(id);
 		return doc;
+	}
+
+	public async get(id: string) {
+		return this.repo.findDocument<SyncedDocument>(id);
 	}
 
 	public async delete(id: string) {

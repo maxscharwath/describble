@@ -18,6 +18,8 @@ export type SignalingClientConfig = {
  * Event type for the SignalingClient.
  */
 type SignalingClientEvent = {
+	'connect': undefined; // Emitted when the client connects to the signaling server
+	'disconnect': undefined; // Emitted when the client disconnects from the signaling server
 	message: Message<any>; // Any received message
 };
 
@@ -63,8 +65,13 @@ export class SignalingClient extends Emittery<SignalingClientEvent> {
 		this.connection = await authenticator.authenticate(
 			network.createConnection(publicKey, this._clientId),
 		);
-		this.connection.on('data', async data => {
+		void this.emit('connect');
+		const unsubscribe = this.connection.on('data', async data => {
 			void this.emit('message', await decodeMessage(data, privateKey));
+		});
+		this.connection.on('close', () => {
+			unsubscribe();
+			void this.emit('disconnect');
 		});
 	}
 
