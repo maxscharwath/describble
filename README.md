@@ -1,8 +1,8 @@
 <h1 align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/maxscharwath/DeScribble/assets/6887819/b2059ad0-22a8-4fbc-b19b-989050093a9d">
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/maxscharwath/DeScribble/assets/6887819/5c73ecf2-7840-4ca0-aec0-416233ff0fc8">
-    <img alt="Describble logo" width="50%" src="https://github.com/maxscharwath/DeScribble/assets/6887819/5c73ecf2-7840-4ca0-aec0-416233ff0fc8">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/maxscharwath/Describble/assets/6887819/8448d056-b322-4cd5-951e-b388b2e06a46">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/maxscharwath/Describble/assets/6887819/e3868a47-4fef-419e-a3aa-782cff779d41">
+    <img alt="Describble logo" width="50%" src="https://github.com/maxscharwath/Describble/assets/6887819/e3868a47-4fef-419e-a3aa-782cff779d41">
   </picture>
 </h1>
 🎨 Unleash Your Imagination! 🌟
