@@ -26,12 +26,12 @@ export const Canvas = () => {
 	const selection = app.useStore(selectionSelector, shallow);
 	useZoom(app.whiteboardRef);
 	useDropImageTool(app.whiteboardRef);
-	useViewport(app.whiteboardRef);
 	useShortcuts();
+	const viewport = useViewport(app.whiteboardRef);
 
 	const tree = useLayersTree(app, layersId);
 
-	const layers = tree.query(app.getCanvasBounds(app.viewport));
+	const layers = tree.query(app.getCanvasBounds(viewport));
 
 	useKeyEvents();
 	const {bounds, selectedLayers} = useSelection();

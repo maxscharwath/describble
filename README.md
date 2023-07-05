@@ -13,7 +13,7 @@ With DeScribble's infinite whiteboard canvas, you have the perfect space to nurt
 
 Built with the powerful React framework and flexible Scalable Vector Graphics (SVG), DeScribble offers a smooth and immersive user experience. Its decentralized architecture ensures data ownership, privacy, and the freedom to collaborate seamlessly.
 
-Try DeScribble now at https://describble.vercel.app and let your ideas come to life in the most captivating way. 🚀
+Try DeScribble now at https://describble.io and let your ideas come to life in the most captivating way. 🚀
 
 
 ## 📚 Prerequisites

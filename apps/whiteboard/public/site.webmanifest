@@ -1,7 +1,7 @@
 {
   "display": "standalone",
-  "name": "Whiteboard",
-  "short_name": "Whiteboard",
+  "name": "Describble",
+  "short_name": "Describble",
   "theme_color": "#000000",
   "background_color": "#000000",
   "start_url": "/"

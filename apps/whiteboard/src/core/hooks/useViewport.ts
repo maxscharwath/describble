@@ -3,6 +3,7 @@ import React from 'react';
 
 export const useViewport = (canvasRef: React.RefObject<Element>) => {
 	const app = useWhiteboard();
+	const [viewport, setViewport] = React.useState(app.viewport);
 
 	React.useEffect(() => {
 		const canvas = canvasRef.current;
@@ -18,6 +19,7 @@ export const useViewport = (canvasRef: React.RefObject<Element>) => {
 				x: left,
 				y: top,
 			};
+			setViewport(app.viewport);
 		};
 
 		updateViewport();
@@ -30,4 +32,5 @@ export const useViewport = (canvasRef: React.RefObject<Element>) => {
 			resizeObserver.disconnect();
 		};
 	}, [app, canvasRef]);
+	return viewport;
 };

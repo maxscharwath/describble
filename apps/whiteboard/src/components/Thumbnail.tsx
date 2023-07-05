@@ -48,7 +48,7 @@ export const Thumbnail = memo(({documentId, dimension, camera}: ThumbnailProps) 
 	const assets = document.data.assets ?? {};
 
 	return (
-		<svg viewBox={`0 0 ${dimension.width} ${dimension.height}`}>
+		<svg viewBox={`0 0 ${dimension.width} ${dimension.height}`} width={dimension.width} height={dimension.height}>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.zoom})`}>
 				{layers.map(layer => (
 					<LayerComponent layer={layer} asset={layer.assetId ? assets[layer.assetId] : undefined} key={layer.id} />
