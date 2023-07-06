@@ -42,13 +42,20 @@ export const Thumbnail = memo(({documentId, dimension, camera}: ThumbnailProps) 
 	const layers = useLayers({document, dimension, camera});
 
 	if (!document) {
-		return <span className='text-gray-400'>Loading...</span>;
+		return <span className='loading loading-ring loading-lg'></span>;
+	}
+
+	if (layers.length === 0) {
+		return (
+			<div>
+				<span className='text-gray-500'>🤨 No layers</span>
+			</div>);
 	}
 
 	const assets = document.data.assets ?? {};
 
 	return (
-		<svg viewBox={`0 0 ${dimension.width} ${dimension.height}`} width={dimension.width} height={dimension.height}>
+		<svg viewBox={`0 0 ${dimension.width} ${dimension.height}`} className='h-full w-full animate-fade-in'>
 			<g transform={`translate(${camera.x}, ${camera.y}) scale(${camera.zoom})`}>
 				{layers.map(layer => (
 					<LayerComponent layer={layer} asset={layer.assetId ? assets[layer.assetId] : undefined} key={layer.id} />
