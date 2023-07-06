@@ -5,8 +5,10 @@ import {ClosedEyeIcon, CopyIcon, OpenEyeIcon} from 'ui/components/Icons';
 import {generateMnemonic} from 'ddnet';
 import {type RegisterContext} from '~pages/login/RegisterContent';
 import {MnemonicWord} from '~pages/login/MnemoWord';
+import {useTranslation} from 'react-i18next';
 
 export const RecoveryPhraseStep: React.FC = () => {
+	const {t} = useTranslation();
 	const {prev, next, state: {phrase}, setState} = useSteps<RegisterContext>();
 	const [isPhraseVisible, setIsPhraseVisible] = useState(false);
 
@@ -24,8 +26,8 @@ export const RecoveryPhraseStep: React.FC = () => {
 
 	return (
 		<>
-			<p className='text-md text-center font-bold'>
-				Please write down the following phrase and keep it safe. You will need it to recover your account.
+			<p className='text-center font-bold'>
+				{t('register.subtitle_please_write_down_phrase')}
 			</p>
 			<div className='px-0 sm:px-8'>
 				<div className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
@@ -39,15 +41,15 @@ export const RecoveryPhraseStep: React.FC = () => {
 							<OpenEyeIcon className='swap-off' />
 							<ClosedEyeIcon className='swap-on' />
 						</div>
-						{isPhraseVisible ? 'Hide Phrase' : 'Show Phrase'}
+						{isPhraseVisible ? t('btn.hide_phrase') : t('btn.show_phrase')}
 					</button>
 					<button className='btn-ghost btn-sm btn' onClick={copyPhrase}>
-						<CopyIcon /> Copy to Clipboard
+						<CopyIcon /> {t('btn.copy_to_clipboard')}
 					</button>
 				</div>
 				<div className='mt-6 flex gap-4'>
-					<button className='btn-neutral btn grow' onClick={prev}>Back</button>
-					<button className='btn-neutral btn grow' onClick={next}>Next</button>
+					<button className='btn-neutral btn grow' onClick={prev}>{t('btn.back')}</button>
+					<button className='btn-neutral btn grow' onClick={next}>{t('btn.next')}</button>
 				</div>
 			</div>
 		</>

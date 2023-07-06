@@ -9,8 +9,10 @@ import {PreviewLayerElement} from '~components/LayerElement';
 import {Sidebar} from '~components/ui/Sidebar';
 import {layerSelector, layersSelector} from '~core/selectors';
 import {shallow} from 'zustand/shallow';
+import {useTranslation} from 'react-i18next';
 
 export const LayersSidebar = () => {
+	const {t} = useTranslation();
 	const app = useWhiteboard();
 	const layerIds = app.document.useStore(state =>
 		Object.values(layersSelector(state))
@@ -23,7 +25,7 @@ export const LayersSidebar = () => {
 	}
 
 	return (
-		<Sidebar title='Layers'>
+		<Sidebar title={t('sidebar.layers')}>
 			<div
 				className='h-72 w-full'
 			>
@@ -54,37 +56,41 @@ const rowRenderer = ({layerId, key, style, isScrolling}: ListRowProps & {layerId
 	</div>
 );
 
-const LayerItemBase = () => (
-	<>
-		<div
-			className='h-8 w-8 shrink-0 rounded-lg border border-gray-300 bg-gray-100/50 p-0.5 shadow-sm dark:border-gray-600 dark:bg-gray-800/50'
-		/>
-		<span
-			className='truncate text-sm dark:text-gray-200'
-		>
-				...
-		</span>
-		<Spacer />
-		<Button
-			aria-label='Target layer'
-		>
-			<TargetIcon/>
-		</Button>
-		<Button
-			aria-label='Toggle layer visibility'
-			activeSlot={<OpenEyeIcon/>}
-			inactiveSlot={<ClosedEyeIcon/>}
-		/>
-		<Button
-			aria-label='Delete layer'
-			className='text-red-900 dark:text-red-500'
-		>
-			<TrashIcon/>
-		</Button>
-	</>
-);
+const LayerItemBase = () => {
+	const {t} = useTranslation();
+	return (
+		<>
+			<div
+				className='h-8 w-8 shrink-0 rounded-lg border border-gray-300 bg-gray-100/50 p-0.5 shadow-sm dark:border-gray-600 dark:bg-gray-800/50'
+			/>
+			<span
+				className='truncate text-sm dark:text-gray-200'
+			>
+					...
+			</span>
+			<Spacer/>
+			<Button
+				aria-label={t('btn.target_layer')}
+			>
+				<TargetIcon/>
+			</Button>
+			<Button
+				aria-label={t('btn.toggle_layer_visibility')}
+				activeSlot={<OpenEyeIcon/>}
+				inactiveSlot={<ClosedEyeIcon/>}
+			/>
+			<Button
+				aria-label={t('btn.delete_layer')}
+				className='text-red-900 dark:text-red-500'
+			>
+				<TrashIcon/>
+			</Button>
+		</>
+	);
+};
 
 const LayerItem = memo(({layerId}: {layerId: string}) => {
+	const {t} = useTranslation();
 	const app = useWhiteboard();
 	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.timestamp === b.timestamp);
 	function handleLayerVisibilityChange() {
@@ -116,20 +122,20 @@ const LayerItem = memo(({layerId}: {layerId: string}) => {
 			</span>
 			<Spacer />
 			<Button
-				aria-label='Target layer'
+				aria-label={t('btn.target_layer')}
 				onClick={handleTargetLayer}
 			>
 				<TargetIcon/>
 			</Button>
 			<Button
-				aria-label='Toggle layer visibility'
+				aria-label={t('btn.toggle_layer_visibility')}
 				active={layer.visible}
 				activeSlot={<OpenEyeIcon/>}
 				inactiveSlot={<ClosedEyeIcon/>}
 				onClick={handleLayerVisibilityChange}
 			/>
 			<Button
-				aria-label='Delete layer'
+				aria-label={t('btn.delete_layer')}
 				onClick={handleLayerDelete}
 				className='text-red-900 dark:text-red-500'
 			>

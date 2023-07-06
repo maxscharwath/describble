@@ -6,6 +6,7 @@ import {useWhiteboard} from '~core/hooks';
 import {BorderStyle, FillStyle, Size} from '~core/layers/shared';
 import {Sidebar} from '~components/ui/Sidebar';
 import {match} from 'ts-pattern';
+import {useTranslation} from 'react-i18next';
 
 type StyleButtonProps = {
 	selected: boolean;
@@ -61,6 +62,7 @@ const getFill = (color: string, style: FillStyle) => match(style)
 	.otherwise(() => color);
 
 export const StyleSidebar = () => {
+	const {t} = useTranslation();
 	const app = useWhiteboard();
 	const style = app.useStore(state => state.appState.currentStyle, shallow);
 	const strokeWidth = getStrokeWidth(style.size);
@@ -82,10 +84,10 @@ export const StyleSidebar = () => {
 	}, [app]);
 
 	return (
-		<Sidebar title='Style'>
+		<Sidebar title={t('sidebar.style')}>
 			<div className='grid grid-cols-2 items-center justify-items-center gap-2'>
 				{/* Border Style */}
-				<p className='justify-self-start truncate text-sm font-semibold dark:text-gray-200'>Border Style</p>
+				<p className='justify-self-start truncate text-sm font-semibold dark:text-gray-200'>{t('style.border_style')}</p>
 				<div className='grid grid-cols-3 justify-items-center gap-2'>
 					{/* Solid */}
 					<StyleButton
@@ -116,7 +118,7 @@ export const StyleSidebar = () => {
 				</div>
 
 				{/* Size */}
-				<p className='justify-self-start truncate text-sm font-semibold dark:text-gray-200'>Size</p>
+				<p className='justify-self-start truncate text-sm font-semibold dark:text-gray-200'>{t('style.size')}</p>
 				<div className='grid grid-cols-3 justify-items-center gap-2'>
 					{/* Small */}
 					<StyleButton
@@ -145,7 +147,7 @@ export const StyleSidebar = () => {
 				</div>
 
 				{/* Fill Style */}
-				<p className='justify-self-start truncate text-sm font-semibold dark:text-gray-200'>Fill Style</p>
+				<p className='justify-self-start truncate text-sm font-semibold dark:text-gray-200'>{t('style.fill')}</p>
 				<div className='grid grid-cols-3 justify-items-center gap-2'>
 					{/* Empty */}
 					<StyleButton

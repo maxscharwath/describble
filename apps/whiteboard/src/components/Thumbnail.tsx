@@ -6,6 +6,7 @@ import {type Document} from 'ddnet';
 import {QuadTree} from '~core/utils/QuadTree';
 import {type Camera, type Dimension} from '~core/types';
 import {getCanvasBounds} from '~core/utils';
+import {useTranslation} from 'react-i18next';
 
 interface DocumentHookProps {
 	documentId: string;
@@ -37,6 +38,7 @@ interface ThumbnailProps {
 }
 
 export const Thumbnail = memo(({documentId, dimension, camera}: ThumbnailProps) => {
+	const {t} = useTranslation();
 	const document = useDocument({documentId});
 
 	const layers = useLayers({document, dimension, camera});
@@ -48,7 +50,7 @@ export const Thumbnail = memo(({documentId, dimension, camera}: ThumbnailProps) 
 	if (layers.length === 0) {
 		return (
 			<div>
-				<span className='text-gray-500'>🤨 No layers</span>
+				<span className='text-gray-500'>{t('error.no_layers')}</span>
 			</div>);
 	}
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './locales/config';
 import './index.css';
 import {WhiteboardApp} from '~core/WhiteboardApp';
 import {WhiteboardProvider} from '~core/hooks';

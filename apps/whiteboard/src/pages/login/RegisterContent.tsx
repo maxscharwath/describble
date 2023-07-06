@@ -4,17 +4,12 @@ import {StepsProvider, useSteps} from '~pages/login/useSteps';
 import {CreatePasswordStep} from '~pages/login/steps/CreatePasswordStep';
 import {RecoveryPhraseStep} from '~pages/login/steps/RecoveryPhraseStep';
 import {ConfirmationStep} from '~pages/login/steps/ConfirmationStep';
+import {useTranslation} from 'react-i18next';
 
 export type RegisterContext = {
 	password?: string;
 	phrase?: string;
 };
-
-const steps = [
-	{name: 'Create password', component: CreatePasswordStep},
-	{name: 'Recovery Phrase', component: RecoveryPhraseStep},
-	{name: 'Confirmation', component: ConfirmationStep},
-];
 
 const Stepper: React.FC = () => {
 	const {currentStep, currentIndex, steps} = useSteps();
@@ -30,8 +25,18 @@ const Stepper: React.FC = () => {
 	</>);
 };
 
-export const RegisterContent: React.FC = () => (<div className='grid gap-4'>
-	<StepsProvider steps={steps} initialState={{}}>
-		<Stepper/>
-	</StepsProvider>
-</div>);
+export const RegisterContent: React.FC = () => {
+	const {t} = useTranslation();
+
+	const steps = [
+		{name: t('register.step.create_password'), component: CreatePasswordStep},
+		{name: t('register.step.recovery_phrase'), component: RecoveryPhraseStep},
+		{name: t('register.step.confirmation'), component: ConfirmationStep},
+	];
+
+	return (<div className='grid gap-4'>
+		<StepsProvider steps={steps} initialState={{}}>
+			<Stepper/>
+		</StepsProvider>
+	</div>);
+};

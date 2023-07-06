@@ -3,6 +3,7 @@ import {DescribbleLogo} from '~components/DescribbleLogo';
 import clsx from 'clsx';
 import {RegisterContent} from '~pages/login/RegisterContent';
 import {LoginContent} from '~pages/login/LoginContent';
+import {useTranslation} from 'react-i18next';
 
 type TabItem = {
 	id: string;
@@ -10,12 +11,14 @@ type TabItem = {
 	content: React.ReactNode;
 };
 
-const tabs: TabItem[] = [
-	{id: 'login', label: 'Login', content: <LoginContent />},
-	{id: 'register', label: 'Register', content: <RegisterContent />},
-];
-
 export const Login: React.FC = () => {
+	const {t} = useTranslation();
+
+	const tabs: TabItem[] = [
+		{id: 'login', label: t('nav.login'), content: <LoginContent />},
+		{id: 'register', label: t('nav.register'), content: <RegisterContent />},
+	];
+
 	const [activeTab, setActiveTab] = useState<string>(tabs[0].id);
 
 	const activeContent = tabs.find(tab => tab.id === activeTab)?.content;

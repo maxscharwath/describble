@@ -1,8 +1,10 @@
 import React, {type ChangeEvent, useEffect, useRef, useState} from 'react';
 import {mnemonicToSeedSync} from 'ddnet';
 import {MnemonicWord} from '~pages/login/MnemoWord';
+import {useTranslation} from 'react-i18next';
 
 export const LoginContent: React.FC = () => {
+	const [t] = useTranslation();
 	const [phrase, setPhrase] = useState<string[]>(Array(12).fill(''));
 	const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
@@ -44,7 +46,7 @@ export const LoginContent: React.FC = () => {
 	return (
 		<div className='grid gap-4'>
 			<p className='text-md text-center font-bold'>
-                Please enter your recovery phrase to login to your account.
+				{t('login.subtitle_recovery_phrase')}
 			</p>
 			<div className='px-0 sm:px-8'>
 				<div className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
@@ -61,7 +63,7 @@ export const LoginContent: React.FC = () => {
 					))}
 				</div>
 				<div className='form-control mt-6'>
-					<button className='btn-neutral btn' onClick={validatePhrase}>Login</button>
+					<button className='btn-neutral btn' onClick={validatePhrase}>{t('btn.login')}</button>
 				</div>
 			</div>
 		</div>

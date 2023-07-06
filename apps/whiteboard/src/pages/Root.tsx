@@ -4,6 +4,7 @@ import {useWhiteboard} from '~core/hooks';
 import {CloudIcon, TrashIcon} from 'ui/components/Icons';
 import {DescribbleLogo} from '~components/DescribbleLogo';
 import {Thumbnail} from '~components/Thumbnail';
+import {useTranslation} from 'react-i18next';
 
 const useList = () => {
 	const app = useWhiteboard();
@@ -21,6 +22,7 @@ const useList = () => {
 };
 
 export const Root = () => {
+	const {t} = useTranslation();
 	const app = useWhiteboard();
 	const navigate = useNavigate();
 	const [list, refresh] = useList();
@@ -45,7 +47,7 @@ export const Root = () => {
 					<div className='flex-none'>
 						<button className='btn-ghost btn' onClick={handleCreate}>
 							<CloudIcon className='h-6 w-6'/>
-							<span>Create New Whiteboard</span>
+							<span>{t('btn.new_whiteboard')}</span>
 						</button>
 					</div>
 				</div>
@@ -55,30 +57,37 @@ export const Root = () => {
 	);
 };
 
-const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}) => (
-	<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
-		{list.map((item, index) => (
-			<div key={index} className='card glass min-w-full shadow-lg'>
-				<figure className='h-48 w-full bg-gradient-to-b from-black/0 to-black/10 object-cover'>
-					<Thumbnail documentId={item} camera={{x: 0, y: 0, zoom: 0.25}} dimension={{width: 300, height: 200}}/>
-				</figure>
-				<div className='card-body overflow-hidden'>
-					<h2 className='card-title'>Document #{index}</h2>
-					<div className='badge badge-neutral max-w-full'><span className='overflow-hidden text-ellipsis text-xs'>{item}</span></div>
-					<div className='card-actions justify-end'>
-						<button className='btn-error btn-sm btn' onClick={() => onDelete(item)}>
-							<TrashIcon fontSize={20}/>
-							<span>Delete</span>
-						</button>
-						<Link to={`/document/${item}`}>
-							<button className='btn-neutral btn-sm btn'>
-								<CloudIcon fontSize={20}/>
-								<span>Open</span>
+const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}) => {
+	const {t} = useTranslation();
+	return (
+		<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
+			{list.map((item, index) => (
+				<div key={index} className='card glass min-w-full shadow-lg'>
+					<figure className='h-48 w-full bg-gradient-to-b from-black/0 to-black/10 object-cover'>
+						<Thumbnail
+							documentId={item}
+							camera={{x: 0, y: 0, zoom: 0.25}}
+							dimension={{width: 300, height: 200}}/>
+					</figure>
+					<div className='card-body overflow-hidden'>
+						<h2 className='card-title'>{t('document.title', {index})}</h2>
+						<div className='badge badge-neutral max-w-full'><span
+							className='overflow-hidden text-ellipsis text-xs'>{item}</span></div>
+						<div className='card-actions justify-end'>
+							<button className='btn-error btn-sm btn' onClick={() => onDelete(item)}>
+								<TrashIcon fontSize={20}/>
+								{t('btn.delete')}
 							</button>
-						</Link>
+							<Link to={`/document/${item}`}>
+								<button className='btn-neutral btn-sm btn'>
+									<CloudIcon fontSize={20}/>
+									{t('btn.open')}
+								</button>
+							</Link>
+						</div>
 					</div>
 				</div>
-			</div>
-		))}
-	</div>
-);
+			))}
+		</div>
+	);
+};
