@@ -8,6 +8,9 @@ const server = new SignalingServer({
 	}),
 });
 
-void server.listen().then(() => {
+server.listen().then(() => {
 	console.log('Signaling server listening on port 8080');
+}).catch(err => {
+	console.error(err);
+	process.exit();
 });

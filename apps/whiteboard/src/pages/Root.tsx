@@ -37,10 +37,10 @@ export const Root = () => {
 
 	return (
 		<div className='flex min-h-screen flex-col bg-gray-200 px-4 dark:bg-gray-900'>
-			<div className='mx-auto flex w-full max-w-7xl flex-col items-center justify-center'>
+			<div className='mx-auto flex w-full max-w-7xl grow flex-col items-center'>
 				<div className='navbar rounded-box glass sticky top-4 z-50 mb-8 bg-base-100/50 shadow-xl'>
 					<div className='mr-8 flex-1 text-slate-800 dark:text-slate-100'>
-						<DescribbleLogo className='absolute m-2 h-8 w-auto' textClassName='hidden sm:block'/>
+						<DescribbleLogo className='absolute m-2 h-8 w-auto' textClassName='opacity-0 sm:opacity-100 transition-opacity duration-300 ease-in-out'/>
 					</div>
 					<div className='flex-none'>
 						<button className='btn-ghost btn' onClick={handleCreate}>

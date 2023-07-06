@@ -21,7 +21,7 @@ export class ImageTool extends BaseTool {
 		const layer = Image.create({
 			id: nanoid(),
 			position: initPoint,
-			assetId: this.assetId!,
+			assetId: this.assetId,
 			style: this.app.state.appState.currentStyle,
 		});
 		this.app.document.layers.add(layer);

@@ -54,7 +54,7 @@ class LayerManager {
 			return id.map(id => this.documentHandle.state.layers[id]).filter(Boolean);
 		}
 
-		return this.documentHandle.state.layers[id] as Layer | undefined;
+		return this.documentHandle.state.layers[id];
 	}
 
 	getAll() {
@@ -135,7 +135,7 @@ class AssetManager {
 			return undefined;
 		}
 
-		return this.documentHandle.state.assets[id] as Asset | undefined;
+		return this.documentHandle.state.assets[id];
 	}
 
 	getAll() {

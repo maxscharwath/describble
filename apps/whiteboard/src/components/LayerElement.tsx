@@ -7,6 +7,7 @@ import {layerSelector} from '~core/selectors';
 export const LayerElement = React.memo(({layerId, selected}: {layerId: string; selected?: boolean}) => {
 	const app = useWhiteboard();
 	const layer = app.document.useStore(layerSelector(layerId), (a, b) => a.timestamp === b.timestamp);
+	const events = useLayerEvents(layerId);
 	if (!layer) {
 		return null;
 	}
@@ -14,7 +15,6 @@ export const LayerElement = React.memo(({layerId, selected}: {layerId: string; s
 	const asset = app.document.assets.get(layer.assetId);
 
 	const {Component} = getLayerUtil(layer);
-	const events = useLayerEvents(layerId);
 	return (
 		<g {...events}>
 			<Component layer={layer as never} asset={asset} selected={selected}/>

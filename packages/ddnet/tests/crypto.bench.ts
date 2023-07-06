@@ -1,4 +1,4 @@
-import {bench, describe} from 'vitest';
+import {bench, describe, expect} from 'vitest';
 import {generateKeyPair, bytesEquals, concatBytes} from '../src';
 import {base58} from 'base-x';
 
@@ -53,34 +53,20 @@ describe('crypto', () => {
 			bytesEquals(keyPair.privateKey, keyPair.publicKey);
 		});
 
-		bench('base58 encoding equality runtime (true)', () => {
-			// eslint-disable-next-line no-self-compare,@typescript-eslint/no-unused-expressions
-			base58.encode(keyPair.privateKey) === base58.encode(keyPair.privateKey);
-		});
-
 		bench('base58 encoding equality runtime (false)', () => {
-			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-			base58.encode(keyPair.privateKey) === base58.encode(keyPair.publicKey);
-		});
-
-		bench('base58 encoding equality precomputed (true)', () => {
-			// eslint-disable-next-line @typescript-eslint/no-unused-expressions,no-self-compare
-			encodedPrivateKey === encodedPrivateKey;
+			expect(base58.encode(keyPair.privateKey) === base58.encode(keyPair.publicKey)).toBeTruthy();
 		});
 
 		bench('base58 encoding equality precomputed (false)', () => {
-			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-			encodedPrivateKey === encodedPublicKey;
+			expect(encodedPrivateKey === encodedPublicKey).toBeTruthy();
 		});
 
 		bench('base58 encoding equality one precomputed (true)', () => {
-			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-			encodedPrivateKey === base58.encode(keyPair.privateKey);
+			expect(encodedPrivateKey === base58.encode(keyPair.privateKey)).toBeTruthy();
 		});
 
 		bench('base58 encoding equality one precomputed (false)', () => {
-			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
-			encodedPrivateKey === base58.encode(keyPair.publicKey);
+			expect(encodedPrivateKey === base58.encode(keyPair.publicKey)).toBeTruthy();
 		});
 	});
 });
