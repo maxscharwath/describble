@@ -6,7 +6,7 @@ import {WhiteboardProvider} from '~core/hooks';
 import {createBrowserRouter, RouterProvider} from 'react-router-dom';
 import {Document} from '~pages/Document';
 import {Root} from '~pages/Root';
-import {Login} from '~pages/Login';
+import {Login} from '~pages/login/Login';
 
 const app = new WhiteboardApp('whiteboard');
 const router = createBrowserRouter([
