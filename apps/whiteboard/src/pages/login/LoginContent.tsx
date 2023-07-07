@@ -45,7 +45,7 @@ export const LoginContent: React.FC = () => {
 
 	return (
 		<div className='grid gap-4'>
-			<p className='text-md text-center font-bold'>
+			<p className='text-center font-bold'>
 				{t('login.subtitle_recovery_phrase')}
 			</p>
 			<div className='px-0 sm:px-8'>

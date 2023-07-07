@@ -39,7 +39,7 @@ export const CreatePasswordStep: React.FC = () => {
 	}, [isValid, next]);
 
 	return (<>
-		<p className='text-md text-center font-bold'>
+		<p className='text-center font-bold'>
 			{t('register.subtitle_create_a_password')}
 		</p>
 		<div className='px-0 sm:px-8'>

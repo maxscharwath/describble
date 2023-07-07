@@ -62,7 +62,7 @@ const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}
 	return (
 		<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
 			{list.map((item, index) => (
-				<div key={index} className='card glass min-w-full shadow-lg'>
+				<div key={item} className='card glass min-w-full shadow-lg'>
 					<figure className='h-48 w-full bg-gradient-to-b from-black/0 to-black/10 object-cover'>
 						<Thumbnail
 							documentId={item}

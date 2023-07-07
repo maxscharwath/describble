@@ -11,7 +11,7 @@ export const MnemonicWord = React.forwardRef(({label, hidden, ...props}: React.I
 			</div>
 			<input
 				ref={ref}
-				className='input input-md join-item w-full truncate py-4 font-mono text-xs sm:text-base'
+				className='input input-md join-item w-full truncate font-mono text-xs sm:text-base'
 				type={hidden ? 'password' : 'text'}
 				placeholder={t('input.placeholder.enter_word')}
 				tabIndex={props.readOnly ? -1 : 0}

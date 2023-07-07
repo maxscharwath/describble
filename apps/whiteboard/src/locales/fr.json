@@ -1,0 +1,62 @@
+{
+  "btn": {
+    "back": "Retour",
+    "confirm": "Confirmer",
+    "copy_to_clipboard": "Copier dans le presse-papier",
+    "delete": "Supprimer",
+    "delete_layer": "Supprimer le calque",
+    "hard_reset": "Réinitialiser",
+    "hide_phrase": "Cacher la phrase",
+    "login": "Se connecter",
+    "new_whiteboard": "Nouveau tableau blanc",
+    "next": "Suivant",
+    "open": "Ouvrir",
+    "show_phrase": "Montrer la phrase",
+    "target_layer": "Calque cible",
+    "toggle_layer_visibility": "Basculer la visibilité du calque"
+  },
+  "document": {
+    "title": "Document n°{{index}}"
+  },
+  "error": {
+    "failed_to_fetch_document": "Échec de la récupération du document",
+    "no_layers": "🤨 Pas de calques",
+    "password_is_required": "Le mot de passe est requis",
+    "password_too_short": "Le mot de passe doit comporter au moins 8 caractères",
+    "passwords_do_not_match": "Les mots de passe ne correspondent pas",
+    "something_went_wrong": "Quelque chose s'est mal passé"
+  },
+  "input": {
+    "placeholder": {
+      "confirm_password": "Confirmer le mot de passe",
+      "enter_word": "Remplir le mot",
+      "password": "Mot de passe"
+    }
+  },
+  "login": {
+    "subtitle_recovery_phrase": "Veuillez entrer votre phrase de récupération pour vous connecter à votre compte."
+  },
+  "nav": {
+    "login": "Se connecter",
+    "register": "S'inscrire"
+  },
+  "register": {
+    "step": {
+      "confirmation": "Confirmation",
+      "create_password": "Créer un mot de passe",
+      "recovery_phrase": "Phrase de récupération"
+    },
+    "subtitle_create_a_password": "Créez un mot de passe pour sécuriser votre compte, veuillez noter que ce mot de passe ne peut pas être récupéré.",
+    "subtitle_fill_missing_words": "Veuillez compléter les mots manquants pour confirmer que vous avez correctement noté la phrase.",
+    "subtitle_please_write_down_phrase": "Veuillez noter la phrase suivante et la garder en lieu sûr. Vous en aurez besoin pour récupérer votre compte."
+  },
+  "sidebar": {
+    "layers": "Calques",
+    "style": "Style"
+  },
+  "style": {
+    "border_style": "Bordure",
+    "fill": "Remplissage",
+    "size": "Taille"
+  }
+}

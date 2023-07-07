@@ -2,13 +2,6 @@ import {type EventHandler, type RefObject, useEffect} from 'react';
 
 export type EventElement = Element | Document | Window;
 
-/**
- * Hook to add an event listener to an element
- * @param ref - ref to the element
- * @param event - event name
- * @param handler - event handler
- * @param options
- */
 export const useEvent = <TEvent extends EventElement, THandler extends EventHandler<any>> (
 	ref: RefObject<TEvent>,
 	event: string,
@@ -23,9 +16,9 @@ export const useEvent = <TEvent extends EventElement, THandler extends EventHand
 		element.addEventListener(event, handler, options);
 
 		return () => {
-			element.removeEventListener(event, handler);
+			element.removeEventListener(event, handler, options);
 		};
-	}, [ref, event, handler]);
+	}, [ref, event, handler, options]); // Include 'handler' directly in dependencies
 };
 
 type EventHandlerWithType<T extends Event> = (event: T) => void;
@@ -34,12 +27,6 @@ type EventHandlers<T> = {
 	[K in keyof T]: EventHandlerWithType<T[K] extends EventHandlerWithType<infer U> ? U : never> | undefined;
 };
 
-/**
- * Hook to add multiple event listeners to an element
- * @param ref - ref to the element
- * @param events - object containing event names and handlers
- * @param options
- */
 export const useEvents = <
 	TEvent extends EventElement,
 	THandlers extends EventHandlers<THandlers>,
@@ -65,10 +52,9 @@ export const useEvents = <
 		return () => {
 			for (const {event, handler} of eventListeners) {
 				if (handler) {
-					element.removeEventListener(event, handler as EventHandler<any>);
+					element.removeEventListener(event, handler as EventHandler<any>, options);
 				}
 			}
 		};
-	}, [ref, events]);
+	}, [ref, events, options]); // Include 'events' directly in dependencies
 };
-

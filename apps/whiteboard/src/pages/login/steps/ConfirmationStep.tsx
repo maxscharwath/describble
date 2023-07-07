@@ -3,6 +3,7 @@ import {useSteps} from '~pages/login/useSteps';
 import {type RegisterContext} from '~pages/login/RegisterContent';
 import {MnemonicWord} from '~pages/login/MnemoWord';
 import {useTranslation} from 'react-i18next';
+import {decryptData, encryptData, generatePrivateKey, mnemonicToSeedSync} from 'ddnet';
 
 const useClearedWords = (numberOfClearedWords: number, phrase: string | undefined) => {
 	const originalWords = useMemo(() => phrase?.split(' ') ?? [], [phrase]);
@@ -32,12 +33,23 @@ const useClearedWords = (numberOfClearedWords: number, phrase: string | undefine
 
 export const ConfirmationStep: React.FC = () => {
 	const {t} = useTranslation();
-	const {prev, next, state: {phrase}} = useSteps<RegisterContext>();
+	const {prev, next, state: {phrase, password}} = useSteps<RegisterContext>();
 	const {handleChangeWord, isValid, originalWords, clearedIndexes, filledWords} = useClearedWords(3, phrase);
 
-	const handleNext = useCallback(() => {
-		if (isValid) {
-			next();
+	const handleNext = useCallback(async () => {
+		if (isValid && phrase && password) {
+			const seed = mnemonicToSeedSync(phrase);
+			const privateKey = generatePrivateKey(seed);
+			const encrypted = await encryptData(privateKey, password);
+			const decrypted = await decryptData(encrypted, password);
+			console.log({
+				phrase,
+				password,
+				seed,
+				privateKey,
+				encrypted,
+				decrypted,
+			});
 		}
 	}, [isValid, next]);
 

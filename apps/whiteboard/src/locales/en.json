@@ -1,0 +1,62 @@
+{
+  "btn": {
+    "back": "Back",
+    "confirm": "Confirm",
+    "copy_to_clipboard": "Copy to Clipboard",
+    "delete": "Delete",
+    "delete_layer": "Delete layer",
+    "hard_reset": "Hard Reset",
+    "hide_phrase": "Hide Phrase",
+    "login": "Login",
+    "new_whiteboard": "New Whiteboard",
+    "next": "Next",
+    "open": "Open",
+    "show_phrase": "Show Phrase",
+    "target_layer": "Target layer",
+    "toggle_layer_visibility": "Toggle layer visibility"
+  },
+  "document": {
+    "title": "Document #{{index}}"
+  },
+  "error": {
+    "failed_to_fetch_document": "Failed to fetch document",
+    "no_layers": "🤨 No layers",
+    "password_is_required": "Password is required",
+    "password_too_short": "Password must be at least 8 characters",
+    "passwords_do_not_match": "Passwords do not match",
+    "something_went_wrong": "Something went wrong"
+  },
+  "input": {
+    "placeholder": {
+      "confirm_password": "Confirm Password",
+      "enter_word": "Fill word",
+      "password": "Password"
+    }
+  },
+  "login": {
+    "subtitle_recovery_phrase": "Please enter your recovery phrase to login to your account."
+  },
+  "nav": {
+    "login": "Login",
+    "register": "Register"
+  },
+  "register": {
+    "step": {
+      "confirmation": "Confirmation",
+      "create_password": "Create password",
+      "recovery_phrase": "Recovery Phrase"
+    },
+    "subtitle_create_a_password": "Create a password to secure your account, please note that this password cannot be recovered.",
+    "subtitle_fill_missing_words": "Please fill in the missing words to confirm you have written down the phrase correctly.",
+    "subtitle_please_write_down_phrase": "Please write down the following phrase and keep it safe. You will need it to recover your account."
+  },
+  "sidebar": {
+    "layers": "Layers",
+    "style": "Style"
+  },
+  "style": {
+    "border_style": "Border Style",
+    "fill": "Fill Style",
+    "size": "Size"
+  }
+}

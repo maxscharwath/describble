@@ -35,16 +35,16 @@ export const RecoveryPhraseStep: React.FC = () => {
 						<MnemonicWord key={`${word}-${index}`} label={index + 1} value={word} hidden={!isPhraseVisible} readOnly />
 					))}
 				</div>
-				<div className='mt-2 flex justify-between gap-2'>
+				<div className='mt-2 flex flex-wrap justify-between gap-2'>
 					<button className='btn-ghost btn-sm btn' onClick={toggleVisibility}>
 						<div className={clsx('swap swap-rotate', isPhraseVisible && 'swap-active')}>
 							<OpenEyeIcon className='swap-off' />
 							<ClosedEyeIcon className='swap-on' />
 						</div>
-						{isPhraseVisible ? t('btn.hide_phrase') : t('btn.show_phrase')}
+						<span className='truncate'>{isPhraseVisible ? t('btn.hide_phrase') : t('btn.show_phrase')}</span>
 					</button>
 					<button className='btn-ghost btn-sm btn' onClick={copyPhrase}>
-						<CopyIcon /> {t('btn.copy_to_clipboard')}
+						<CopyIcon /> <span className='truncate'>{t('btn.copy_to_clipboard')}</span>
 					</button>
 				</div>
 				<div className='mt-6 flex gap-4'>

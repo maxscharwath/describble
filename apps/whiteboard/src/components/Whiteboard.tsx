@@ -10,6 +10,7 @@ import {useWhiteboard} from '~core/hooks';
 import clsx from 'clsx';
 import {shallow} from 'zustand/shallow';
 import {ErrorBoundary} from 'react-error-boundary';
+import {useTranslation} from 'react-i18next';
 
 type WhiteboardProps = {
 	className?: string;
@@ -17,11 +18,12 @@ type WhiteboardProps = {
 };
 
 function ErrorFallback({error, resetErrorBoundary}: {error: Error; resetErrorBoundary: () => void}) {
+	const {t} = useTranslation();
 	return (
 		<div className='fixed inset-0 z-50 flex items-center justify-center bg-gray-400 dark:bg-gray-900'>
 			<div className='mx-4 rounded-lg bg-white p-6 shadow-lg dark:bg-gray-800 md:mx-0 md:w-full md:max-w-md'>
 				<h2 className='mb-4 text-xl font-bold text-gray-800 dark:text-gray-200'>
-					Something went wrong:
+					{t('error.something_went_wrong')}
 				</h2>
 				<pre className='mb-6 overflow-x-auto font-mono text-sm text-red-700 dark:text-red-400'>
 					{error.message}
@@ -32,7 +34,7 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error; resetErrorBou
 						onClick={resetErrorBoundary}
 						className='rounded-md bg-gray-200 px-3 py-2 text-gray-900 transition-all hover:scale-110 active:scale-90 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-900'
 					>
-						Hard Reset
+						{t('btn.hard_reset')}
 					</button>
 				</div>
 			</div>

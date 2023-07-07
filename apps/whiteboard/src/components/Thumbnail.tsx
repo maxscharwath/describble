@@ -12,23 +12,24 @@ interface DocumentHookProps {
 	documentId: string;
 }
 
-const useDocument = ({documentId}: DocumentHookProps): Document<SyncedDocument> | null => {
+const useDocument = ({documentId}: DocumentHookProps) => {
 	const [document, setDocument] = useState<Document<SyncedDocument> | null>(null);
+	const [error, setError] = useState<Error | null>(null);
 	const app = useWhiteboard();
 	useEffect(() => {
 		const fetchDocument = async () => {
 			try {
 				const doc = await app.documentManager.get(documentId);
 				setDocument(doc ?? null);
-			} catch (error) {
-				console.error(error);
+			} catch (cause) {
+				setError(new Error('Failed to fetch document', {cause}));
 			}
 		};
 
 		void fetchDocument();
 	}, [documentId, app]);
 
-	return document;
+	return {document, error};
 };
 
 interface ThumbnailProps {
@@ -39,9 +40,16 @@ interface ThumbnailProps {
 
 export const Thumbnail = memo(({documentId, dimension, camera}: ThumbnailProps) => {
 	const {t} = useTranslation();
-	const document = useDocument({documentId});
+	const {document, error} = useDocument({documentId});
 
 	const layers = useLayers({document, dimension, camera});
+
+	if (error) {
+		return (
+			<div>
+				<span className='text-gray-500'>{t('error.failed_to_fetch_document')}</span>
+			</div>);
+	}
 
 	if (!document) {
 		return <span className='loading loading-ring loading-lg'></span>;

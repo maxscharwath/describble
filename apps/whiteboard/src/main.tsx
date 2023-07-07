@@ -12,6 +12,14 @@ import {Login} from '~pages/login/Login';
 const app = new WhiteboardApp('whiteboard');
 const router = createBrowserRouter([
 	{
+		path: '/',
+		element: <Root />,
+	},
+	{
+		path: 'login',
+		element: <Login />,
+	},
+	{
 		path: '/document/:id',
 		async loader({params}) {
 			try {
@@ -22,15 +30,6 @@ const router = createBrowserRouter([
 			}
 		},
 		element: <Document />,
-		errorElement: <div>Document not found</div>,
-	},
-	{
-		path: '/',
-		element: <Root />,
-	},
-	{
-		path: 'login',
-		element: <Login />,
 	},
 ]);
 
