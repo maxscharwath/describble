@@ -18,6 +18,7 @@
   "dependencies": {
     "@ctrl/tinycolor": "^3.6.0",
     "@use-gesture/react": "^10.2.27",
+    "boring-avatars": "^1.10.1",
     "clsx": "^1.2.1",
     "ddnet": "workspace:*",
     "framer-motion": "^10.12.18",

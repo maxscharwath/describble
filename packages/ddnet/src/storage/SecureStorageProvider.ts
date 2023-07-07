@@ -1,7 +1,7 @@
-import {decryptData, encryptData, getPublicKey} from '../crypto';
+import {decryptData, encryptData} from '../crypto';
 import {type StorageProvider} from './StorageProvider';
 import {type DocumentId} from '../types';
-import {base58} from 'base-x';
+import {type SessionManager} from '../keys/SessionManager';
 
 type SecureStorageProviderConfig = {
 	encrypt: (data: Uint8Array, secret: Uint8Array | string) => Promise<Uint8Array> | Uint8Array;
@@ -9,16 +9,14 @@ type SecureStorageProviderConfig = {
 };
 
 export class SecureStorageProvider implements StorageProvider {
-	private readonly publicKey: string;
 	constructor(
 		private readonly storageProvider: StorageProvider,
-		private readonly privateKey: Uint8Array,
+		private readonly sessionManager: SessionManager,
 		private readonly config: SecureStorageProviderConfig = {
 			encrypt: encryptData,
 			decrypt: decryptData,
 		},
 	) {
-		this.publicKey = base58.encode(getPublicKey(privateKey));
 	}
 
 	async saveDocumentHeader(namespace: string, documentId: DocumentId, header: Uint8Array): Promise<void> {
@@ -56,6 +54,14 @@ export class SecureStorageProvider implements StorageProvider {
 
 	async saveChunk(namespace: string, documentId: DocumentId, binary: Uint8Array, index: number): Promise<void> {
 		return this.storageProvider.saveChunk(`${namespace}:${this.publicKey}`, documentId, await this.encrypt(binary), index);
+	}
+
+	private get publicKey(): string {
+		return this.sessionManager.currentSession.base58PublicKey;
+	}
+
+	private get privateKey(): Uint8Array {
+		return this.sessionManager.currentSession.privateKey;
 	}
 
 	private async decrypt<T extends Uint8Array | undefined>(value: Promise<T> | T): Promise<T> {

@@ -13,9 +13,11 @@ import {Deferred, throttle} from '../utils';
 import {DocumentPresence} from '../presence/DocumentPresence';
 import {SecureStorageProvider} from '../storage/SecureStorageProvider';
 import {fastDecryptData, fastEncryptData} from '../crypto';
+import {type SessionManager} from '../keys/SessionManager';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
 type DocumentSharingClientConfig = SignalingClientConfig & {
+	sessionManager: SessionManager;
 	storageProvider: StorageProvider;
 	wrtc?: Wrtc;
 };
@@ -62,11 +64,10 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 	 * @param config - The configuration for the signaling client and the document-sharing client.
 	 */
 	public constructor(private readonly config: DocumentSharingClientConfig) {
-		super(config.privateKey);
+		super(config.sessionManager);
 		this.client = new SignalingClient(config);
 
 		this.client.on('connect', () => {
-			console.log('Connected to signaling server');
 			this.connecting.resolve();
 		});
 
@@ -78,17 +79,21 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		});
 
 		this.storage = new Storage(
-			new SecureStorageProvider(config.storageProvider, config.privateKey, {
+			new SecureStorageProvider(config.storageProvider, config.sessionManager, {
 				encrypt: fastEncryptData,
 				decrypt: fastDecryptData,
 			}),
 		);
 
+		this.config.sessionManager.onLogin(() => {
+			void this.connect();
+		});
+
 		this.setupEvents();
 	}
 
 	public get publicKey(): Uint8Array {
-		return this.client.publicKey;
+		return this.config.sessionManager.currentSession.publicKey;
 	}
 
 	/**
@@ -97,7 +102,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 	 */
 	public async connect(): Promise<this> {
 		this.connecting.reset();
-		await this.client.connect();
+		await this.client.connect(this.config.sessionManager.currentSession);
 		return this;
 	}
 
@@ -210,7 +215,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 			if (document?.header.hasAllowedUser(message.from.publicKey)) {
 				await this.exchanger.sendMessage({
 					type: 'document-response',
-					document: document.export(this.privateKey),
+					document: document.export(this.config.sessionManager.currentSession.privateKey),
 				}, message.from);
 
 				await this.emit('share-document', {

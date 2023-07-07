@@ -30,25 +30,32 @@
     "placeholder": {
       "confirm_password": "Confirm Password",
       "enter_word": "Fill word",
-      "password": "Password"
+      "password": "Password",
+      "public_key": "Public Key"
     }
   },
   "login": {
-    "subtitle_recovery_phrase": "Please enter your recovery phrase to login to your account."
+    "alert_demo": "Psss... This is a demo account, use password <s>{{password}}</s> to login.",
+    "subtitle_recovery_phrase": "Please enter your recovery phrase to login to your account.",
+    "subtitle_select_account": "Your doodles miss you! Pick your account below and let's get scribbling."
   },
   "nav": {
-    "login": "Login",
+    "login": "Log In",
+    "recover": "Recover",
     "register": "Register"
   },
   "register": {
     "step": {
       "confirmation": "Confirmation",
       "create_password": "Create password",
+      "created": "Created",
       "recovery_phrase": "Recovery Phrase"
     },
     "subtitle_create_a_password": "Create a password to secure your account, please note that this password cannot be recovered.",
+    "subtitle_created": "Your public key is like your digital ID. It's safe to share and is used by others to send you messages or data securely. Please copy your public key and keep it handy!",
     "subtitle_fill_missing_words": "Please fill in the missing words to confirm you have written down the phrase correctly.",
-    "subtitle_please_write_down_phrase": "Please write down the following phrase and keep it safe. You will need it to recover your account."
+    "subtitle_please_write_down_phrase": "Please write down the following phrase and keep it safe. You will need it to recover your account.",
+    "title_created": "You've got the keys, now it's time to Describble the universe!"
   },
   "sidebar": {
     "layers": "Layers",

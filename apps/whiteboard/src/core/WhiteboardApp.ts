@@ -30,11 +30,11 @@ import React from 'react';
 import {getCanvasBounds, getCanvasPoint, getScreenBounds, getScreenPoint} from '~core/utils';
 import {
 	DocumentSharingClient,
-	generateKeyPair,
 	IDBStorageProvider,
-	mnemonicToSeedSync,
 	WebSocketNetworkAdapter,
 } from 'ddnet';
+import {SessionManager} from 'ddnet/src/keys/SessionManager';
+import {KeyManager} from 'ddnet/src/keys/KeyManager';
 export type {DocumentData, Asset} from '~core/managers/DocumentManager';
 export enum Status {
 	Idle = 'idle',
@@ -83,18 +83,18 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 	public readonly activity = new ActivityManager(this);
 	public readonly documentManager: DocumentManager;
 	public readonly repo: DocumentSharingClient;
+	public readonly sessionManager: SessionManager;
 
 	constructor(id: string) {
 		super(WhiteboardApp.defaultState, id);
+		this.sessionManager = new SessionManager(
+			new KeyManager('ddnet-keys'),
+		);
 		this.repo = new DocumentSharingClient({
-			...generateKeyPair(
-				mnemonicToSeedSync('accident observe boss minute mixture goddess trash craft candy smooth rubber coffee'),
-			),
+			sessionManager: this.sessionManager,
 			network: new WebSocketNetworkAdapter('wss://ddnet-server.fly.dev'),
 			storageProvider: new IDBStorageProvider(),
 		});
-
-		void this.repo.connect();
 
 		this.documentManager = new DocumentManager(this.repo);
 	}

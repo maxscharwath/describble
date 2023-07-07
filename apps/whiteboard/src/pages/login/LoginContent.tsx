@@ -1,71 +1,100 @@
-import React, {type ChangeEvent, useEffect, useRef, useState} from 'react';
-import {mnemonicToSeedSync} from 'ddnet';
-import {MnemonicWord} from '~pages/login/MnemoWord';
-import {useTranslation} from 'react-i18next';
+import React, {useEffect, useState} from 'react';
+import {Trans, useTranslation} from 'react-i18next';
+import Avatar from 'boring-avatars';
+import {useWhiteboard} from '~core/hooks';
+import clsx from 'clsx';
+import {useNavigate} from 'react-router-dom';
+import {seederCredentials} from '~seeders';
 
-export const LoginContent: React.FC = () => {
-	const [t] = useTranslation();
-	const [phrase, setPhrase] = useState<string[]>(Array(12).fill(''));
-	const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
-
-	const handleChange = (e: ChangeEvent<HTMLInputElement>, i: number) => {
-		const words = e.target.value.split(' ');
-		if (words.length > 1) {
-			words.forEach((word, wordIndex) => {
-				if (i + wordIndex < 12) {
-					setPhrase(prev => {
-						const copy = [...prev];
-						copy[i + wordIndex] = word;
-						return copy;
-					});
-				}
-			});
-		} else {
-			setPhrase(prev => {
-				const copy = [...prev];
-				copy[i] = e.target.value;
-				return copy;
-			});
-		}
-
-		if (e.target.value.includes(' ') && i < 11) {
-			setTimeout(() => {
-				inputRefs.current[i + 1]?.focus();
-			}, 0);
-		}
-	};
-
-	const validatePhrase = () => {
-		console.log(mnemonicToSeedSync(phrase.join(' ')));
-	};
+const useGetPublicKeys = () => {
+	const app = useWhiteboard();
+	const [accounts, setAccounts] = useState<string[]>([]);
 
 	useEffect(() => {
-		inputRefs.current = inputRefs.current.slice(0, 12);
-	}, []);
+		app.sessionManager.listKeys()
+			.then(setAccounts)
+			.catch(console.error);
+	}, [app.sessionManager]);
+
+	return accounts;
+};
+
+export const LoginContent: React.FC = () => {
+	const app = useWhiteboard();
+	const navigate = useNavigate();
+	const [t] = useTranslation();
+	const accounts = useGetPublicKeys();
+	const [selectedPublicKey, setSelectedPublicKey] = useState<string>('');
+	const [password, setPassword] = useState<string>('');
+
+	const handleLogin = async () => {
+		if (selectedPublicKey && password) {
+			await app.sessionManager.login(selectedPublicKey, password);
+			navigate('/');
+		}
+	};
 
 	return (
 		<div className='grid gap-4'>
-			<p className='text-center font-bold'>
-				{t('login.subtitle_recovery_phrase')}
+			<p className='my-2 px-0 text-center text-lg font-bold sm:px-8'>
+				{t('login.subtitle_select_account')}
 			</p>
-			<div className='px-0 sm:px-8'>
-				<div className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
-					{phrase.map((word, index) => (
-						<MnemonicWord
-							key={index}
-							label={index + 1}
-							value={word}
-							onChange={e => handleChange(e, index)}
-							ref={el => {
-								inputRefs.current[index] = el;
-							}}
-						/>
+			<div className='rounded-box flex w-full items-center justify-center border py-4'>
+				<div className='carousel-center carousel space-x-2'>
+					{accounts.map((account, index) => (
+						<div className='carousel-item' key={`${index}-${account}`}>
+							<button className={clsx('btn-circle btn h-28 w-28', selectedPublicKey === account && 'btn-neutral')} onClick={() => setSelectedPublicKey(account)}>
+								<div className='avatar m-2'>
+									<div className='rounded-full'>
+										<Avatar
+											size='100%'
+											square
+											name={account}
+											variant='beam'
+											colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
+										/>
+									</div>
+								</div>
+							</button>
+						</div>
 					))}
 				</div>
-				<div className='form-control mt-6'>
-					<button className='btn-neutral btn' onClick={validatePhrase}>{t('btn.login')}</button>
-				</div>
 			</div>
+			<fieldset className='px-0 sm:px-8' disabled={!selectedPublicKey}>
+				{selectedPublicKey === seederCredentials.key && (
+					<div className='alert alert-info'>
+						<svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' className='h-6 w-6 shrink-0 stroke-current'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'></path></svg>
+						<span>
+							<Trans
+								i18nKey='login.alert_demo'
+								values={{
+									password: seederCredentials.secret,
+								}}
+								components={{
+									s: <b />,
+								}}
+							/>
+						</span>
+					</div>
+				)}
+				<div className='mt-6 flex flex-col gap-4'>
+					<div className='form-control w-full'>
+						<label className='label'>
+							<span className='label-text'>{t('input.placeholder.public_key')}</span>
+						</label>
+						<input type='text' readOnly className='input-bordered input' value={selectedPublicKey} placeholder={t('input.placeholder.public_key')} />
+					</div>
+					<div className='form-control w-full'>
+						<label className='label'>
+							<span className='label-text'>{t('input.placeholder.password')}</span>
+						</label>
+						<input type='password' className='input-bordered input' placeholder={t('input.placeholder.password')} value={password} onChange={e => setPassword(e.target.value)} />
+					</div>
+					<button className='btn-neutral btn grow' disabled={!selectedPublicKey || !password} onClick={handleLogin}>
+						{t('btn.login')}
+					</button>
+				</div>
+			</fieldset>
 		</div>
 	);
 };

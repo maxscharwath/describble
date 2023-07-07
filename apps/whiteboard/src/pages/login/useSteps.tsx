@@ -3,6 +3,7 @@ import React, {createContext, useContext, useCallback, useState, useMemo, type R
 type Step = {
 	name: string;
 	component: React.FC;
+	hidden?: boolean;
 };
 
 type StepsContextType<S> = {

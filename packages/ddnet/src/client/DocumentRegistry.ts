@@ -1,6 +1,7 @@
 import Emittery from 'emittery';
 import {Document} from '../document/Document';
 import {type DocumentId} from '../types';
+import {type SessionManager} from '../keys/SessionManager';
 
 type DocumentRegistryEvent = {
 	'document-added': Document<unknown>;
@@ -11,12 +12,13 @@ type DocumentRegistryEvent = {
 export class DocumentRegistry<TAdditionalEvent extends {} extends Partial<DocumentRegistryEvent> ? {} : DocumentRegistryEvent> extends Emittery<TAdditionalEvent & DocumentRegistryEvent> {
 	private readonly documents = new Map<DocumentId, Document<any>>();
 
-	constructor(protected readonly privateKey: Uint8Array) {
+	constructor(protected readonly sessionManager: SessionManager) {
 		super();
 	}
 
 	public createDocument<TData>(allowedClients: Uint8Array[] = []) {
-		const document = Document.create<TData>(this.privateKey, allowedClients);
+		const {privateKey} = this.sessionManager.currentSession;
+		const document = Document.create<TData>(privateKey, allowedClients);
 		this.documents.set(document.id, document);
 		void this.emit('document-added', document as Document<unknown>);
 		return document;

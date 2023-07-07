@@ -30,25 +30,32 @@
     "placeholder": {
       "confirm_password": "Confirmer le mot de passe",
       "enter_word": "Remplir le mot",
-      "password": "Mot de passe"
+      "password": "Mot de passe",
+      "public_key": "Clé publique "
     }
   },
   "login": {
-    "subtitle_recovery_phrase": "Veuillez entrer votre phrase de récupération pour vous connecter à votre compte."
+    "alert_demo": "Psss... Ceci est un compte de démo, utilise le mot de passe <s>{{password}}</s> pour te connecter.    ",
+    "subtitle_recovery_phrase": "Veuillez entrer votre phrase de récupération pour vous connecter à votre compte.",
+    "subtitle_select_account": "Vos dessins vous attendent ! Sélectionnez votre compte ci-dessous et reprenons le gribouillage."
   },
   "nav": {
-    "login": "Se connecter",
-    "register": "S'inscrire"
+    "login": "Connexion",
+    "recover": "Récupérer",
+    "register": "Inscription"
   },
   "register": {
     "step": {
       "confirmation": "Confirmation",
       "create_password": "Créer un mot de passe",
+      "created": "Created",
       "recovery_phrase": "Phrase de récupération"
     },
     "subtitle_create_a_password": "Créez un mot de passe pour sécuriser votre compte, veuillez noter que ce mot de passe ne peut pas être récupéré.",
+    "subtitle_created": "Votre clé publique est comme votre ID numérique. Elle est sûre à partager et est utilisée par les autres pour vous envoyer des messages ou des données en toute sécurité. Veuillez copier votre clé publique et la garder à portée de main !",
     "subtitle_fill_missing_words": "Veuillez compléter les mots manquants pour confirmer que vous avez correctement noté la phrase.",
-    "subtitle_please_write_down_phrase": "Veuillez noter la phrase suivante et la garder en lieu sûr. Vous en aurez besoin pour récupérer votre compte."
+    "subtitle_please_write_down_phrase": "Veuillez noter la phrase suivante et la garder en lieu sûr. Vous en aurez besoin pour récupérer votre compte.",
+    "title_created": "Vous avez les clés, il est maintenant temps de Describbliser l'univers !"
   },
   "sidebar": {
     "layers": "Calques",

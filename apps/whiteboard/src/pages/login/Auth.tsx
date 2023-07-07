@@ -2,8 +2,9 @@ import React, {useState} from 'react';
 import {DescribbleLogo} from '~components/DescribbleLogo';
 import clsx from 'clsx';
 import {RegisterContent} from '~pages/login/RegisterContent';
-import {LoginContent} from '~pages/login/LoginContent';
+import {RecoverContent} from '~pages/login/RecoverContent';
 import {useTranslation} from 'react-i18next';
+import {LoginContent} from '~pages/login/LoginContent';
 
 type TabItem = {
 	id: string;
@@ -11,11 +12,12 @@ type TabItem = {
 	content: React.ReactNode;
 };
 
-export const Login: React.FC = () => {
+export const Auth: React.FC = () => {
 	const {t} = useTranslation();
 
 	const tabs: TabItem[] = [
 		{id: 'login', label: t('nav.login'), content: <LoginContent />},
+		{id: 'recover', label: t('nav.recover'), content: <RecoverContent />},
 		{id: 'register', label: t('nav.register'), content: <RegisterContent />},
 	];
 
@@ -36,7 +38,7 @@ export const Login: React.FC = () => {
 							{tabs.map(({id, label}) => (
 								<button
 									key={id}
-									className={clsx('tab-lifted tab tab-lg border-0', {'tab-active': activeTab === id})}
+									className={clsx('tab-lifted tab border-0 sm:tab-lg', {'tab-active': activeTab === id})}
 									onClick={() => setActiveTab(id)}
 								>
 									{label}
