@@ -11,6 +11,8 @@ import {type DocumentId} from '../types';
 import {type Wrtc} from '../wrtc';
 import {Deferred, throttle} from '../utils';
 import {DocumentPresence} from '../presence/DocumentPresence';
+import {SecureStorageProvider} from '../storage/SecureStorageProvider';
+import {fastDecryptData, fastEncryptData} from '../crypto';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
 type DocumentSharingClientConfig = SignalingClientConfig & {
@@ -76,7 +78,10 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		});
 
 		this.storage = new Storage(
-			config.storageProvider,
+			new SecureStorageProvider(config.storageProvider, config.privateKey, {
+				encrypt: fastEncryptData,
+				decrypt: fastDecryptData,
+			}),
 		);
 
 		this.setupEvents();

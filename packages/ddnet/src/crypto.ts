@@ -1,7 +1,7 @@
 import * as secp256k1 from '@noble/secp256k1';
-import {hkdf} from '@noble/hashes/hkdf';
 import {sha256} from '@noble/hashes/sha256';
 import {hmac} from '@noble/hashes/hmac';
+import {pbkdf2Async} from '@noble/hashes/pbkdf2';
 
 export {sha256} from '@noble/hashes/sha256';
 export {generateMnemonic, mnemonicToSeedSync} from 'srp';
@@ -40,10 +40,10 @@ export function generateKeyPair(seed?: Uint8Array) {
  * @param secret - The secret used in the generation of the AES key.
  * @param salt - An optional salt to add randomness to the generation of the AES key.
  */
-export async function generateAESKey(secret: Uint8Array, salt?: Uint8Array | string) {
+export async function generateAESKey(secret: Uint8Array | string, salt: Uint8Array | string) {
 	return crypto.subtle.importKey(
 		'raw',
-		hkdf(sha256, secret, salt, undefined, 32), // Use HKDF to derive a key from the secret.
+		await pbkdf2Async(sha256, secret, salt, {c: 10000, dkLen: 32}),
 		{name: 'AES-GCM'},
 		false,
 		['encrypt', 'decrypt'],
@@ -57,7 +57,7 @@ export async function generateAESKey(secret: Uint8Array, salt?: Uint8Array | str
  * @param salt - An optional salt to add randomness to the generation of the AES key.
  * @returns A Promise that resolves with the generated AES key.
  */
-export async function generateSharedAESKey(privateKey: Uint8Array, publicKey: Uint8Array, salt?: Uint8Array | string) {
+export async function generateSharedAESKey(privateKey: Uint8Array, publicKey: Uint8Array, salt: Uint8Array | string) {
 	const secret = secp256k1.getSharedSecret(privateKey, publicKey); // Compute the shared secret.
 	return generateAESKey(secret, salt); // Generate an AES key from the shared secret.
 }
@@ -68,7 +68,7 @@ export async function generateSharedAESKey(privateKey: Uint8Array, publicKey: Ui
  * @param secret - The secret used in the encryption.
  * @returns A Promise that resolves with the encrypted data.
  */
-export async function encryptData(data: Uint8Array, secret: Uint8Array) {
+export async function encryptData(data: Uint8Array, secret: Uint8Array | string) {
 	return encrypt(data, async salt => generateAESKey(secret, salt)); // Encrypt the data.
 }
 
@@ -78,7 +78,7 @@ export async function encryptData(data: Uint8Array, secret: Uint8Array) {
  * @param secret - The secret used in the decryption.
  * @returns A Promise that resolves with the decrypted data.
  */
-export async function decryptData(data: Uint8Array, secret: Uint8Array) {
+export async function decryptData(data: Uint8Array, secret: Uint8Array | string) {
 	return decrypt(data, async salt => generateAESKey(secret, salt)); // Decrypt the data.
 }
 
@@ -102,6 +102,44 @@ export async function encryptMessage(data: Uint8Array, privateKey: Uint8Array, p
  */
 export async function decryptMessage(data: Uint8Array, privateKey: Uint8Array, publicKey: Uint8Array) {
 	return decrypt(data, async salt => generateSharedAESKey(privateKey, publicKey, salt)); // Decrypt the data.
+}
+
+/**
+ * Fast encrypts the provided data using the provided secret.
+ * @remarks This function is faster than encryptData, but it is less secure.
+ * @param data - The data to be encrypted.
+ * @param secret - The secret used in the encryption.
+ */
+export async function fastEncryptData(data: Uint8Array, secret: Uint8Array | string) {
+	const iv = crypto.getRandomValues(new Uint8Array(16)); // Generate a new random initialization vector (IV).
+	const key = await crypto.subtle.importKey(
+		'raw',
+		await pbkdf2Async(sha256, secret, iv, {c: 1000, dkLen: 16}),
+		{name: 'AES-CBC'},
+		false,
+		['encrypt'],
+	);
+	const ciphertext = new Uint8Array(await crypto.subtle.encrypt({name: 'AES-CBC', iv}, key, data)); // Encrypt the data.
+	return concatBytes([iv, ciphertext]); // Concatenate the IV and ciphertext.
+}
+
+/**
+ * Fast decrypts the provided data using the provided secret.
+ * @remarks This function is faster than decryptData, but it is less secure.
+ * @param data
+ * @param secret
+ */
+export async function fastDecryptData(data: Uint8Array, secret: Uint8Array | string) {
+	const iv = data.subarray(0, 16); // Extract the IV from the data.
+	const ciphertext = data.subarray(16); // Extract the ciphertext from the data.
+	const key = await crypto.subtle.importKey(
+		'raw',
+		await pbkdf2Async(sha256, secret, iv, {c: 1000, dkLen: 16}),
+		{name: 'AES-CBC'},
+		false,
+		['decrypt'],
+	);
+	return new Uint8Array(await crypto.subtle.decrypt({name: 'AES-CBC', iv}, key, ciphertext)); // Decrypt the data.
 }
 
 /**

@@ -3,11 +3,20 @@ import {type StorageProvider} from './StorageProvider';
 import {type DocumentId} from '../types';
 import {base58} from 'base-x';
 
+type SecureStorageProviderConfig = {
+	encrypt: (data: Uint8Array, secret: Uint8Array | string) => Promise<Uint8Array> | Uint8Array;
+	decrypt: (data: Uint8Array, secret: Uint8Array | string) => Promise<Uint8Array> | Uint8Array;
+};
+
 export class SecureStorageProvider implements StorageProvider {
 	private readonly publicKey: string;
 	constructor(
 		private readonly storageProvider: StorageProvider,
 		private readonly privateKey: Uint8Array,
+		private readonly config: SecureStorageProviderConfig = {
+			encrypt: encryptData,
+			decrypt: decryptData,
+		},
 	) {
 		this.publicKey = base58.encode(getPublicKey(privateKey));
 	}
@@ -51,11 +60,11 @@ export class SecureStorageProvider implements StorageProvider {
 
 	private async decrypt<T extends Uint8Array | undefined>(value: Promise<T> | T): Promise<T> {
 		const data = await value;
-		return (data && decryptData(data, this.privateKey)) as Promise<T>;
+		return (data && this.config.decrypt(data, this.privateKey)) as Promise<T>;
 	}
 
 	private async encrypt<T extends Uint8Array | undefined>(value: Promise<T> | T): Promise<T> {
 		const data = await value;
-		return (data && encryptData(data, this.privateKey)) as Promise<T>;
+		return (data && this.config.encrypt(data, this.privateKey)) as Promise<T>;
 	}
 }
