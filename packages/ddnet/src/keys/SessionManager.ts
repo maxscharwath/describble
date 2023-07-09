@@ -2,35 +2,18 @@ import {type KeyManager} from './KeyManager';
 import {getPublicKey} from '../crypto';
 import Emittery from 'emittery';
 import {base58} from 'base-x';
+import {ServiceWorkerCache} from './ServiceWorkerCache';
 
 export type KeyPair = {
 	readonly privateKey: Uint8Array;
 	readonly publicKey: Uint8Array;
 };
 
-export class KeySession implements KeyPair {
-	readonly #privateKey: ArrayBuffer;
-	readonly #publicKey: ArrayBuffer;
-	readonly #base58PublicKey: string;
-
-	constructor(privateKey: Uint8Array) {
-		this.#privateKey = privateKey.buffer;
-		this.#publicKey = getPublicKey(privateKey).buffer;
-		this.#base58PublicKey = base58.encode(this.#publicKey);
-	}
-
-	get privateKey(): Uint8Array {
-		return new Uint8Array(this.#privateKey);
-	}
-
-	get publicKey(): Uint8Array {
-		return new Uint8Array(this.#publicKey);
-	}
-
-	get base58PublicKey(): string {
-		return this.#base58PublicKey;
-	}
-}
+export type KeySession = Readonly<{
+	privateKey: Uint8Array;
+	publicKey: Uint8Array;
+	base58PublicKey: string;
+}>;
 
 type SessionManagerEvents = {
 	login: KeySession;
@@ -38,10 +21,18 @@ type SessionManagerEvents = {
 };
 
 export class SessionManager extends Emittery<SessionManagerEvents> {
+	private readonly serviceWorkerCache = new ServiceWorkerCache();
 	private session: KeySession | null = null;
 
 	constructor(private readonly keyManager: KeyManager) {
 		super();
+		void this.serviceWorkerCache.get<KeySession>('session').then(session => {
+			console.log('Got session from cache', session);
+			if (session) {
+				this.session = session;
+				void this.emit('login', session);
+			}
+		});
 	}
 
 	public async login(key: string, password: string): Promise<void> {
@@ -54,13 +45,16 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 			this.logout();
 		}
 
-		this.session = new KeySession(privateKey);
+		this.session = this.createSession(privateKey);
+
+		await this.serviceWorkerCache.set('session', this.session);
+
 		void this.emit('login', this.session);
 	}
 
 	public async register(privateKey: Uint8Array, password: string): Promise<KeySession> {
 		await this.keyManager.saveKey(privateKey, password);
-		return new KeySession(privateKey);
+		return this.createSession(privateKey);
 	}
 
 	public async listKeys(): Promise<string[]> {
@@ -69,6 +63,7 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 
 	public logout(): void {
 		this.session = null;
+		void this.serviceWorkerCache.unregister();
 		void this.emit('logout');
 	}
 
@@ -90,5 +85,15 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 		}
 
 		return this.on('login', callback);
+	}
+
+	private createSession(privateKey: Uint8Array): KeySession {
+		const publicKey = getPublicKey(privateKey);
+		const base58PublicKey = base58.encode(publicKey);
+		return {
+			privateKey,
+			publicKey,
+			base58PublicKey,
+		};
 	}
 }
