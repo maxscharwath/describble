@@ -26,7 +26,6 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 	constructor(private readonly keyManager: KeyManager, private readonly cache?: Cache) {
 		super();
 		void this.cache?.get<KeySession>('session').then(session => {
-			console.log('Got session from cache', session);
 			if (session) {
 				this.session = session;
 				void this.emit('login', session);
@@ -62,7 +61,7 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 
 	public logout(): void {
 		this.session = null;
-		void this.cache?.unregister();
+		void this.cache?.delete('session');
 		void this.emit('logout');
 	}
 
