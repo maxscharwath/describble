@@ -1,3 +1,5 @@
+import {type Cache} from './Cache';
+
 type Message<T> = {
 	type: 'get' | 'delete';
 	key: string;
@@ -7,11 +9,14 @@ type Message<T> = {
 	data: T;
 };
 
-export class ServiceWorkerCache {
+export class ServiceWorkerCache implements Cache {
 	private reg?: Promise<ServiceWorkerRegistration>;
+
+	constructor(private readonly path: string) {}
+
 	async getSw() {
 		if (!this.reg) {
-			this.reg = navigator.serviceWorker.register(new URL('./sw.js', import.meta.url));
+			this.reg = navigator.serviceWorker.register(this.path);
 		}
 
 		return (await this.reg).active;

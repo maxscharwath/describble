@@ -35,6 +35,8 @@ import {
 } from 'ddnet';
 import {SessionManager} from 'ddnet/src/keys/SessionManager';
 import {KeyManager} from 'ddnet/src/keys/KeyManager';
+import {ServiceWorkerCache} from 'ddnet/src/keys/ServiceWorkerCache';
+import sw from 'ddnet/src/keys/sw.ts?worker&url';
 export type {DocumentData, Asset} from '~core/managers/DocumentManager';
 export enum Status {
 	Idle = 'idle',
@@ -89,6 +91,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		super(WhiteboardApp.defaultState, id);
 		this.sessionManager = new SessionManager(
 			new KeyManager('ddnet-keys'),
+			new ServiceWorkerCache(sw),
 		);
 		this.repo = new DocumentSharingClient({
 			sessionManager: this.sessionManager,

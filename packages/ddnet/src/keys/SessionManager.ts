@@ -2,7 +2,7 @@ import {type KeyManager} from './KeyManager';
 import {getPublicKey} from '../crypto';
 import Emittery from 'emittery';
 import {base58} from 'base-x';
-import {ServiceWorkerCache} from './ServiceWorkerCache';
+import {type Cache} from './Cache';
 
 export type KeyPair = {
 	readonly privateKey: Uint8Array;
@@ -21,12 +21,11 @@ type SessionManagerEvents = {
 };
 
 export class SessionManager extends Emittery<SessionManagerEvents> {
-	private readonly serviceWorkerCache = new ServiceWorkerCache();
 	private session: KeySession | null = null;
 
-	constructor(private readonly keyManager: KeyManager) {
+	constructor(private readonly keyManager: KeyManager, private readonly cache?: Cache) {
 		super();
-		void this.serviceWorkerCache.get<KeySession>('session').then(session => {
+		void this.cache?.get<KeySession>('session').then(session => {
 			console.log('Got session from cache', session);
 			if (session) {
 				this.session = session;
@@ -47,7 +46,7 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 
 		this.session = this.createSession(privateKey);
 
-		await this.serviceWorkerCache.set('session', this.session);
+		await this.cache?.set('session', this.session);
 
 		void this.emit('login', this.session);
 	}
@@ -63,7 +62,7 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 
 	public logout(): void {
 		this.session = null;
-		void this.serviceWorkerCache.unregister();
+		void this.cache?.unregister();
 		void this.emit('logout');
 	}
 
