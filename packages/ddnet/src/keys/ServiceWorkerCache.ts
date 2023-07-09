@@ -11,7 +11,7 @@ export class ServiceWorkerCache {
 	private reg?: Promise<ServiceWorkerRegistration>;
 	async getSw() {
 		if (!this.reg) {
-			this.reg = navigator.serviceWorker.register(new URL('./sw', import.meta.url));
+			this.reg = navigator.serviceWorker.register(new URL('./sw.js', import.meta.url));
 		}
 
 		return (await this.reg).active;
