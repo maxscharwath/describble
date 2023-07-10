@@ -62,14 +62,13 @@ const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}
 	const {t} = useTranslation();
 
 	const handleShare = async (event: React.MouseEvent<HTMLButtonElement>, id: string) => {
-		const thumb = await toThumbnail(app, {
+		const blob = await toThumbnail(app, {
 			documentId: id,
 			camera: {x: 0, y: 0, zoom: 0.25},
 			dimension: {width: 300, height: 200},
 		});
 
-		const blob = new Blob([thumb], {type: 'image/svg+xml;charset=utf-8'});
-		const file = new File([blob], 'thumbnail.svg', {type: blob.type});
+		const file = new File([blob], `${id}.png`, {type: 'image/png'});
 
 		return navigator.share({
 			title: `Describble ${id}`,

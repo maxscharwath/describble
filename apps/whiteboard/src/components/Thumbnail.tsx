@@ -63,13 +63,41 @@ export const ThumbnailRenderer = ({document, dimension, camera}: {document: Docu
 	);
 };
 
+const renderSvg = async (svgData: string) => new Promise<HTMLImageElement>((resolve, reject) => {
+	const img = new Image();
+	const url = URL.createObjectURL(new Blob([svgData], {type: 'image/svg+xml'}));
+	img.src = url;
+	img.onload = () => resolve(img);
+	img.onerror = reject;
+});
+
 export const toThumbnail = async (app: WhiteboardApp, {documentId, dimension, camera}: ThumbnailProps) => {
-	const document = await app.documentManager.get(documentId);
-	if (!document) {
+	const doc = await app.documentManager.get(documentId);
+	if (!doc) {
 		throw new Error('Failed to fetch document');
 	}
 
-	return renderToString(<ThumbnailRenderer document={document} dimension={dimension} camera={camera}/>);
+	const svgData = renderToString(<ThumbnailRenderer document={doc} dimension={dimension} camera={camera}/>);
+
+	const canvas = document.createElement('canvas');
+	canvas.width = dimension.width;
+	canvas.height = dimension.height;
+	const ctx = canvas.getContext('2d');
+	if (!ctx) {
+		throw new Error('Failed to create canvas');
+	}
+
+	ctx.drawImage(await renderSvg(svgData), 0, 0);
+	return new Promise<Blob>((resolve, reject) => {
+		canvas.toBlob(blob => {
+			if (!blob) {
+				reject(new Error('Failed to convert canvas to blob'));
+				return;
+			}
+
+			resolve(blob);
+		}, 'image/png');
+	});
 };
 
 export const Thumbnail = memo(({documentId, dimension, camera}: ThumbnailProps) => {
