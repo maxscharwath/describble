@@ -3,7 +3,7 @@ import React from 'react';
 import {useWhiteboard} from '~core/hooks';
 import {CloudIcon, ShareIcon, TrashIcon} from 'ui/components/Icons';
 import {DescribbleLogo} from '~components/DescribbleLogo';
-import {Thumbnail} from '~components/Thumbnail';
+import {Thumbnail, toThumbnail} from '~components/Thumbnail';
 import {useTranslation} from 'react-i18next';
 
 const useList = () => {
@@ -58,13 +58,25 @@ export const Root = () => {
 };
 
 const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}) => {
+	const app = useWhiteboard();
 	const {t} = useTranslation();
 
-	const handleShare = async (event: React.MouseEvent<HTMLButtonElement>, id: string) => navigator.share({
-		title: 'Describble',
-		text: 'Describble',
-		url: generatePath('/document/:id', {id}),
-	});
+	const handleShare = async (event: React.MouseEvent<HTMLButtonElement>, id: string) => {
+		const thumb = await toThumbnail(app, {
+			documentId: id,
+			camera: {x: 0, y: 0, zoom: 0.25},
+			dimension: {width: 300, height: 200},
+		});
+
+		const blob = new Blob([thumb], {type: 'image/svg+xml;charset=utf-8'});
+		const file = new File([blob], 'thumbnail.svg', {type: blob.type});
+
+		return navigator.share({
+			title: `Describble ${id}`,
+			url: generatePath('/document/:id', {id}),
+			files: [file],
+		});
+	};
 
 	return (
 		<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
