@@ -16,7 +16,9 @@ export class ServiceWorkerCache implements Cache {
 
 	async getSw() {
 		if (!this.reg) {
-			this.reg = navigator.serviceWorker.register(this.path);
+			this.reg = navigator.serviceWorker.register(this.path, {
+				scope: '/',
+			});
 		}
 
 		return (await this.reg).active;

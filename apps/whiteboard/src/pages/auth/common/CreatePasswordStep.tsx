@@ -1,12 +1,14 @@
 import React, {useState, useCallback, useMemo} from 'react';
-import {useSteps} from '~pages/login/useSteps';
-import {type RegisterContext} from '~pages/login/RegisterContent';
+import {useSteps} from '~pages/auth/useSteps';
 import clsx from 'clsx';
 import {useTranslation} from 'react-i18next';
+import {type AuthContext} from '~pages/auth/common/index';
+
+const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
 
 export const CreatePasswordStep: React.FC = () => {
 	const {t} = useTranslation();
-	const {next, state: {password}, setState} = useSteps<RegisterContext>();
+	const {next, state: {password}, setState} = useSteps<AuthContext>();
 
 	const setPassword = useCallback((password: string) => {
 		setState(state => ({...state, password}));
@@ -19,8 +21,8 @@ export const CreatePasswordStep: React.FC = () => {
 			return '';
 		}
 
-		if (password.length < 8) {
-			return t('error.password_too_short');
+		if (!passwordRegex.test(password)) {
+			return t('error.password_invalid');
 		}
 
 		if (password !== confirmPassword) {
@@ -32,7 +34,8 @@ export const CreatePasswordStep: React.FC = () => {
 
 	const isValid = Boolean(password) && Boolean(confirmPassword) && !error;
 
-	const handleNext = useCallback(() => {
+	const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
 		if (isValid) {
 			next();
 		}
@@ -42,25 +45,31 @@ export const CreatePasswordStep: React.FC = () => {
 		<p className='text-center font-bold'>
 			{t('register.subtitle_create_a_password')}
 		</p>
-		<div className='px-0 sm:px-8'>
+		<form className='px-0 sm:px-8' onSubmit={handleSubmit}>
 
 			<div className='form-control'>
-				<label className='label'>
+				<label className='label' htmlFor='password-field'>
 					<span className='label-text'>{t('input.placeholder.password')}</span>
 				</label>
 				<input
 					type='password'
+					name='password'
+					id='password-field'
+					autoComplete='new-password'
 					placeholder={t('input.placeholder.password')}
-					className={clsx('input-bordered input input-md', {'input-error': error})}
+					className={clsx('input-bordered input input-md invalid:input-error', {'input-error': error})}
 					required
-					minLength={8}
+					pattern={passwordRegex.source}
 					value={password ?? ''} onChange={e => setPassword(e.target.value)} />
 
-				<label className='label'>
+				<label className='label' htmlFor='confirm-password-field'>
 					<span className='label-text'>{t('input.placeholder.confirm_password')}</span>
 				</label>
 				<input
 					type='password'
+					name='confirm-password'
+					id='confirm-password-field'
+					autoComplete='new-password'
 					placeholder={t('input.placeholder.confirm_password')}
 					className={clsx('input-bordered input input-md', {'input-error': error})}
 					required
@@ -69,8 +78,8 @@ export const CreatePasswordStep: React.FC = () => {
 			</div>
 			{error && <p className='text-red-500'>{error}</p>}
 			<div className='form-control mt-6'>
-				<button className='btn-neutral btn' onClick={handleNext} disabled={!isValid}>{t('btn.next')}</button>
+				<button className='btn-neutral btn' disabled={!isValid}>{t('btn.next')}</button>
 			</div>
-		</div>
+		</form>
 	</>);
 };

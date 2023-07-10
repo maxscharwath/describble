@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import clsx from 'clsx';
-import {useSteps} from '~pages/login/useSteps';
+import {useSteps} from '~pages/auth/useSteps';
 import {ClosedEyeIcon, CopyIcon, OpenEyeIcon} from 'ui/components/Icons';
 import {generateMnemonic} from 'ddnet';
-import {type RegisterContext} from '~pages/login/RegisterContent';
-import {MnemonicWord} from '~pages/login/MnemoWord';
+import {type RegisterContext} from '~pages/auth/register/Register';
+import {MnemonicWord} from '~pages/auth/MnemoWord';
 import {useTranslation} from 'react-i18next';
 
 export const RecoveryPhraseStep: React.FC = () => {

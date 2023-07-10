@@ -1,17 +1,28 @@
 import React from 'react';
-import {useSteps} from '~pages/login/useSteps';
-import {type RegisterContext} from '~pages/login/RegisterContent';
+import {useSteps} from '~pages/auth/useSteps';
+import {type RegisterContext} from '~pages/auth/register/Register';
 import {useTranslation} from 'react-i18next';
 import Avatar from 'boring-avatars';
 import {CopyIcon} from 'ui/components/Icons';
+import {useWhiteboard} from '~core/hooks';
+import {useNavigate} from 'react-router-dom';
 
 export const CreatedStep: React.FC = () => {
 	const {t} = useTranslation();
-	const {state: {session}} = useSteps<RegisterContext>();
+	const app = useWhiteboard();
+	const navigate = useNavigate();
+	const {state: {session, password}} = useSteps<RegisterContext>();
 
 	if (!session) {
 		return null;
 	}
+
+	const handleLogin = async () => {
+		if (session.base58PublicKey && password) {
+			await app.sessionManager.login(session.base58PublicKey, password);
+			navigate('/');
+		}
+	};
 
 	return (
 		<>
@@ -36,7 +47,9 @@ export const CreatedStep: React.FC = () => {
 					</div>
 				</div>
 				<div className='mt-6 flex gap-4'>
-					<button className='btn-neutral btn grow'>{t('btn.login')}</button>
+					<button className='btn-neutral btn grow' onClick={handleLogin}>
+						{t('btn.login')}
+					</button>
 				</div>
 			</div>
 		</>

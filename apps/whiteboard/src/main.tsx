@@ -7,8 +7,11 @@ import {WhiteboardProvider} from '~core/hooks';
 import {createBrowserRouter, redirect, RouterProvider} from 'react-router-dom';
 import {Document} from '~pages/Document';
 import {Root} from '~pages/Root';
-import {Auth} from '~pages/login/Auth';
+import {Auth} from '~pages/auth/Auth';
 import {initSeeder} from '~seeders';
+import {Login} from '~pages/auth/login/Login';
+import {Register} from '~pages/auth/register/Register';
+import {Recover} from '~pages/auth/recover/Recover';
 
 const app = new WhiteboardApp('whiteboard');
 
@@ -30,8 +33,22 @@ const router = createBrowserRouter([
 		element: <Root />,
 	},
 	{
-		path: 'login',
+		path: '/',
 		element: <Auth />,
+		children: [
+			{
+				path: '/login',
+				element: <Login />,
+			},
+			{
+				path: '/register',
+				element: <Register />,
+			},
+			{
+				path: '/recover',
+				element: <Recover />,
+			},
+		],
 	},
 	{
 		path: '/document/:id',

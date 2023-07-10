@@ -21,8 +21,8 @@
   "error": {
     "failed_to_fetch_document": "Failed to fetch document",
     "no_layers": "🤨 No layers",
+    "password_invalid": "Password must contain at least 8 characters, including uppercase, lowercase and numbers.",
     "password_is_required": "Password is required",
-    "password_too_short": "Password must be at least 8 characters",
     "passwords_do_not_match": "Passwords do not match",
     "something_went_wrong": "Something went wrong"
   },
@@ -36,7 +36,7 @@
   },
   "login": {
     "alert_demo": "Psss... This is a demo account, use password <s>{{password}}</s> to login.",
-    "subtitle_recovery_phrase": "Please enter your recovery phrase to login to your account.",
+    "subtitle_recovery_phrase": "Please enter your recovery phrase to recover to your account.",
     "subtitle_select_account": "Your doodles miss you! Pick your account below and let's get scribbling."
   },
   "nav": {

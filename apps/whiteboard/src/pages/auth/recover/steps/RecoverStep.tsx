@@ -1,9 +1,12 @@
-import React, {type ChangeEvent, useEffect, useRef, useState} from 'react';
-import {mnemonicToSeedSync} from 'ddnet';
-import {MnemonicWord} from '~pages/login/MnemoWord';
+import React, {type ChangeEvent, useEffect, useMemo, useRef, useState} from 'react';
+import {validateMnemonic} from 'ddnet';
+import {MnemonicWord} from '~pages/auth/MnemoWord';
 import {useTranslation} from 'react-i18next';
+import {useSteps} from '~pages/auth/useSteps';
+import {type AuthContext} from '~pages/auth/common';
 
-export const RecoverContent: React.FC = () => {
+export const RecoverStep: React.FC = () => {
+	const {next, setState} = useSteps<AuthContext>();
 	const [t] = useTranslation();
 	const [phrase, setPhrase] = useState<string[]>(Array(12).fill(''));
 	const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -35,8 +38,13 @@ export const RecoverContent: React.FC = () => {
 		}
 	};
 
-	const validatePhrase = () => {
-		console.log(mnemonicToSeedSync(phrase.join(' ')));
+	const isValid = useMemo(() => validateMnemonic(phrase.join(' ')), [phrase]);
+
+	const handleNext = () => {
+		if (isValid) {
+			setState(prev => ({...prev, phrase: phrase.join(' ')}));
+			next();
+		}
 	};
 
 	useEffect(() => {
@@ -45,14 +53,14 @@ export const RecoverContent: React.FC = () => {
 
 	return (
 		<div className='grid gap-4'>
-			<p className='my-2 text-center text-lg font-bold'>
+			<p className='text-center font-bold'>
 				{t('login.subtitle_recovery_phrase')}
 			</p>
 			<div className='px-0 sm:px-8'>
 				<div className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
 					{phrase.map((word, index) => (
 						<MnemonicWord
-							key={index}
+							key={`${index}-${word}`}
 							label={index + 1}
 							value={word}
 							onChange={e => handleChange(e, index)}
@@ -63,7 +71,7 @@ export const RecoverContent: React.FC = () => {
 					))}
 				</div>
 				<div className='form-control mt-6'>
-					<button className='btn-neutral btn' onClick={validatePhrase}>{t('btn.login')}</button>
+					<button className='btn-neutral btn' disabled={!isValid} onClick={handleNext}>{t('btn.next')}</button>
 				</div>
 			</div>
 		</div>

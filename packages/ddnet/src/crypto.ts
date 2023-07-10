@@ -4,7 +4,7 @@ import {hmac} from '@noble/hashes/hmac';
 import {pbkdf2Async} from '@noble/hashes/pbkdf2';
 
 export {sha256} from '@noble/hashes/sha256';
-export {generateMnemonic, mnemonicToSeedSync} from 'srp';
+export * from 'srp';
 export {bytesToHex, hexToBytes} from '@noble/hashes/utils';
 
 /**

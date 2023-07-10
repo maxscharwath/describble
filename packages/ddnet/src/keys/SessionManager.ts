@@ -30,7 +30,8 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 				this.session = session;
 				void this.emit('login', session);
 			}
-		});
+		})
+			.catch(e => console.error('Failed to load cache', e));
 	}
 
 	public async login(key: string, password: string): Promise<void> {
@@ -45,7 +46,8 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 
 		this.session = this.createSession(privateKey);
 
-		await this.cache?.set('session', this.session);
+		await this.cache?.set('session', this.session)
+			.catch(e => console.error('Failed to save cache', e));
 
 		void this.emit('login', this.session);
 	}
@@ -61,7 +63,8 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 
 	public logout(): void {
 		this.session = null;
-		void this.cache?.delete('session');
+		void this.cache?.delete('session')
+			.catch(e => console.error('Failed to delete cache', e));
 		void this.emit('logout');
 	}
 
