@@ -1,4 +1,4 @@
-import {defineConfig} from 'vite';
+import {defineConfig, splitVendorChunkPlugin} from 'vite';
 import react from '@vitejs/plugin-react-swc';
 import wasm from 'vite-plugin-wasm';
 import {fileURLToPath, URL} from 'url';
@@ -6,7 +6,7 @@ import topLevelAwait from 'vite-plugin-top-level-await';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [wasm(), topLevelAwait(), react()],
+	plugins: [splitVendorChunkPlugin(), wasm(), topLevelAwait(), react()],
 	resolve: {
 		alias: [
 			{find: '~core', replacement: fileURLToPath(new URL('./src/core', import.meta.url))},
