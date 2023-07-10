@@ -45,14 +45,12 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error; resetErrorBou
 export default function Whiteboard({className, style}: WhiteboardProps) {
 	const app = useWhiteboard();
 
-	const settings = app.useStore(state => state.settings, shallow);
-
 	const hardReset = React.useCallback(() => {
 		app.reset();
 	}, [app]);
 
 	return (
-		<div className={clsx(className, settings.darkMode && 'dark', 'whiteboard')} style={style}>
+		<div className={clsx(className, 'whiteboard')} style={style}>
 			<ErrorBoundary FallbackComponent={ErrorFallback} onReset={hardReset}>
 				<div className='relative h-full w-full overflow-hidden'>
 					<Canvas />

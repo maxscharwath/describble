@@ -8,7 +8,7 @@ export const Auth: React.FC = () => {
 	const {t} = useTranslation();
 
 	return (
-		<div className='flex min-h-screen flex-col p-4'>
+		<div className='flex min-h-screen flex-col p-4 portrait:standalone:pt-14'>
 			<div className='card card-compact w-full max-w-screen-md shrink-0 self-center bg-base-100/50 shadow-xl'>
 				<div className='card-body'>
 					<figure className='mb-6'>

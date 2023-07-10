@@ -12,6 +12,7 @@ import {initSeeder} from '~seeders';
 import {Login} from '~pages/auth/login/Login';
 import {Register} from '~pages/auth/register/Register';
 import {Recover} from '~pages/auth/recover/Recover';
+import {ThemeProvider} from '~components/ThemeProvider';
 
 const app = new WhiteboardApp('whiteboard');
 
@@ -68,7 +69,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
 		<WhiteboardProvider value={app}>
-			<RouterProvider router={router} />
+			<ThemeProvider>
+				<RouterProvider router={router} />
+			</ThemeProvider>
 		</WhiteboardProvider>
 	</React.StrictMode>,
 );

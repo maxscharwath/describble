@@ -40,7 +40,7 @@ export const Root = () => {
 	};
 
 	return (
-		<div className='flex min-h-screen flex-col bg-gray-100 px-4'>
+		<div className='flex min-h-screen flex-col px-4 portrait:standalone:pt-14'>
 			<div className='mx-auto flex w-full max-w-7xl grow flex-col items-center'>
 				<div className='navbar rounded-box sticky top-4 z-50 mb-8 bg-base-100/50 shadow-xl backdrop-blur-xl'>
 					<div className='mr-8 flex-1 text-slate-800 dark:text-slate-100'>
