@@ -8,13 +8,13 @@ export const Auth: React.FC = () => {
 	const {t} = useTranslation();
 
 	return (
-		<div className='flex min-h-screen flex-col bg-gray-100 p-4'>
-			<div className='card glass card-compact w-full max-w-screen-md shrink-0 self-center bg-base-100/50 shadow-xl'>
+		<div className='flex min-h-screen flex-col p-4'>
+			<div className='card card-compact w-full max-w-screen-md shrink-0 self-center bg-base-100/50 shadow-xl'>
 				<div className='card-body'>
 					<figure className='mb-6'>
 						<DescribbleLogo className='w-full max-w-xs self-center px-4' />
 					</figure>
-					<div className='rounded-box overflow-hidden border bg-base-200'>
+					<div className='rounded-box overflow-hidden border border-base-200 bg-base-200'>
 						<div className='tabs -mb-px bg-transparent px-2 pt-2 font-bold'>
 							<div/>
 							<NavLink to='/login' className={({isActive}) => clsx('tab-lifted tab border-0 sm:tab-lg', isActive && 'tab-active')}>

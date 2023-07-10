@@ -55,11 +55,11 @@ export const Login: React.FC = () => {
 				{t('login.subtitle_select_account')}
 			</p>
 			<form onSubmit={handleLogin} className='space-y-4'>
-				<div className='rounded-box flex w-full items-center justify-center border py-4'>
+				<div className='rounded-box flex w-full items-center justify-center border border-base-200 py-2'>
 					<div className='carousel-center carousel space-x-2'>
 						{accounts.map((account, index) => (
 							<div className='carousel-item' key={`${index}-${account}`}>
-								<button className={clsx('btn-circle btn h-28 w-28', selectedPublicKey === account && 'btn-neutral')} onClick={e => handleAccountChange(e, account)}>
+								<button className={clsx(' btn-circle btn m-2 h-28 w-28', selectedPublicKey === account && 'btn-neutral')} onClick={e => handleAccountChange(e, account)}>
 									<div className='avatar m-2'>
 										<div className='rounded-full'>
 											<Avatar
