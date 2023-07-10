@@ -1,5 +1,4 @@
-import React, {useState, useEffect, useMemo, memo} from 'react';
-import {useWhiteboard} from '~core/hooks';
+import React, {useMemo, memo} from 'react';
 import {getLayerUtil, type Layer} from '~core/layers';
 import {type Asset, type SyncedDocument} from '~core/managers';
 import {type Document} from 'ddnet';
@@ -9,30 +8,7 @@ import {getCanvasBounds} from '~core/utils';
 import {useTranslation} from 'react-i18next';
 import {type WhiteboardApp} from '~core/WhiteboardApp';
 import {renderToString} from 'react-dom/server';
-
-interface DocumentHookProps {
-	documentId: string;
-}
-
-const useDocument = ({documentId}: DocumentHookProps) => {
-	const [document, setDocument] = useState<Document<SyncedDocument> | null>(null);
-	const [error, setError] = useState<Error | null>(null);
-	const app = useWhiteboard();
-	useEffect(() => {
-		const fetchDocument = async () => {
-			try {
-				const doc = await app.documentManager.get(documentId);
-				setDocument(doc ?? null);
-			} catch (cause) {
-				setError(new Error('Failed to fetch document', {cause}));
-			}
-		};
-
-		void fetchDocument();
-	}, [documentId, app]);
-
-	return {document, error};
-};
+import {useDocument} from '~core/hooks/useDocument';
 
 interface ThumbnailProps {
 	documentId: string;
@@ -63,13 +39,30 @@ export const ThumbnailRenderer = ({document, dimension, camera}: {document: Docu
 	);
 };
 
-const renderSvg = async (svgData: string) => new Promise<HTMLImageElement>((resolve, reject) => {
-	const img = new Image();
-	const url = URL.createObjectURL(new Blob([svgData], {type: 'image/svg+xml'}));
-	img.src = url;
-	img.onload = () => resolve(img);
-	img.onerror = reject;
+export const Thumbnail = memo(({documentId, dimension, camera}: ThumbnailProps) => {
+	const {t} = useTranslation();
+	const {document, error} = useDocument(documentId);
+
+	if (error) {
+		return (
+			<div>
+				<span className='text-gray-500'>{t('error.failed_to_fetch_document')}</span>
+			</div>);
+	}
+
+	if (!document) {
+		return <span className='loading loading-ring loading-lg'></span>;
+	}
+
+	return <ThumbnailRenderer document={document} dimension={dimension} camera={camera}/>;
 });
+Thumbnail.displayName = 'Thumbnail';
+
+interface LayerHookProps {
+	document: Document<SyncedDocument> | undefined | null;
+	dimension: Dimension;
+	camera: Camera;
+}
 
 export const toThumbnail = async (app: WhiteboardApp, {documentId, dimension, camera}: ThumbnailProps) => {
 	const doc = await app.documentManager.get(documentId);
@@ -100,30 +93,13 @@ export const toThumbnail = async (app: WhiteboardApp, {documentId, dimension, ca
 	});
 };
 
-export const Thumbnail = memo(({documentId, dimension, camera}: ThumbnailProps) => {
-	const {t} = useTranslation();
-	const {document, error} = useDocument({documentId});
-
-	if (error) {
-		return (
-			<div>
-				<span className='text-gray-500'>{t('error.failed_to_fetch_document')}</span>
-			</div>);
-	}
-
-	if (!document) {
-		return <span className='loading loading-ring loading-lg'></span>;
-	}
-
-	return <ThumbnailRenderer document={document} dimension={dimension} camera={camera}/>;
+const renderSvg = async (svgData: string) => new Promise<HTMLImageElement>((resolve, reject) => {
+	const img = new Image();
+	const url = URL.createObjectURL(new Blob([svgData], {type: 'image/svg+xml'}));
+	img.src = url;
+	img.onload = () => resolve(img);
+	img.onerror = reject;
 });
-Thumbnail.displayName = 'Thumbnail';
-
-interface LayerHookProps {
-	document: Document<SyncedDocument> | undefined | null;
-	dimension: Dimension;
-	camera: Camera;
-}
 
 const useLayers = ({document, dimension, camera}: LayerHookProps): Layer[] => useMemo(() => {
 	if (!document) {

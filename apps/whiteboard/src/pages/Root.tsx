@@ -1,10 +1,12 @@
-import {generatePath, Link, useNavigate} from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import React from 'react';
 import {useWhiteboard} from '~core/hooks';
-import {CloudIcon, ShareIcon, TrashIcon} from 'ui/components/Icons';
+import {CloudIcon, KeyIcon, ShareIcon, TrashIcon} from 'ui/components/Icons';
 import {DescribbleLogo} from '~components/DescribbleLogo';
-import {Thumbnail, toThumbnail} from '~components/Thumbnail';
+import {Thumbnail} from '~components/Thumbnail';
 import {useTranslation} from 'react-i18next';
+import {Modal, modalActivator} from '~components/ui/Modal';
+import {useDocument} from '~core/hooks/useDocument';
 
 const useList = () => {
 	const app = useWhiteboard();
@@ -58,24 +60,7 @@ export const Root = () => {
 };
 
 const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}) => {
-	const app = useWhiteboard();
 	const {t} = useTranslation();
-
-	const handleShare = async (event: React.MouseEvent<HTMLButtonElement>, id: string) => {
-		const blob = await toThumbnail(app, {
-			documentId: id,
-			camera: {x: 0, y: 0, zoom: 0.25},
-			dimension: {width: 300, height: 200},
-		});
-
-		const file = new File([blob], `${id}.png`, {type: 'image/png'});
-
-		return navigator.share({
-			title: `Describble ${id}`,
-			url: generatePath('/document/:id', {id}),
-			files: [file],
-		});
-	};
 
 	return (
 		<div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
@@ -99,9 +84,7 @@ const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}
 								<button className='btn-error btn-sm btn-circle btn' onClick={() => onDelete(item)} aria-label={t('btn.delete')}>
 									<TrashIcon fontSize={20}/>
 								</button>
-								<button className='btn-primary btn-sm btn-circle btn' onClick={async e => handleShare(e, item)} aria-label={t('btn.share')}>
-									<ShareIcon fontSize={20}/>
-								</button>
+								<ShareModal documentId={item}/>
 							</div>
 						</div>
 					</div>
@@ -109,4 +92,59 @@ const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}
 			))}
 		</div>
 	);
+};
+
+const Activator = modalActivator(({openModal}) =>
+	<button className='btn-primary btn-sm btn-circle btn' onClick={openModal}>
+		<ShareIcon fontSize={20}/>
+	</button>,
+);
+
+type ShareModalProps = {
+	documentId: string;
+};
+
+const ShareModal = ({documentId}: ShareModalProps) => {
+	const {document, error} = useDocument(documentId);
+
+	if (error ?? !document) {
+		return null;
+	}
+
+	const allowedClients = [
+		document.header.owner,
+		...document.header.allowedClients,
+	];
+
+	return <Modal activator={Activator}>
+		{({closeModal}) => (<div className='grid gap-4'>
+			<h1>Share</h1>
+
+			<div className='form-control'>
+				<div className='input-group'>
+					<input type='text' className='input-bordered input w-full text-sm' placeholder='Public key'/>
+					<button className='btn-square btn'>
+						<KeyIcon fontSize={20}/>
+					</button>
+				</div>
+			</div>
+
+			<div className='rounded-box mb-4 border p-4'>
+				{allowedClients.map(({base58}) => (
+					<div className='form-control' key={base58}>
+						<div className='input-group'>
+							<input type='text' className='input-bordered input w-full text-sm' readOnly value={base58}/>
+							<button className='btn-square btn'>
+								<TrashIcon fontSize={20}/>
+							</button>
+						</div>
+					</div>
+				))}
+			</div>
+
+			<div className='flex justify-end'>
+				<button className='btn-primary btn' onClick={closeModal}>Save</button>
+			</div>
+		</div>)}
+	</Modal>;
 };
