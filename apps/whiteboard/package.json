@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@ctrl/tinycolor": "^3.6.0",
+    "@radix-ui/react-alert-dialog": "^1.0.4",
+    "@radix-ui/react-dialog": "^1.0.4",
     "@use-gesture/react": "^10.2.27",
     "boring-avatars": "^1.10.1",
     "clsx": "^1.2.1",

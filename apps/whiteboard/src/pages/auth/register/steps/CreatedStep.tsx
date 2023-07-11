@@ -2,10 +2,10 @@ import React from 'react';
 import {useSteps} from '~pages/auth/useSteps';
 import {type RegisterContext} from '~pages/auth/register/Register';
 import {useTranslation} from 'react-i18next';
-import Avatar from 'boring-avatars';
 import {CopyIcon} from 'ui/components/Icons';
 import {useWhiteboard} from '~core/hooks';
 import {useNavigate} from 'react-router-dom';
+import {KeyAvatar} from '~components/ui/KeyAvatar';
 
 export const CreatedStep: React.FC = () => {
 	const {t} = useTranslation();
@@ -28,17 +28,7 @@ export const CreatedStep: React.FC = () => {
 		<>
 			<div className='px-0 sm:px-8'>
 				<div className='flex flex-col items-center'>
-					<div className='avatar'>
-						<div className='w-24 rounded-full shadow-lg ring ring-neutral ring-offset-2 ring-offset-base-100'>
-							<Avatar
-								size='100%'
-								square
-								name={session.base58PublicKey}
-								variant='beam'
-								colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
-							/>
-						</div>
-					</div>
+					<KeyAvatar value={session.base58PublicKey} className='w-24 shadow-lg ring ring-neutral ring-offset-2 ring-offset-base-100' />
 					<h1 className='mt-4 text-center text-2xl font-bold'>{t('register.title_created')}</h1>
 					<p className='mt-2 text-center text-base-content text-opacity-80'>{t('register.subtitle_created')}</p>
 					<div className='join mt-4'>

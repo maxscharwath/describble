@@ -8,7 +8,6 @@ import {DebugBar} from '~components/toolbar/DebugBar';
 import {StyleSidebar} from '~components/sidebar/StyleSidebar';
 import {useWhiteboard} from '~core/hooks';
 import clsx from 'clsx';
-import {shallow} from 'zustand/shallow';
 import {ErrorBoundary} from 'react-error-boundary';
 import {useTranslation} from 'react-i18next';
 

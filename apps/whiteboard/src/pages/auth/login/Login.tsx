@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {Trans, useTranslation} from 'react-i18next';
-import Avatar from 'boring-avatars';
 import {useWhiteboard} from '~core/hooks';
 import clsx from 'clsx';
 import {useNavigate} from 'react-router-dom';
 import {seederCredentials} from '~seeders';
+import {KeyAvatar} from '~components/ui/KeyAvatar';
 
 const useGetPublicKeys = () => {
 	const app = useWhiteboard();
@@ -60,17 +60,7 @@ export const Login: React.FC = () => {
 						{accounts.map((account, index) => (
 							<div className='carousel-item' key={`${index}-${account}`}>
 								<button className={clsx(' btn-circle btn m-2 h-28 w-28', selectedPublicKey === account && 'btn-neutral')} onClick={e => handleAccountChange(e, account)}>
-									<div className='avatar m-2'>
-										<div className='rounded-full'>
-											<Avatar
-												size='100%'
-												square
-												name={account}
-												variant='beam'
-												colors={['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90']}
-											/>
-										</div>
-									</div>
+									<KeyAvatar value={account} className='m-2' />
 								</button>
 							</div>
 						))}

@@ -1,6 +1,7 @@
 {
   "btn": {
     "back": "Back",
+    "cancel": "Cancel",
     "confirm": "Confirm",
     "copy_to_clipboard": "Copy to Clipboard",
     "delete": "Delete",
@@ -11,23 +12,31 @@
     "new_whiteboard": "New Whiteboard",
     "next": "Next",
     "open": "Open",
+    "save": "Save",
     "share": "Share",
     "show_phrase": "Show Phrase",
     "target_layer": "Target layer",
     "toggle_layer_visibility": "Toggle layer visibility"
+  },
+  "confirm_dialog": {
+    "action": "Yes, delete",
+    "cancel": "No, keep",
+    "description": "This action cannot be undone. This will permanently delete this document.",
+    "title": "Are you absolutely sure?"
   },
   "document": {
     "title": "Document #{{index}}"
   },
   "error": {
     "failed_to_fetch_document": "Failed to fetch document",
-    "no_layers": "🤨 No layers",
+    "no_layers": "🤨 No Layers",
     "password_invalid": "Password must contain at least 8 characters, including uppercase, lowercase and numbers.",
     "password_is_required": "Password is required",
     "passwords_do_not_match": "Passwords do not match",
     "something_went_wrong": "Something went wrong"
   },
   "input": {
+    "add_public_key": "Add Public Key",
     "placeholder": {
       "confirm_password": "Confirm Password",
       "enter_word": "Fill word",
@@ -57,6 +66,11 @@
     "subtitle_fill_missing_words": "Please fill in the missing words to confirm you have written down the phrase correctly.",
     "subtitle_please_write_down_phrase": "Please write down the following phrase and keep it safe. You will need it to recover your account.",
     "title_created": "You've got the keys, now it's time to Describble the universe!"
+  },
+  "share": {
+    "allowed_clients": "Allowed clients",
+    "owner": "Owner",
+    "share_settings": "Share Settings"
   },
   "sidebar": {
     "layers": "Layers",

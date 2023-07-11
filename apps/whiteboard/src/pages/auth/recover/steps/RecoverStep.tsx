@@ -1,6 +1,6 @@
 import React, {type ChangeEvent, useEffect, useMemo, useRef, useState} from 'react';
 import {validateMnemonic} from 'ddnet';
-import {MnemonicWord} from '~pages/auth/MnemoWord';
+import {MnemonicWord} from '~components/ui/MnemoWord';
 import {useTranslation} from 'react-i18next';
 import {useSteps} from '~pages/auth/useSteps';
 import {type AuthContext} from '~pages/auth/common';

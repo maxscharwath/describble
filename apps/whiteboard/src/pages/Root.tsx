@@ -1,12 +1,14 @@
 import {Link, useNavigate} from 'react-router-dom';
 import React from 'react';
 import {useWhiteboard} from '~core/hooks';
-import {CloudIcon, KeyIcon, ShareIcon, TrashIcon} from 'ui/components/Icons';
+import {CloudIcon, TrashIcon} from 'ui/components/Icons';
 import {DescribbleLogo} from '~components/DescribbleLogo';
 import {Thumbnail} from '~components/Thumbnail';
 import {useTranslation} from 'react-i18next';
-import {Modal, modalActivator} from '~components/ui/Modal';
-import {useDocument} from '~core/hooks/useDocument';
+import {useSession} from '~core/hooks/useSession';
+import {KeyAvatar} from '~components/ui/KeyAvatar';
+import {ShareModal} from '~pages/ShareModal';
+import {ConfirmDialog} from '~components/ui/ConfirmDialog';
 
 const useList = () => {
 	const app = useWhiteboard();
@@ -26,6 +28,7 @@ const useList = () => {
 export const Root = () => {
 	const {t} = useTranslation();
 	const app = useWhiteboard();
+	const session = useSession();
 	const navigate = useNavigate();
 	const [list, refresh] = useList();
 
@@ -46,11 +49,17 @@ export const Root = () => {
 					<div className='mr-8 flex-1 text-slate-800 dark:text-slate-100'>
 						<DescribbleLogo className='absolute m-2 h-8 w-auto' textClassName='opacity-0 sm:opacity-100 transition-opacity duration-300 ease-in-out'/>
 					</div>
-					<div className='flex-none'>
+					<div className='flex gap-2'>
 						<button className='btn-ghost btn' onClick={handleCreate}>
 							<CloudIcon className='h-6 w-6'/>
 							<span>{t('btn.new_whiteboard')}</span>
 						</button>
+
+						{session && (
+							<button className='btn-ghost btn' onClick={() => navigate('/login')}>
+								<KeyAvatar value={session.base58PublicKey} className='w-6' />
+							</button>
+						)}
 					</div>
 				</div>
 				<List list={list} onDelete={handleDelete}/>
@@ -81,9 +90,17 @@ const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}
 						</div>
 						<div className='pointer-events-auto z-10 p-4 pt-0'>
 							<div className='card-actions justify-end'>
-								<button className='btn-error btn-sm btn-circle btn' onClick={() => onDelete(item)} aria-label={t('btn.delete')}>
-									<TrashIcon fontSize={20}/>
-								</button>
+								<ConfirmDialog
+									onAction={() => onDelete(item)}
+									title={t('confirm_dialog.title')}
+									description={t('confirm_dialog.description')}
+									actionLabel={t('confirm_dialog.action')}
+									cancelLabel={t('confirm_dialog.cancel')}
+								>
+									<button className='btn-error btn-sm btn-circle btn'>
+										<TrashIcon fontSize={20}/>
+									</button>
+								</ConfirmDialog>
 								<ShareModal documentId={item}/>
 							</div>
 						</div>
@@ -92,59 +109,4 @@ const List = ({list, onDelete}: {onDelete: (id: string) => void; list: string[]}
 			))}
 		</div>
 	);
-};
-
-const Activator = modalActivator(({openModal}) =>
-	<button className='btn-primary btn-sm btn-circle btn' onClick={openModal}>
-		<ShareIcon fontSize={20}/>
-	</button>,
-);
-
-type ShareModalProps = {
-	documentId: string;
-};
-
-const ShareModal = ({documentId}: ShareModalProps) => {
-	const {document, error} = useDocument(documentId);
-
-	if (error ?? !document) {
-		return null;
-	}
-
-	const allowedClients = [
-		document.header.owner,
-		...document.header.allowedClients,
-	];
-
-	return <Modal activator={Activator}>
-		{({closeModal}) => (<div className='grid gap-4'>
-			<h1>Share</h1>
-
-			<div className='form-control'>
-				<div className='input-group'>
-					<input type='text' className='input-bordered input w-full text-sm' placeholder='Public key'/>
-					<button className='btn-square btn'>
-						<KeyIcon fontSize={20}/>
-					</button>
-				</div>
-			</div>
-
-			<div className='rounded-box mb-4 border p-4'>
-				{allowedClients.map(({base58}) => (
-					<div className='form-control' key={base58}>
-						<div className='input-group'>
-							<input type='text' className='input-bordered input w-full text-sm' readOnly value={base58}/>
-							<button className='btn-square btn'>
-								<TrashIcon fontSize={20}/>
-							</button>
-						</div>
-					</div>
-				))}
-			</div>
-
-			<div className='flex justify-end'>
-				<button className='btn-primary btn' onClick={closeModal}>Save</button>
-			</div>
-		</div>)}
-	</Modal>;
 };

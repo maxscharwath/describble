@@ -6,9 +6,9 @@ export const ThemeProvider = ({children}: React.PropsWithChildren<{}>) => {
 	const app = useWhiteboard();
 
 	const settings = app.useStore(state => state.settings, shallow);
-	return (
-		<div data-theme={settings.darkMode ? 'dark' : 'light'} className={settings.darkMode ? 'dark' : ''}>
-			{children}
-		</div>
-	);
+	React.useEffect(() => {
+		document.documentElement.dataset.theme = settings.darkMode ? 'dark' : 'light';
+	}, [settings]);
+
+	return children;
 };

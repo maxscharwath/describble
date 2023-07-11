@@ -4,7 +4,7 @@ import {useSteps} from '~pages/auth/useSteps';
 import {ClosedEyeIcon, CopyIcon, OpenEyeIcon} from 'ui/components/Icons';
 import {generateMnemonic} from 'ddnet';
 import {type RegisterContext} from '~pages/auth/register/Register';
-import {MnemonicWord} from '~pages/auth/MnemoWord';
+import {MnemonicWord} from '~components/ui/MnemoWord';
 import {useTranslation} from 'react-i18next';
 
 export const RecoveryPhraseStep: React.FC = () => {

@@ -1,6 +1,7 @@
 {
   "btn": {
     "back": "Retour",
+    "cancel": "Annuler",
     "confirm": "Confirmer",
     "copy_to_clipboard": "Copier dans le presse-papier",
     "delete": "Supprimer",
@@ -11,10 +12,17 @@
     "new_whiteboard": "Nouveau tableau blanc",
     "next": "Suivant",
     "open": "Ouvrir",
+    "save": "Sauvegarder",
     "share": "Partager",
     "show_phrase": "Montrer la phrase",
     "target_layer": "Calque cible",
     "toggle_layer_visibility": "Basculer la visibilité du calque"
+  },
+  "confirm_dialog": {
+    "action": "Oui, supprimer",
+    "cancel": "Non, conserver",
+    "description": "Cette action ne peut pas être annulée. Cela supprimera définitivement ce document.",
+    "title": "Êtes-vous absolument sûr ?"
   },
   "document": {
     "title": "Document n°{{index}}"
@@ -28,6 +36,7 @@
     "something_went_wrong": "Quelque chose s'est mal passé"
   },
   "input": {
+    "add_public_key": "Ajouter une clé publique",
     "placeholder": {
       "confirm_password": "Confirmer le mot de passe",
       "enter_word": "Remplir le mot",
@@ -57,6 +66,11 @@
     "subtitle_fill_missing_words": "Veuillez compléter les mots manquants pour confirmer que vous avez correctement noté la phrase.",
     "subtitle_please_write_down_phrase": "Veuillez noter la phrase suivante et la garder en lieu sûr. Vous en aurez besoin pour récupérer votre compte.",
     "title_created": "Vous avez les clés, il est maintenant temps de Describbliser l'univers !"
+  },
+  "share": {
+    "allowed_clients": "Clients autorisés ",
+    "owner": "Propriétaire",
+    "share_settings": "Paramètres de partage"
   },
   "sidebar": {
     "layers": "Calques",

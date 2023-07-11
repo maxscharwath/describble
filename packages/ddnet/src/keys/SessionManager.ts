@@ -18,6 +18,7 @@ export type KeySession = Readonly<{
 type SessionManagerEvents = {
 	login: KeySession;
 	logout: undefined;
+	change: KeySession | null;
 };
 
 export class SessionManager extends Emittery<SessionManagerEvents> {
@@ -28,6 +29,7 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 		void this.cache?.get<KeySession>('session').then(session => {
 			if (session) {
 				this.session = session;
+				void this.emit('change', session);
 				void this.emit('login', session);
 			}
 		})
@@ -48,7 +50,7 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 
 		await this.cache?.set('session', this.session)
 			.catch(e => console.error('Failed to save cache', e));
-
+		void this.emit('change', this.session);
 		void this.emit('login', this.session);
 	}
 
@@ -65,6 +67,7 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 		this.session = null;
 		void this.cache?.delete('session')
 			.catch(e => console.error('Failed to delete cache', e));
+		void this.emit('change', null);
 		void this.emit('logout');
 	}
 
@@ -86,6 +89,11 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 		}
 
 		return this.on('login', callback);
+	}
+
+	public onChange(callback: (session: KeySession | null) => void) {
+		callback(this.session);
+		return this.on('change', callback);
 	}
 
 	private createSession(privateKey: Uint8Array): KeySession {

@@ -26,6 +26,8 @@ export class DocumentHeader {
 			throw new UnauthorizedAccessError('Only the document owner can update the allowed users list.');
 		}
 
+		allowedClients = allowedClients.filter((client, index) => allowedClients.findIndex(c => bytesEquals(c, client)) === index);
+
 		const data = {
 			...this.#data,
 			allowedClients,
@@ -34,6 +36,13 @@ export class DocumentHeader {
 
 		this.#signature = createSignature(encode(data), privateKey);
 		this.#data = data;
+	}
+
+	public addAllowedClient(allowedClient: Uint8Array | string, privateKey: Uint8Array) {
+		return this.setAllowedClients([
+			...this.#data.allowedClients,
+			typeof allowedClient === 'string' ? base58.decode(allowedClient) : allowedClient,
+		], privateKey);
 	}
 
 	public hasAllowedUser(publicKey: Uint8Array): boolean {
