@@ -17,7 +17,7 @@ body {
     stroke-dasharray: 4, 12;
     stroke-linecap: round;
     stroke-linejoin: miter;
-    animation: dash 1s linear infinite;
+    animation: dash 1s steps(16) infinite;
 }
 
 @keyframes dash {

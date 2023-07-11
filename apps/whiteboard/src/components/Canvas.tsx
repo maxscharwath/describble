@@ -4,7 +4,7 @@ import {
 	useCanvasEvents,
 	useDropImageTool,
 	useKeyEvents, useLayersTree,
-	useSelection, useShortcuts, useViewport,
+	useSelection, useViewport,
 	useWhiteboard, useZoom,
 } from '~core/hooks';
 import {DottedGridBackground} from '~components/ui/DottedGridBackground';
@@ -26,7 +26,6 @@ export const Canvas = () => {
 	const selection = app.useStore(selectionSelector, shallow);
 	useZoom(app.whiteboardRef);
 	useDropImageTool(app.whiteboardRef);
-	useShortcuts();
 	const viewport = useViewport(app.whiteboardRef);
 
 	const tree = useLayersTree(app, layersId);

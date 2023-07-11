@@ -4,49 +4,49 @@ export const useShortcuts = () => {
 	const app = useWhiteboard();
 	useHotkeys('v,1', () => {
 		app.setTool('select');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 	useHotkeys('m,2', () => {
 		app.setTool('move');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 	useHotkeys('p,3', () => {
 		app.setTool('path');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 	useHotkeys('r,4', () => {
 		app.setTool('rectangle');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 	useHotkeys('c,5', () => {
 		app.setTool('circle');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 	useHotkeys('l,6', () => {
 		app.setTool('line');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 	useHotkeys('a,7', () => {
 		app.setTool('arrow');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 	useHotkeys('i,8', () => {
 		app.setTool('image');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 	useHotkeys('t,9', () => {
 		app.setTool('text');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 	useHotkeys('e,0', () => {
 		app.setTool('embed');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 
 	useHotkeys('backspace,del', () => {
 		app.document.layers.delete(app.selectedLayers);
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 
 	useHotkeys('meta+a,ctrl+a', e => {
 		e.preventDefault();
 		app.selectAll();
 		app.setTool('select');
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 
 	useHotkeys('meta+shift+a,ctrl+shift+a', e => {
 		e.preventDefault();
 		app.selectNone();
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 
 	useHotkeys('meta+z,ctrl+z', e => {
 		e.preventDefault();
@@ -55,7 +55,7 @@ export const useShortcuts = () => {
 		} else {
 			app.undo();
 		}
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 
 	useHotkeys('meta+shift+z,ctrl+shift+z', e => {
 		e.preventDefault();
@@ -64,7 +64,7 @@ export const useShortcuts = () => {
 		} else {
 			app.redo();
 		}
-	}, undefined, [app]);
+	}, {scopes: 'whiteboard'}, [app]);
 
 	// Toggle dark mode
 	useHotkeys('meta+shift+d,ctrl+shift+d', e => {

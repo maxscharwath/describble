@@ -10,6 +10,7 @@ import {useWhiteboard} from '~core/hooks';
 import clsx from 'clsx';
 import {ErrorBoundary} from 'react-error-boundary';
 import {useTranslation} from 'react-i18next';
+import {useHotkeysContext} from 'react-hotkeys-hook';
 
 type WhiteboardProps = {
 	className?: string;
@@ -43,6 +44,14 @@ function ErrorFallback({error, resetErrorBoundary}: {error: Error; resetErrorBou
 
 export default function Whiteboard({className, style}: WhiteboardProps) {
 	const app = useWhiteboard();
+	const {enableScope, disableScope} = useHotkeysContext();
+
+	React.useEffect(() => {
+		enableScope('whiteboard');
+		return () => {
+			disableScope('whiteboard');
+		};
+	}, []);
 
 	const hardReset = React.useCallback(() => {
 		app.reset();

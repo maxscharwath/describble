@@ -3,8 +3,16 @@ import ReactDOM from 'react-dom/client';
 import './locales/config';
 import './index.css';
 import {WhiteboardApp} from '~core/WhiteboardApp';
-import {WhiteboardProvider} from '~core/hooks';
-import {createBrowserRouter, redirect, RouterProvider} from 'react-router-dom';
+import {useShortcuts, WhiteboardProvider} from '~core/hooks';
+import {
+	Await,
+	createBrowserRouter,
+	createRoutesFromElements, defer, type LoaderFunction, type LoaderFunctionArgs,
+	Outlet,
+	redirect,
+	Route,
+	RouterProvider, useLoaderData,
+} from 'react-router-dom';
 import {Document} from '~pages/Document';
 import {Root} from '~pages/Root';
 import {Auth} from '~pages/auth/Auth';
@@ -15,71 +23,77 @@ import {Recover} from '~pages/auth/recover/Recover';
 import {ThemeProvider} from '~components/ThemeProvider';
 import {NotFound} from '~pages/NotFound';
 import {ErrorBoundary} from '~pages/ErrorBoundary';
+import {HotkeysProvider} from 'react-hotkeys-hook';
 
 const app = new WhiteboardApp('whiteboard');
 
 await initSeeder(app);
 
-const authMiddleware = () => {
+const createMiddleware = (...middlewares: LoaderFunction[]) => async (arg: LoaderFunctionArgs) => {
+	const middleware = middlewares.reduce<Promise<any>>(async (previousPromise, currentMiddleware) => {
+		await previousPromise;
+		return currentMiddleware(arg);
+	}, Promise.resolve());
+	return defer({middleware});
+};
+
+const authMiddleware = createMiddleware(() => {
 	try {
 		return app.sessionManager.currentSession;
 	} catch {
 		// eslint-disable-next-line @typescript-eslint/no-throw-literal -- this is a redirect
 		throw redirect('/login');
 	}
+});
+
+const documentMiddleware = createMiddleware(authMiddleware, async ({params}) => {
+	try {
+		return await app.documentManager.open(params.id!);
+	} catch {
+		// eslint-disable-next-line @typescript-eslint/no-throw-literal
+		throw new Response('Not Found', {status: 404});
+	}
+});
+
+function Layout() {
+	useShortcuts();
+	return <Outlet />;
+}
+
+const Loader = ({children}: React.PropsWithChildren<{}>) => {
+	const {middleware} = useLoaderData() as {middleware: Promise<any>};
+	return <React.Suspense
+		fallback={<div className='flex h-screen items-center justify-center'>
+			<span className='loading loading-ring loading-lg' />
+		</div>}
+	>
+		<Await resolve={middleware}>
+			{() => children}
+		</Await>
+	</React.Suspense>;
 };
 
-const router = createBrowserRouter([
-	{path: '/', errorElement: <ErrorBoundary />, children: [
-		{
-			path: '/',
-			loader: authMiddleware,
-			element: <Root />,
-		},
-		{
-			path: '/',
-			element: <Auth />,
-			children: [
-				{
-					path: '/login',
-					element: <Login />,
-				},
-				{
-					path: '/register',
-					element: <Register />,
-				},
-				{
-					path: '/recover',
-					element: <Recover />,
-				},
-			],
-		},
-		{
-			path: '/document/:id',
-			async loader({params}) {
-				authMiddleware();
-				try {
-					return await app.documentManager.open(params.id!);
-				} catch {
-				// eslint-disable-next-line @typescript-eslint/no-throw-literal
-					throw new Response('Not Found', {status: 404});
-				}
-			},
-			element: <Document />,
-		},
-		{
-			path: '*',
-			element: <NotFound />,
-		},
-	]},
-]);
+const router = createBrowserRouter(createRoutesFromElements(
+	<Route element={<Layout />} errorElement={<ErrorBoundary />}>
+		<Route path='/' loader={authMiddleware} element={<Root />} />
+		<Route element={<Auth />}>
+			<Route path='/login' element={<Login />} />
+			<Route path='/register' element={<Register />} />
+			<Route path='/recover' element={<Recover />} />
+		</Route>
+		<Route loader={documentMiddleware} path='/document/:id' element={<Loader><Document /></Loader>} />
+		<Route path='*' element={<NotFound />} />
+	</Route>,
+));
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
 		<WhiteboardProvider value={app}>
-			<ThemeProvider>
-				<RouterProvider router={router} />
-			</ThemeProvider>
+			<HotkeysProvider initiallyActiveScopes={['global']}>
+				<ThemeProvider>
+					<RouterProvider router={router} />
+				</ThemeProvider>
+			</HotkeysProvider>
 		</WhiteboardProvider>
 	</React.StrictMode>,
 );

@@ -1,12 +1,17 @@
 import React from 'react';
-import {Link, useRouteError} from 'react-router-dom';
+import {isRouteErrorResponse, Link, useRouteError} from 'react-router-dom';
 import {Moodie} from 'moodie';
 import {useTranslation} from 'react-i18next';
+import {NotFound} from '~pages/NotFound';
 
 export const ErrorBoundary = () => {
 	const {t} = useTranslation();
 	const error = useRouteError();
 	const stack = error instanceof Error ? error.stack : null;
+	if (isRouteErrorResponse(error) && error.status === 404) {
+		return <NotFound />;
+	}
+
 	return (
 		<div className='hero min-h-screen bg-base-200'>
 			<div className='hero-content text-center'>
