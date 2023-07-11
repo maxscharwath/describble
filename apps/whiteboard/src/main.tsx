@@ -13,6 +13,8 @@ import {Login} from '~pages/auth/login/Login';
 import {Register} from '~pages/auth/register/Register';
 import {Recover} from '~pages/auth/recover/Recover';
 import {ThemeProvider} from '~components/ThemeProvider';
+import {NotFound} from '~pages/NotFound';
+import {ErrorBoundary} from '~pages/ErrorBoundary';
 
 const app = new WhiteboardApp('whiteboard');
 
@@ -28,42 +30,48 @@ const authMiddleware = () => {
 };
 
 const router = createBrowserRouter([
-	{
-		path: '/',
-		loader: authMiddleware,
-		element: <Root />,
-	},
-	{
-		path: '/',
-		element: <Auth />,
-		children: [
-			{
-				path: '/login',
-				element: <Login />,
-			},
-			{
-				path: '/register',
-				element: <Register />,
-			},
-			{
-				path: '/recover',
-				element: <Recover />,
-			},
-		],
-	},
-	{
-		path: '/document/:id',
-		async loader({params}) {
-			authMiddleware();
-			try {
-				return await app.documentManager.open(params.id!);
-			} catch {
-				// eslint-disable-next-line @typescript-eslint/no-throw-literal
-				throw new Response('Not Found', {status: 404});
-			}
+	{path: '/', errorElement: <ErrorBoundary />, children: [
+		{
+			path: '/',
+			loader: authMiddleware,
+			element: <Root />,
 		},
-		element: <Document />,
-	},
+		{
+			path: '/',
+			element: <Auth />,
+			children: [
+				{
+					path: '/login',
+					element: <Login />,
+				},
+				{
+					path: '/register',
+					element: <Register />,
+				},
+				{
+					path: '/recover',
+					element: <Recover />,
+				},
+			],
+		},
+		{
+			path: '/document/:id',
+			async loader({params}) {
+				authMiddleware();
+				try {
+					return await app.documentManager.open(params.id!);
+				} catch {
+				// eslint-disable-next-line @typescript-eslint/no-throw-literal
+					throw new Response('Not Found', {status: 404});
+				}
+			},
+			element: <Document />,
+		},
+		{
+			path: '*',
+			element: <NotFound />,
+		},
+	]},
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

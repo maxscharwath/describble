@@ -1,6 +1,7 @@
 {
   "btn": {
     "back": "Back",
+    "back_to_home": "Back to the Drawing Board",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "copy_to_clipboard": "Copy to Clipboard",
@@ -30,8 +31,17 @@
   },
   "error": {
     "failed_to_fetch_document": "Failed to fetch document",
+    "internal": {
+      "btn": "Back to the Fresh Whiteboard",
+      "description": "It seems like our markers went rogue and started a doodle war. Let's retreat and regroup on a fresh whiteboard, shall we?",
+      "title": "Whoops! We've hit a scribble scramble."
+    },
     "login": "Uh-oh! Your password is like a cryptographer's bad handwriting, we couldn't decipher it. Want to give it another go or try the recovery tab?",
     "no_layers": "🤨 No Layers",
+    "not_found": {
+      "description": "This page has decided to go decentralized too! But don't worry, our whiteboards are still here.",
+      "title": "Oops! This page seems to have gone off the grid."
+    },
     "password_invalid": "Password must contain at least 8 characters, including uppercase, lowercase and numbers.",
     "password_is_required": "Password is required",
     "passwords_do_not_match": "Passwords do not match",
