@@ -113,7 +113,8 @@ export class NodeFileStorageProvider implements StorageProvider {
 	}
 
 	private getDir(namespace: string): string {
-		const dir = path.join(this.rootDir, namespace);
+		const sanitizedNamespace = namespace.replace(/[^a-z0-9]/gi, '_');
+		const dir = path.join(this.rootDir, sanitizedNamespace);
 		if (!fs.existsSync(dir)) {
 			fs.mkdirSync(dir, {recursive: true});
 		}

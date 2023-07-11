@@ -15,21 +15,27 @@ export class KeyManager {
 	constructor(private readonly dbName: string) {
 	}
 
-	async getKey(key: string, secret: Uint8Array | string): Promise<Uint8Array | undefined> {
+	async getPrivateKey(key: string, secret: Uint8Array | string): Promise<Uint8Array | undefined> {
 		const db = await this.db;
 		const encrypted = await db.get('keys', key);
 		if (!encrypted) {
 			return;
 		}
 
-		return decryptData(encrypted, secret);
+		try {
+			return await decryptData(encrypted, secret);
+		} catch (cause) {
+			throw new Error('Failed to decrypt key', {cause});
+		}
 	}
 
-	async saveKey(privateKey: Uint8Array, secret: Uint8Array | string): Promise<void> {
+	async saveKey(privateKey: Uint8Array, secret: Uint8Array | string): Promise<string> {
 		const publicKey = getPublicKey(privateKey);
 		const encrypted = await encryptData(privateKey, secret);
 		const db = await this.db;
-		await db.add('keys', encrypted, base58.encode(publicKey));
+		const key = base58.encode(publicKey);
+		await db.add('keys', encrypted, key);
+		return key;
 	}
 
 	async listKeys(): Promise<string[]> {

@@ -26,6 +26,15 @@ export function getPublicKey(privateKey: Uint8Array) {
 }
 
 /**
+ * Verify the provided public key.
+ * @remarks Check that public key is 33 or 65 bytes long
+ * @param publicKey - The public key to verify.
+ */
+export function validatePublicKey(publicKey: Uint8Array) {
+	return publicKey.byteLength === 33 || publicKey.byteLength === 65;
+}
+
+/**
  * Generates a new key pair.
  * @returns An object containing the privateKey and publicKey.
  */

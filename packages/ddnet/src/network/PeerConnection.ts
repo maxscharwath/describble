@@ -75,9 +75,11 @@ export class PeerConnection extends Emittery<PeerEvents> {
 			void this.emit('close');
 		};
 
-		window?.addEventListener('beforeunload', () => {
-			this.destroy();
-		});
+		if (typeof window !== 'undefined') {
+			window.addEventListener('beforeunload', () => {
+				this.destroy();
+			});
+		}
 
 		if (initiator) {
 			void this.initiateConnection();

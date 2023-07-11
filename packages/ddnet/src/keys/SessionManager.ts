@@ -37,7 +37,7 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 	}
 
 	public async login(key: string, password: string): Promise<void> {
-		const privateKey = await this.keyManager.getKey(key, password);
+		const privateKey = await this.keyManager.getPrivateKey(key, password);
 		if (!privateKey) {
 			throw new Error('Login failed');
 		}

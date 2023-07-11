@@ -12,6 +12,7 @@
     "new_whiteboard": "Nouveau tableau blanc",
     "next": "Suivant",
     "open": "Ouvrir",
+    "recover": "Récupérer",
     "save": "Sauvegarder",
     "share": "Partager",
     "show_phrase": "Montrer la phrase",
@@ -29,6 +30,7 @@
   },
   "error": {
     "failed_to_fetch_document": "Échec de la récupération du document",
+    "login": "Oh non! Votre mot de passe est comme l'écriture illisible d'un cryptographe, nous n'avons pas pu le déchiffrer. Voulez-vous réessayer ou essayer l'onglet de récupération?",
     "no_layers": "🤨 Pas de calques",
     "password_invalid": "Le mot de passe doit contenir au moins 8 caractères, dont des majuscules, des minuscules et des chiffres.",
     "password_is_required": "Le mot de passe est requis",

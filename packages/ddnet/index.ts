@@ -5,12 +5,14 @@ import {SignalingServer} from './src/server/SignalingServer';
 import {WebSocketNetwork} from './src/network/websocket/WebSocketNetwork';
 import {
 	DocumentSharingClient,
-	generateKeyPair,
+	generatePrivateKey,
 	IDBStorageProvider,
 	mnemonicToSeedSync,
 	WebSocketNetworkAdapter,
 } from './src';
 import {NodeFileStorageProvider} from './src/storage/NodeFileStorageProvider';
+import {SessionManager} from './src/keys/SessionManager';
+import {KeyManager} from './src/keys/KeyManager';
 
 (async () => {
 	const server = new SignalingServer({
@@ -23,32 +25,37 @@ import {NodeFileStorageProvider} from './src/storage/NodeFileStorageProvider';
 	await server.listen();
 	console.log('Signaling server listening on port 8080');
 
+	const keyManager = new KeyManager('ddnet-key');
+	const aliceKey = await keyManager.saveKey(generatePrivateKey(mnemonicToSeedSync('arrow armor boat cart circle tenant couple beef luggage ginger color effort')), 'alice');
+	const bobKey = await keyManager.saveKey(generatePrivateKey(mnemonicToSeedSync('accident observe boss minute mixture goddess trash craft candy smooth rubber coffee')), 'bob');
+	const charlieKey = await keyManager.saveKey(generatePrivateKey(mnemonicToSeedSync('apology lazy vocal help film slice journey panic table either view hole')), 'charlie');
+
+	const aliceSessionManager = new SessionManager(keyManager);
 	const clientAlice = new DocumentSharingClient({
-		...generateKeyPair(
-			mnemonicToSeedSync('arrow armor boat cart circle tenant couple beef luggage ginger color effort'),
-		),
+		sessionManager: aliceSessionManager,
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 		storageProvider: new NodeFileStorageProvider('.ddnet'),
 		wrtc,
 	});
+	await aliceSessionManager.login(aliceKey, 'alice');
 
+	const bobSessionManager = new SessionManager(keyManager);
 	const clientBob = new DocumentSharingClient({
-		...generateKeyPair(
-			mnemonicToSeedSync('accident observe boss minute mixture goddess trash craft candy smooth rubber coffee'),
-		),
+		sessionManager: bobSessionManager,
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 		storageProvider: new IDBStorageProvider(),
 		wrtc,
 	});
+	await bobSessionManager.login(bobKey, 'bob');
 
+	const charlieSessionManager = new SessionManager(keyManager);
 	const clientCharlie = new DocumentSharingClient({
-		...generateKeyPair(
-			mnemonicToSeedSync('apology lazy vocal help film slice journey panic table either view hole'),
-		),
+		sessionManager: charlieSessionManager,
 		network: new WebSocketNetworkAdapter('ws://localhost:8080'),
 		storageProvider: new NodeFileStorageProvider('.ddnet'),
 		wrtc,
 	});
+	await charlieSessionManager.login(charlieKey, 'charlie');
 
 	const documentList = await clientAlice.listDocumentIds();
 	let document = documentList.length > 0 ? await clientAlice.findDocument<{title: string}>(documentList[0]) : null;
