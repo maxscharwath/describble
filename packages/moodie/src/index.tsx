@@ -1,5 +1,5 @@
-import React, {memo, useMemo} from 'react';
-import {getBoolean, getContrast, getRandomColor, getUnit, hashCode} from './utilities';
+import React, {type HTMLProps, memo, useMemo} from 'react';
+import {getContrast, hashCode, RNG} from './utilities';
 
 const SIZE = 36;
 
@@ -83,39 +83,37 @@ const mouthTypes = {
 
 function generateData(name?: string, colors = DEFAULT_COLORS, expression: ExpressionProps = {}): AvatarData {
 	const numFromName = hashCode(name ?? crypto.randomUUID());
-	const range = colors?.length;
-	const wrapperColor = getRandomColor(numFromName, colors, range);
-	const preTranslateX = getUnit(numFromName, 10, 1);
+	const rng = new RNG(numFromName);
+	const wrapperColor = rng.nextChoice(colors);
+	const preTranslateX = rng.nextUnit(10, true);
 	const wrapperTranslateX = preTranslateX < 5 ? preTranslateX + (SIZE / 9) : preTranslateX;
-	const preTranslateY = getUnit(numFromName, 10, 2);
+	const preTranslateY = rng.nextUnit(10, true);
 	const wrapperTranslateY = preTranslateY < 5 ? preTranslateY + (SIZE / 9) : preTranslateY;
-	const eyeTypesKeys = Object.keys(eyeTypes);
-	const mouthTypesKeys = Object.keys(mouthTypes);
-	const eyeType = expression.eye ?? eyeTypesKeys[numFromName % eyeTypesKeys.length] as keyof typeof eyeTypes;
-	const mouthType = expression.mouth ?? mouthTypesKeys[numFromName % mouthTypesKeys.length] as keyof typeof mouthTypes;
+	const eyeType = expression.eye ?? rng.nextChoice(Object.keys(eyeTypes)) as keyof typeof eyeTypes;
+	const mouthType = expression.mouth ?? rng.nextChoice(Object.keys(mouthTypes)) as keyof typeof mouthTypes;
 
 	return {
 		wrapperColor,
 		faceColor: getContrast(wrapperColor),
-		backgroundColor: getRandomColor(numFromName + 13, colors, range),
+		backgroundColor: rng.nextChoice(colors),
 		wrapperTranslateX,
 		wrapperTranslateY,
-		wrapperRotate: getUnit(numFromName, 360),
-		wrapperScale: 1 + (getUnit(numFromName, SIZE / 12) / 10),
-		isCircle: getBoolean(numFromName, 1),
-		eyeSpread: getUnit(numFromName, 5),
-		eyeSize: 1.5 + getUnit(numFromName, 1),
-		mouthSpread: getUnit(numFromName, 5),
-		mouthSize: 1.5 + getUnit(numFromName, 1),
-		faceRotate: getUnit(numFromName, 10, 3),
-		faceTranslateX: wrapperTranslateX > SIZE / 6 ? wrapperTranslateX / 2 : getUnit(numFromName, 8, 1),
-		faceTranslateY: wrapperTranslateY > SIZE / 6 ? wrapperTranslateY / 2 : getUnit(numFromName, 7, 2),
+		wrapperRotate: rng.nextUnit(360, false),
+		wrapperScale: 1 + (rng.nextUnit(SIZE / 12, false) / 10),
+		isCircle: rng.nextBoolean(),
+		eyeSpread: rng.nextUnit(5, false),
+		eyeSize: 1.5 + rng.nextUnit(1, false),
+		mouthSpread: rng.nextUnit(5, false),
+		mouthSize: 1.5 + rng.nextUnit(1, true),
+		faceRotate: rng.nextUnit(10, true),
+		faceTranslateX: wrapperTranslateX > SIZE / 6 ? wrapperTranslateX / 2 : rng.nextUnit(8, true),
+		faceTranslateY: wrapperTranslateY > SIZE / 6 ? wrapperTranslateY / 2 : rng.nextUnit(7, true),
 		eyeType,
 		mouthType,
 	};
 }
 
-export const Moodie = memo(({name, colors, size, title, square, expression}: AvatarProps) => {
+export const Moodie = memo(({name, colors, size, title, square, expression, ...props}: HTMLProps<SVGSVGElement> & MoodieProps) => {
 	const data = useMemo(() => generateData(name, colors, expression), [name, colors, expression]);
 	const maskID = React.useId();
 
@@ -127,6 +125,7 @@ export const Moodie = memo(({name, colors, size, title, square, expression}: Ava
 			xmlns='http://www.w3.org/2000/svg'
 			width={size}
 			height={size}
+			{...props}
 		>
 			{title && <title>{title}</title>}
 			<mask id={maskID} maskUnits='userSpaceOnUse' x={0} y={0} width={SIZE} height={SIZE}>
@@ -162,7 +161,7 @@ type ExpressionProps = {
 	mouth?: keyof typeof mouthTypes;
 };
 
-type AvatarProps = {
+type MoodieProps = {
 	name?: string;
 	colors?: string[];
 	size?: string | number;
