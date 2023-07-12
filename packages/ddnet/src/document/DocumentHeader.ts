@@ -1,14 +1,26 @@
 import {decode, encode} from 'cbor-x';
-import {concatBytes, createSignature, getPublicKey, sha256Some, bytesEquals, verifySignature} from '../crypto';
+import {
+	concatBytes,
+	createSignature,
+	getPublicKey,
+	sha256Some,
+	bytesEquals,
+	verifySignature,
+	validatePublicKey,
+} from '../crypto';
 import {v4 as uuidv4} from 'uuid';
 import {DocumentValidationError, UnauthorizedAccessError} from './Document';
 import {base58} from 'base-x';
 
 export type DocumentHeaderData = {id: Uint8Array; owner: Uint8Array; allowedClients: Uint8Array[]; version: number};
 
+type Key = Uint8Array | string;
+
+const toUint8Array = (value: Key) => typeof value === 'string' ? base58.decode(value) : value;
+
 export class DocumentHeader {
-	#data: DocumentHeaderData;
-	#signature: Uint8Array;
+	readonly #data: DocumentHeaderData;
+	readonly #signature: Uint8Array;
 	readonly #address: Uint8Array;
 
 	private constructor(data: DocumentHeaderData, signature: Uint8Array) {
@@ -21,36 +33,43 @@ export class DocumentHeader {
 		this.#signature = signature;
 	}
 
-	public setAllowedClients(allowedClients: Uint8Array[], privateKey: Uint8Array) {
+	public withAllowedClients(allowedClientKeys: Key[], privateKey: Key): DocumentHeader {
+		privateKey = toUint8Array(privateKey);
+
 		if (!bytesEquals(getPublicKey(privateKey), this.#data.owner) || !verifySignature(encode(this.#data), this.#signature, this.#data.owner)) {
 			throw new UnauthorizedAccessError('Only the document owner can update the allowed users list.');
 		}
 
-		allowedClients = allowedClients.filter((client, index) => allowedClients.findIndex(c => bytesEquals(c, client)) === index);
+		const allowedClients = allowedClientKeys.reduce<Uint8Array[]>((acc, client) => {
+			const publicKey = toUint8Array(client);
+			if (validatePublicKey(publicKey) && acc.findIndex(c => bytesEquals(c, publicKey)) === -1) {
+				acc.push(publicKey);
+			}
 
-		const data = {
+			return acc;
+		}, []);
+
+		const data: DocumentHeaderData = {
 			...this.#data,
 			allowedClients,
 			version: this.#data.version + 1,
-		} satisfies DocumentHeaderData;
+		};
 
-		this.#signature = createSignature(encode(data), privateKey);
-		this.#data = data;
+		const signature = createSignature(encode(data), privateKey);
+
+		return new DocumentHeader(data, signature);
 	}
 
-	public addAllowedClient(allowedClient: Uint8Array | string, privateKey: Uint8Array) {
-		return this.setAllowedClients([
-			...this.#data.allowedClients,
-			typeof allowedClient === 'string' ? base58.decode(allowedClient) : allowedClient,
-		], privateKey);
+	public hasAllowedUser(publicKey: Key): boolean {
+		const key = toUint8Array(publicKey);
+		return this.#data.allowedClients.some(client => bytesEquals(client, key)) || bytesEquals(this.#data.owner, key);
 	}
 
-	public hasAllowedUser(publicKey: Uint8Array): boolean {
-		return this.#data.allowedClients.some(client => bytesEquals(client, publicKey)) || bytesEquals(this.#data.owner, publicKey);
-	}
-
-	public get address(): Uint8Array {
-		return new Uint8Array(this.#address);
+	public get address(): {bytes: Uint8Array; base58: string} {
+		return {
+			bytes: new Uint8Array(this.#address),
+			base58: base58.encode(this.#address),
+		};
 	}
 
 	public get id(): Uint8Array {
@@ -73,6 +92,13 @@ export class DocumentHeader {
 
 	public get version(): number {
 		return this.#data.version;
+	}
+
+	public get signature(): {bytes: Uint8Array; base58: string} {
+		return {
+			bytes: new Uint8Array(this.#signature),
+			base58: base58.encode(this.#signature),
+		};
 	}
 
 	public verifySignature(content: Uint8Array, signature: Uint8Array): boolean {
@@ -129,7 +155,7 @@ export class DocumentHeader {
 			throw new DocumentValidationError('Invalid document header signature in new header.');
 		}
 
-		return newHeader;
+		return new DocumentHeader(newHeader.#data, newHeader.#signature);
 	}
 
 	public static merge(oldHeader: DocumentHeader, newHeader: DocumentHeader): DocumentHeader {

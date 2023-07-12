@@ -6,6 +6,7 @@ import {pbkdf2Async} from '@noble/hashes/pbkdf2';
 export {sha256} from '@noble/hashes/sha256';
 export * from 'srp';
 export {bytesToHex, hexToBytes} from '@noble/hashes/utils';
+export {base58} from 'base-x';
 
 /**
  * Generates a new private key.

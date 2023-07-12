@@ -2,9 +2,9 @@ import {useDocument} from '~core/hooks/useDocument';
 import {useSession} from '~core/hooks/useSession';
 import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import {KeyIcon, ShareIcon, TrashIcon} from 'ui/components/Icons';
+import {HashIcon, KeyIcon, ShareIcon, TrashIcon} from 'ui/components/Icons';
 import {KeyAvatar} from '~components/ui/KeyAvatar';
-import {type Document} from 'ddnet';
+import {base58, type Document, validatePublicKey} from 'ddnet';
 import {type SyncedDocument} from '~core/managers';
 import {useTranslation} from 'react-i18next';
 
@@ -14,26 +14,42 @@ const ShareModalContent = ({document}: {
 	const {t} = useTranslation();
 	const session = useSession();
 	const [publicKey, setPublicKey] = React.useState('');
-	const [allowedClients, setAllowedClients] = React.useState<Array<{base58: string}>>(document.header.allowedClients);
+	const [allowedClients, setAllowedClients] = React.useState<string[]>(document.header.allowedClients.map(client => client.base58));
 
-	const isOwner = document.header.owner.base58 === session?.base58PublicKey;
+	const isValidPublicKey = React.useMemo(() => {
+		try {
+			return validatePublicKey(base58.decode(publicKey));
+		} catch (err) {
+			return false;
+		}
+	}, [publicKey]);
+
+	if (!session) {
+		return null;
+	}
+
+	const isOwner = document.header.owner.base58 === session.base58PublicKey;
 
 	const handleAddPublicKey = () => {
-		if (!publicKey || allowedClients.some(client => client.base58 === publicKey)) {
+		if (!publicKey || allowedClients.some(client => client === publicKey)) {
 			return;
 		}
 
 		setPublicKey('');
-		setAllowedClients([...allowedClients, {base58: publicKey}]);
-		console.log('added allowed client to state', publicKey);
+		setAllowedClients([...allowedClients, publicKey]);
 	};
 
 	const handleRemovePublicKey = (publicKey: string) => {
-		setAllowedClients(prev => prev.filter(client => client.base58 !== publicKey));
+		setAllowedClients(prev => prev.filter(client => client !== publicKey));
 	};
 
-	const handleCopyPublicKey = (publicKey: string) => {
-		void navigator.clipboard.writeText(publicKey);
+	const handleCopy = (text: string) => {
+		void navigator.clipboard.writeText(text);
+	};
+
+	const handleSave = () => {
+		const header = document.header.withAllowedClients(allowedClients, session.privateKey);
+		document.updateHeader(header);
 	};
 
 	return 	<div className='grid gap-4'>
@@ -49,42 +65,76 @@ const ShareModalContent = ({document}: {
 					</div>
 					<input type='text' className='input-bordered input join-item w-full font-mono text-sm'
 						placeholder={t('input.add_public_key')} value={publicKey} onChange={e => setPublicKey(e.target.value)}/>
-					<button className='btn-square join-item btn' onClick={handleAddPublicKey}>
+					<button className='btn-square join-item btn' onClick={handleAddPublicKey} disabled={!isValidPublicKey}>
 						<KeyIcon fontSize={20}/>
 					</button>
 				</div>
 			</div>
 		)}
-
-		<ul className='menu rounded-box bg-base-200'>
+		<ul className='menu rounded-box overflow-hidden bg-base-200'>
 			<li>
-				<h2 className='menu-title'>{t('share.owner')}</h2>
-				<ul>
-					<li onClick={() => handleCopyPublicKey(document.header.owner.base58)}>
-						<div>
-							<KeyAvatar value={document.header.owner.base58} className='w-8'/>
-							<span className='w-full truncate font-mono text-sm'>{document.header.owner.base58}</span>
-						</div>
-					</li>
-				</ul>
-			</li>
-			{(allowedClients.length > 0) && (<li>
-				<h2 className='menu-title'>{t('share.allowed_clients')}</h2>
-				<ul>
-					{allowedClients.map(({base58}) => (
-						<li key={base58} onClick={() => handleCopyPublicKey(base58)}>
+				<details>
+					<summary className='font-bold text-base-content/40'>{t('share.header')}</summary>
+					<ul>
+						<li>
 							<div>
-								<KeyAvatar value={base58} className='w-8'/>
-								<span className='w-full truncate font-mono text-sm'>{base58}</span>
-								{isOwner && (
-									<button className='btn-ghost btn-circle btn' onClick={() => handleRemovePublicKey(base58)}>
-										<TrashIcon fontSize={20}/>
-									</button>
-								)}
+								<HashIcon className='w-8' />
+								<div className='truncate'>
+									{document.header.version}
+								</div>
 							</div>
 						</li>
-					))}
-				</ul>
+						<li onClick={() => handleCopy(document.header.address.base58)}>
+							<div>
+								<KeyIcon className='w-8' />
+								<div className='truncate'>
+									{document.header.address.base58}
+								</div>
+							</div>
+						</li>
+						<li onClick={() => handleCopy(document.header.signature.base58)}>
+							<div>
+								<KeyIcon className='w-8' />
+								<div className='overflow-x-auto'>
+									{document.header.signature.base58}
+								</div>
+							</div>
+						</li>
+					</ul>
+				</details>
+			</li>
+			<li>
+				<details open>
+					<summary className='font-bold text-base-content/40'>{t('share.owner')}</summary>
+					<ul>
+						<li onClick={() => handleCopy(document.header.owner.base58)}>
+							<div>
+								<KeyAvatar value={document.header.owner.base58} className='w-8'/>
+								<span className='w-full truncate font-mono text-xs'>{document.header.owner.base58}</span>
+							</div>
+						</li>
+					</ul>
+				</details>
+			</li>
+			{(allowedClients.length > 0) && (<li>
+				<details open>
+					<summary className='font-bold text-base-content/40'>{t('share.allowed_clients')}</summary>
+					<ul>
+						{allowedClients.map(publicKey => (
+							<li key={publicKey} onClick={() => handleCopy(publicKey)}>
+								<div>
+									<KeyAvatar value={publicKey} className='w-8'/>
+									<span className='w-full truncate font-mono text-xs'>{publicKey}</span>
+									{isOwner && (
+										<button className='btn-ghost btn-circle btn' onClick={() => handleRemovePublicKey(publicKey)}>
+											<TrashIcon fontSize={20}/>
+										</button>
+									)}
+								</div>
+							</li>
+						))}
+					</ul>
+				</details>
 			</li>)}
 		</ul>
 
@@ -94,7 +144,9 @@ const ShareModalContent = ({document}: {
 			</Dialog.Close>
 
 			<Dialog.Close asChild>
-				<button className='btn-primary btn'>{t('btn.save')}</button>
+				<button className='btn-primary btn' onClick={handleSave}>
+					{t('btn.save')}
+				</button>
 			</Dialog.Close>
 		</div>
 	</div>;
@@ -113,7 +165,7 @@ export const ShareModal = ({documentId}: {
 		</Dialog.Trigger>
 		<Dialog.Portal>
 			<Dialog.Content className='modal modal-bottom data-[state=open]:modal-open sm:modal-middle' onOpenAutoFocus={e => e.preventDefault()}>
-				<div className='modal-box'>
+				<div className='modal-box w-full'>
 					{document
 						? <ShareModalContent document={document}/>
 						: <div className='flex items-center justify-center'><span className='loading loading-ring loading-lg'></span></div>

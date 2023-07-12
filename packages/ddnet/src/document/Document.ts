@@ -4,7 +4,6 @@ import {DocumentHeader} from './DocumentHeader';
 import {createSignature, getPublicKey} from '../crypto';
 import {decode, encode} from 'cbor-x';
 import {type DocumentId} from '../types';
-import {base58} from 'base-x';
 
 export class UnauthorizedAccessError extends Error {
 	constructor(message?: string, options?: ErrorOptions) {
@@ -21,8 +20,9 @@ export class DocumentValidationError extends Error {
 }
 
 type DocumentEvent<TData> = {
-	patch: {document: Document<TData>; patches: A.Patch[]; before: A.Doc<TData>; after: A.Doc<TData>};
-	change: {document: Document<TData>; data: A.Doc<TData>};
+	'patch': {document: Document<TData>; patches: A.Patch[]; before: A.Doc<TData>; after: A.Doc<TData>};
+	'change': {document: Document<TData>; data: A.Doc<TData>};
+	'header-updated': {document: Document<TData>; header: DocumentHeader};
 };
 
 export class Document<TData> extends Emittery<DocumentEvent<TData>> {
@@ -33,7 +33,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	protected constructor(header: DocumentHeader) {
 		super();
 		this.#header = header;
-		this.#id = base58.encode(this.#header.address);
+		this.#id = this.#header.address.base58;
 		this.#document = A.init<TData>({
 			patchCallback: (patches, {before, after}) => {
 				void this.emit('patch', {document: this, patches, before, after});
@@ -97,8 +97,13 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 		return document;
 	}
 
+	public updateHeader(header: DocumentHeader) {
+		this.#header = DocumentHeader.merge(this.#header, header);
+		void this.emit('header-updated', {document: this, header: this.#header});
+	}
+
 	public mergeDocument(document: Document<TData>) {
-		this.#header = DocumentHeader.merge(this.#header, document.#header);
+		this.updateHeader(document.#header);
 		this.update(doc => A.merge(doc, A.clone(document.#document)));
 	}
 

@@ -81,6 +81,7 @@
   },
   "share": {
     "allowed_clients": "Clients autorisés ",
+    "header": "Entête",
     "owner": "Propriétaire",
     "share_settings": "Paramètres de partage"
   },

@@ -199,6 +199,10 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 
 		this.on('document-added', async document => {
 			await this.storage.setDocument(document);
+			document.on('header-updated', async () => {
+				await this.storage.setDocument(document);
+			});
+
 			// Throttle the save method to avoid saving too often
 			const throttledSave = throttle(async () => this.storage.save(document), 500);
 			document.on('change', async () => {

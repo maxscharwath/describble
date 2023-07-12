@@ -47,3 +47,14 @@ export const CopyIcon = (props: SVGProps<SVGSVGElement>) => (<svg xmlns='http://
 export const ShareIcon = (props: SVGProps<SVGSVGElement>) => (<svg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24' {...props}><path fill='currentColor' d='M9 6a3 3 0 1 0 6 0a3 3 0 0 0-6 0ZM2.5 18a3 3 0 1 0 6 0a3 3 0 0 0-6 0Zm16 3a3 3 0 1 1 0-6a3 3 0 0 1 0 6ZM7.205 7.562a.75.75 0 0 0-.993-1.124A8.73 8.73 0 0 0 3.25 13a.75.75 0 0 0 1.5 0a7.23 7.23 0 0 1 2.455-5.438Zm10.583-1.124a.75.75 0 0 0-.993 1.124A7.23 7.23 0 0 1 19.25 13a.75.75 0 0 0 1.5 0a8.73 8.73 0 0 0-2.962-6.562Zm-7.601 13.584a.75.75 0 1 0-.374 1.452a8.773 8.773 0 0 0 4.374 0a.75.75 0 1 0-.374-1.452A7.267 7.267 0 0 1 12 20.25a7.31 7.31 0 0 1-1.813-.228Z'></path></svg>);
 
 export const KeyIcon = (props: SVGProps<SVGSVGElement>) => (<svg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24' {...props}><path fill='currentColor' d='M20.59 10h-7.94a6.004 6.004 0 0 0-6.88-3.88c-2.29.46-4.15 2.3-4.63 4.58A6.002 6.002 0 0 0 7 18a5.99 5.99 0 0 0 5.65-4H13l1.29 1.29c.39.39 1.02.39 1.41 0L17 14l1.29 1.29c.39.39 1.03.39 1.42 0l2.59-2.61a.999.999 0 0 0-.01-1.42l-.99-.97c-.2-.19-.45-.29-.71-.29zM7 15c-1.65 0-3-1.35-3-3s1.35-3 3-3s3 1.35 3 3s-1.35 3-3 3z'></path></svg>);
+
+export const HashIcon = (props: SVGProps<SVGSVGElement>) => (
+	<svg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 24 24' {...props}>
+		<g fill='currentColor'>
+			<path d='m14.092 10.75l-.75 2.5H9.908l.75-2.5h3.434Z'></path>
+			<path fillRule='evenodd'
+				d='M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10S17.523 2 12 2Zm-.784 4.282a.75.75 0 0 1 .502.934l-.61 2.034h3.434l.74-2.465a.75.75 0 0 1 1.436.43l-.61 2.035H18a.75.75 0 0 1 0 1.5h-2.342l-.75 2.5H17a.75.75 0 0 1 0 1.5h-2.542l-.74 2.465a.75.75 0 0 1-1.436-.43l.61-2.035H9.458l-.74 2.465a.75.75 0 1 1-1.436-.43l.61-2.035H6a.75.75 0 0 1 0-1.5h2.342l.75-2.5H7a.75.75 0 0 1 0-1.5h2.542l.74-2.465a.75.75 0 0 1 .934-.503Z'
+				clipRule='evenodd'></path>
+		</g>
+	</svg>
+);
