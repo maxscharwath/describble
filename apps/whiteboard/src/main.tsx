@@ -5,13 +5,14 @@ import './index.css';
 import {WhiteboardApp} from '~core/WhiteboardApp';
 import {useShortcuts, WhiteboardProvider} from '~core/hooks';
 import {
-	Await,
 	createBrowserRouter,
-	createRoutesFromElements, defer, type LoaderFunction, type LoaderFunctionArgs,
+	createRoutesFromElements,
+	type LoaderFunction,
+	type LoaderFunctionArgs,
 	Outlet,
 	redirect,
 	Route,
-	RouterProvider, useLoaderData,
+	RouterProvider,
 } from 'react-router-dom';
 import {Document} from '~pages/Document';
 import {Root} from '~pages/Root';
@@ -29,13 +30,10 @@ const app = new WhiteboardApp('whiteboard');
 
 await initSeeder(app);
 
-const createMiddleware = (...middlewares: LoaderFunction[]) => async (arg: LoaderFunctionArgs) => {
-	const middleware = middlewares.reduce<Promise<any>>(async (previousPromise, currentMiddleware) => {
-		await previousPromise;
-		return currentMiddleware(arg);
-	}, Promise.resolve());
-	return defer({middleware});
-};
+const createMiddleware = (...middlewares: LoaderFunction[]) => async (arg: LoaderFunctionArgs) => middlewares.reduce<Promise<any>>(async (previousPromise, currentMiddleware) => {
+	await previousPromise;
+	return currentMiddleware(arg);
+}, Promise.resolve());
 
 const authMiddleware = createMiddleware(() => {
 	try {
@@ -57,21 +55,10 @@ const documentMiddleware = createMiddleware(authMiddleware, async ({params}) => 
 
 function Layout() {
 	useShortcuts();
-	return <Outlet />;
+	return <>
+		<Outlet />
+	</>;
 }
-
-const Loader = ({children}: React.PropsWithChildren<{}>) => {
-	const {middleware} = useLoaderData() as {middleware: Promise<any>};
-	return <React.Suspense
-		fallback={<div className='flex h-screen items-center justify-center'>
-			<span className='loading loading-ring loading-lg' />
-		</div>}
-	>
-		<Await resolve={middleware}>
-			{() => children}
-		</Await>
-	</React.Suspense>;
-};
 
 const router = createBrowserRouter(createRoutesFromElements(
 	<Route element={<Layout />} errorElement={<ErrorBoundary />}>
@@ -81,7 +68,7 @@ const router = createBrowserRouter(createRoutesFromElements(
 			<Route path='/register' element={<Register />} />
 			<Route path='/recover' element={<Recover />} />
 		</Route>
-		<Route loader={documentMiddleware} path='/document/:id' element={<Loader><Document /></Loader>} />
+		<Route loader={documentMiddleware} path='/document/:id' element={<Document />} />
 		<Route path='*' element={<NotFound />} />
 	</Route>,
 ));
