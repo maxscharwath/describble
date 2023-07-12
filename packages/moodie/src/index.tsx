@@ -113,7 +113,7 @@ function generateData(name?: string, colors = DEFAULT_COLORS, expression: Expres
 	};
 }
 
-export const Moodie = memo(({name, colors, size, title, square, expression, ...props}: HTMLProps<SVGSVGElement> & MoodieProps) => {
+export const Moodie = memo(({name, colors, size, title, square, expression, ...props}: MoodieProps & Omit<HTMLProps<SVGSVGElement>, keyof MoodieProps>) => {
 	const data = useMemo(() => generateData(name, colors, expression), [name, colors, expression]);
 	const maskID = React.useId();
 
