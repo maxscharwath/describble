@@ -18,7 +18,7 @@ export const getContrast = (hexcolor: string): string => {
 export class RNG {
 	constructor(private _seed: number) {
 		if (this._seed <= 0 || this._seed === Number.MAX_VALUE) {
-			throw new Error('Seed out of range.');
+			this._seed = 1;
 		}
 	}
 
@@ -49,7 +49,7 @@ export class RNG {
 
 	public nextChoice<T>(array: T[]): T {
 		if (array.length === 0) {
-			throw new Error('Array is empty.');
+			return undefined as T;
 		}
 
 		const index = this.nextInt(0, array.length - 1);
