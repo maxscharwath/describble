@@ -23,7 +23,7 @@
     "vite": "^4.4.3"
   },
   "engines": {
-    "node": ">=19.0.0"
+    "pnpm": ">=7.0.0"
   },
   "peerDependencies": {
     "react": "^18.2.0",

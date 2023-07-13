@@ -2,12 +2,12 @@
   "name": "ddnet-server",
   "version": "1.0.0",
   "description": "",
-  "main": "dest/index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node dest/index.js",
-    "prestart": "esbuild src/index.ts --bundle --minify --platform=node --target=node19 --outfile=dest/index.js",
+    "start": "node dist/index.js",
+    "prestart": "esbuild src/index.ts --bundle --minify --platform=node --target=node19 --outfile=dist/index.js",
     "dev": "tsx src/index.ts",
-    "build": "esbuild src/index.ts --bundle --minify --platform=node --target=node19 --outfile=dest/index.js"
+    "build": "esbuild src/index.ts --bundle --minify --platform=node --target=node19 --outfile=dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -21,5 +21,9 @@
     "tsconfig": "workspace:*",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=19.0.0",
+    "pnpm": ">=7.0.0"
   }
 }

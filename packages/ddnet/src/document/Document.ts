@@ -31,9 +31,9 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 
 		// Initialize a new Automerge document with a patch callback
 		this.#document = A.init<TData>({
-			patchCallback: (patches, {before, after}) => {
+			patchCallback: ((patches, {before, after}) => {
 				void this.emit('patch', {document: this, patches, before, after});
-			},
+			}) as A.PatchCallback<TData>,
 		});
 	}
 
@@ -159,7 +159,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	private hasChanged(document: A.Doc<TData>) {
 		const aHeads = A.getHeads(this.#document);
 		const bHeads = A.getHeads(document);
-		return !(aHeads.length === bHeads.length && aHeads.every(head => bHeads.includes(head)));
+		return !(aHeads.length === bHeads.length && aHeads.every((head: string) => bHeads.includes(head)));
 	}
 
 	/**

@@ -1,5 +1,4 @@
-import {SignalingServer} from 'ddnet/src/server/SignalingServer';
-import {WebSocketNetwork} from 'ddnet/src/network/websocket/WebSocketNetwork';
+import {SignalingServer, WebSocketNetwork} from 'ddnet/node';
 
 const server = new SignalingServer({
 	network: new WebSocketNetwork({

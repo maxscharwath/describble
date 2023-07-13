@@ -31,12 +31,13 @@ import {getCanvasBounds, getCanvasPoint, getScreenBounds, getScreenPoint} from '
 import {
 	DocumentSharingClient,
 	IDBStorageProvider,
+	KeyManager,
+	ServiceWorkerCache,
+	SessionManager,
 	WebSocketNetworkAdapter,
 } from 'ddnet';
-import {SessionManager} from 'ddnet/src/keys/SessionManager';
-import {KeyManager} from 'ddnet/src/keys/KeyManager';
-import {ServiceWorkerCache} from 'ddnet/src/keys/ServiceWorkerCache';
-import sw from 'ddnet/src/keys/sw.ts?worker&url';
+
+import sw from 'ddnet/sw?worker&url';
 export type {DocumentData, Asset} from '~core/managers/DocumentManager';
 export enum Status {
 	Idle = 'idle',

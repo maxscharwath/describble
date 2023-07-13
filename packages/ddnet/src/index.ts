@@ -1,7 +1,10 @@
 export {DocumentSharingClient} from './client/DocumentSharingClient';
-export * from './crypto';
 export {WebSocketNetworkAdapter} from './network/websocket/WebSocketNetworkAdapter';
 export {IDBStorageProvider} from './storage/IDBStorageProvider';
+export {SessionManager, type KeySession} from './keys/SessionManager';
+export {KeyManager} from './keys/KeyManager';
+export {ServiceWorkerCache} from './keys/ServiceWorkerCache';
 export {type Document} from './document/Document';
 export {type DocumentPresence} from './presence/DocumentPresence';
+export * from './crypto';
 export type * as A from '@automerge/automerge';

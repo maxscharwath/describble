@@ -7,67 +7,53 @@
 </h1>
 🎨 Unleash Your Imagination! 🌟
 
-Welcome to DeScribble, an innovative whiteboard application designed to help you collaborate and bring your ideas to life. Created by Maxime Scharwath for his bachelor's thesis at HEIG-VD, DeScribble provides a dynamic platform where people can come together to brainstorm, visualize, and share their ideas in a decentralized environment.
+Welcome to Describble,
+an innovative whiteboard application designed to help you collaborate and bring your ideas to life.
+Created by Maxime Scharwath for his bachelor's thesis at HEIG-VD,
+Describble provides a dynamic platform where people can come together to brainstorm, visualize,
+and share their ideas in a decentralized environment.
 
-With DeScribble's infinite whiteboard canvas, you have the perfect space to nurture your ideas and watch them flourish. Whether you're planning projects, teaching, or simply letting your imagination run wild, DeScribble empowers you to turn abstract concepts into vibrant visual representations.
+With Describble's infinite whiteboard canvas, you have the perfect space to nurture your ideas and watch them flourish.
+Whether you're planning projects, teaching,
+or simply letting your imagination run wild,
+Describble empowers you to turn abstract concepts into vibrant visual representations.
 
-Built with the powerful React framework and flexible Scalable Vector Graphics (SVG), DeScribble offers a smooth and immersive user experience. Its decentralized architecture ensures data ownership, privacy, and the freedom to collaborate seamlessly.
+Built with the powerful React framework and flexible Scalable Vector Graphics (SVG),
+Describble offers a smooth and immersive user experience.
+Its decentralized architecture ensures data ownership, privacy, and the freedom to collaborate seamlessly.
 
-Try DeScribble now at https://describble.io and let your ideas come to life in the most captivating way. 🚀
+Try Describble now at https://describble.io and let your ideas come to life in the most captivating way. 🚀
+
+## 🎨 Apps
+
+### [`apps/whiteboard`](./apps/whiteboard)
+This is the main application for Describble.
+It's an infinite whiteboard where users can visualize and share their ideas.
+
+### [`apps/ddnet-server`](./apps/ddnet-server)
+This is a signaling server for the Decentralized Document Network (DDNet).
+It enables peer-to-peer communication between clients in the network.
+
+## 📦 Packages
+
+### [`packages/base-x`](./packages/base-x)
+This is a Base-encoding TypeScript library used for encoding and decoding data in various base systems.
+
+### [`packages/ddnet`](./packages/ddnet)
+Decentralized Document Network (DDNet) is a cutting-edge,
+decentralized network designed for secure storage and access of documents.
+
+### [`packages/moodie`](./packages/moodie)
+Moodie is a delightful, lightweight JavaScript library for React that generates SVG-based,
+expressive avatars from any username and color palette.
+
+### [`packages/srp`](./packages/srp)
+This TypeScript SRP (Secret Recovery Phrase) library is an enhanced version of the original bitcoinjs/bip39 library.
 
 
 ## 📚 Prerequisites
 
-To get started with DeScribble, make sure you have the following installed:
+To get started with Describble, make sure you have the following installed:
 
-- [Node.js](https://nodejs.org/en/download/) (v16 or higher)
+- [Node.js](https://nodejs.org/en/download/) (v19 or higher)
 - [pnpm](https://pnpm.io/installation) 📦
-
-## 🏗️ Build
-
-Follow these steps to build all apps and packages in DeScribble:
-
-```bash
-pnpm run build
-```
-
-### 💻 Develop
-
-To launch the development environment for all apps and packages in DeScribble, use the following command:
-
-```
-pnpm run dev
-```
-This will start the development server, allowing you to experiment, iterate, and enhance the application in real-time.
-
-### ☁️ Remote Caching with Turborepo
-
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to
-share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't
-have an account you can [create one](https://vercel.com/signup), then enter the following commands:
-
-```
-pnpm dlx turbo login
-```
-
-This will authenticate the Turborepo CLI with
-your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your turborepo:
-
-```
-pnpm dlx turbo link
-```
-
-## 📚 Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)

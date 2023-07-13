@@ -1,7 +1,6 @@
 import Emittery from 'emittery';
-import {z} from 'zod';
+import {z, type ZodDiscriminatedUnionOption} from 'zod';
 import {type Message} from '../Message';
-import {type ZodDiscriminatedUnionOption} from 'zod/lib/types';
 import {type SignalingClient} from '../client/SignalingClient';
 
 /**

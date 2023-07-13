@@ -1,18 +1,18 @@
 import 'fake-indexeddb/auto';
 import {base58} from 'base-x';
-import wrtc from './src/wrtc';
-import {SignalingServer} from './src/server/SignalingServer';
-import {WebSocketNetwork} from './src/network/websocket/WebSocketNetwork';
+import wrtc from '../src/wrtc';
+import {SignalingServer} from '../src/server/SignalingServer';
+import {WebSocketNetwork} from '../src/network/websocket/WebSocketNetwork';
+import {NodeFileStorageProvider} from '../src/storage/NodeFileStorageProvider';
 import {
 	DocumentSharingClient,
 	generatePrivateKey,
 	IDBStorageProvider,
 	mnemonicToSeedSync,
 	WebSocketNetworkAdapter,
-} from './src';
-import {NodeFileStorageProvider} from './src/storage/NodeFileStorageProvider';
-import {SessionManager} from './src/keys/SessionManager';
-import {KeyManager} from './src/keys/KeyManager';
+	KeyManager,
+	SessionManager,
+} from '../src';
 
 (async () => {
 	const server = new SignalingServer({
