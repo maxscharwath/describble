@@ -13,23 +13,18 @@ export const RecoverStep: React.FC = () => {
 
 	const handleChange = (e: ChangeEvent<HTMLInputElement>, i: number) => {
 		const words = e.target.value.split(' ');
+		const updatedPhrase = [...phrase];
 		if (words.length > 1) {
 			words.forEach((word, wordIndex) => {
 				if (i + wordIndex < 12) {
-					setPhrase(prev => {
-						const copy = [...prev];
-						copy[i + wordIndex] = word;
-						return copy;
-					});
+					updatedPhrase[i + wordIndex] = word;
 				}
 			});
 		} else {
-			setPhrase(prev => {
-				const copy = [...prev];
-				copy[i] = e.target.value;
-				return copy;
-			});
+			updatedPhrase[i] = e.target.value;
 		}
+
+		setPhrase(updatedPhrase);
 
 		if (e.target.value.includes(' ') && i < 11) {
 			setTimeout(() => {
@@ -60,7 +55,7 @@ export const RecoverStep: React.FC = () => {
 				<div className='grid grid-cols-2 gap-3 sm:grid-cols-3'>
 					{phrase.map((word, index) => (
 						<MnemonicWord
-							key={`${index}-${word}`}
+							key={`word-${index}`}
 							label={index + 1}
 							value={word}
 							onChange={e => handleChange(e, index)}

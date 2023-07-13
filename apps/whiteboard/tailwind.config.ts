@@ -37,6 +37,6 @@ export default {
 	},
 	plugins: [daisyui],
 	daisyui: {
-		themes: true,
+		themes: ['dark', 'light'],
 	},
 } satisfies Config;

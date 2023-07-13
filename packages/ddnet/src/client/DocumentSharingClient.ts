@@ -75,6 +75,10 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 
 		this.peerManager = new PeerManager({
 			exchanger: this.exchanger as MessageExchanger<typeof SignalMessageSchema>,
+			verifyIncomingSignal: async message => {
+				const document = await this.findDocument(message.data.documentId);
+				return document?.header.hasAllowedUser(message.from.publicKey) ?? false;
+			},
 			wrtc: config.wrtc,
 		});
 

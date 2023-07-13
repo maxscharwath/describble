@@ -165,7 +165,7 @@ export const ShareModal = ({documentId}: {
 		</Dialog.Trigger>
 		<Dialog.Portal>
 			<Dialog.Content className='modal modal-bottom data-[state=open]:modal-open sm:modal-middle' onOpenAutoFocus={e => e.preventDefault()}>
-				<div className='modal-box w-full'>
+				<div className='modal-box'>
 					{document
 						? <ShareModalContent document={document}/>
 						: <div className='flex items-center justify-center'><span className='loading loading-ring loading-lg'></span></div>

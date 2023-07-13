@@ -5,6 +5,7 @@ import {z} from 'zod';
 import Emittery, {type UnsubscribeFunction} from 'emittery';
 import {base58} from 'base-x';
 import {type ChannelId, PeerConnection, type SignalData} from '../network/PeerConnection';
+import {type Message} from '../Message';
 
 type DocumentId = string;
 export type PeerId = string;
@@ -28,6 +29,7 @@ export const SignalMessageSchema = z.object({
 
 type PeerManagerConfig = {
 	exchanger: MessageExchanger<typeof SignalMessageSchema>;
+	verifyIncomingSignal?: (message: Message<z.infer<typeof SignalMessageSchema>>) => Promise<boolean> | boolean;
 	wrtc?: Wrtc;
 	timeout?: number;
 };
@@ -69,9 +71,11 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 		this.connectionTimeout = config.timeout ?? 10000;
 		this.exchanger = config.exchanger;
 		this.wrtc = config.wrtc;
-		this.exchanger.on('signal', message => {
-			const {connection} = this.createPeer(false, message.data.documentId, message.from);
-			void connection.signal(message.data.signal);
+		this.exchanger.on('signal', async message => {
+			if (!config.verifyIncomingSignal || await config.verifyIncomingSignal(message)) {
+				const {connection} = this.createPeer(false, message.data.documentId, message.from);
+				void connection.signal(message.data.signal);
+			}
 		});
 	}
 

@@ -1,6 +1,7 @@
 import {generateKeyPair} from '../src';
 import {expect} from 'vitest';
-import {Document, UnauthorizedAccessError} from '../src/document/Document';
+import {Document} from '../src/document/Document';
+import {UnauthorizedAccessError} from '../src/document/errors/UnauthorizedAccessError';
 
 describe('Document', () => {
 	let ownerKeys: {privateKey: Uint8Array; publicKey: Uint8Array};

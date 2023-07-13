@@ -184,3 +184,11 @@ export function validateMnemonic(mnemonic: string): boolean {
 
 	return true;
 }
+
+/**
+ * Validates a word against the wordlist.
+ * @param word - The word to validate.
+ */
+export function validateWord(word: string): boolean {
+	return wordlist.includes(word);
+}

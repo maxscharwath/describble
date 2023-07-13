@@ -16,7 +16,7 @@
     "ddnet": "workspace:*"
   },
   "devDependencies": {
-    "esbuild": "^0.18.11",
+    "esbuild": "^0.18.12",
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",
     "tsx": "^3.12.7",
