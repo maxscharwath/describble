@@ -1,6 +1,6 @@
 {
   "name": "@describble/base-x",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Base encoding / decoding of any given alphabet",
   "license": "MIT",
   "author": {
