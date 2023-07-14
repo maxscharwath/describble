@@ -1,14 +1,13 @@
 {
-  "name": "describble",
-  "description": "A simple drawing app",
-  "version": "0.0.0",
   "private": true,
+  "name": "describble",
+  "version": "0.0.0",
+  "description": "A simple drawing app",
   "license": "Apache-2.0",
-  "author": "Maxime Scharwath <maxime@scharwath.ch>",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "author": {
+    "name": "Maxime Scharwath",
+    "email": "maxime@scharwath.ch"
+  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -16,15 +15,19 @@
     "lint": "turbo run lint",
     "publish-packages": "turbo run build lint test --filter=./packages/* && changeset version && changeset publish"
   },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "@changesets/cli": "^2.26.2"
+  },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
     "turbo": "^1.10.7"
   },
-  "packageManager": "pnpm@7.27.1",
   "engines": {
     "node": ">=19.0.0"
   },
-  "dependencies": {
-    "@changesets/cli": "^2.26.2"
-  }
+  "packageManager": "pnpm@7.27.1"
 }

@@ -1,7 +1,8 @@
 {
-  "name": "@ddnet/server",
+  "name": "@describble/server",
   "version": "1.0.0",
   "description": "",
+  "private": true,
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
@@ -14,7 +15,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.4.2",
-    "@ddnet/core": "workspace:*",
+    "@describble/ddnet": "workspace:*",
     "esbuild": "^0.18.12",
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",

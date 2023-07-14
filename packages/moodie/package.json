@@ -1,18 +1,30 @@
 {
   "name": "moodie",
+  "version": "1.0.0",
   "description": "Randomly generated avatars with a mood",
-  "version": "0.0.0",
   "license": "MIT",
-  "author": "Maxime Scharwath <maxime@scharwath.ch>",
+  "author": {
+    "name": "Maxime Scharwath",
+    "email": "maxime@scharwath.ch"
+  },
+  "homepage": "https://github.com/maxscharwath/Describble/tree/main/packages/moodie#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxscharwath/Describble.git"
+  },
   "type": "module",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "scripts": {
-    "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
-    "demo": "vite",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src",
     "build": "tsup",
-    "dev": "tsup --watch"
+    "demo": "vite",
+    "dev": "tsup --watch",
+    "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src"
+  },
+  "types": "dist/index.d.ts",
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "^20.4.2",
@@ -25,11 +37,15 @@
     "typescript": "^5.1.6",
     "vite": "^4.4.3"
   },
+  "keywords": [
+    "avatar",
+    "avatar generator",
+    "boring avatars",
+    "mood",
+    "random",
+    "react"
+  ],
   "engines": {
     "pnpm": ">=7.0.0"
-  },
-  "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
   }
 }

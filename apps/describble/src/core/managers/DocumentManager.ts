@@ -8,7 +8,7 @@ import {
 	type A,
 	type Document, type DocumentPresence,
 	type DocumentSharingClient,
-} from '@ddnet/core';
+} from '@describble/ddnet';
 
 export type SyncedDocument = {
 	layers: Record<string, Layer>;

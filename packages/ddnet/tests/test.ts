@@ -1,5 +1,5 @@
 import 'fake-indexeddb/auto';
-import {base58} from '@ddnet/base-x';
+import {base58} from '@describble/base-x';
 import wrtc from '../src/wrtc';
 import {SignalingServer} from '../src/server/SignalingServer';
 import {WebSocketNetwork} from '../src/network/websocket/WebSocketNetwork';

@@ -1,6 +1,6 @@
 {
   "name": "describble",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "license": "Apache-2.0",
   "author": "Maxime Scharwath <maxime@scharwath.ch>",
@@ -17,7 +17,7 @@
     "generate-pwa-assets": "pwa-assets-generator"
   },
   "dependencies": {
-    "@ddnet/core": "workspace:*",
+    "@describble/ddnet": "workspace:*",
     "moodie": "workspace:*",
     "ui": "workspace:*",
     "@ctrl/tinycolor": "^3.6.0",

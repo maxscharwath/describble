@@ -1,4 +1,4 @@
-import {SignalingServer, WebSocketNetwork} from '@ddnet/core/node';
+import {SignalingServer, WebSocketNetwork} from '@describble/ddnet/node';
 
 const server = new SignalingServer({
 	network: new WebSocketNetwork({

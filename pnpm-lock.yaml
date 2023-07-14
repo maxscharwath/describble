@@ -21,7 +21,7 @@ importers:
 
   apps/ddnet-server:
     devDependencies:
-      '@ddnet/core':
+      '@describble/ddnet':
         specifier: workspace:*
         version: link:../../packages/ddnet
       '@types/node':
@@ -48,7 +48,7 @@ importers:
       '@ctrl/tinycolor':
         specifier: ^3.6.0
         version: 3.6.0
-      '@ddnet/core':
+      '@describble/ddnet':
         specifier: workspace:*
         version: link:../../packages/ddnet
       '@radix-ui/react-alert-dialog':
@@ -226,10 +226,10 @@ importers:
       '@automerge/automerge':
         specifier: 2.1.0-alpha.8
         version: 2.1.0-alpha.8
-      '@ddnet/base-x':
+      '@describble/base-x':
         specifier: workspace:*
         version: link:../base-x
-      '@ddnet/srp':
+      '@describble/srp':
         specifier: workspace:*
         version: link:../srp
       '@koush/wrtc':

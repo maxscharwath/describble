@@ -1,18 +1,26 @@
 {
-  "name": "@ddnet/base-x",
-  "description": "Base encoding / decoding of any given alphabet",
+  "name": "@describble/base-x",
   "version": "0.0.0",
+  "description": "Base encoding / decoding of any given alphabet",
   "license": "MIT",
-  "author": "Maxime Scharwath <maxime@scharwath.ch>",
+  "author": {
+    "name": "Maxime Scharwath",
+    "email": "maxime@scharwath.ch"
+  },
+  "homepage": "https://github.com/maxscharwath/Describble/tree/main/packages/base-x#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxscharwath/Describble.git"
+  },
   "type": "module",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "scripts": {
-    "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src",
     "build": "tsup",
-    "dev": "tsup --watch"
+    "dev": "tsup --watch",
+    "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src"
   },
+  "types": "dist/index.d.ts",
   "devDependencies": {
     "@vitest/coverage-v8": "^0.33.0",
     "eslint-config-custom": "workspace:*",
@@ -22,6 +30,18 @@
     "vite": "^4.4.3",
     "vitest": "0.33.0"
   },
+  "keywords": [
+    "base-x",
+    "base58",
+    "base62",
+    "base64",
+    "crypto",
+    "crytography",
+    "decode",
+    "decoding",
+    "encode",
+    "encoding"
+  ],
   "engines": {
     "node": ">=19.0.0",
     "pnpm": ">=7.0.0"

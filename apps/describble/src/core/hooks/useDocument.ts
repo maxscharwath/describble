@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {type Document} from '@ddnet/core';
+import {type Document} from '@describble/ddnet';
 import {type SyncedDocument} from '~core/managers';
 import {useWhiteboard} from '~core/hooks/useWhiteboard';
 

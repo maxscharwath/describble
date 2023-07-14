@@ -3,7 +3,7 @@ import {sha256Some} from '../crypto';
 import {type Wrtc} from '../wrtc';
 import {z} from 'zod';
 import Emittery, {type UnsubscribeFunction} from 'emittery';
-import {base58} from '@ddnet/base-x';
+import {base58} from '@describble/base-x';
 import {type ChannelId, PeerConnection, type SignalData} from '../network/PeerConnection';
 import {type Message} from '../Message';
 

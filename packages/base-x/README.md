@@ -1,5 +1,8 @@
 # 👋 Base-encoding TypeScript Library
 
+[![npm (scoped)](https://img.shields.io/npm/v/describble/base-x)](https://www.npmjs.com/package/@describble/base-x)
+![npm (scoped)](https://img.shields.io/npm/l/@describble/base-x)
+
 This library is a robust and efficient refactored version of the [base-x](https://github.com/cryptocoinjs/base-x) library, now optimized with TypeScript. It provides fast base encoding and decoding of any given alphabet using bitcoin style leading zero compression.
 
 ⚠️ **WARNING:** This module is **NOT RFC3548** compliant, it cannot be used for base16 (hex), base32, or base64 encoding in a standards compliant manner.

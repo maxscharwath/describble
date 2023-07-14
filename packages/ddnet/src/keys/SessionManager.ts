@@ -1,7 +1,7 @@
 import {type KeyManager} from './KeyManager';
 import {getPublicKey} from '../crypto';
 import Emittery from 'emittery';
-import {base58} from '@ddnet/base-x';
+import {base58} from '@describble/base-x';
 import {type Cache} from './Cache';
 
 export type KeyPair = {

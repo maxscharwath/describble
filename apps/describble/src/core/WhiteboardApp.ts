@@ -35,7 +35,7 @@ import {
 	ServiceWorkerCache,
 	SessionManager,
 	WebSocketNetworkAdapter,
-} from '@ddnet/core';
+} from '@describble/ddnet';
 
 import sw from 'ddnet/sw?worker&url';
 export type {DocumentData, Asset} from '~core/managers/DocumentManager';

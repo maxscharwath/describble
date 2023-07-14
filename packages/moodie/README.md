@@ -1,4 +1,8 @@
 # Moodie Avatars
+
+[![NPM](https://img.shields.io/npm/v/moodie)](https://www.npmjs.com/package/moodie)
+![NPM](https://img.shields.io/npm/l/moodie)
+
 Moodie is a delightful, lightweight JavaScript library for React that generates SVG-based, expressive avatars from any username and color palette. Inspired by the amazing [boring-avatars](https://github.com/boringdesigners/boring-avatars) project, Moodie aims to take a step further by introducing an array of expressive, fun, and playful avatar faces.
 
 <div align="center">

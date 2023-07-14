@@ -4,7 +4,7 @@ import {RecoveryPhraseStep} from '~pages/auth/register/steps/RecoveryPhraseStep'
 import {ConfirmationStep} from '~pages/auth/register/steps/ConfirmationStep';
 import {useTranslation} from 'react-i18next';
 import {CreatedStep} from '~pages/auth/register/steps/CreatedStep';
-import {type KeySession} from '@ddnet/core';
+import {type KeySession} from '@describble/ddnet';
 import {Stepper} from '~pages/auth/Stepper';
 import {type AuthContext} from '~pages/auth/common';
 import {CreatePasswordStep} from '~pages/auth/common/CreatePasswordStep';

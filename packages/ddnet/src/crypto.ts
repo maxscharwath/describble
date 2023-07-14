@@ -13,8 +13,8 @@ export {
 	mnemonicToSeed,
 	mnemonicToSeedSync,
 	generateMnemonic,
-} from '@ddnet/srp';
-export {base58} from '@ddnet/base-x';
+} from '@describble/srp';
+export {base58} from '@describble/base-x';
 
 /**
  * Generates a new private key.

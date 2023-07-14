@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import clsx from 'clsx';
 import {useSteps} from '~pages/auth/useSteps';
 import {ClosedEyeIcon, CopyIcon, OpenEyeIcon} from 'ui/components/Icons';
-import {generateMnemonic} from '@ddnet/core';
+import {generateMnemonic} from '@describble/ddnet';
 import {type RegisterContext} from '~pages/auth/register/Register';
 import {MnemonicWord} from '~components/ui/MnemoWord';
 import {useTranslation} from 'react-i18next';

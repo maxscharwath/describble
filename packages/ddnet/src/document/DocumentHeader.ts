@@ -9,7 +9,7 @@ import {
 	validatePublicKey,
 } from '../crypto';
 import {v4 as uuidv4} from 'uuid';
-import {base58} from '@ddnet/base-x';
+import {base58} from '@describble/base-x';
 import {UnauthorizedAccessError, DocumentValidationError} from './errors';
 
 /** Define the shape of the document header data */

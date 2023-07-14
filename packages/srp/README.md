@@ -1,5 +1,8 @@
 # 🔐 SRP - Secret Recovery Phrase Library
 
+[![npm (scoped)](https://img.shields.io/npm/v/describble/srp)](https://www.npmjs.com/package/@describble/srp)
+![npm (scoped)](https://img.shields.io/npm/l/@describble/srp)
+
 This TypeScript SRP (Secret Recovery Phrase) library is an enhanced version of the original [bitcoinjs/bip39](https://github.com/bitcoinjs/bip39) library. SRP, originally described by the BIP39 specification, pertains to the creation of a mnemonic sentence. This sentence forms a human-readable, pronounceable, and memorable group of words that can be used for backing up and restoring a private key.
 
 This updated version is designed to be compatible with both browser and Node.js environments. It utilizes Uint8Array instead of Node.js Buffer and currently supports the English language dictionary for mnemonic generation.

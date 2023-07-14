@@ -1,29 +1,32 @@
 {
-  "name": "@ddnet/core",
-  "description": "DDNet is a decentralized network for real-time collaborative applications.",
+  "name": "@describble/ddnet",
   "version": "0.0.0",
+  "description": "DDNet is a decentralized network for real-time collaborative applications.",
   "license": "Apache-2.0",
-  "author": "Maxime Scharwath <maxime@scharwath.ch>",
+  "author": {
+    "name": "Maxime Scharwath",
+    "email": "maxime@scharwath.ch"
+  },
+  "homepage": "https://github.com/maxscharwath/Describble/tree/main/packages/ddnet#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxscharwath/Describble.git"
+  },
   "type": "module",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": "./dist/index.js",
-    "./node": "./dist/node.js",
-    "./sw": "./dist/sw.js"
-  },
   "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
     "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src",
-    "ts-check": "tsc --noEmit",
     "test": "vitest run --coverage",
-    "build": "tsup",
-    "dev": "tsup --watch"
+    "ts-check": "tsc --noEmit"
   },
+  "types": "./dist/index.d.ts",
   "dependencies": {
     "@automerge/automerge": "2.1.0-alpha.8",
-    "@ddnet/base-x": "workspace:*",
-    "@ddnet/srp": "workspace:*",
+    "@describble/base-x": "workspace:*",
+    "@describble/srp": "workspace:*",
     "@koush/wrtc": "^0.5.3",
     "@noble/hashes": "^1.3.1",
     "@noble/secp256k1": "^2.0.0",
@@ -54,8 +57,26 @@
     "vitest": "0.33.0",
     "webdriverio": "^8.12.1"
   },
+  "keywords": [
+    "CRDT",
+    "automerge",
+    "collaborative",
+    "crypto",
+    "ddnet",
+    "decentralized",
+    "decentralized document network",
+    "describble",
+    "network",
+    "p2p",
+    "real-time"
+  ],
   "engines": {
     "node": ">=19.0.0",
     "pnpm": ">=7.0.0"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./node": "./dist/node.js",
+    "./sw": "./dist/sw.js"
   }
 }
