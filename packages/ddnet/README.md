@@ -1,6 +1,6 @@
 # Decentralized Document Network (DDNet)
 
-[![npm (scoped)](https://img.shields.io/npm/v/describble/ddnet)](https://www.npmjs.com/package/@describble/ddnet)
+[![npm (scoped)](https://img.shields.io/npm/v/@describble/ddnet)](https://www.npmjs.com/package/@describble/ddnet)
 ![npm (scoped)](https://img.shields.io/npm/l/@describble/ddnet)
 
 Decentralized Document Network (DDNet) is a cutting-edge, decentralized network designed for secure storage and access of documents. It aims to address the inherent challenges of centralized document storage systems, namely access control and single points of failure, by providing a robust, decentralized alternative powered by cryptographic techniques.
