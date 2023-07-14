@@ -37,7 +37,7 @@ import {
 	WebSocketNetworkAdapter,
 } from '@describble/ddnet';
 
-import sw from 'ddnet/sw?worker&url';
+import sw from '@describble/ddnet/sw?worker&url';
 export type {DocumentData, Asset} from '~core/managers/DocumentManager';
 export enum Status {
 	Idle = 'idle',
