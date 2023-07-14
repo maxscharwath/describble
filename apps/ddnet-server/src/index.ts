@@ -1,4 +1,4 @@
-import {SignalingServer, WebSocketNetwork} from 'ddnet/node';
+import {SignalingServer, WebSocketNetwork} from '@ddnet/core/node';
 
 const server = new SignalingServer({
 	network: new WebSocketNetwork({
@@ -9,7 +9,4 @@ const server = new SignalingServer({
 
 server.listen().then(() => {
 	console.log('Signaling server listening on port 8080');
-}).catch(err => {
-	console.error(err);
-	process.exit();
-});
+}).catch(console.error);

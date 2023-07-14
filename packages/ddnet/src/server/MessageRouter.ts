@@ -1,4 +1,4 @@
-import {base58} from 'base-x';
+import {base58} from '@ddnet/base-x';
 import {verifyMessage} from '../Message';
 import {type ConnectionRegistry} from './ConnectionRegistry';
 import {type Network} from '../network/Network';

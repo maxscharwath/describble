@@ -1,6 +1,6 @@
 import {type DBSchema, type IDBPDatabase, openDB} from 'idb/with-async-ittr';
 import {decryptData, encryptData, getPublicKey} from '../crypto';
-import {base58} from 'base-x';
+import {base58} from '@ddnet/base-x';
 
 interface DDNetKeyDB extends DBSchema {
 	keys: {

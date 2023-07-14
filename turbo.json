@@ -9,9 +9,7 @@
         "^build"
       ],
       "outputs": [
-        "dist/**",
-        ".next/**",
-        "storybook-static/**"
+        "dist/**"
       ]
     },
     "lint": {
@@ -21,7 +19,12 @@
       "outputs": []
     },
     "dev": {
-      "cache": false
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
     },
     "test": {
       "dependsOn": [

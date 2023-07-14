@@ -4,7 +4,7 @@ import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import {HashIcon, KeyIcon, ShareIcon, TrashIcon} from 'ui/components/Icons';
 import {KeyAvatar} from '~components/ui/KeyAvatar';
-import {base58, type Document, validatePublicKey} from 'ddnet';
+import {base58, type Document, validatePublicKey} from '@ddnet/core';
 import {type SyncedDocument} from '~core/managers';
 import {useTranslation} from 'react-i18next';
 

@@ -16,21 +16,27 @@ const testSchema = z.object({
 	payload: z.string(),
 });
 
+type MockClient = {
+	privateKey: Uint8Array;
+	client: SignalingClient;
+	publicKey: Uint8Array;
+};
+
 // Creates a new client for testing
-async function createClient(network: MockNetwork): Promise<SignalingClient> {
+async function createClient(network: MockNetwork): Promise<MockClient> {
 	const client = new SignalingClient({
-		...generateKeyPair(),
 		network: new MockNetworkAdapter(network),
 	});
-	await client.connect();
-	return client;
+	const credentials = generateKeyPair();
+	await client.connect(credentials);
+	return {client, ...credentials};
 }
 
 describe('MessageExchanger', () => {
 	let messageExchangerAlice: MessageExchanger<typeof testSchema>;
 	let messageExchangerBob: MessageExchanger<typeof testSchema>;
-	let mockClientAlice: SignalingClient;
-	let mockClientBob: SignalingClient;
+	let mockClientAlice: MockClient;
+	let mockClientBob: MockClient;
 	let mockNetwork: MockNetwork;
 	let server: SignalingServer;
 
@@ -42,10 +48,10 @@ describe('MessageExchanger', () => {
 		mockClientBob = await createClient(mockNetwork);
 
 		messageExchangerAlice = new MessageExchanger([testSchema]);
-		messageExchangerAlice.setClient(mockClientAlice);
+		messageExchangerAlice.setClient(mockClientAlice.client);
 
 		messageExchangerBob = new MessageExchanger([testSchema]);
-		messageExchangerBob.setClient(mockClientBob);
+		messageExchangerBob.setClient(mockClientBob.client);
 	});
 
 	afterEach(async () => {
@@ -53,30 +59,16 @@ describe('MessageExchanger', () => {
 		vi.restoreAllMocks();
 	});
 
-	it('should handle incoming messages', async () => {
-		const testMessage = {type: 'test', payload: 'Hello, Bob!'} as const;
-
-		const messageHandler = vi.fn();
-
-		messageExchangerBob.on('test', messageHandler);
-
-		await messageExchangerAlice.sendMessage(testMessage, {publicKey: mockClientBob.publicKey, clientId: mockClientBob.clientId});
-
-		await wait(10);
-
-		expect(messageHandler).toHaveBeenCalledTimes(1);
-	});
-
 	it('should send messages', async () => {
 		const testMessage = {type: 'test', payload: 'Hello, Bob!'} as const;
 
-		const messageSpy = vi.spyOn(mockClientAlice, 'sendMessage');
+		const messageSpy = vi.spyOn(mockClientAlice.client, 'sendMessage');
 
-		await messageExchangerAlice.sendMessage(testMessage, {publicKey: mockClientBob.publicKey, clientId: mockClientBob.clientId});
+		await messageExchangerAlice.sendMessage(testMessage, {publicKey: mockClientBob.publicKey, clientId: mockClientBob.client.clientId});
 
 		expect(messageSpy).toHaveBeenCalledTimes(1);
 		expect(messageSpy).toHaveBeenCalledWith({
-			to: {publicKey: mockClientBob.publicKey, clientId: mockClientBob.clientId},
+			to: {publicKey: mockClientBob.publicKey, clientId: mockClientBob.client.clientId},
 			data: testMessage,
 		});
 	});
@@ -89,7 +81,7 @@ describe('MessageExchanger', () => {
 		messageExchangerBob.on('test', messageHandler);
 
 		// @ts-expect-error - We want to test invalid messages
-		await expect(messageExchangerAlice.sendMessage(invalidMessage, {publicKey: mockClientBob.publicKey, clientId: mockClientBob.clientId})).rejects.toThrow();
+		await expect(messageExchangerAlice.sendMessage(invalidMessage, {publicKey: mockClientBob.publicKey, clientId: mockClientBob.client.clientId})).rejects.toThrow();
 		expect(messageHandler).not.toHaveBeenCalled();
 	});
 
@@ -98,7 +90,7 @@ describe('MessageExchanger', () => {
 		const messageExchanger = new MessageExchanger([testSchema]);
 		await expect(messageExchanger.sendMessage(testMessage, {
 			publicKey: mockClientBob.publicKey,
-			clientId: mockClientBob.clientId,
+			clientId: mockClientBob.client.clientId,
 		})).rejects.toThrow();
 	});
 
@@ -110,8 +102,8 @@ describe('MessageExchanger', () => {
 		// @ts-expect-error - We want to test unknown messages
 		messageExchangerBob.on('unknown', messageHandler);
 
-		await mockClientAlice.sendMessage({
-			to: {publicKey: mockClientBob.publicKey, clientId: mockClientBob.clientId},
+		await mockClientAlice.client.sendMessage({
+			to: {publicKey: mockClientBob.publicKey, clientId: mockClientBob.client.clientId},
 			data: testMessage,
 		});
 

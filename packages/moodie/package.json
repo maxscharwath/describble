@@ -2,23 +2,26 @@
   "name": "moodie",
   "description": "Randomly generated avatars with a mood",
   "version": "0.0.0",
-  "private": true,
   "license": "MIT",
   "author": "Maxime Scharwath <maxime@scharwath.ch>",
   "type": "module",
-  "main": "src/index.tsx",
-  "types": "src/index.tsx",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "format": "eslint --ext .js,.jsx,.ts,.tsx,.vue src --fix",
-    "dev": "vite",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src"
+    "demo": "vite",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx,.vue src",
+    "build": "tsup",
+    "dev": "tsup --watch"
   },
   "devDependencies": {
+    "@types/node": "^20.4.2",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react-swc": "^3.3.2",
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",
+    "tsup": "^7.1.0",
     "typescript": "^5.1.6",
     "vite": "^4.4.3"
   },

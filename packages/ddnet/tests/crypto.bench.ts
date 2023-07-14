@@ -1,6 +1,6 @@
 import {bench, describe, expect} from 'vitest';
 import {generateKeyPair, bytesEquals, concatBytes} from '../src';
-import {base58} from 'base-x';
+import {base58} from '@ddnet/base-x';
 
 describe('crypto', () => {
 	describe('key pair generation', () => {

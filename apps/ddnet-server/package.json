@@ -1,21 +1,20 @@
 {
-  "name": "ddnet-server",
+  "name": "@ddnet/server",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
     "prestart": "esbuild src/index.ts --bundle --minify --platform=node --target=node19 --outfile=dist/index.js",
-    "dev": "tsx src/index.ts",
+    "start:dev": "tsx src/index.ts",
     "build": "esbuild src/index.ts --bundle --minify --platform=node --target=node19 --outfile=dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "ddnet": "workspace:*"
-  },
   "devDependencies": {
+    "@types/node": "^20.4.2",
+    "@ddnet/core": "workspace:*",
     "esbuild": "^0.18.12",
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",

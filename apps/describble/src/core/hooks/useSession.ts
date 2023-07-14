@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import {useWhiteboard} from '~core/hooks/useWhiteboard';
-import {type KeySession} from 'ddnet';
+import {type KeySession} from '@ddnet/core';
 
 export const useSession = () => {
 	const app = useWhiteboard();

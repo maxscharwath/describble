@@ -13,7 +13,8 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "format": "turbo run format",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "publish-packages": "turbo run build lint test --filter=./packages/* && changeset version && changeset publish"
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
@@ -22,5 +23,8 @@
   "packageManager": "pnpm@7.27.1",
   "engines": {
     "node": ">=19.0.0"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.26.2"
   }
 }

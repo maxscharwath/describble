@@ -1,7 +1,7 @@
 import React, {useMemo, memo} from 'react';
 import {getLayerUtil, type Layer} from '~core/layers';
 import {type Asset, type SyncedDocument} from '~core/managers';
-import {type Document} from 'ddnet';
+import {type Document} from '@ddnet/core';
 import {QuadTree} from '~core/utils/QuadTree';
 import {type Camera, type Dimension} from '~core/types';
 import {getCanvasBounds} from '~core/utils';

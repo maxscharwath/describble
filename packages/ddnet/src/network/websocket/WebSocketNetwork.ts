@@ -1,7 +1,7 @@
 import {type Connection} from '../Connection';
 import {Server} from 'http';
 import {WebSocketServer} from 'ws';
-import {base58} from 'base-x';
+import {base58} from '@ddnet/base-x';
 import {Network} from '../Network';
 import {WebSocketConnection} from './WebSocketConnection';
 

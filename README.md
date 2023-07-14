@@ -26,7 +26,7 @@ Try Describble now at https://describble.io and let your ideas come to life in t
 
 ## 🎨 Apps
 
-### [`apps/whiteboard`](./apps/whiteboard)
+### [`apps/describble`](./apps/describble)
 This is the main application for Describble.
 It's an infinite whiteboard where users can visualize and share their ideas.
 
@@ -50,10 +50,23 @@ expressive avatars from any username and color palette.
 ### [`packages/srp`](./packages/srp)
 This TypeScript SRP (Secret Recovery Phrase) library is an enhanced version of the original bitcoinjs/bip39 library.
 
-
 ## 📚 Prerequisites
 
 To get started with Describble, make sure you have the following installed:
 
 - [Node.js](https://nodejs.org/en/download/) (v19 or higher)
 - [pnpm](https://pnpm.io/installation) 📦
+
+## 🚀 Getting Started
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development script
+pnpm dev
+
+# Build production script
+pnpm build
+```
+

@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {useMouseState, useWhiteboard} from '~core/hooks';
 import {Cursor, type CursorRef} from 'ui';
-import {type DocumentPresence} from 'ddnet';
+import {type DocumentPresence} from '@ddnet/core';
 
 type MouseState = {
 	x: number;

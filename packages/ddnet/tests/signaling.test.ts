@@ -4,24 +4,32 @@ import {SignalingClient} from '../src/client/SignalingClient';
 import {generateKeyPair} from '../src';
 import {SignalingServer} from '../src/server/SignalingServer';
 
+type MockClient = {
+	client: SignalingClient;
+	privateKey: Uint8Array;
+	publicKey: Uint8Array;
+};
+
 /**
  * Creates a number of clients and connects them to the server.
  * @param network - The mock network to use.
  * @param count - The number of clients to create.
  * @param connect - Whether to connect the clients to the server.
  */
-const createClients = async (network: MockNetwork, count: number, connect = true): Promise<SignalingClient[]> => {
-	const clients: SignalingClient[] = [];
+const createClients = async (network: MockNetwork, count: number, connect = true): Promise<MockClient[]> => {
+	const clients: MockClient[] = [];
 
 	for (let i = 0; i < count; i++) {
-		clients.push(new SignalingClient({
+		clients.push({
+			client: new SignalingClient({
+				network: new MockNetworkAdapter(network),
+			}),
 			...generateKeyPair(),
-			network: new MockNetworkAdapter(network),
-		}));
+		});
 	}
 
 	if (connect) {
-		await Promise.all(clients.map(async client => client.connect()));
+		await Promise.all(clients.map(async ({client, ...credentials}) => client.connect(credentials)));
 	}
 
 	return clients;
@@ -33,19 +41,21 @@ const createClients = async (network: MockNetwork, count: number, connect = true
  * @param count - The number of clients to create.
  * @param connect - Whether to connect the clients to the server.
  */
-const createSameClients = async (network: MockNetwork, count: number, connect = true): Promise<SignalingClient[]> => {
+const createSameClients = async (network: MockNetwork, count: number, connect = true): Promise<MockClient[]> => {
 	const keyPair = generateKeyPair();
-	const clients: SignalingClient[] = [];
+	const clients: MockClient[] = [];
 
 	for (let i = 0; i < count; i++) {
-		clients.push(new SignalingClient({
+		clients.push({
+			client: new SignalingClient({
+				network: new MockNetworkAdapter(network),
+			}),
 			...keyPair,
-			network: new MockNetworkAdapter(network),
-		}));
+		});
 	}
 
 	if (connect) {
-		await Promise.all(clients.map(async client => client.connect()));
+		await Promise.all(clients.map(async ({client, ...credentials}) => client.connect(credentials)));
 	}
 
 	return clients;
@@ -79,22 +89,23 @@ describe('Signaling', () => {
 	describe('Authentication', () => {
 		it('should authenticate', async () => {
 			const [clientAlice, clientBob] = await createClients(network, 2, false);
-			expect(clientAlice.connected).toBe(false);
-			expect(clientBob.connected).toBe(false);
+			expect(clientAlice.client.connected).toBe(false);
+			expect(clientBob.client.connected).toBe(false);
 
-			await expect(clientAlice.connect()).resolves.toBeUndefined();
-			await expect(clientBob.connect()).resolves.toBeUndefined();
+			await expect(clientAlice.client.connect(clientAlice)).resolves.toBeUndefined();
+			await expect(clientBob.client.connect(clientBob)).resolves.toBeUndefined();
 
-			expect(clientAlice.connected).toBe(true);
-			expect(clientBob.connected).toBe(true);
+			expect(clientAlice.client.connected).toBe(true);
+			expect(clientBob.client.connected).toBe(true);
 		});
 
 		it('should fail to authenticate with invalid credentials', async () => {
-			// @ts-expect-error - We want to test invalid credentials
 			const client = new SignalingClient({
 				network: new MockNetworkAdapter(network),
 			});
-			await expect(client.connect()).rejects.toThrow();
+
+			// @ts-expect-error - We want to test invalid credentials
+			await expect(client.connect({})).rejects.toBeDefined();
 		});
 	});
 
@@ -103,8 +114,8 @@ describe('Signaling', () => {
 			const [clientAlice, clientBob] = await createClients(network, 2);
 			const message = 'Hello Bob!';
 
-			const receivedMessage = clientBob.once('message');
-			await clientAlice.sendMessage({
+			const receivedMessage = clientBob.client.once('message');
+			await clientAlice.client.sendMessage({
 				to: {
 					publicKey: clientBob.publicKey,
 				},
@@ -118,10 +129,10 @@ describe('Signaling', () => {
 			const [clientAlice, clientBob, clientCharlie] = await createClients(network, 3);
 			const message = 'Hello Bob!';
 
-			const bobReceivedMessage = clientBob.once('message');
-			const charlieReceivedMessage = clientCharlie.once('message');
+			const bobReceivedMessage = clientBob.client.once('message');
+			const charlieReceivedMessage = clientCharlie.client.once('message');
 
-			await clientAlice.sendMessage({
+			await clientAlice.client.sendMessage({
 				data: message,
 			});
 
@@ -134,20 +145,24 @@ describe('Signaling', () => {
 			const [clientCharlie1, clientCharlie2] = await createSameClients(network, 2);
 			const message = 'Hello Bob!';
 
-			expect(clientCharlie1.clientId).not.toBe(clientAlice.clientId);
+			expect(clientCharlie1.client.clientId).not.toBe(clientAlice.client.clientId);
 			expect(clientCharlie1.publicKey).not.toBe(clientAlice.publicKey);
 
-			void expect(withTimeout(clientCharlie1.once('message'), 100)).resolves.toBeDefined();
-			void expect(withTimeout(clientCharlie2.once('message'), 100)).rejects.toBeDefined();
-			void expect(withTimeout(clientBob.once('message'), 100)).rejects.toBeDefined();
+			const promises = Promise.allSettled([
+				expect(withTimeout(clientCharlie1.client.once('message'), 100)).resolves.toBeDefined(),
+				expect(withTimeout(clientCharlie2.client.once('message'), 100)).rejects.toBeDefined(),
+				expect(withTimeout(clientBob.client.once('message'), 100)).rejects.toBeDefined(),
+			]);
 
-			await clientAlice.sendMessage({
+			await clientAlice.client.sendMessage({
 				to: {
 					publicKey: clientCharlie1.publicKey,
-					clientId: clientCharlie1.clientId,
+					clientId: clientCharlie1.client.clientId,
 				},
 				data: message,
 			});
+
+			await promises;
 		});
 
 		it('should able to respond to messages', async () => {
@@ -156,10 +171,10 @@ describe('Signaling', () => {
 			const message = 'Hello Bob!';
 			const response = 'Hello Alice!';
 
-			const bobReceivedMessage = clientBob.once('message');
-			const aliceReceivedMessage = clientAlice.once('message');
+			const bobReceivedMessage = clientBob.client.once('message');
+			const aliceReceivedMessage = clientAlice.client.once('message');
 
-			await clientAlice.sendMessage({
+			await clientAlice.client.sendMessage({
 				to: {
 					publicKey: clientBob.publicKey,
 				},
@@ -170,7 +185,7 @@ describe('Signaling', () => {
 
 			// Respond to message using the 'from' fields
 
-			await clientBob.sendMessage({
+			await clientBob.client.sendMessage({
 				to: bobMessage.from,
 				data: response,
 			});

@@ -1,5 +1,5 @@
 import WebSocket from 'isomorphic-ws';
-import {base58} from 'base-x';
+import {base58} from '@ddnet/base-x';
 import {Connection} from '../Connection';
 
 /**

@@ -3,7 +3,7 @@ import {useSteps} from '~pages/auth/useSteps';
 import {type RegisterContext} from '~pages/auth/register/Register';
 import {MnemonicWord} from '~components/ui/MnemoWord';
 import {useTranslation} from 'react-i18next';
-import {generatePrivateKey, mnemonicToSeedSync} from 'ddnet';
+import {generatePrivateKey, mnemonicToSeedSync} from '@ddnet/core';
 import {useWhiteboard} from '~core/hooks';
 
 const useClearedWords = (numberOfClearedWords: number, phrase: string | undefined) => {

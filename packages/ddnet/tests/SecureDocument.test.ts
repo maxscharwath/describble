@@ -1,7 +1,7 @@
-import {generateKeyPair} from '../src';
 import {expect} from 'vitest';
 import {Document} from '../src/document/Document';
-import {UnauthorizedAccessError} from '../src/document/errors/UnauthorizedAccessError';
+import {UnauthorizedAccessError} from '../src/document/errors';
+import {generateKeyPair} from '../src';
 
 describe('Document', () => {
 	let ownerKeys: {privateKey: Uint8Array; publicKey: Uint8Array};
@@ -19,7 +19,7 @@ describe('Document', () => {
 
 	it('should create a new secure document correctly', () => {
 		const {header} = doc;
-		expect(header.owner).toEqual(ownerKeys.publicKey);
+		expect(header.owner.bytes).toEqual(ownerKeys.publicKey);
 		expect(header.hasAllowedUser(clientKeys1.publicKey)).toBe(true);
 		expect(header.version).toBe(1);
 	});
@@ -41,12 +41,14 @@ describe('Document', () => {
 	});
 
 	it('should correctly set allowed users', () => {
-		doc.header.setAllowedClients([clientKeys2.publicKey], ownerKeys.privateKey);
-		expect(doc.header.hasAllowedUser(clientKeys2.publicKey)).toBe(true);
-		expect(doc.header.version).toBe(2);
+		const header = doc.header.withAllowedClients([clientKeys2.publicKey], ownerKeys.privateKey);
+		expect(doc.header.hasAllowedUser(clientKeys2.publicKey)).toBe(false);
+		expect(doc.header.version).toBe(1);
+		expect(header.hasAllowedUser(clientKeys2.publicKey)).toBe(true);
+		expect(header.version).toBe(2);
 	});
 
 	it('should throw UnauthorizedAccessError when setting allowed users with unauthorized user', () => {
-		expect(() => doc.header.setAllowedClients([clientKeys2.publicKey], clientKeys1.privateKey)).toThrow(UnauthorizedAccessError);
+		expect(() => doc.header.withAllowedClients([clientKeys2.publicKey], clientKeys1.privateKey)).toThrow(UnauthorizedAccessError);
 	});
 });
