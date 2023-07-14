@@ -10,7 +10,13 @@ This updated version is designed to be compatible with both browser and Node.js 
 ## 🚀 Usage
 
 ```typescript
-import {entropyToMnemonic, generateMnemonic, mnemonicToEntropy, mnemonicToSeedSync, validateMnemonic} from 'bip39';
+import {
+  entropyToMnemonic, 
+  generateMnemonic, 
+  mnemonicToEntropy, 
+  mnemonicToSeedSync, 
+  validateMnemonic
+} from '@describble/srp';
 
 const mnemonic = 'sausage bleak beauty join fan swarm fix tourist mutual saddle cart parrot';
 console.log(validateMnemonic(mnemonic)); // true

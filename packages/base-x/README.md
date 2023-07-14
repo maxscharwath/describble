@@ -12,7 +12,7 @@ This library is a robust and efficient refactored version of the [base-x](https:
 Example with Base58:
 
 ```typescript
-import { base58 } from 'base-encoding-ts';
+import { base58 } from '@describble/base-x';
 
 const decoded = base58.decode('5Kd3NBUAdUnhyzenEwVLy9pBKxSwXvE9FMPyR4UKZvpe6E3AgLr');
 
