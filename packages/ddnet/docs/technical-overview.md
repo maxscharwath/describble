@@ -1,101 +1,106 @@
 # Technical Overview
+
+The DDnet network implements a unique blend of secure communication protocols and data structures,
+ensuring user privacy and seamless data interactions.
+Each user on the network is assigned a unique pair of public and private keys,
+generated through the secp256k1 elliptic curve algorithm,
+along with a clientId that uniquely identifies user sessions or instances on the network.
+
+At the core of DDnet's structure lies the Document, divided into a Header and Data, each serving a distinct purpose.
+The Header hosts essential metadata about the document, including the unique identifier,
+ownership information, and the list of clients allowed to access the document.
+On the other hand, the Data part of the Document is managed to use CRDTs,
+with Automerge handling the data management internally.
+
+The network also adopts CBOR (Concise Binary Object Representation)
+as its data serialization format and establishes user-to-user connections using a Signaling Server.
+
+
 ## Key Components and Client
-In the DDNet network, each user has a unique pair of public and private keys generated using the secp256k1 elliptic curve algorithm.
+In the DDnet network,
+each user has a unique pair of public and private keys generated using the secp256k1 elliptic curve algorithm.
 
-The public key is a 33-byte compressed key, which is encoded using base58 encoding to make it shorter and more human-readable than Base64 encoding. This public key is used to identify users in the network.
+The public key, encoded using base58 encoding, is a 33-byte compressed key.
+The encoding style makes it shorter and more human-readable than Base64 encoding.
+This public key is used to identify users in the network.
 
-Additionally, each user is assigned a unique clientId. This clientId is a 16-byte identifier, which is randomly generated using UUIDv4 to ensure the uniqueness and randomness. This clientId is used to identify different sessions or instances of the same user in the network.
+Each user is also assigned a unique clientId, a 16-byte identifier,
+which is randomly generated using UUIDv4 to ensure uniqueness and randomness. 
+This clientId is used to identify different sessions or instances of the same user in the network.
 
-## Message
+## Document
 
-Each message transmitted in the network follows a defined structure:
+The Document serves as the core data structure of the DDnet network, split into two main sections—the Header and Data.
 
-```ts
-export type Message<TData> = {
-  from: {
-    publicKey: Uint8Array;  // sender's public key
-    clientId: Uint8Array;   // sender's clientId
-  };
-  to?: {
-    publicKey: Uint8Array;  // recipient's public key
-    clientId?: Uint8Array;  // recipient's clientId (optional)
-  };
-  data: TData;              // payload data of the message
-};
-```
-This message structure is designed with flexibility and security in mind:
+### Header
+The Document Header encapsulates critical metadata information for each document.
+This metadata includes elements such as the unique identifier (ID) of the document,
+the public key of the document owner (which serves as proof of ownership),
+the list of client IDs that are authorized to access the document, and the current version number of the header.
+An additional signature field,
+signed by the document owner, verifies the authenticity and integrity of the data contained within the header.
 
-- `from` field identifies the sender of the message.
-- `to` field is optional and identifies the recipient of the message. This is necessary when the message is private and intended for a specific user. If the to field is omitted, the message is considered public and can be read by any user in the network
-- `data` field contains the actual payload data of the message.
+| Property       | Type           | Description                                         |
+|----------------|----------------|-----------------------------------------------------|
+| id             | `Uint8Array`   | Unique identifier for the document.                 |
+| owner          | `Uint8Array`   | Public key of the document owner.                   |
+| allowedClients | `Uint8Array[]` | List of clientIds that have access to the document. |
+| version        | `number`       | The version of the header.                          |
+| signature      | `Uint8Array`   | Signature of the header, signed by owner            |
 
-### Message transmission and encryption
-Messages can be transmitted in three different ways:
+The version number plays a vital role in document management.
+Every time the document's header is updated, the version number increments.
+This incremental change allows peers within the network to determine the most recent version of the document.
+Thus, when synchronizing,
+each peer can confirm if they possess the latest version
+and avoid disseminating outdated versions throughout the network.
+This mechanism ensures a consistent and up-to-date state of data across the entire DDnet network.
 
-- **Broadcast**: A message is broadcasted to all users in the network. This is the default transmission method when the `to` field is omitted.
-- **Multicast**: A message is sent to a specific user in the network. This is the default transmission method when the `to` field is specified, but the `clientId` field is omitted.
-- **Unicast**: A message is sent to a specific session of a user in the network. This is the default transmission method when the `to` field is specified and the `clientId` field is specified.
+#### Document Address
 
-In **Multicast** and **Unicast** transmission methods, the message is encrypted.
+In the DDnet network, each document holds a unique address,
+a resultant
+of applying the SHA-256 cryptographic hash function to the concatenation of the document's id and the owner's public key.
+This mechanism,
+represented as `sha256(header.id + header.owner)`, introduces considerable advantages in security and verification.
 
-When a sender wants to send a message to a recipient, they utilize an encryption system to ensure that the message can only be read by the intended recipient.
+By incorporating the owner public key into the address calculation,
+the possibility of address collisions diminishes substantially.
+In this decentralized environment, various users might independently create a document with the same id,
+which could lead to overlaps.
+However,
+adding the owner detail not only reduces this risk
+but also bolsters security by preventing unauthorized individuals from creating a document with the same address.
 
-This process involves generating a shared secret between the sender and recipient using Elliptic-curve Diffie–Hellman (ECDH), a key agreement protocol that allows two parties, each having the other's public key, to establish a shared secret over an insecure channel.
+An added benefit is the facility to verify the correctness of the document's address.
+When one receives a document,
+they can compute the SHA-256 of the id and owner and match it against the provided document address.
+This feature enhances the trust and reliability of transactions within the network.
 
-The shared secret, however, is not directly used for encryption. To create an encryption key, we use the HKDF (HMAC-based Extract-and-Expand Key Derivation Function) to derive a symmetric AES key from the shared secret. This key is then used to encrypt the message.
 
-Using this mechanism, even if someone intercepts the communication, they won't be able to decrypt the message because they don't possess the shared secret or the derived AES key.
+#### Document Access Control
 
-## SecureDocument
-
-SecureDocument is the core data structure of the DDNet network. 
-It is an object that contains the following fields:
-
-```ts
-type SecureDocumentHeader = {
-  id: Uint8Array;
-  owner: Uint8Array;
-  allowedClients: Uint8Array[]; 
-  version: number;
-};
-
-type SecureDocument = {
-  header: Uint8Array;
-  headerSignature: Uint8Array;
-  content: Uint8Array; 
-  contentSignature: Uint8Array; 
-};
-```
-
-The `SecureDocumentHeader` contains the following fields:
-- `id` is a 16-byte identifier, which is randomly generated using UUIDv4 to ensure the uniqueness and randomness. This id is used to identify different versions of the same document.
-- `owner` is the 33-byte compressed public key of the document owner.
-- `allowedClients` is an array of 33-byte compressed public keys of the users who are allowed to read and update the document.
-- `version` is the version of the document header. It is incremented on each update of the document.
-
-The `SecureDocument` contains the following fields:
-- `header` is the document header in CBOR format.
-- `headerSignature` is the signature of the document header signed by the document owner.
-- `content` is the document content.
-- `contentSignature` is the signature of the document content signed by one of the allowed users' private keys.
-
-### Document Access Control
-
-The following rules enforce the access control of the document:
-
+The following rules govern access to the document:
 - Only the document owner can update the document header.
 - Only the document owner and the allowed users can update the document content.
+The DocumentHeader class enforces these rules, ensuring the document's integrity.
 
-The SecureDocument class is responsible for enforcing these rules and ensuring the integrity of the document.
+### Data Management
+The Document's data is managed to use Conflict-free Replicated Data Types (CRDTs).
+CRDTs are data structures
+that allow multiple replicas to be updated independently and concurrently without coordination between them. 
+The replicas can then be merged without conflicts.
+[Automerge](https://automerge.org/) is used internally to manage the data.
 
-### Document Address
-
-Each document has a unique address in the network. This address is a 16-byte identifier, which is generated using UUIDv5 from the document id and the document owner's public key. This address is used to identify the document in the network.
-
-## CBOR Encoding
-
-CBOR (Concise Binary Object Representation) is a binary data serialization format designed for small code size and small message size. It is a superset of JSON and supports all JSON data types. CBOR is used to encode data in the DDNet network because of the transmission is not necessarily human-readable and JSON is not the most efficient way to encode binary data.
 
 ## Signaling Server
 
-The signaling server is a WebSocket server that is used to establish a peer-to-peer connection between two users. It is used to exchange the public keys of the users and establish a WebRTC connection between them.
+For more details on the role of the Signaling Server in establishing peer-to-peer connections,
+please refer to the [Signaling Server](signaling-server.md) document.
+
+## CBOR Encoding
+
+CBOR (Concise Binary Object Representation) is the network's chosen binary data serialization format.
+Designed for small code size and small message size, CBOR is a superset of JSON, supporting all JSON data types.
+This format is preferred in the DDnet network because the transmission does not necessarily have to be human-readable,
+and JSON is not the most efficient way to encode binary data.
