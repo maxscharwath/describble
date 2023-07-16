@@ -93,7 +93,43 @@ The replicas can then be merged without conflicts.
 [Automerge](https://automerge.org/) is used internally to manage the data.
 
 
-## Signaling Server
+## Document Syncing
+DDnet uses a peer-to-peer network architecture to synchronize documents between users.
+But to establish a peer-to-peer connection, the peers must use a Signaling Server to exchange information.
+
+Here is a simplified overview of the document synchronization process:
+1. The User A creates a document and adds User B to the allowed users list.
+2. User B broadcasts a request for the document to the network.
+3. User A receives the request and responds with the document's header.
+4. User A initiates a peer-to-peer connection with User B using the Signaling Server.
+5. User A and User B synchronize the document data using the peer-to-peer connection.
+
+```mermaid
+sequenceDiagram
+    participant A as User A
+    participant S as Signaling Server
+    participant B as User B
+    B->>S: Broadcasts request for document to the network
+    S->>A: Forwards request to User A
+    A->>S: Responds with document's header
+    S->>B: Forwards document's header to User B
+
+    Note over A,B: Peer-to-Peer Connection Establishment
+    loop until Connection Established
+        A->>S: Sends connection signal to User B
+        S->>B: Forwards connection signal to User B
+        B->>S: Sends connection response to User A
+        S->>A: Forwards connection response to User A
+    end
+    
+    Note over A,B: Document Synchronization
+
+    loop while Document changes
+        A->>B: Syncs document data with User B
+        B->>A: Syncs document data with User A
+    end
+
+```
 
 For more details on the role of the Signaling Server in establishing peer-to-peer connections,
 please refer to the [Signaling Server](signaling-server.md) document.
