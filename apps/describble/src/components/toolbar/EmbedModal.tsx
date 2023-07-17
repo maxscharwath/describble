@@ -61,14 +61,6 @@ const providers = [
 		},
 	},
 	{
-		name: 'Twitter',
-		generateEmbed(url: string) {
-			const regex = /twitter\.com\/\w+\/status\/(\d+)/;
-			const match = regex.exec(url);
-			return match ? `https://twitframe.com/show?url=${encodeURIComponent(url)}` : false;
-		},
-	},
-	{
 		name: 'VideoSharingSite',
 		generateEmbed(url: string) {
 			const regex = /([A-Za-z0-9]+\.[A-Za-z]{2,})\/view_video\.php\?viewkey=([A-Za-z0-9]+)/;

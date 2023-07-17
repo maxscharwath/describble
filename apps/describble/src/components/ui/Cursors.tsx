@@ -1,9 +1,11 @@
 import React, {useEffect} from 'react';
 import {useMouseState, useWhiteboard} from '~core/hooks';
 import {Cursor, type CursorRef} from 'ui';
-import {type DocumentPresence} from '@describble/ddnet';
+import {base58, type DocumentPresence} from '@describble/ddnet';
+import {Moodie} from 'moodie';
 
 type MouseState = {
+	label: string;
 	x: number;
 	y: number;
 	clicked: boolean;
@@ -36,6 +38,7 @@ export const Cursors = () => {
 				} else {
 					mouse = {
 						...presenceMessage.presence,
+						label: base58.encode(presenceMessage.client.publicKey),
 						ref: React.createRef(),
 					};
 					mousesState.set(presenceMessage.peerId, mouse);
@@ -87,9 +90,12 @@ export const Cursors = () => {
 					clicked={mouse.clicked}
 					color={randomColor(id)}
 					ref={mouse.ref}
-					label={id}
 					interpolate={true}
-				/>
+				>
+					<div className='flex h-8 w-8 items-center justify-center rounded-full border-2 border-white'>
+						<Moodie name={mouse.label} />
+					</div>
+				</Cursor>
 			))}
 		</>
 	);

@@ -8,12 +8,12 @@ type CursorState = {
 	visible: boolean;
 };
 
-export type CursorProps = {
+export type CursorProps = React.PropsWithChildren<{
 	color: string;
 	size?: number;
 	label?: string;
 	interpolate?: boolean;
-} & Partial<CursorState>;
+} & Partial<CursorState>>;
 
 export type CursorRef = {
 	update: (point: Partial<CursorState>) => void;
@@ -45,7 +45,7 @@ const updateMotionValues = (cursor: Partial<CursorState>, motionValues: MotionVa
 };
 
 export const Cursor = React.forwardRef<CursorRef, CursorProps>(
-	({color, size = 32, label, visible = true, ...props}, ref) => {
+	({color, size = 32, label, children, visible = true, ...props}, ref) => {
 		const motionValues = {
 			x: useMotionValue(props.x ?? 0),
 			y: useMotionValue(props.y ?? 0),
@@ -90,11 +90,12 @@ export const Cursor = React.forwardRef<CursorRef, CursorProps>(
 						strokeWidth='1.5'
 						d='M7.407 2.486c-.917-.612-2.251.046-2.152 1.238l.029.347a86.016 86.016 0 0 0 2.79 15.693c.337 1.224 2.03 1.33 2.544.195l2.129-4.697c.203-.449.697-.737 1.234-.68l5.266.564c1.209.13 2.063-1.346 1.094-2.281A90.863 90.863 0 0 0 7.703 2.684l-.296-.198Z'/>
 				</motion.svg>
-				{label && <div
-					className='absolute bottom-1/2 right-2/3 translate-x-full translate-y-full whitespace-nowrap rounded-3xl border-2 border-white px-2 py-1 text-xs text-white'
-					style={{backgroundColor: color}}>
-					{label}
-				</div>}
+				<div
+					className='absolute bottom-1/2 right-2/3 translate-x-full translate-y-full'>
+					{label
+						? <span className='whitespace-nowrap rounded-3xl border-2 border-white px-2 py-1 text-xs text-white' style={{backgroundColor: color}}>{label}</span>
+						: children}
+				</div>
 			</motion.div>
 		);
 	});
