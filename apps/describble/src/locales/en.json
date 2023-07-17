@@ -29,6 +29,12 @@
   "document": {
     "title": "Document #{{index}}"
   },
+  "embed": {
+    "add": "Add this!",
+    "input": "Paste a link here",
+    "invalid": "Uh-oh! This link seems to have taken a wrong turn at the internet junction!",
+    "title": "Let's Embed a Link!"
+  },
   "error": {
     "failed_to_fetch_document": "Failed to fetch document",
     "internal": {

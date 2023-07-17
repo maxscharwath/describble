@@ -6,7 +6,7 @@ import {Text} from '~core/layers';
 export class TextTool extends BaseTool {
 	type = 'text' as const;
 	onPointerDown = (event: React.PointerEvent) => {
-		if (this.status !== Status.Idle) {
+		if (this.status !== Status.Idle || event.button !== 0) {
 			return;
 		}
 

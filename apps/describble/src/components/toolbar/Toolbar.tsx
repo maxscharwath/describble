@@ -19,6 +19,9 @@ import {
 import {Button} from '~components/ui/Buttons';
 import {useWhiteboard} from '~core/hooks/useWhiteboard';
 import {type Tools} from '~core/WhiteboardApp';
+import {DescribbleLogo} from '~components/ui/DescribbleLogo';
+import {Link} from 'react-router-dom';
+import {EmbedModal} from '~components/toolbar/EmbedModal';
 
 const colors = {
 	red: '#FF0000',
@@ -37,12 +40,12 @@ const colors = {
 
 const Separator = () => <div className='m-2 h-px w-full rounded-full bg-gray-200 dark:bg-gray-700 sm:h-full sm:w-px'/>;
 
-type ToolButtonProps = {tool: Tools; icon: React.ReactNode; onClick: (tool: Tools) => void; currentTool?: Tools};
+type ToolButtonProps = {tool: Tools; icon: React.ReactNode; onClick?: (tool: Tools) => void; currentTool?: Tools};
 const ToolButton = (props: ToolButtonProps) => {
 	const {tool, icon, onClick, currentTool} = props;
 	const handleButtonClick = React.useCallback(() => {
-		onClick(tool);
-	}, [props]);
+		onClick?.(tool);
+	}, [onClick, tool]);
 
 	return (
 		<Button
@@ -58,21 +61,12 @@ const ToolButton = (props: ToolButtonProps) => {
 export const Toolbar = () => {
 	const app = useWhiteboard();
 
-	const handleUndo = React.useCallback(() => {
-		app.undo();
-	}, [app]);
-
-	const handleRedo = React.useCallback(() => {
-		app.redo();
-	}, [app]);
-
-	const handleSetTool = React.useCallback((tool: Tools) => {
-		app.setTool(tool);
-	}, [app]);
-
+	const handleUndo = React.useCallback(app.undo.bind(app), [app]);
+	const handleRedo = React.useCallback(app.redo.bind(app), [app]);
+	const handleSetTool = React.useCallback(app.setTool.bind(app), [app]);
 	const handleClear = React.useCallback(() => {
 		app.document.layers.deleteAll();
-	}, [app]);
+	}, [app.document.layers]);
 
 	const {selectedTool, selectedColor} = app.useStore(state => ({
 		selectedTool: state.appState.currentTool,
@@ -82,6 +76,10 @@ export const Toolbar = () => {
 		<div
 			className='pointer-events-auto m-2 flex h-full flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur dark:border-gray-600 dark:bg-gray-800/80 dark:text-gray-200 sm:flex-row'
 		>
+			<Link to='/' className='btn-ghost btn'>
+				<DescribbleLogo small className='h-8 w-8'/>
+			</Link>
+			<Separator/>
 			<div className='grid grid-cols-6 gap-2'>
 				{Object.entries(colors).map(([color, value]) => (
 					<ColorButton
@@ -162,13 +160,13 @@ export const Toolbar = () => {
 					onClick={handleSetTool}
 					icon={<TextIcon/>}
 				/>
-
-				<ToolButton
-					tool='embed'
-					currentTool={selectedTool}
-					onClick={handleSetTool}
-					icon={<EmbedIcon/>}
-				/>
+				<EmbedModal>
+					<ToolButton
+						tool='embed'
+						currentTool={selectedTool}
+						icon={<EmbedIcon/>}
+					/>
+				</EmbedModal>
 			</div>
 			<Separator/>
 			<div className='grid grid-cols-2 gap-2'>

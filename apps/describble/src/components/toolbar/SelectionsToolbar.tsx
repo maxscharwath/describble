@@ -1,10 +1,12 @@
 import React from 'react';
 import {LayersIcon} from 'ui/components/Icons';
 import {useWhiteboard} from '~core/hooks';
+import {shallow} from 'zustand/shallow';
 
 export const SelectionsToolbar = () => {
 	const app = useWhiteboard();
-	const selectedLayers = app.useStore(state => state.appState.selectedLayers);
+	const selectedLayers = app.useStore(state => state.appState.currentTool === 'select' ? state.appState.selectedLayers : [], shallow);
+
 	if (selectedLayers.length <= 0) {
 		return null;
 	}

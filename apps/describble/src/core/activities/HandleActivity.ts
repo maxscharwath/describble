@@ -3,6 +3,7 @@ import {BaseActivity} from '~core/activities/BaseActivity';
 import {getLayerUtil, type Layer} from '~core/layers';
 import {type BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 import {type WhiteboardApp} from '~core/WhiteboardApp';
+import {deepcopy} from '~core/utils';
 
 export class HandleActivity extends BaseActivity {
 	type = 'handle' as const;
@@ -28,7 +29,18 @@ export class HandleActivity extends BaseActivity {
 	}
 
 	complete(): void {
-		// Define the behavior when the handle activity completes.
+		const layer = this.app.document.layers.get(this.layerId)!;
+		this.app.document.addCommand({
+			message: 'Move handle',
+			before: state => {
+				state.layers[this.layerId].handles = deepcopy(this.initLayer.handles);
+				state.layers[this.layerId].timestamp = Date.now();
+			},
+			after: state => {
+				state.layers[this.layerId].handles = deepcopy(layer.handles);
+				state.layers[this.layerId].timestamp = Date.now();
+			},
+		});
 	}
 
 	start(): void {

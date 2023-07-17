@@ -22,7 +22,7 @@ export class SelectTool extends BaseTool<Status> {
 	onPointerMove: PointerEventHandler = () => {
 		if (this.app.activity.activity) {
 			this.app.activity.updateActivity();
-		} else if (this.app.pointerEvent.isPointerDown) {
+		} else if (this.app.pointerEvent.isPointerDown?.button === 0) {
 			if (this.app.state.appState.selectedLayers.length > 0) {
 				this.app.activity.startActivity(TranslateActivity);
 				this.setStatus(Status.Translating);
@@ -34,6 +34,10 @@ export class SelectTool extends BaseTool<Status> {
 	};
 
 	onLayerDown: PointerEventHandler = (event, layer) => {
+		if (event.button !== 0) {
+			return;
+		}
+
 		this.app.activity.abortActivity();
 		this.setStatus(Status.LayerPointing);
 		this.app.patchState({
@@ -43,7 +47,11 @@ export class SelectTool extends BaseTool<Status> {
 		});
 	};
 
-	onCanvasDown: PointerEventHandler = () => {
+	onCanvasDown: PointerEventHandler = event => {
+		if (event.button !== 0) {
+			return;
+		}
+
 		this.setStatus(Status.CanvasPointing);
 		this.app.patchState({
 			appState: {
@@ -53,6 +61,10 @@ export class SelectTool extends BaseTool<Status> {
 	};
 
 	onBoundsDown: BoundsEventHandler = (event, handle) => {
+		if (event.button !== 0) {
+			return;
+		}
+
 		this.setStatus(Status.BoundsPointing);
 		const layers = this.app.state.appState.selectedLayers;
 		if (layers.length > 0 && handle !== BoundsHandle.NONE) {
@@ -62,6 +74,10 @@ export class SelectTool extends BaseTool<Status> {
 	};
 
 	onHandleDown: HandleEventHandler = (event, handle) => {
+		if (event.button !== 0) {
+			return;
+		}
+
 		this.setStatus(Status.HandlePointing);
 		if (this.app.state.appState.selectedLayers.length > 0) {
 			const layer = this.app.state.appState.selectedLayers[0];

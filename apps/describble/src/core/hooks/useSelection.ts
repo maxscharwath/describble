@@ -5,7 +5,7 @@ import {type Bounds} from '~core/types';
 
 export const useSelection: () => ({selectedLayers: string[]; bounds: Bounds | null}) = () => {
 	const app = useWhiteboard();
-	const selectedLayers = app.useStore(state => state.appState.selectedLayers, shallow);
+	const selectedLayers = app.useStore(state => state.appState.currentTool === 'select' ? state.appState.selectedLayers : [], shallow);
 	const status = app.useStore(state => state.appState.status);
 	const layers = app.document.layers.get(selectedLayers);
 	if (layers.length <= 0 || status === 'translating' || status === 'resizing') {

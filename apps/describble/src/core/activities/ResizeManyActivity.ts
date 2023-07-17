@@ -42,7 +42,45 @@ export class ResizeManyActivity extends BaseActivity {
 	}
 
 	public complete(): void {
-		//
+		const {layers} = this.app.document.state;
+		this.app.document.addCommand({
+			message: 'Resize many layers',
+			before: state => {
+				this.layerIds.forEach(id => {
+					const {layer, util, bounds} = this.initLayers[id];
+					if (!layer) {
+						return;
+					}
+
+					if (this.create) {
+						// eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- dynamic delete is fine here
+						delete state.layers[id];
+						return;
+					}
+
+					util.resize(state.layers[id], layer, bounds);
+					state.layers[id].timestamp = Date.now();
+				});
+			},
+			after: state => {
+				this.layerIds.forEach(id => {
+					const layer = layers[id];
+					if (!layer) {
+						return;
+					}
+
+					if (this.create) {
+						state.layers[id] = layer;
+						return;
+					}
+
+					const util = getLayerUtil(layer) as BaseLayerUtil<any>;
+					const bounds = util.getBounds(layer as never);
+					util.resize(state.layers[id], layer, bounds);
+					state.layers[id].timestamp = Date.now();
+				});
+			},
+		});
 	}
 
 	public start(): void {

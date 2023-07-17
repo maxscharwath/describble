@@ -1,15 +1,15 @@
-import {type WhiteboardApp, type WhiteboardCommand, type WhiteboardPatch} from '~core/WhiteboardApp';
+import {type WhiteboardApp} from '~core/WhiteboardApp';
 
 export abstract class BaseActivity {
 	abstract readonly type: string;
 
 	public constructor(protected app: WhiteboardApp) {}
 
-	abstract start(): WhiteboardPatch | void;
+	abstract start(): void;
 
-	abstract complete(): WhiteboardPatch | WhiteboardCommand | void;
+	abstract complete(): void;
 
-	abstract update(): WhiteboardPatch | void;
+	abstract update(): void;
 
-	abstract abort(): WhiteboardPatch | void;
+	abstract abort(): void;
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import {DescribbleLogo} from '~components/DescribbleLogo';
+import {DescribbleLogo} from '~components/ui/DescribbleLogo';
 import clsx from 'clsx';
 import {useTranslation} from 'react-i18next';
 import {NavLink, Outlet} from 'react-router-dom';

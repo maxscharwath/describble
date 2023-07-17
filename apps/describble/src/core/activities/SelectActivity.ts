@@ -1,5 +1,5 @@
 import {BaseActivity} from '~core/activities/BaseActivity';
-import {type WhiteboardApp, type WhiteboardPatch} from '~core/WhiteboardApp';
+import {type WhiteboardApp} from '~core/WhiteboardApp';
 import {createBounds} from '~core/utils';
 import {type Point} from '~core/types';
 import {QuadTree} from '~core/utils/QuadTree';
@@ -22,15 +22,15 @@ export class SelectActivity extends BaseActivity {
 		}
 	}
 
-	abort(): WhiteboardPatch {
-		return {
+	abort() {
+		this.app.patchState({
 			appState: {
 				selection: null,
 			},
-		};
+		});
 	}
 
-	complete(): WhiteboardPatch {
+	complete() {
 		return this.abort();
 	}
 
@@ -38,7 +38,7 @@ export class SelectActivity extends BaseActivity {
 		this.initPoint = this.app.currentPoint;
 	}
 
-	update(): WhiteboardPatch | void {
+	update(): void {
 		if (!this.initPoint) {
 			return;
 		}
@@ -47,11 +47,11 @@ export class SelectActivity extends BaseActivity {
 
 		const selectedLayers = this.tree.query(selection).map(item => item.id);
 
-		return {
+		this.app.patchState({
 			appState: {
 				selectedLayers,
 				selection,
 			},
-		};
+		});
 	}
 }

@@ -6,7 +6,7 @@ import {DrawActivity} from '~core/activities/DrawActivity';
 export class PathTool extends BaseTool {
 	type = 'path' as const;
 	onPointerDown = (event: React.PointerEvent) => {
-		if (this.status !== Status.Idle) {
+		if (this.status !== Status.Idle || event.button !== 0) {
 			return;
 		}
 

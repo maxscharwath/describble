@@ -2,7 +2,7 @@ import {Link, useNavigate} from 'react-router-dom';
 import React from 'react';
 import {useWhiteboard} from '~core/hooks';
 import {CloudIcon, TrashIcon} from 'ui/components/Icons';
-import {DescribbleLogo} from '~components/DescribbleLogo';
+import {DescribbleLogo} from '~components/ui/DescribbleLogo';
 import {Thumbnail} from '~components/Thumbnail';
 import {useTranslation} from 'react-i18next';
 import {useSession} from '~core/hooks/useSession';
@@ -47,7 +47,7 @@ export const Root = () => {
 			<div className='mx-auto flex w-full max-w-7xl grow flex-col items-center'>
 				<div className='navbar rounded-box sticky top-4 z-50 mb-8 bg-base-100/50 shadow-xl backdrop-blur-xl'>
 					<div className='mr-8 flex-1 text-slate-800 dark:text-slate-100'>
-						<DescribbleLogo className='absolute m-2 h-8 w-auto' textClassName='opacity-0 sm:opacity-100 transition-opacity duration-300 ease-in-out'/>
+						<DescribbleLogo className='pointer-events-none absolute m-2 h-8 w-auto' textClassName='opacity-0 sm:opacity-100 transition-opacity duration-300 ease-in-out'/>
 					</div>
 					<div className='flex gap-2'>
 						<button className='btn-ghost btn' onClick={handleCreate}>

@@ -2,7 +2,7 @@ import {type WhiteboardApp} from '~core/WhiteboardApp';
 import {type BoundsHandle} from '~core/types';
 
 export class PointerEventManager {
-	public isPointerDown = false;
+	public isPointerDown: React.PointerEvent | null = null;
 
 	constructor(private readonly app: WhiteboardApp) {}
 
@@ -14,14 +14,14 @@ export class PointerEventManager {
 
 	public onPointerDown = (event: React.PointerEvent, target: string) => {
 		event.stopPropagation();
-		this.isPointerDown = true;
+		this.isPointerDown = event;
 		this.app.updateInput(event);
 		this.app.currentTool?.onPointerDown?.(event, target);
 	};
 
 	public onPointerUp = (event: React.PointerEvent, target: string) => {
 		event.stopPropagation();
-		this.isPointerDown = false;
+		this.isPointerDown = null;
 		this.app.updateInput(event);
 		this.app.currentTool?.onPointerUp?.(event, target);
 	};

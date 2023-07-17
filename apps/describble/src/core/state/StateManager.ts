@@ -1,7 +1,7 @@
 import {createStore, type StoreApi} from 'zustand/vanilla';
 import {type UseBoundStore} from 'zustand';
 import * as idb from 'idb-keyval';
-import {type Command, type Patch} from '~core/types';
+import {type Patch} from '~core/types';
 import {createUseStore, deepcopy, deepmerge} from '~core/utils';
 
 /**
@@ -14,7 +14,6 @@ export class StateManager<T extends Record<string, any>> {
 	protected onReady?: () => void;
 	protected onPersist?: (state: T, patch: Patch<T>, id?: string) => void;
 	protected onPatch?: (patch: Patch<T>, id?: string) => void;
-	protected onCommand?: (state: T, command: Command<T>, id?: string) => void;
 	protected onUndo?: (state: T) => void;
 	protected onRedo?: (state: T) => void;
 	protected onStateWillChange?: (state: T, id?: string) => void;
@@ -23,8 +22,6 @@ export class StateManager<T extends Record<string, any>> {
 	private readonly initialState: T;
 	private readonly idbId?: string;
 	private readonly ready: Promise<void>;
-	private stack: Array<Command<T>> = [];
-	private stackIndex = -1;
 	private _state: T;
 
 	/**
@@ -49,20 +46,6 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-   * Check if there is a command to undo
-   */
-	public get canUndo(): boolean {
-		return this.stackIndex > -1;
-	}
-
-	/**
-   * Check if there is a command to redo
-   */
-	public get canRedo(): boolean {
-		return this.stackIndex < this.stack.length - 1;
-	}
-
-	/**
    * Patch without persisting
    * @param patch - The patch to apply
    * @param id - The id of the patch
@@ -81,59 +64,10 @@ export class StateManager<T extends Record<string, any>> {
 	}
 
 	/**
-   * Apply Command to state and persist
-   * @param command - The command to apply
-   * @param id - The id of the mutation
-   * @protected
-   */
-	public setState(command: Command<T>, id = command.id): this {
-		if (this.stackIndex < this.stack.length - 1) {
-			this.stack = this.stack.slice(0, this.stackIndex + 1);
-		}
-
-		this.stack.push({...command, id});
-		this.stackIndex = this.stack.length - 1;
-		this.applyPatch(command.after, id);
-		this.onCommand?.(this._state, command, id);
-		void this.persist(command.after, id);
-		return this;
-	}
-
-	/**
    * Force updating Zustand store
    */
 	public forceUpdate(): this {
 		this.store.setState(this._state, true);
-		return this;
-	}
-
-	/**
-   * Undo the last command
-   */
-	public undo(): this {
-		if (this.canUndo) {
-			const command = this.stack[this.stackIndex];
-			this.stackIndex--;
-			this.applyPatch(command.before, 'undo');
-			void this.persist(command.before, 'undo');
-			this.onUndo?.(this._state);
-		}
-
-		return this;
-	}
-
-	/**
-   * Redo the last command
-   */
-	public redo(): this {
-		if (this.canRedo) {
-			this.stackIndex++;
-			const command = this.stack[this.stackIndex];
-			this.applyPatch(command.after, 'redo');
-			void this.persist(command.after, 'redo');
-			this.onRedo?.(this._state);
-		}
-
 		return this;
 	}
 
@@ -144,18 +78,8 @@ export class StateManager<T extends Record<string, any>> {
 		this.onStateWillChange?.(this.initialState, 'reset');
 		this._state = this.initialState;
 		this.store.setState(this._state, true);
-		this.resetHistory();
 		void this.persist({}, 'reset');
 		this.onStateDidChange?.(this._state, 'reset');
-		return this;
-	}
-
-	/**
-   * Reset all history stacks
-   */
-	public resetHistory(): this {
-		this.stack = [];
-		this.stackIndex = -1;
 		return this;
 	}
 

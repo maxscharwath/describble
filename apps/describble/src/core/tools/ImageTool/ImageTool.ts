@@ -13,7 +13,7 @@ export class ImageTool extends BaseTool {
 	}
 
 	onPointerDown = (event: React.PointerEvent) => {
-		if (this.status !== Status.Idle) {
+		if (this.status !== Status.Idle || event.button !== 0) {
 			return;
 		}
 

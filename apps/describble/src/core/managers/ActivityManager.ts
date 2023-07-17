@@ -13,10 +13,7 @@ export class ActivityManager {
 		}
 
 		this.activity = new Activity(this.app, ...args);
-		const patch = this.activity.start();
-		if (patch) {
-			this.app.patchState(patch, `activity_start_${this.activity.type}`);
-		}
+		this.activity.start();
 
 		return this;
 	}
@@ -26,30 +23,12 @@ export class ActivityManager {
 			return this;
 		}
 
-		const patch = this.activity.complete();
-		if (!patch) {
-			this.app.patchState({
-				appState: {
-					status: Status.Idle,
-				},
-			});
-		} else if ('after' in patch) {
-			patch.after = {
-				...patch.after,
-				appState: {
-					...patch.after.appState,
-					status: Status.Idle,
-				},
-			};
-			this.app.setState(patch, `activity_complete_${this.activity.type}`);
-		} else {
-			patch.appState = {
-				...patch.appState,
+		this.activity.complete();
+		this.app.patchState({
+			appState: {
 				status: Status.Idle,
-			};
-			this.app.patchState(patch, `activity_complete_${this.activity.type}`);
-		}
-
+			},
+		});
 		this.activity = undefined;
 		return this;
 	}
@@ -59,11 +38,7 @@ export class ActivityManager {
 			return this;
 		}
 
-		const patch = this.activity.abort();
-		if (patch) {
-			this.app.patchState(patch, `activity_abort_${this.activity.type}`);
-		}
-
+		this.activity.abort();
 		this.activity = undefined;
 		return this;
 	}
@@ -73,10 +48,7 @@ export class ActivityManager {
 			return this;
 		}
 
-		const patch = this.activity.update();
-		if (patch) {
-			this.app.patchState(patch, `activity_update_${this.activity.type}`);
-		}
+		this.activity.update();
 
 		return this;
 	}

@@ -29,7 +29,27 @@ export class TranslateActivity extends BaseActivity {
 	}
 
 	complete(): void {
-		// Do nothing
+		if (!this.iniPos) {
+			return;
+		}
+
+		const {layers} = this.app.document.state;
+
+		this.app.document.addCommand({
+			message: 'Translate layers',
+			before: state => {
+				this.initialLayers.forEach(layer => {
+					state.layers[layer.id].position = {...layer.position};
+					state.layers[layer.id].timestamp = Date.now();
+				});
+			},
+			after: state => {
+				this.initialLayers.forEach(layer => {
+					state.layers[layer.id].position = {...layers[layer.id].position};
+					state.layers[layer.id].timestamp = Date.now();
+				});
+			},
+		});
 	}
 
 	abort(): void {

@@ -1,7 +1,6 @@
 import {StateManager} from '~core/state/StateManager';
 import {
 	type Bounds,
-	type Command,
 	type Patch,
 	type Point,
 	type Pointer,
@@ -16,7 +15,7 @@ import {
 	MoveTool,
 	PathTool,
 	RectangleTool,
-	SelectTool, TextTool,
+	SelectTool, TextTool, type ToolsConfig,
 	type ToolsKey,
 } from '~core/tools';
 import {defaultLayerStyle, type LayerStyle} from '~core/layers/shared';
@@ -55,12 +54,6 @@ export type WhiteboardState = {
 		selection: Bounds | null;
 		status: string;
 	};
-};
-
-export type WhiteboardCallbacks = {
-	onMount?: (app: WhiteboardApp) => void;
-	onChange?: (state: WhiteboardState, reason: string) => void;
-	onPatch?: (patch: Patch<WhiteboardState>, reason: string) => void;
 };
 
 export class WhiteboardApp extends StateManager<WhiteboardState> {
@@ -119,7 +112,9 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.patchState({appState: {status}}, `set_status_${status}`);
 	}
 
-	public setTool(type: Tools | null) {
+	public setTool<T extends Tools>(type: T, config?: ToolConfig<T>): this;
+	public setTool(type: null): this;
+	public setTool(type: Tools | null, config?: ToolConfig<Tools>) {
 		if (!type) {
 			this.currentTool?.onDeactivate();
 			this.currentTool = null;
@@ -128,13 +123,13 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		}
 
 		const tool = this.tools[type];
-		if (!tool || tool === this.currentTool) {
+		if (!tool) {
 			return this;
 		}
 
 		this.currentTool?.onDeactivate();
 		this.currentTool = tool;
-		this.currentTool.onActivate();
+		this.currentTool.onActivate(config);
 		this.patchState({appState: {currentTool: type}}, `set_tool_${type}`);
 		return this;
 	}
@@ -213,6 +208,16 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		return getCanvasBounds(bounds, this.camera);
 	}
 
+	public undo() {
+		this.selectNone();
+		this.document?.undo();
+	}
+
+	public redo() {
+		this.selectNone();
+		this.document?.redo();
+	}
+
 	public toggleDarkMode() {
 		const patch = {settings: {darkMode: !this.state.settings.darkMode}};
 		this.patchState(patch, 'toggle_dark_mode');
@@ -252,5 +257,5 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 }
 
 export type WhiteboardPatch = Patch<WhiteboardState>;
-export type WhiteboardCommand = Command<WhiteboardState>;
 export type Tools = ToolsKey<typeof WhiteboardApp.prototype.tools>;
+export type ToolConfig<T extends Tools> = ToolsConfig<typeof WhiteboardApp.prototype.tools, T>;

@@ -2,6 +2,7 @@ import {BaseActivity} from '~core/activities/BaseActivity';
 import {type WhiteboardApp} from '~core/WhiteboardApp';
 import {type Layer} from '~core/layers';
 import {type PathLayer} from '~core/layers/Path';
+import {deepcopy} from '~core/utils';
 
 export class DrawActivity extends BaseActivity {
 	type = 'draw' as const;
@@ -25,6 +26,17 @@ export class DrawActivity extends BaseActivity {
 		if (layer.path.length < 2) {
 			return this.abort();
 		}
+
+		this.app.document.addCommand({
+			message: 'Add path',
+			before: state => {
+				// eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- delete layer
+				delete state.layers[this.layerId];
+			},
+			after: state => {
+				state.layers[this.layerId] = deepcopy(layer);
+			},
+		});
 	}
 
 	start(): void {

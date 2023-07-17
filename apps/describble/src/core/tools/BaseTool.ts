@@ -35,7 +35,7 @@ export abstract class BaseTool<TStatus extends string = any> extends WhiteboardE
 		}
 	};
 
-	onActivate(): void {
+	onActivate(_config?: unknown): void {
 		this.setStatus(Status.Idle);
 	}
 

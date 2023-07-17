@@ -1,7 +1,7 @@
 import {BaseActivity} from '~core/activities/BaseActivity';
 import {type WhiteboardApp} from '~core/WhiteboardApp';
 import {getLayerUtil, type Layer} from '~core/layers';
-import {normalizeBounds} from '~core/utils';
+import {deepcopy, normalizeBounds} from '~core/utils';
 import {type Bounds, BoundsHandle, type Point} from '~core/types';
 import {type BaseLayerUtil} from '~core/layers/BaseLayerUtil';
 
@@ -42,6 +42,29 @@ export class ResizeActivity extends BaseActivity {
 				return this.abort();
 			}
 		}
+
+		this.app.document.addCommand({
+			message: 'Resize layer',
+			before: state => {
+				if (this.create) {
+					// eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- delete layer
+					delete state.layers[this.layerId];
+					return;
+				}
+
+				this.utils.resize(state.layers[this.layerId], this.initLayer, this.initBounds);
+				state.layers[this.layerId].timestamp = Date.now();
+			},
+			after: state => {
+				if (this.create) {
+					state.layers[this.layerId] = deepcopy(layer);
+					return;
+				}
+
+				this.utils.resize(state.layers[this.layerId], layer, this.utils.getBounds(layer));
+				state.layers[this.layerId].timestamp = Date.now();
+			},
+		});
 	}
 
 	start(): void {

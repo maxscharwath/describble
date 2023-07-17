@@ -2,7 +2,7 @@ import React from 'react';
 import {Toolbar} from '~components/toolbar/Toolbar';
 import {Canvas} from '~components/Canvas';
 import {LayersSidebar} from '~components/sidebar/LayersSidebar';
-import {Cursors} from '~components/Cursors';
+import {Cursors} from '~components/ui/Cursors';
 import {SelectionsToolbar} from '~components/toolbar/SelectionsToolbar';
 import {DebugBar} from '~components/toolbar/DebugBar';
 import {StyleSidebar} from '~components/sidebar/StyleSidebar';

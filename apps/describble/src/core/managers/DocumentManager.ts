@@ -170,11 +170,21 @@ class AssetManager {
 	}
 }
 
+type Command<T> = {
+	message?: string;
+	before: A.ChangeFn<T>;
+	after: A.ChangeFn<T>;
+};
+
 export class DocumentHandle {
 	public readonly useStore: UseBoundStore<StoreApi<DocumentData>>;
 	public readonly layers: LayerManager;
 	public readonly assets: AssetManager;
 	private readonly store: StoreApi<DocumentData>;
+
+	private stack: Array<Command<SyncedDocument>> = [];
+	private stackIndex = -1;
+
 	constructor(documentId: string, private readonly document: Document<SyncedDocument>) {
 		this.store = createStore(() => ({
 			id: documentId,
@@ -212,6 +222,44 @@ export class DocumentHandle {
 		this.store.setState(state => ({
 			camera: deepmerge(state.camera, typeof camera === 'function' ? camera(state.camera) : camera),
 		}));
+	}
+
+	public get canUndo(): boolean {
+		return this.stackIndex > -1;
+	}
+
+	public get canRedo(): boolean {
+		return this.stackIndex < this.stack.length - 1;
+	}
+
+	public addCommand(command: Command<SyncedDocument>, message = command.message) {
+		if (this.stackIndex < this.stack.length - 1) {
+			this.stack = this.stack.slice(0, this.stackIndex + 1);
+		}
+
+		this.stack.push({...command, message});
+		this.stackIndex = this.stack.length - 1;
+		return this;
+	}
+
+	public undo(): this {
+		if (this.canUndo) {
+			const {before, message} = this.stack[this.stackIndex];
+			this.stackIndex--;
+			this.document.change(before, {message: `Undo ${message ?? ''}`});
+		}
+
+		return this;
+	}
+
+	public redo(): this {
+		if (this.canRedo) {
+			this.stackIndex++;
+			const {after, message} = this.stack[this.stackIndex];
+			this.document.change(after, {message: `Redo ${message ?? ''}`});
+		}
+
+		return this;
 	}
 }
 

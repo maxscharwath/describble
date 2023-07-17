@@ -7,13 +7,17 @@ export class EmbedTool extends BaseTool {
 	type = 'embed' as const;
 	private url?: string;
 
-	onActivate() {
+	onActivate(config?: {url: string}) {
 		super.onActivate();
-		this.openUrlDialog();
+		if (config) {
+			this.url = config.url;
+		} else {
+			this.openUrlDialog();
+		}
 	}
 
 	onPointerDown = (event: React.PointerEvent) => {
-		if (this.status !== Status.Idle || !this.url) {
+		if (this.status !== Status.Idle || !this.url || event.button !== 0) {
 			return;
 		}
 

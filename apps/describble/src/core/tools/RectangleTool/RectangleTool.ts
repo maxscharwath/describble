@@ -6,7 +6,7 @@ import {Rectangle} from '~core/layers';
 export class RectangleTool extends BaseTool {
 	type = 'rectangle' as const;
 	onPointerDown = (event: React.PointerEvent) => {
-		if (this.status !== Status.Idle) {
+		if (this.status !== Status.Idle || event.button !== 0) {
 			return;
 		}
 

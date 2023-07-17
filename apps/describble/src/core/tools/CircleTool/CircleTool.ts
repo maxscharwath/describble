@@ -6,7 +6,7 @@ import {BaseTool, Status} from '../BaseTool';
 export class CircleTool extends BaseTool {
 	type = 'circle' as const;
 	onPointerDown = (event: React.PointerEvent) => {
-		if (this.status !== Status.Idle) {
+		if (this.status !== Status.Idle || event.button !== 0) {
 			return;
 		}
 

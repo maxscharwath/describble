@@ -29,6 +29,12 @@
   "document": {
     "title": "Document n°{{index}}"
   },
+  "embed": {
+    "add": "Ajoutez ceci!",
+    "input": "Collez un lien ici",
+    "invalid": "Oh non! Ce lien semble avoir pris un mauvais tournant à la jonction internet!",
+    "title": "Incorporons un lien!"
+  },
   "error": {
     "failed_to_fetch_document": "Échec de la récupération du document",
     "internal": {
