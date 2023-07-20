@@ -4,17 +4,26 @@ import {type StorageProvider} from './StorageProvider';
 import {glob} from 'glob';
 import {type DocumentId} from '../types';
 
+/**
+ * NodeFileStorageProvider class implements the StorageProvider interface using Node.js filesystem (fs).
+ * This class provides the same functionalities of adding, retrieving, and removing documents, snapshots, and chunks.
+ * It also handles namespace by organizing them into directories.
+ */
 export class NodeFileStorageProvider implements StorageProvider {
-	constructor(private readonly rootDir: string) {
+	/**
+	 * Constructs a new NodeFileStorageProvider.
+	 * @param rootDir - The root directory for storing files.
+	 */
+	public constructor(private readonly rootDir: string) {
 	}
 
-	async saveDocumentHeader(namespace: string, documentId: DocumentId, header: Uint8Array): Promise<void> {
+	public async saveDocumentHeader(namespace: string, documentId: DocumentId, header: Uint8Array): Promise<void> {
 		const dir = this.getDir(namespace);
 		const filePath = path.join(dir, `${documentId}.header`);
 		fs.writeFileSync(filePath, header);
 	}
 
-	async removeSnapshot(namespace: string, documentId: DocumentId): Promise<void> {
+	public async removeSnapshot(namespace: string, documentId: DocumentId): Promise<void> {
 		const dir = this.getDir(namespace);
 		const filePath = path.join(dir, `${documentId}.snapshot`);
 		if (fs.existsSync(filePath)) {
@@ -22,7 +31,7 @@ export class NodeFileStorageProvider implements StorageProvider {
 		}
 	}
 
-	async getDocumentHeader(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
+	public async getDocumentHeader(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
 		const dir = this.getDir(namespace);
 		const filePath = path.join(dir, `${documentId}.header`);
 		if (fs.existsSync(filePath)) {
@@ -32,13 +41,13 @@ export class NodeFileStorageProvider implements StorageProvider {
 		return undefined;
 	}
 
-	async listDocuments(namespace: string): Promise<DocumentId[]> {
+	public async listDocuments(namespace: string): Promise<DocumentId[]> {
 		const dir = this.getDir(namespace);
 		const files = await glob(`${dir}/*.header`);
 		return files.map(file => path.basename(file, '.header'));
 	}
 
-	async getChunks(namespace: string, documentId: DocumentId): Promise<Uint8Array[]> {
+	public async getChunks(namespace: string, documentId: DocumentId): Promise<Uint8Array[]> {
 		const dir = this.getDir(namespace);
 		const filePath = path.join(dir, `${documentId}.chunks`);
 		if (!fs.existsSync(filePath)) {
@@ -61,7 +70,7 @@ export class NodeFileStorageProvider implements StorageProvider {
 		return chunks;
 	}
 
-	async getSnapshot(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
+	public async getSnapshot(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
 		const dir = this.getDir(namespace);
 		const filePath = path.join(dir, `${documentId}.snapshot`);
 		if (fs.existsSync(filePath)) {
@@ -71,7 +80,7 @@ export class NodeFileStorageProvider implements StorageProvider {
 		return undefined;
 	}
 
-	async removeDocument(namespace: string, documentId: DocumentId): Promise<void> {
+	public async removeDocument(namespace: string, documentId: DocumentId): Promise<void> {
 		const dir = this.getDir(namespace);
 		const headerPath = path.join(dir, `${documentId}.header`);
 		const chunksPath = path.join(dir, `${documentId}.chunks`);
@@ -90,7 +99,7 @@ export class NodeFileStorageProvider implements StorageProvider {
 		}
 	}
 
-	async saveChunk(namespace: string, documentId: DocumentId, chunk: Uint8Array, _index: number): Promise<void> {
+	public async saveChunk(namespace: string, documentId: DocumentId, chunk: Uint8Array, _index: number): Promise<void> {
 		const dir = this.getDir(namespace);
 		const filePath = path.join(dir, `${documentId}.chunks`);
 
@@ -100,7 +109,7 @@ export class NodeFileStorageProvider implements StorageProvider {
 		fs.appendFileSync(filePath, Buffer.concat([chunkSizeBuffer, chunk]));
 	}
 
-	async saveSnapshot(namespace: string, documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {
+	public async saveSnapshot(namespace: string, documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {
 		const dir = this.getDir(namespace);
 		const filePath = path.join(dir, `${documentId}.snapshot`);
 		fs.writeFileSync(filePath, binary);
@@ -112,7 +121,14 @@ export class NodeFileStorageProvider implements StorageProvider {
 		}
 	}
 
+	/**
+	 * This method retrieves the directory path for a specific namespace.
+	 * If the directory doesn't exist, it creates one.
+	 * @param namespace - The namespace for which to get the directory.
+	 * @returns The directory path as a string.
+	 */
 	private getDir(namespace: string): string {
+		// Sanitize the namespace to remove any non-alphanumeric characters
 		const sanitizedNamespace = namespace.replace(/[^a-z0-9]/gi, '_');
 		const dir = path.join(this.rootDir, sanitizedNamespace);
 		if (!fs.existsSync(dir)) {

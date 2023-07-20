@@ -19,7 +19,7 @@ export class ClientAuthenticator extends Authenticator {
    * @param connection - The connection object representing the client's connection.
    * @returns - A promise that resolves to the connection if authentication is successful.
    */
-	async authenticate(connection: Connection): Promise<Connection> {
+	public async authenticate(connection: Connection): Promise<Connection> {
 		return new Promise((resolve, reject) => {
 			const handleClose = connection.once('close');
 

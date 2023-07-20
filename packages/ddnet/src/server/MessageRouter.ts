@@ -13,7 +13,7 @@ export class MessageRouter {
    * @param registry - ConnectionRegistry instance to store and retrieve connections.
    * @param network - Network instance to handle communication tasks.
    */
-	constructor(
+	public constructor(
 		private readonly registry: ConnectionRegistry,
 		private readonly network: Network,
 	) {}

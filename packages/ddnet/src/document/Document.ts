@@ -13,6 +13,7 @@ type DocumentEvent<TData> = {
 	'patch': {document: Document<TData>; patches: A.Patch[]; before: A.Doc<TData>; after: A.Doc<TData>};
 	'change': {document: Document<TData>; data: A.Doc<TData>};
 	'header-updated': {document: Document<TData>; header: DocumentHeader};
+	'destroyed': {document: Document<TData>};
 };
 
 /**
@@ -23,6 +24,8 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	#document: A.Doc<TData>;
 	readonly #id: DocumentId;
 	#header: DocumentHeader;
+	#lastAccessed: number = Date.now();
+	#destroyed = false;
 
 	protected constructor(header: DocumentHeader) {
 		super();
@@ -42,6 +45,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	 * @param binary - The binary data.
 	 */
 	public load(binary: Uint8Array) {
+		this.updateLastAccessed();
 		this.#document = A.loadIncremental(this.#document, binary);
 	}
 
@@ -51,6 +55,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	 * @returns - The updated document.
 	 */
 	public update(callback: (document: A.Doc<TData>) => A.Doc<TData>) {
+		this.updateLastAccessed();
 		const newDocument = callback(this.#document);
 		if (this.hasChanged(newDocument)) {
 			void this.emit('change', {document: this, data: newDocument});
@@ -86,11 +91,13 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 
 	// Getter for document data
 	public get data() {
+		this.updateLastAccessed();
 		return this.#document;
 	}
 
 	// Getter for document header
 	public get header() {
+		this.updateLastAccessed();
 		return this.#header;
 	}
 
@@ -133,6 +140,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	 */
 	public updateHeader(header: DocumentHeader) {
 		try {
+			this.updateLastAccessed();
 			this.#header = DocumentHeader.upgrade(this.#header, header);
 			void this.emit('header-updated', {document: this, header: this.#header});
 			return true;
@@ -152,6 +160,25 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	}
 
 	/**
+	 * Destroys the document.
+	 */
+	public async destroy() {
+		this.#destroyed = true;
+		await this.emit('destroyed', {document: this});
+		this.clearListeners();
+	}
+
+	// Getter for last accessed timestamp
+	public get lastAccessed() {
+		return this.#lastAccessed;
+	}
+
+	// Getter for destroyed
+	public get destroyed() {
+		return this.#destroyed;
+	}
+
+	/**
 	 * Checks if a document has changed by comparing the heads of the current and the new document.
 	 * @param document - The new document.
 	 * @returns - True if the document has changed, false otherwise.
@@ -160,6 +187,13 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 		const aHeads = A.getHeads(this.#document);
 		const bHeads = A.getHeads(document);
 		return !(aHeads.length === bHeads.length && aHeads.every((head: string) => bHeads.includes(head)));
+	}
+
+	/**
+	 * Updates the last accessed timestamp to the current time.
+	 */
+	private updateLastAccessed() {
+		this.#lastAccessed = Date.now();
 	}
 
 	/**

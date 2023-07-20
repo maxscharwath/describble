@@ -21,13 +21,13 @@ export abstract class Network extends Emittery<NetworkEvents> {
    * Start listening for connections.
    * This method should be implemented by subclasses.
    */
-	abstract listen(): Promise<void>;
+	public abstract listen(): Promise<void>;
 
 	/**
    * Close the network.
    * This method should be implemented by subclasses.
    */
-	abstract close(): Promise<void>;
+	public abstract close(): Promise<void>;
 
 	/**
    * Send data through a specific connection.
@@ -35,6 +35,6 @@ export abstract class Network extends Emittery<NetworkEvents> {
    * @param connection - The connection through which the data should be sent.
    * @param data - The data to send.
    */
-	abstract send(connection: Connection, data: Uint8Array): void;
+	public abstract send(connection: Connection, data: Uint8Array): void;
 }
 

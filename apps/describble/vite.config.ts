@@ -4,6 +4,7 @@ import wasm from 'vite-plugin-wasm';
 import {fileURLToPath, URL} from 'url';
 import topLevelAwait from 'vite-plugin-top-level-await';
 import {VitePWA as pwa, type VitePWAOptions} from 'vite-plugin-pwa';
+import buildInfo from 'vite-plugin-info';
 
 const pwaConfig = {
 	registerType: 'autoUpdate',
@@ -44,7 +45,7 @@ const pwaConfig = {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [pwa(pwaConfig), splitVendorChunkPlugin(), wasm(), topLevelAwait(), react()],
+	plugins: [pwa(pwaConfig), splitVendorChunkPlugin(), wasm(), topLevelAwait(), react(), buildInfo()],
 	resolve: {
 		alias: [
 			{find: '~core', replacement: fileURLToPath(new URL('./src/core', import.meta.url))},

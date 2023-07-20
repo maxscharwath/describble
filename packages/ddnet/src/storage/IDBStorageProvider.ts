@@ -6,6 +6,9 @@ import {
 } from 'idb/with-async-ittr';
 import {type DocumentId} from '../types';
 
+/**
+ * DDNetDB is the IndexedDB schema for the DDNet namespace.
+ */
 interface DDNetDB extends DBSchema {
 	documents: {
 		key: DocumentId;
@@ -17,20 +20,25 @@ interface DDNetDB extends DBSchema {
 	};
 }
 
+/**
+ * IDBStorageProvider class implements the StorageProvider interface using IndexedDB for persistent storage.
+ * It defines methods to save, remove, and retrieve documents, snapshots, and chunks of data.
+ * Also, it manages databases for different namespaces using the getDB private method.
+ */
 export class IDBStorageProvider implements StorageProvider {
 	private readonly dbPromises = new Map<string, Promise<IDBPDatabase<DDNetDB>>>();
 
-	async saveDocumentHeader(namespace: string, documentId: DocumentId, header: Uint8Array): Promise<void> {
+	public async saveDocumentHeader(namespace: string, documentId: DocumentId, header: Uint8Array): Promise<void> {
 		const db = await this.getDB(namespace);
 		await db.put('documents', header, documentId);
 	}
 
-	async getDocumentHeader(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
+	public async getDocumentHeader(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
 		const db = await this.getDB(namespace);
 		return db.get('documents', documentId);
 	}
 
-	async removeDocument(namespace: string, documentId: DocumentId): Promise<void> {
+	public async removeDocument(namespace: string, documentId: DocumentId): Promise<void> {
 		const db = await this.getDB(namespace);
 		const tx = db.transaction(['documents', 'saves'], 'readwrite');
 		await tx.objectStore('documents').delete(documentId);
@@ -38,17 +46,17 @@ export class IDBStorageProvider implements StorageProvider {
 		await tx.done;
 	}
 
-	async listDocuments(namespace: string): Promise<DocumentId[]> {
+	public async listDocuments(namespace: string): Promise<DocumentId[]> {
 		const db = await this.getDB(namespace);
 		return db.getAllKeys('documents');
 	}
 
-	async saveChunk(namespace: string, documentId: DocumentId, binary: Uint8Array, index: number): Promise<void> {
+	public async saveChunk(namespace: string, documentId: DocumentId, binary: Uint8Array, index: number): Promise<void> {
 		const db = await this.getDB(namespace);
 		await db.put('saves', binary, [documentId, 'incremental', index]);
 	}
 
-	async getChunks(namespace: string, documentId: DocumentId, clear = false): Promise<Uint8Array[]> {
+	public async getChunks(namespace: string, documentId: DocumentId, clear = false): Promise<Uint8Array[]> {
 		const db = await this.getDB(namespace);
 		const keyRange = IDBKeyRange.bound(
 			[documentId, 'incremental'],
@@ -69,7 +77,7 @@ export class IDBStorageProvider implements StorageProvider {
 		return chunks;
 	}
 
-	async saveSnapshot(namespace: string, documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {
+	public async saveSnapshot(namespace: string, documentId: DocumentId, binary: Uint8Array, clearChunks: boolean): Promise<void> {
 		const db = await this.getDB(namespace);
 		const tx = db.transaction('saves', 'readwrite');
 		await tx.store.put(binary, [documentId, 'snapshot']);
@@ -80,16 +88,21 @@ export class IDBStorageProvider implements StorageProvider {
 		await tx.done;
 	}
 
-	async getSnapshot(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
+	public async getSnapshot(namespace: string, documentId: DocumentId): Promise<Uint8Array | undefined> {
 		const db = await this.getDB(namespace);
 		return db.get('saves', [documentId, 'snapshot']);
 	}
 
-	async removeSnapshot(namespace: string, documentId: DocumentId): Promise<void> {
+	public async removeSnapshot(namespace: string, documentId: DocumentId): Promise<void> {
 		const db = await this.getDB(namespace);
 		await db.delete('saves', [documentId, 'snapshot']);
 	}
 
+	/**
+	 * Creates a database object for a particular namespace if it doesn't already exist.
+	 * @param namespace - The name of the namespace for the desired database.
+	 * @returns A Promise resolving with a database object.
+	 */
 	private async getDB(namespace: string): Promise<IDBPDatabase<DDNetDB>> {
 		let dbPromise = this.dbPromises.get(namespace);
 		if (!dbPromise) {

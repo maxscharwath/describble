@@ -9,13 +9,27 @@ interface DDNetKeyDB extends DBSchema {
 	};
 }
 
+/**
+ * KeyManager class provides methods for managing keys stored in IndexedDB.
+ * This class can be used to get private keys, save keys and list all keys.
+ */
 export class KeyManager {
 	private dbPromise?: Promise<IDBPDatabase<DDNetKeyDB>>;
 
-	constructor(private readonly dbName: string) {
+	/**
+	 * Constructs a new KeyManager.
+	 * @param dbName - The name of the IndexedDB database.
+	 */
+	public constructor(private readonly dbName: string) {
 	}
 
-	async getPrivateKey(key: string, secret: Uint8Array | string): Promise<Uint8Array | undefined> {
+	/**
+	 * Returns the decrypted private key associated with the given key from the database.
+	 * @param key - The key to look up in the database.
+	 * @param secret - The secret used to decrypt the private key.
+	 * @returns The decrypted private key.
+	 */
+	public async getPrivateKey(key: string, secret: Uint8Array | string): Promise<Uint8Array | undefined> {
 		const db = await this.db;
 		const encrypted = await db.get('keys', key);
 		if (!encrypted) {
@@ -29,7 +43,13 @@ export class KeyManager {
 		}
 	}
 
-	async saveKey(privateKey: Uint8Array, secret: Uint8Array | string): Promise<string> {
+	/**
+	 * Encrypts and saves the private key in the database and returns the public key.
+	 * @param privateKey - The private key to save.
+	 * @param secret - The secret used to encrypt the private key.
+	 * @returns The public key associated with the private key.
+	 */
+	public async saveKey(privateKey: Uint8Array, secret: Uint8Array | string): Promise<string> {
 		const publicKey = getPublicKey(privateKey);
 		const encrypted = await encryptData(privateKey, secret);
 		const db = await this.db;
@@ -38,11 +58,19 @@ export class KeyManager {
 		return key;
 	}
 
-	async listKeys(): Promise<string[]> {
+	/**
+	 * Returns all keys from the database.
+	 * @returns An array of all keys.
+	 */
+	public async listKeys(): Promise<string[]> {
 		const db = await this.db;
 		return db.getAllKeys('keys');
 	}
 
+	/**
+	 * Returns the IndexedDB database.
+	 * @returns The IndexedDB database.
+	 */
 	private get db(): Promise<IDBPDatabase<DDNetKeyDB>> {
 		if (!this.dbPromise) {
 			this.dbPromise = openDB<DDNetKeyDB>(this.dbName, 1, {
@@ -55,3 +83,4 @@ export class KeyManager {
 		return this.dbPromise;
 	}
 }
+

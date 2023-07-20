@@ -17,10 +17,8 @@
     "generate-pwa-assets": "pwa-assets-generator"
   },
   "dependencies": {
-    "@describble/ddnet": "workspace:*",
-    "moodie": "workspace:*",
-    "ui": "workspace:*",
     "@ctrl/tinycolor": "^3.6.0",
+    "@describble/ddnet": "workspace:*",
     "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.4",
     "@use-gesture/react": "^10.2.27",
@@ -29,6 +27,7 @@
     "i18next": "^23.2.11",
     "i18next-browser-languagedetector": "^7.1.0",
     "idb-keyval": "^6.2.1",
+    "moodie": "workspace:*",
     "nanoid": "^4.0.2",
     "perfect-freehand": "^1.2.0",
     "react": "^18.2.0",
@@ -40,6 +39,8 @@
     "react-virtualized": "^9.22.5",
     "tailwind-merge": "^1.13.2",
     "ts-pattern": "^5.0.1",
+    "ui": "workspace:*",
+    "vite-plugin-info": "^0.4.1",
     "zod": "^3.21.4",
     "zustand": "^4.3.9"
   },

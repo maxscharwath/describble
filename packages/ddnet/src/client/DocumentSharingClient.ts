@@ -173,7 +173,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		}
 	}
 
-	async removeDocument(id: DocumentId) {
+	public async deleteDocument(id: DocumentId) {
 		await Promise.all([
 			super.removeDocument(id),
 			this.storage.remove(id),
@@ -214,6 +214,10 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 			});
 			this.synchronizers.set(document.id, new DocumentSynchronizer(document, this.peerManager));
 			await this.emit(`document-${document.id}`, document);
+		});
+
+		this.on('document-destroyed', async document => {
+			this.synchronizers.get(document.id)?.destroy();
 		});
 
 		// Handle request document messages

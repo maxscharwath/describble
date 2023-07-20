@@ -85,46 +85,46 @@ const docClient = new DocumentSharingClient({
 });
 ```
 
-## Document Access Control
+### Document Access Control
 
 Once you have an instance of `DocumentSharingClient`, you can start creating, fetching, and updating documents.
 
-### Creating a Document
+#### Creating a Document
 You can create a new document using the `createDocument` method.
 It will return a `Document` instance that you can use to perform operations on the document.
 ```ts
 const doc = docClient.createDocument();
 ```
 
-### Finding a document by its ID
+#### Finding a document by its ID
 This fetches a document from the browser's local storage or in memory cache.
 ```ts
 const doc = await docClient.findDocument('document-id');
 ```
 
-### Requesting access to a document by its ID
+#### Requesting access to a document by its ID
 This fetches a document from the network and caches it in the browser's local storage.
 If the document is already cached, it will be returned from the cache, but the network will be queried for any updates.
 ```ts
 const doc = await docClient.requestDocument('document-id');
 ```
 
-### List all documents
+#### List all documents
 This returns a list of all document IDs that are stored in the browser's local storage.
 ```ts
 const docs = await docClient.listDocumentIds();
 ```
 
-### Remove a document
+#### Remove a document
 This removes a document from the browser's local storage.
 ```ts
 const docs = await docClient.removeDocument('document-id');
 ```
 
-## Document Operations
+### Document Operations
 Now that you have a `Document` instance, you can perform operations on it.
 
-### Updating document content
+#### Updating document content
 We are using [Automerge](https://automerge.org/) internally to manage document content.
 You can use the `change` method to update the document content.
 ```ts
@@ -133,13 +133,13 @@ doc.change((data) => {
 });
 ```
 
-### Getting document content
+#### Getting document content
 You can get the document data using the `data` property.
 ```ts
 const data = doc.data;
 ```
 
-### Updating document header
+#### Updating document header
 Each document has a header that contains metadata about the document.
 
 For example, to edit who can access the document, you can do the following:
@@ -183,7 +183,7 @@ doc.on('header-updated', ({document, header}) => {
 });
 ```
 
-## Server
+### Server
 DDNet requires a signaling server to establish connections between clients.
 The server handles the signaling process and forwards messages between clients to establish a WebRTC connection for document exchange.
 
@@ -200,13 +200,13 @@ const server = new SignalingServer({
 server.listen();
 ```
 
-## Presence
+### Presence
 DDnet have a system called `Presence`
 that allows you to send arbitrary data to other connected clients for a specific document scope.
 This is useful for implementing features like cursors, chat, and other collaborative features.
 The data is sent to all connected clients for a specific document, and the data is not persisted.
 
-### Get presence instance
+#### Get presence instance
 You can get an instance of `Presence` using the `getPresence` method on the `DocumentSharingClient` instance.
 ```ts
 const presence = docClient.getPresence('document-id');
@@ -224,7 +224,7 @@ presence.sendPresenceMessage({
 });
 ```
 
-### Listen to presence data
+#### Listen to presence data
 You can listen to presence data using the `on` method.
 ```ts
 presence.on('update', (presenceMap) => {
@@ -243,11 +243,47 @@ We can get the current presence map using the `getPresence` method.
 const presenceMap = presence.getPresence();
 ```
 
-### Stop listening to presence data
+#### Stop listening to presence data
 You can stop listening to presence data using the `stop` method.
 ```ts
 presence.stop();
 ```
+
+## Usage with Vite
+
+Vite is a modern front-end build tool that significantly improves the front-end development experience. It provides features like hot module replacement and efficient lazy loading out of the box.
+
+If you're using DDNet with Vite, you'll need to use a specific configuration since this package uses WebAssembly (wasm).
+
+### Install Required Plugins
+First, you need to install the required Vite plugins. These plugins enable support for WebAssembly and top-level await, respectively. You can install them using npm, yarn, or pnpm. Here's an example using npm:
+```bash
+# Using npm
+$ npm install vite-plugin-wasm vite-plugin-top-level-await
+
+# Using pnpm
+$ pnpm install vite-plugin-wasm vite-plugin-top-level-await
+
+# Using yarn
+$ yarn add vite-plugin-wasm vite-plugin-top-level-await
+```
+
+### Configuration
+Create or modify your `vite.config.js` file and include the `vite-plugin-wasm` and `vite-plugin-top-level-await` as plugins in your configuration:
+```js
+import { defineConfig } from 'vite';
+import wasm from 'vite-plugin-wasm';
+import topLevelAwait from 'vite-plugin-top-level-await';
+
+export default defineConfig({
+  plugins: [wasm(), topLevelAwait()],
+});
+```
+
+This configuration ensures that Vite properly handles the WebAssembly files included in the DDNet package and supports top-level await syntax, which is commonly used with async WebAssembly functions.
+
+With this setup, you should be able to integrate DDNet into your Vite project successfully. If you still encounter issues, please consult the respective plugin documentation or reach out for support.
+
 
 ## Technical Overview
 To understand how DDNet works, please read the [technical overview](./docs/technical-overview.md).

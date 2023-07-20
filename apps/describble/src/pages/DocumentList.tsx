@@ -25,7 +25,7 @@ const useList = () => {
 	return [list, refresh] as const;
 };
 
-export const Root = () => {
+export const DocumentList = () => {
 	const {t} = useTranslation();
 	const app = useWhiteboard();
 	const session = useSession();
@@ -43,27 +43,25 @@ export const Root = () => {
 	};
 
 	return (
-		<div className='flex min-h-screen flex-col px-4 portrait:standalone:pt-14'>
-			<div className='mx-auto flex w-full max-w-7xl grow flex-col items-center'>
-				<div className='navbar rounded-box sticky top-4 z-50 mb-8 bg-base-100/50 shadow-xl backdrop-blur-xl'>
-					<div className='mr-8 flex-1 text-slate-800 dark:text-slate-100'>
-						<DescribbleLogo className='pointer-events-none absolute m-2 h-8 w-auto' textClassName='opacity-0 sm:opacity-100 transition-opacity duration-300 ease-in-out'/>
-					</div>
-					<div className='flex gap-2'>
-						<button className='btn-ghost btn' onClick={handleCreate}>
-							<CloudIcon className='h-6 w-6'/>
-							<span>{t('btn.new_whiteboard')}</span>
-						</button>
-
-						{session && (
-							<button className='btn-ghost btn' onClick={() => navigate('/login')}>
-								<KeyAvatar value={session.base58PublicKey} className='w-6' />
-							</button>
-						)}
-					</div>
+		<div className='mx-auto flex w-full max-w-7xl grow flex-col items-center'>
+			<div className='navbar rounded-box sticky top-4 z-50 mb-8 bg-base-100/50 shadow-xl backdrop-blur-xl'>
+				<div className='mr-8 flex-1 text-slate-800 dark:text-slate-100'>
+					<DescribbleLogo className='pointer-events-none absolute m-2 h-8 w-auto' textClassName='opacity-0 sm:opacity-100 transition-opacity duration-300 ease-in-out'/>
 				</div>
-				<List list={list} onDelete={handleDelete}/>
+				<div className='flex gap-2'>
+					<button className='btn-ghost btn' onClick={handleCreate}>
+						<CloudIcon className='h-6 w-6'/>
+						<span>{t('btn.new_whiteboard')}</span>
+					</button>
+
+					{session && (
+						<button className='btn-ghost btn' onClick={() => navigate('/login')}>
+							<KeyAvatar value={session.base58PublicKey} className='w-6' />
+						</button>
+					)}
+				</div>
 			</div>
+			<List list={list} onDelete={handleDelete}/>
 		</div>
 	);
 };

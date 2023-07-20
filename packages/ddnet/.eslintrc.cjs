@@ -5,5 +5,8 @@ module.exports = {
   parserOptions: {
     tsconfigRootDir: __dirname,
     project: './tsconfig.json',
+  },
+  rules: {
+    "@typescript-eslint/explicit-member-accessibility": "error",
   }
 }

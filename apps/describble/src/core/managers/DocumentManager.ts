@@ -303,7 +303,7 @@ export class DocumentManager {
 	}
 
 	public async delete(id: string) {
-		return this.repo.removeDocument(id);
+		return this.repo.deleteDocument(id);
 	}
 
 	public async list() {

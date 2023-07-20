@@ -1,4 +1,4 @@
-import React, {useMemo, memo} from 'react';
+import React, {memo, useMemo} from 'react';
 import {getLayerUtil, type Layer} from '~core/layers';
 import {type Asset, type SyncedDocument} from '~core/managers';
 import {type Document} from '@describble/ddnet';
@@ -95,8 +95,7 @@ export const toThumbnail = async (app: WhiteboardApp, {documentId, dimension, ca
 
 const renderSvg = async (svgData: string) => new Promise<HTMLImageElement>((resolve, reject) => {
 	const img = new Image();
-	const url = URL.createObjectURL(new Blob([svgData], {type: 'image/svg+xml'}));
-	img.src = url;
+	img.src = URL.createObjectURL(new Blob([svgData], {type: 'image/svg+xml'}));
 	img.onload = () => resolve(img);
 	img.onerror = reject;
 });

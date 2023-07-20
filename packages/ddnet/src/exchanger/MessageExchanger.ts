@@ -41,7 +41,7 @@ export class MessageExchanger<TSchemas extends TypedSchemas> extends Emittery<Me
    * This union schema is used to parse and validate incoming and outgoing messages.
    * @param schemas - A list of zod schemas, where each schema has a discriminated 'type' field.
    */
-	constructor(schemas: TSchemas[]) {
+	public constructor(schemas: TSchemas[]) {
 		super();
 		this.verifier = z.discriminatedUnion('type', schemas as [TSchemas, ...TSchemas[]]);
 	}

@@ -57,8 +57,13 @@ export type DocumentPeers = {
 	onLeave: (callback: (peer: Peer) => void) => UnsubscribeFunction;
 	send: (peer: Peer, data: Uint8Array) => void;
 	broadcast: (data: Uint8Array) => void;
+	disconnect: () => void;
 };
 
+/**
+ * The `PeerManager` class manages the peers connected to a document.
+ * It provides an interface for communication between peers including message exchange and signaling for peer-to-peer connections.
+ */
 export class PeerManager extends Emittery<PeerManagerEvent> {
 	private readonly pendingPeer = new Map<PeerId, Peer>();
 	private readonly documentPeers = new Map<DocumentId, Set<Peer>>();
@@ -66,7 +71,14 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 	private readonly exchanger: MessageExchanger<typeof SignalMessageSchema>;
 	private readonly wrtc?: Wrtc;
 
-	constructor(config: PeerManagerConfig) {
+	/**
+	 * Constructs a new instance of PeerManager.
+	 *
+	 * @param {PeerManagerConfig} config - Configuration for the PeerManager. Includes an exchanger for sending/receiving messages,
+	 * a function for verifying incoming signals (optional), a WebRTC instance for peer connections (optional), and a timeout duration
+	 * (optional, default 10000ms).
+	 */
+	public constructor(config: PeerManagerConfig) {
 		super();
 		this.connectionTimeout = config.timeout ?? 10000;
 		this.exchanger = config.exchanger;
@@ -79,6 +91,15 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 		});
 	}
 
+	/**
+	 * Retrieves peers associated with a particular document. Provides methods for listening to peer data, joining/leaving, and sending/broadcasting data.
+	 *
+	 * @param {DocumentId} documentId - The ID of the document whose peers are to be retrieved.
+	 * @param {ChannelId} channelId - The ID of the channel for sending/receiving data.
+	 * @returns {DocumentPeers} An object containing methods for handling peer-related actions. Includes onData for listening to data sent from peers,
+	 * onJoin for listening to peer joining, onLeave for listening to peer leaving, send for sending data to a specific peer, and broadcast for sending
+	 * data to all peers.
+	 */
 	public getDocumentPeers(documentId: DocumentId, channelId: ChannelId): DocumentPeers {
 		return {
 			onData: (callback: (peer: Peer, data: Uint8Array) => void) => this.on('data', event => {
@@ -102,6 +123,11 @@ export class PeerManager extends Emittery<PeerManagerEvent> {
 			broadcast: (data: Uint8Array) => {
 				this.documentPeers.get(documentId)?.forEach(peer => {
 					peer.connection.send(channelId, data);
+				});
+			},
+			disconnect: () => {
+				this.documentPeers.get(documentId)?.forEach(peer => {
+					this.removePeer(documentId, peer);
 				});
 			},
 		};

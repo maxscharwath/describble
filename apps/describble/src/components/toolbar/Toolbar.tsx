@@ -41,7 +41,7 @@ const colors = {
 const Separator = () => <div className='m-2 h-px w-full rounded-full bg-gray-200 dark:bg-gray-700 sm:h-full sm:w-px'/>;
 
 type ToolButtonProps = {tool: Tools; icon: React.ReactNode; onClick?: (tool: Tools) => void; currentTool?: Tools};
-const ToolButton = (props: ToolButtonProps) => {
+const ToolButton = React.forwardRef<HTMLButtonElement, ToolButtonProps>((props, ref) => {
 	const {tool, icon, onClick, currentTool} = props;
 	const handleButtonClick = React.useCallback(() => {
 		onClick?.(tool);
@@ -49,6 +49,7 @@ const ToolButton = (props: ToolButtonProps) => {
 
 	return (
 		<Button
+			ref={ref}
 			aria-label={`${tool} tool`}
 			active={currentTool === tool}
 			onClick={handleButtonClick}
@@ -56,7 +57,9 @@ const ToolButton = (props: ToolButtonProps) => {
 			{icon}
 		</Button>
 	);
-};
+});
+
+ToolButton.displayName = 'ToolButton';
 
 export const Toolbar = () => {
 	const app = useWhiteboard();

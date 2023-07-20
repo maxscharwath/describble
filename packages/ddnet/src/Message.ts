@@ -20,14 +20,14 @@ export type Message<TData> = {
 const SIGNATURE_LENGTH = 64;
 
 export class InvalidSignatureError extends Error {
-	constructor(message?: string, options?: ErrorOptions) {
+	public constructor(message?: string, options?: ErrorOptions) {
 		super(message, options);
 		this.name = 'InvalidSignatureError';
 	}
 }
 
 export class DecodeError extends Error {
-	constructor(message?: string, options?: ErrorOptions) {
+	public constructor(message?: string, options?: ErrorOptions) {
 		super(message, options);
 		this.name = 'DecodeError';
 	}

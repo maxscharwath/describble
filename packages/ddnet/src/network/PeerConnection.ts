@@ -26,6 +26,10 @@ export type Channel = {
 	onmessage: (callback: (data: Uint8Array) => void) => UnsubscribeFunction;
 };
 
+/**
+ * PeerConnection class extends an Emittery that emits events with a structure described by PeerEvents.
+ * This class is used to manage a WebRTC connection to a peer.
+ */
 export class PeerConnection extends Emittery<PeerEvents> {
 	private readonly chunkSize: number = 16 * 1024; // 16 KB
 	private readonly connection: RTCPeerConnection;
@@ -36,8 +40,13 @@ export class PeerConnection extends Emittery<PeerEvents> {
 		RTCIceCandidate: typeof RTCIceCandidate;
 	};
 
-	constructor({initiator, wrtc}: PeerConfig) {
+	/**
+	 * Constructs a new PeerConnection.
+	 * @param config - The configuration for the peer connection.
+	 */
+	public constructor({initiator, wrtc}: PeerConfig) {
 		super();
+		// Verify and set up the WebRTC environment.
 		if (!wrtc && typeof window === 'undefined') {
 			throw new Error('WebRTC is only supported in browser environment, please provide wrtc');
 		} else if (!wrtc) {
@@ -56,6 +65,8 @@ export class PeerConnection extends Emittery<PeerEvents> {
 				},
 			],
 		});
+
+		// Create the data channel and setup event listeners for it.
 		this.dataChannel = this.connection.createDataChannel('dataChannel', {ordered: true});
 		this.dataChannel.binaryType = 'arraybuffer';
 
@@ -81,29 +92,44 @@ export class PeerConnection extends Emittery<PeerEvents> {
 			});
 		}
 
+		// If this peer is the initiator, start the connection process.
 		if (initiator) {
 			void this.initiateConnection();
 		}
 	}
 
+	/**
+	 * Sends data to the peer through the data channel.
+	 * @param channelId - The channel to send the data through.
+	 * @param data - The data to send.
+	 */
 	public send(channelId: number, data: Uint8Array) {
+		// Check if the data channel is open
 		if (this.dataChannel.readyState !== 'open') {
 			throw new Error('Channel is not open');
 		}
 
+		// Create a buffer to contain the channelId and the data
+		// The first 4 bytes will contain the channelId
 		const buffer = new Uint8Array(data.length + 4);
 		const view = new DataView(buffer.buffer);
 		view.setUint32(0, channelId);
 		buffer.set(data, 4);
 
+		// Calculate the total number of chunks needed to send the buffer
 		const totalChunks = Math.ceil(buffer.length / this.chunkSize);
+
+		// Iterate over each chunk
 		for (let i = 0; i < totalChunks; i++) {
+			// Calculate the start and end index of the chunk
 			const chunkStart = i * this.chunkSize;
 			const chunkEnd = chunkStart + this.chunkSize < buffer.length ? chunkStart + this.chunkSize : buffer.length;
 
+			// Extract the chunk from the buffer
 			const chunk = buffer.subarray(chunkStart, chunkEnd);
 
-			// Prepare header: totalChunks (32-bit Int) + current chunk index (32-bit Int)
+			// Create a header for the chunk
+			// The header contains the total number of chunks and the index of this chunk
 			const header = new Uint8Array(new Uint32Array([totalChunks, i]).buffer);
 
 			// Merge the header and the chunk
@@ -111,10 +137,15 @@ export class PeerConnection extends Emittery<PeerEvents> {
 			chunkWithHeader.set(header);
 			chunkWithHeader.set(chunk, header.length);
 
+			// Send the chunk with its header
 			this.dataChannel.send(chunkWithHeader);
 		}
 	}
 
+	/**
+	 * Signal handling method, to be implemented.
+	 * @param signal - The signal data.
+	 */
 	public async signal(signal: SignalData) {
 		try {
 			if ('sdp' in signal) {
@@ -135,6 +166,9 @@ export class PeerConnection extends Emittery<PeerEvents> {
 		}
 	}
 
+	/**
+	 * Closes the connection and the data channel, then emits a close event and clears listeners.
+	 */
 	public destroy() {
 		this.dataChannel.close();
 		this.connection.close();
@@ -142,6 +176,9 @@ export class PeerConnection extends Emittery<PeerEvents> {
 		this.clearListeners();
 	}
 
+	/**
+	 * Initiates the connection process, to be implemented.
+	 */
 	private async initiateConnection() {
 		try {
 			const offer = await this.connection.createOffer();
@@ -155,28 +192,41 @@ export class PeerConnection extends Emittery<PeerEvents> {
 		}
 	}
 
+	/**
+	 * Sets up the data channel, to be implemented.
+	 */
 	private setupDataChannel() {
+		// Array to temporarily hold received data chunks
 		const buffers = new Array<Uint8Array>();
 		let totalChunks: number | null = null;
 		let receivedChunks = 0;
 
+		// Configure the event listener for the data channel
 		this.connection.ondatachannel = (event: RTCDataChannelEvent) => {
 			event.channel.onmessage = (message: MessageEvent) => {
 				const dataWithHeader = new Uint8Array(message.data as ArrayBuffer);
 
-				// Extract header: totalChunks (32-bit Int) + current chunk index (32-bit Int)
+				// The first 8 bytes of the message are a header that contains
+				// the total number of chunks and the index of the current chunk.
 				const header = new Uint32Array(dataWithHeader.slice(0, 8).buffer);
 				const totalChunksFromHeader = header[0];
 				const chunkIndex = header[1];
 
+				// Store the data chunk in the buffer array at its corresponding index
 				buffers[chunkIndex] = dataWithHeader.slice(8);
 
+				// If this is the first chunk, set the total number of chunks
 				if (totalChunks === null) {
 					totalChunks = totalChunksFromHeader;
 				}
 
+				// Increment the number of received chunks
 				receivedChunks += 1;
 
+				// If all chunks have been received, combine them into a single Uint8Array
+				// Then, parse the channelId and the data from the combined buffer
+				// Finally, emit a 'data' event with the channelId and the data
+				// Reset the state for the next message
 				if (receivedChunks === totalChunks) {
 					const combined = concatBytes(Object.values(buffers));
 					const view = new DataView(combined.buffer);
@@ -184,7 +234,6 @@ export class PeerConnection extends Emittery<PeerEvents> {
 					const data = combined.subarray(4);
 
 					void this.emit('data', {channelId, data});
-					// Reset state for next message
 					totalChunks = null;
 					receivedChunks = 0;
 					buffers.length = 0;

@@ -6,6 +6,7 @@
 body {
     --cursor: auto;
     @apply bg-base-100;
+    overscroll-behavior-y: none;
 }
 
 .whiteboard {

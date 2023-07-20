@@ -5,7 +5,6 @@ This is the core module of the Whiteboard application. It contains essential bui
 ## Folders
 
 - **activities**: Contains activity classes and logic that handle complex interactions within the application. [Read more](./activities/README.md)
-- **commands**: Contains command files for various actions that manipulate the whiteboard state in a consistent and structured way. [Read more](./commands/README.md)
 - **layers**: Contains layer classes and utilities for different types of objects that can be placed and manipulated on the whiteboard application. [Read more](./layers/README.md)
 - **managers**: Contains manager classes responsible for handling specific aspects of the whiteboard application. [Read more](./managers/README.md)
 - **selectors**: Contains selector functions for extracting specific parts of the whiteboard application state. [Read more](./selectors/README.md)
