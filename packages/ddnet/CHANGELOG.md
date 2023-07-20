@@ -1,5 +1,11 @@
 # @describble/ddnet
 
+## 1.0.2
+
+### Patch Changes
+
+- Better documentation, and improve caching system
+
 ## 1.0.1
 
 ### Patch Changes
