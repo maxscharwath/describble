@@ -14,6 +14,7 @@ import {DocumentPresence} from '../presence/DocumentPresence';
 import {SecureStorageProvider} from '../storage/SecureStorageProvider';
 import {fastDecryptData, fastEncryptData} from '../crypto';
 import {type SessionManager} from '../keys/SessionManager';
+import {type Metadata} from '../document/DocumentHeader';
 
 // Configuration type for the document sharing client, which is the same as the signaling client config
 type DocumentSharingClientConfig = SignalingClientConfig & {
@@ -130,13 +131,13 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 	 * @returns A promise that resolves to the requested document.
 	 * @param documentId - The ID of the document to request.
 	 */
-	public async requestDocument<TData>(documentId: DocumentId): Promise<Document<TData>> {
+	public async requestDocument<TData, TMetadata extends Metadata = Metadata>(documentId: DocumentId): Promise<Document<TData, TMetadata>> {
 		void this.exchanger.sendMessage({
 			type: 'request-document',
 			documentId,
 		});
 
-		return Promise.any<Document<TData>>([
+		return Promise.any([
 			this.findDocument<TData>(documentId).then(document => {
 				if (!document) {
 					throw new Error('Document not found');
@@ -152,7 +153,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 					}, 5000);
 				}),
 			]),
-		]);
+		]) as Promise<Document<TData, TMetadata>>;
 	}
 
 	/**
@@ -160,8 +161,8 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 	 * @returns The found document or undefined if the document doesn't exist.
 	 * @param id - The ID of the document to find.
 	 */
-	public async findDocument<TData>(id: DocumentId): Promise<Document<TData> | undefined> {
-		const document = await super.findDocument<TData>(id);
+	public async findDocument<TData, TMetadata extends Metadata = Metadata>(id: DocumentId): Promise<Document<TData, TMetadata> | undefined> {
+		const document = await super.findDocument<TData, TMetadata>(id);
 		if (document) {
 			return document;
 		}
@@ -169,7 +170,7 @@ export class DocumentSharingClient extends DocumentRegistry<DocumentSharingClien
 		const rawHeader = await this.storage.loadHeader(id);
 		if (rawHeader) {
 			const binary = await this.storage.loadBinary(id);
-			return this.setDocument(Document.fromRawHeader(rawHeader, binary));
+			return this.setDocument(Document.fromRawHeader<TData, TMetadata>(rawHeader, binary));
 		}
 	}
 

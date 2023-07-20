@@ -154,7 +154,7 @@ const allowedClients = [
   'qBWVsxpXJHfNShbiKtgWkD6M2KNp35JaPS4Efck39t43'
 ];
 
-const header = document.header.withAllowedClients(allowedClients, privateKey);
+const header = document.header.update({ allowedClients }, privateKey);
 document.updateHeader(header);
 ```
 

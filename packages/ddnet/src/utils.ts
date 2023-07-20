@@ -69,3 +69,61 @@ export class Deferred<T> {
 		});
 	}
 }
+
+/**
+ * The ConcurrencyLimiter class is used to limit the execution of a certain number of tasks at the same time.
+ * If the number of active tasks reaches the maximum limit, the new tasks are added to a queue and will only
+ * start once one of the active tasks completes.
+ */
+export class ConcurrencyLimiter {
+	// A queue to hold tasks that cannot start immediately because we're at the limit
+	private readonly taskQueue: Array<() => void> = [];
+	// The count of active tasks
+	private activeTasks = 0;
+
+	// Create a new concurrency limiter, with the maximum number of concurrent tasks specified
+	public constructor(private readonly maxTasks = 4) {}
+
+	/**
+	 * Execute a task, if we're at the limit of concurrent tasks it will be queued for later execution
+	 *
+	 * @param task The task to execute
+	 * @return A promise that will resolve to the result of the task, or be rejected if the task throws an error
+	 */
+	public async execute<T>(task: () => Promise<T>): Promise<T> {
+		return new Promise((resolve, reject) => {
+			// A wrapper around the task to increase/decrease the count of active tasks and handle the task result
+			const asyncTask = async () => {
+				this.activeTasks++;
+				try {
+					const result = await task();
+					resolve(result);
+				} catch (err) {
+					reject(err);
+				} finally {
+					this.activeTasks--;
+					this.checkQueue();
+				}
+			};
+
+			// If we're below the limit, start the task immediately. Otherwise queue it for later
+			if (this.activeTasks < this.maxTasks) {
+				void asyncTask();
+			} else {
+				this.taskQueue.push(asyncTask);
+			}
+		});
+	}
+
+	/**
+	 * If there are queued tasks and we're below the limit, start the next task from the queue
+	 */
+	private checkQueue() {
+		if (this.taskQueue.length > 0 && this.activeTasks < this.maxTasks) {
+			const nextTask = this.taskQueue.shift();
+			if (nextTask) {
+				nextTask();
+			}
+		}
+	}
+}

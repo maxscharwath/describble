@@ -70,3 +70,55 @@ export const getCanvasBounds = (bounds: Bounds, {x, y, zoom}: Camera) => ({
 	width: bounds.width / zoom,
 	height: bounds.height / zoom,
 });
+
+export const generateWhiteboardName = () => {
+	const adjectives = [
+		'Wonderful',
+		'Amazing',
+		'Stunning',
+		'Remarkable',
+		'Marvelous',
+		'Fantastic',
+		'Incredible',
+		'Magnificent',
+		'Breathtaking',
+		'Astonishing',
+		'Epic',
+		'Unbelievable',
+		'Spectacular',
+		'Majestic',
+		'Impressive',
+		'Inspirational',
+		'Enchanting',
+		'Phenomenal',
+		'Extraordinary',
+		'Spellbinding',
+	];
+	const nouns = [
+		'Drawing',
+		'Sketch',
+		'Design',
+		'Illustration',
+		'Doodle',
+		'Artwork',
+		'Masterpiece',
+		'Creation',
+		'Composition',
+		'Blueprint',
+		'Diagram',
+		'Image',
+		'Model',
+		'Outline',
+		'Draft',
+		'Scheme',
+		'Rendering',
+		'Portrait',
+		'Picture',
+		'Canvas',
+	];
+
+	const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+	const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+
+	return `My ${randomAdjective} ${randomNoun}`;
+};

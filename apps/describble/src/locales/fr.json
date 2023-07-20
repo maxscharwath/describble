@@ -27,7 +27,8 @@
     "title": "Êtes-vous absolument sûr ?"
   },
   "document": {
-    "title": "Document n°{{index}}"
+    "title": "Document n°{{index}}",
+    "unnamed": "Document sans nom"
   },
   "embed": {
     "add": "Ajoutez ceci!",
@@ -55,6 +56,7 @@
   },
   "input": {
     "add_public_key": "Ajouter une clé publique",
+    "document_name": "Nom du document",
     "placeholder": {
       "confirm_password": "Confirmer le mot de passe",
       "enter_word": "Remplir le mot",
@@ -88,6 +90,7 @@
   "share": {
     "allowed_clients": "Clients autorisés ",
     "header": "Entête",
+    "metadata": "Métadonnées",
     "owner": "Propriétaire",
     "share_settings": "Paramètres de partage"
   },

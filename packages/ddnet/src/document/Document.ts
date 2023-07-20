@@ -1,6 +1,6 @@
 import * as A from '@automerge/automerge';
 import Emittery from 'emittery';
-import {DocumentHeader} from './DocumentHeader';
+import {DocumentHeader, type Metadata} from './DocumentHeader';
 import {createSignature, getPublicKey} from '../crypto';
 import {decode, encode} from 'cbor-x';
 import {type DocumentId} from '../types';
@@ -9,25 +9,25 @@ import {UnauthorizedAccessError, DocumentValidationError} from './errors';
 /**
  * Type representing an event that occurs on a Document.
  */
-type DocumentEvent<TData> = {
-	'patch': {document: Document<TData>; patches: A.Patch[]; before: A.Doc<TData>; after: A.Doc<TData>};
-	'change': {document: Document<TData>; data: A.Doc<TData>};
-	'header-updated': {document: Document<TData>; header: DocumentHeader};
-	'destroyed': {document: Document<TData>};
+type DocumentEvent<TData, TMetadata extends Metadata = Metadata> = {
+	'patch': {document: Document<TData, TMetadata>; patches: A.Patch[]; before: A.Doc<TData>; after: A.Doc<TData>};
+	'change': {document: Document<TData, TMetadata>; data: A.Doc<TData>};
+	'header-updated': {document: Document<TData, TMetadata>; header: DocumentHeader<TMetadata>};
+	'destroyed': {document: Document<TData, TMetadata>};
 };
 
 /**
  * Class representing a Document with generic data type TData.
  * It extends Emittery to emit and handle events.
  */
-export class Document<TData> extends Emittery<DocumentEvent<TData>> {
+export class Document<TData, TMetadata extends Metadata = Metadata> extends Emittery<DocumentEvent<TData, TMetadata>> {
 	#document: A.Doc<TData>;
 	readonly #id: DocumentId;
-	#header: DocumentHeader;
+	#header: DocumentHeader<TMetadata>;
 	#lastAccessed: number = Date.now();
 	#destroyed = false;
 
-	protected constructor(header: DocumentHeader) {
+	protected constructor(header: DocumentHeader<TMetadata>) {
 		super();
 		this.#header = header;
 		this.#id = this.#header.address.base58;
@@ -46,7 +46,11 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	 */
 	public load(binary: Uint8Array) {
 		this.updateLastAccessed();
-		this.#document = A.loadIncremental(this.#document, binary);
+		try {
+			this.#document = A.loadIncremental(this.#document, binary);
+		} catch (cause) {
+			throw new Error('Failed to load Document', {cause});
+		}
 	}
 
 	/**
@@ -128,7 +132,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	 * @returns - The cloned document.
 	 */
 	public clone() {
-		const document = new Document<TData>(this.#header);
+		const document = new Document<TData, TMetadata>(this.#header);
 		document.#document = A.clone(this.#document);
 		return document;
 	}
@@ -138,7 +142,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	 * @param header - The new header.
 	 * @returns - True if header updated successfully, false otherwise.
 	 */
-	public updateHeader(header: DocumentHeader) {
+	public updateHeader(header: DocumentHeader<TMetadata>) {
 		try {
 			this.updateLastAccessed();
 			this.#header = DocumentHeader.upgrade(this.#header, header);
@@ -153,7 +157,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	 * Merges another document into this one, updating header and data.
 	 * @param document - The document to be merged.
 	 */
-	public mergeDocument(document: Document<TData>) {
+	public mergeDocument(document: Document<TData, TMetadata>) {
 		if (this.updateHeader(document.#header)) {
 			this.update(doc => A.merge(doc, A.clone(document.#document)));
 		}
@@ -202,7 +206,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	 * @throws {DocumentValidationError} - Throws when document signature is invalid.
 	 * @returns - The imported document.
 	 */
-	public static import<TData>(rawDocument: Uint8Array): Document<TData> {
+	public static import<TData, TMetadata extends Metadata = Metadata>(rawDocument: Uint8Array): Document<TData, TMetadata> {
 		const {header: rawHeader, content, signature} = decode(rawDocument) as {header: Uint8Array; content: Uint8Array; signature: Uint8Array};
 		const header = DocumentHeader.import(rawHeader);
 
@@ -210,7 +214,7 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 			throw new DocumentValidationError('Invalid document signature.');
 		}
 
-		return Document.fromRawHeader<TData>(rawHeader, content);
+		return Document.fromRawHeader<TData, TMetadata>(rawHeader, content);
 	}
 
 	/**
@@ -219,8 +223,8 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	 * @param content - The content.
 	 * @returns - The created Document object.
 	 */
-	public static fromRawHeader<TData>(rawHeader: Uint8Array, content: Uint8Array): Document<TData> {
-		const document = new Document<TData>(DocumentHeader.import(rawHeader));
+	public static fromRawHeader<TData, TMetadata extends Metadata = Metadata>(rawHeader: Uint8Array, content: Uint8Array): Document<TData, TMetadata> {
+		const document = new Document<TData, TMetadata>(DocumentHeader.import(rawHeader));
 		document.load(content);
 		return document;
 	}
@@ -229,9 +233,10 @@ export class Document<TData> extends Emittery<DocumentEvent<TData>> {
 	 * Creates a new Document object.
 	 * @param privateKey - The private key.
 	 * @param allowedClients - The allowed clients.
+	 * @param metadata - The metadata.
 	 */
-	public static create<TData>(privateKey: Uint8Array, allowedClients: Uint8Array[] = []): Document<TData> {
-		const header = DocumentHeader.create(privateKey, allowedClients);
+	public static create<TData, TMetadata extends Metadata>(privateKey: Uint8Array, allowedClients: Uint8Array[] = [], metadata = {} as TMetadata): Document<TData, TMetadata> {
+		const header = DocumentHeader.create(privateKey, allowedClients, metadata);
 		return new Document(header);
 	}
 }

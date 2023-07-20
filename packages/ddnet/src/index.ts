@@ -5,6 +5,7 @@ export {SessionManager, type KeySession} from './keys/SessionManager';
 export {KeyManager} from './keys/KeyManager';
 export {ServiceWorkerCache} from './keys/ServiceWorkerCache';
 export {type Document} from './document/Document';
+export {type DocumentHeader} from './document/DocumentHeader';
 export {type DocumentPresence} from './presence/DocumentPresence';
 export * from './crypto';
 export type * as A from '@automerge/automerge';

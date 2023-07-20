@@ -1,22 +1,20 @@
 import {decode, encode} from 'cbor-x';
-import {
-	concatBytes,
-	createSignature,
-	getPublicKey,
-	sha256Some,
-	bytesEquals,
-	verifySignature,
-	validatePublicKey,
-} from '../crypto';
+import {concatBytes, createSignature, getPublicKey, sha256Some, bytesEquals, verifySignature, validatePublicKey} from '../crypto';
 import {v4 as uuidv4} from 'uuid';
 import {base58} from '@describble/base-x';
 import {UnauthorizedAccessError, DocumentValidationError} from './errors';
 
-/** Define the shape of the document header data */
-export type DocumentHeaderData = {id: Uint8Array; owner: Uint8Array; allowedClients: Uint8Array[]; version: number};
+export type DocumentHeaderData<TMetadata extends Metadata = Metadata> = {
+	id: Uint8Array;
+	owner: Uint8Array;
+	allowedClients: Uint8Array[];
+	version: number;
+	metadata: TMetadata;
+};
 
-/** Define a type for keys, which could be either Uint8Array or a string */
 type Key = Uint8Array | string;
+
+export type Metadata = Record<string, unknown>;
 
 /**
  * Helper function to convert a key to Uint8Array if it's a string.
@@ -25,70 +23,89 @@ type Key = Uint8Array | string;
  */
 const toUint8Array = (value: Key) => typeof value === 'string' ? base58.decode(value) : value;
 
-/** Class representing a Document Header */
-export class DocumentHeader {
-	readonly #data: DocumentHeaderData;
+/**
+ * Helper function to validate and convert array of client keys.
+ * @param allowedClientKeys - The array of allowed client keys
+ * @returns The array of valid client keys in Uint8Array format
+ */
+const prepareAllowedClients = (allowedClientKeys: Key[]): Uint8Array[] => allowedClientKeys.reduce<Uint8Array[]>((acc, client) => {
+	const publicKey = toUint8Array(client);
+	if (validatePublicKey(publicKey) && acc.findIndex(c => bytesEquals(c, publicKey)) === -1) {
+		acc.push(publicKey);
+	}
+
+	return acc;
+}, []);
+
+/**
+ * DocumentHeader represents the header of a document.
+ * It contains data such as the document ID, the document owner, allowed clients, the version, and metadata.
+ */
+export class DocumentHeader<TMetadata extends Metadata = Metadata> {
+	public readonly address: {bytes: Uint8Array; base58: string};
+	public readonly id: Uint8Array;
+	public readonly owner: {bytes: Uint8Array; base58: string};
+	public readonly allowedClients: ReadonlyArray<{base58: string; bytes: Uint8Array}>;
+	public readonly version: number;
+	public readonly signature: {bytes: Uint8Array; base58: string};
+	public readonly metadata: TMetadata;
+
+	readonly #data: DocumentHeaderData<TMetadata>;
 	readonly #signature: Uint8Array;
 	readonly #address: Uint8Array;
 
-	/**
-	 * DocumentHeader constructor.
-	 * @param data - The document header data
-	 * @param signature - The signature for the document header
-	 * @throws {DocumentValidationError} When the document header signature is invalid
-	 */
-	private constructor(data: DocumentHeaderData, signature: Uint8Array) {
-		if (!verifySignature(encode(data), signature, data.owner)) {
-			throw new DocumentValidationError('Invalid document header signature.');
-		}
-
+	private constructor(data: DocumentHeaderData<TMetadata>, signature: Uint8Array) {
 		this.#data = data;
 		this.#address = sha256Some(this.#data.id, this.#data.owner);
 		this.#signature = signature;
-	}
 
-	/**
-	 * Creates a new DocumentHeader with the provided allowed client keys.
-	 * @param allowedClientKeys - An array of allowed client keys
-	 * @param privateKey - The private key of the owner
-	 * @returns A new DocumentHeader instance with the updated allowed clients
-	 * @throws {UnauthorizedAccessError} When the private key provided does not match the document owner's key
-	 */
-	public withAllowedClients(allowedClientKeys: Key[], privateKey: Key): DocumentHeader {
-		privateKey = toUint8Array(privateKey);
-
-		if (!bytesEquals(getPublicKey(privateKey), this.#data.owner) || !verifySignature(encode(this.#data), this.#signature, this.#data.owner)) {
-			throw new UnauthorizedAccessError('Only the document owner can update the allowed users list.');
+		if (!verifySignature(encode(data), this.#signature, data.owner)) {
+			throw new DocumentValidationError('Invalid document header signature.');
 		}
 
-		// Build a new list of allowed clients, validating each client key
-		const allowedClients = allowedClientKeys.reduce<Uint8Array[]>((acc, client) => {
-			const publicKey = toUint8Array(client);
-			if (validatePublicKey(publicKey) && acc.findIndex(c => bytesEquals(c, publicKey)) === -1) {
-				acc.push(publicKey);
-			}
-
-			return acc;
-		}, []);
-
-		// Create a new DocumentHeaderData with the new allowed clients list and an incremented version
-		const data: DocumentHeaderData = {
-			...this.#data,
-			allowedClients,
-			version: this.#data.version + 1,
-		};
-
-		// Create a new signature for the updated data
-		const signature = createSignature(encode(data), privateKey);
-
-		// Return a new DocumentHeader instance with the updated data and signature
-		return new DocumentHeader(data, signature);
+		// Compute these fields in the constructor and freeze the objects
+		this.address = Object.freeze({
+			bytes: new Uint8Array(this.#address),
+			base58: base58.encode(this.#address),
+		});
+		this.id = new Uint8Array(this.#data.id);
+		this.owner = Object.freeze({
+			bytes: new Uint8Array(this.#data.owner),
+			base58: base58.encode(this.#data.owner),
+		});
+		this.allowedClients = Object.freeze(this.#data.allowedClients.map(client => ({
+			bytes: new Uint8Array(client),
+			base58: base58.encode(client),
+		})));
+		this.version = this.#data.version;
+		this.signature = Object.freeze({
+			bytes: new Uint8Array(this.#signature),
+			base58: base58.encode(this.#signature),
+		});
+		this.metadata = Object.freeze(this.#data.metadata ?? {}) as TMetadata;
+		Object.freeze(this);
 	}
 
 	/**
-	 * Checks if a user is allowed to access the document.
+	 * Creates a new DocumentHeader with the provided metadata and allowed clients.
+	 * @param options - The options for the document header.
+	 * @param privateKey - The private key of the document owner
+	 */
+	public update(options: Partial<{metadata: TMetadata; allowedClientKeys: Key[]}>, privateKey: Key): DocumentHeader<TMetadata> {
+		this.verifyOwnerPrivateKey(toUint8Array(privateKey));
+		const data: DocumentHeaderData<TMetadata> = {
+			...this.#data,
+			allowedClients: prepareAllowedClients(options.allowedClientKeys ?? this.#data.allowedClients),
+			metadata: options.metadata ?? this.#data.metadata,
+			version: this.#data.version + 1,
+		};
+		const signature = createSignature(encode(data), toUint8Array(privateKey));
+		return new DocumentHeader<TMetadata>(data, signature);
+	}
+
+	/**
+	 * Checks if a user is allowed to access this document.
 	 * @param publicKey - The public key of the user
-	 * @returns true if the user is allowed, false otherwise
 	 */
 	public hasAllowedUser(publicKey: Key): boolean {
 		const key = toUint8Array(publicKey);
@@ -96,144 +113,91 @@ export class DocumentHeader {
 	}
 
 	/**
-	 * Getter for the document address.
-	 * @returns An object containing the address as bytes and as a base58 string
-	 */
-	public get address(): {bytes: Uint8Array; base58: string} {
-		return {
-			bytes: new Uint8Array(this.#address),
-			base58: base58.encode(this.#address),
-		};
-	}
-
-	/**
-	 * Getter for the document ID.
-	 * @returns The document ID as a Uint8Array
-	 */
-	public get id(): Uint8Array {
-		return new Uint8Array(this.#data.id);
-	}
-
-	/**
-	 * Getter for the document owner.
-	 * @returns An object containing the owner's public key as bytes and as a base58 string
-	 */
-	public get owner(): {bytes: Uint8Array; base58: string} {
-		return {
-			bytes: new Uint8Array(this.#data.owner),
-			base58: base58.encode(this.#data.owner),
-		};
-	}
-
-	/**
-	 * Getter for the document's allowed clients.
-	 * @returns An array of objects, each containing a client's public key as bytes and as a base58 string
-	 */
-	public get allowedClients(): Array<{bytes: Uint8Array; base58: string}> {
-		return this.#data.allowedClients.map(client => ({
-			bytes: new Uint8Array(client),
-			base58: base58.encode(client),
-		}));
-	}
-
-	/**
-	 * Getter for the document's version.
-	 * @returns The version of the document
-	 */
-	public get version(): number {
-		return this.#data.version;
-	}
-
-	/**
-	 * Getter for the document's signature.
-	 * @returns An object containing the signature as bytes and as a base58 string
-	 */
-	public get signature(): {bytes: Uint8Array; base58: string} {
-		return {
-			bytes: new Uint8Array(this.#signature),
-			base58: base58.encode(this.#signature),
-		};
-	}
-
-	/**
-	 * Verifies the signature of the provided content with the document owner's public key.
-	 * @param content - The content to verify
-	 * @param signature - The signature to verify
-	 * @returns true if the signature is valid, false otherwise
+	 * Verifies the signature of a content.
+	 * @param content - The content to verify the signature of
+	 * @param signature - The signature of the content
 	 */
 	public verifySignature(content: Uint8Array, signature: Uint8Array): boolean {
 		return verifySignature(content, signature, this.#data.owner) || this.#data.allowedClients.some(client => verifySignature(content, signature, client));
 	}
 
 	/**
-	 * Exports the document header.
-	 * @returns The document header as a Uint8Array
-	 * @throws {DocumentValidationError} When the document header signature is invalid
+	 * Exports the DocumentHeader as a Uint8Array.
 	 */
 	public export(): Uint8Array {
 		const data = encode(this.#data);
-		if (!verifySignature(data, this.#signature, this.#data.owner)) {
+		if (!verifySignature(data, this.signature.bytes, this.#data.owner)) {
 			throw new DocumentValidationError('Invalid document header signature.');
 		}
 
-		// Return the signature followed by the data
-		return concatBytes([this.#signature, data]);
+		return concatBytes([this.signature.bytes, data]);
 	}
 
 	/**
-	 * Creates a new DocumentHeader.
+	 * Helper function to verify the owner's private key.
 	 * @param privateKey - The private key of the document owner
-	 * @param allowedClientKeys - An array of allowed client keys
-	 * @returns A new DocumentHeader instance
+	 * @throws {UnauthorizedAccessError} When the private key provided does not match the document owner's key
 	 */
-	public static create(privateKey: Key, allowedClientKeys: Key[] = []): DocumentHeader {
-		privateKey = toUint8Array(privateKey);
-		const publicKey = getPublicKey(privateKey);
+	private verifyOwnerPrivateKey(privateKey: Uint8Array) {
+		if (!bytesEquals(getPublicKey(privateKey), this.#data.owner) || !verifySignature(encode(this.#data), this.#signature, this.#data.owner)) {
+			throw new UnauthorizedAccessError('Only the document owner can update.');
+		}
+	}
 
-		// Build a new list of allowed clients, validating each client key
-		const allowedClients = allowedClientKeys.reduce<Uint8Array[]>((acc, client) => {
-			const key = toUint8Array(client);
-			if (validatePublicKey(key) && acc.findIndex(c => bytesEquals(c, key)) === -1) {
-				acc.push(key);
-			}
-
-			return acc;
-		}, []);
-
-		// Create a new DocumentHeaderData with a generated UUID as the id
-		const data: DocumentHeaderData = {
+	/**
+	 * Creates a new instance of DocumentHeader with the provided private key, allowed clients and metadata
+	 * @param privateKey - The private key of the document owner
+	 * @param allowedClientKeys - The array of allowed client keys
+	 * @param metadata - The metadata of the document
+	 */
+	public static create<TMetadata extends Metadata = Metadata>(privateKey: Key, allowedClientKeys: Key[] = [], metadata = {} as TMetadata): DocumentHeader<TMetadata> {
+		const publicKey = getPublicKey(toUint8Array(privateKey));
+		const data: DocumentHeaderData<TMetadata> = {
 			id: uuidv4({}, new Uint8Array(16)),
 			owner: publicKey,
-			allowedClients,
+			allowedClients: prepareAllowedClients(allowedClientKeys),
 			version: 1,
+			metadata,
 		};
-
-		// Create a new signature for the data
-		const signature = createSignature(encode(data), privateKey);
-
-		// Return a new DocumentHeader instance
-		return new DocumentHeader(data, signature);
+		const signature = createSignature(encode(data), toUint8Array(privateKey));
+		return new DocumentHeader<TMetadata>(data, signature);
 	}
 
 	/**
-	 * Imports a DocumentHeader from a Uint8Array.
-	 * @param rawData - The raw data to import from
-	 * @returns A new DocumentHeader instance
-	 * @throws {DocumentValidationError} When the document header signature is invalid
+	 * Constructs a DocumentHeader instance from the binary data.
+	 * @param binary The binary data to create the document header with.
+	 * @returns The newly created DocumentHeader instance.
 	 */
-	public static import(rawData: Uint8Array): DocumentHeader {
-		// Slice the rawData into signature and data parts
-		const signature = rawData.slice(0, 64);
-		const data = decode(rawData.slice(64)) as DocumentHeaderData;
+	public static import<TMetadata extends Metadata = Metadata>(binary: Uint8Array): DocumentHeader<TMetadata> {
+		const signature = binary.slice(0, 64);
+		const data = decode(binary.slice(64)) as DocumentHeaderData<TMetadata>;
 
-		// Return a new DocumentHeader with the parsed data and signature
-		return new DocumentHeader(data, signature);
+		return new DocumentHeader<TMetadata>(data, signature);
 	}
 
 	/**
-	 * Checks if a new header is compatible with an old header.
-	 * @param oldHeader - The old header
-	 * @param newHeader - The new header
+	 * Upgrades a DocumentHeader to a new version.
+	 * @param oldHeader - The old version of the DocumentHeader
+	 * @param newHeader - The new version of the DocumentHeader
+	 */
+	public static upgrade<TMetadata extends Metadata = Metadata>(oldHeader: DocumentHeader<TMetadata>, newHeader: DocumentHeader<TMetadata>): DocumentHeader<TMetadata> {
+		const error = DocumentHeader.isCompatible(oldHeader, newHeader);
+		if (error) {
+			throw new DocumentValidationError(error);
+		}
+
+		if (newHeader.version === oldHeader.version) {
+			return newHeader;
+		}
+
+		// Return a new DocumentHeader instance with the new data and signature
+		return new DocumentHeader(newHeader.#data, newHeader.#signature);
+	}
+
+	/**
+	 * Checks if the oldHeader and newHeader are compatible.
+	 * @param oldHeader - The old version of the DocumentHeader
+	 * @param newHeader - The new version of the DocumentHeader
 	 */
 	public static isCompatible(oldHeader: DocumentHeader, newHeader: DocumentHeader): string | null {
 		// Ensure the old and new headers have the same owner
@@ -257,26 +221,5 @@ export class DocumentHeader {
 		}
 
 		return null;
-	}
-
-	/**
-	 * Upgrade the document header to a new version.
-	 * @param oldHeader - The old document header
-	 * @param newHeader - The new document header
-	 * @returns A new DocumentHeader instance
-	 * @throws {DocumentValidationError} When the document header validation checks fail
-	 */
-	public static upgrade(oldHeader: DocumentHeader, newHeader: DocumentHeader): DocumentHeader {
-		const error = DocumentHeader.isCompatible(oldHeader, newHeader);
-		if (error) {
-			throw new DocumentValidationError(error);
-		}
-
-		if (newHeader.version === oldHeader.version) {
-			return newHeader;
-		}
-
-		// Return a new DocumentHeader instance with the new data and signature
-		return new DocumentHeader(newHeader.#data, newHeader.#signature);
 	}
 }

@@ -1,20 +1,21 @@
-import {useDocument} from '~core/hooks/useDocument';
 import {useSession} from '~core/hooks/useSession';
 import React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import {HashIcon, KeyIcon, ShareIcon, TrashIcon} from 'ui/components/Icons';
 import {KeyAvatar} from '~components/ui/KeyAvatar';
 import {base58, type Document, validatePublicKey} from '@describble/ddnet';
-import {type SyncedDocument} from '~core/managers';
+import {type DocumentMetadata, type SyncedDocument} from '~core/managers';
 import {useTranslation} from 'react-i18next';
 
 const ShareModalContent = ({document}: {
-	document: Document<SyncedDocument>;
+	document: Document<SyncedDocument, DocumentMetadata>;
 }) => {
 	const {t} = useTranslation();
 	const session = useSession();
 	const [publicKey, setPublicKey] = React.useState('');
-	const [allowedClients, setAllowedClients] = React.useState<string[]>(document.header.allowedClients.map(client => client.base58));
+	const [allowedClientKeys, setAllowedClientKeys] = React.useState<string[]>(document.header.allowedClients.map(client => client.base58));
+	const [name, setName] = React.useState(document.header.metadata.name ?? '');
+	const [metadata] = React.useState(Object.entries(document.header.metadata));
 
 	const isValidPublicKey = React.useMemo(() => {
 		try {
@@ -31,16 +32,16 @@ const ShareModalContent = ({document}: {
 	const isOwner = document.header.owner.base58 === session.base58PublicKey;
 
 	const handleAddPublicKey = () => {
-		if (!publicKey || allowedClients.some(client => client === publicKey)) {
+		if (!publicKey || allowedClientKeys.some(client => client === publicKey)) {
 			return;
 		}
 
 		setPublicKey('');
-		setAllowedClients([...allowedClients, publicKey]);
+		setAllowedClientKeys([...allowedClientKeys, publicKey]);
 	};
 
 	const handleRemovePublicKey = (publicKey: string) => {
-		setAllowedClients(prev => prev.filter(client => client !== publicKey));
+		setAllowedClientKeys(prev => prev.filter(client => client !== publicKey));
 	};
 
 	const handleCopy = (text: string) => {
@@ -48,7 +49,13 @@ const ShareModalContent = ({document}: {
 	};
 
 	const handleSave = () => {
-		const header = document.header.withAllowedClients(allowedClients, session.privateKey);
+		const header = document.header.update(
+			{
+				allowedClientKeys,
+				metadata: {...document.header.metadata, name},
+			},
+			session.privateKey,
+		);
 		document.updateHeader(header);
 	};
 
@@ -58,18 +65,28 @@ const ShareModalContent = ({document}: {
 		</Dialog.Title>
 
 		{isOwner && (
-			<div className='form-control'>
-				<div className='join'>
-					<div className='join-item flex h-full items-center justify-center bg-base-300 p-2'>
-						<KeyAvatar value={publicKey} className='w-8'/>
+			<>
+				<div className='form-control'>
+					<div className='join'>
+						<div className='join-item flex h-full items-center justify-center bg-base-300 p-2'>
+							<KeyAvatar value={publicKey} className='w-8'/>
+						</div>
+						<input type='text' className='input-bordered input join-item w-full font-mono text-sm'
+							placeholder={t('input.add_public_key')} value={publicKey} onChange={e => setPublicKey(e.target.value)}/>
+						<button className='btn-square join-item btn' onClick={handleAddPublicKey} disabled={!isValidPublicKey}>
+							<KeyIcon fontSize={20}/>
+						</button>
 					</div>
-					<input type='text' className='input-bordered input join-item w-full font-mono text-sm'
-						placeholder={t('input.add_public_key')} value={publicKey} onChange={e => setPublicKey(e.target.value)}/>
-					<button className='btn-square join-item btn' onClick={handleAddPublicKey} disabled={!isValidPublicKey}>
-						<KeyIcon fontSize={20}/>
-					</button>
 				</div>
-			</div>
+				<div className='form-control'>
+					<div className='join'>
+						<input type='text' className='input-bordered input w-full font-mono text-sm'
+							value={name}
+							placeholder={t('input.document_name')}
+							onChange={e => setName(e.target.value)} />
+					</div>
+				</div>
+			</>
 		)}
 		<ul className='menu rounded-box overflow-hidden bg-base-200'>
 			<li>
@@ -100,6 +117,21 @@ const ShareModalContent = ({document}: {
 								</div>
 							</div>
 						</li>
+						{(metadata.length > 0) && (<li>
+							<details>
+								<summary className='font-bold text-base-content/40'>{t('share.metadata')}</summary>
+								<ul>
+									{metadata.map(([key, value]) => (
+										<li key={key}>
+											<div className='flex items-center justify-between'>
+												<span className='w-1/3 truncate font-bold text-base-content/40'>{key}</span>
+												<span className='w-full truncate font-mono text-xs'>{String(value)}</span>
+											</div>
+										</li>
+									))}
+								</ul>
+							</details>
+						</li>)}
 					</ul>
 				</details>
 			</li>
@@ -116,11 +148,11 @@ const ShareModalContent = ({document}: {
 					</ul>
 				</details>
 			</li>
-			{(allowedClients.length > 0) && (<li>
+			{(allowedClientKeys.length > 0) && (<li>
 				<details open>
 					<summary className='font-bold text-base-content/40'>{t('share.allowed_clients')}</summary>
 					<ul>
-						{allowedClients.map(publicKey => (
+						{allowedClientKeys.map(publicKey => (
 							<li key={publicKey} onClick={() => handleCopy(publicKey)}>
 								<div>
 									<KeyAvatar value={publicKey} className='w-8'/>
@@ -152,26 +184,22 @@ const ShareModalContent = ({document}: {
 	</div>;
 };
 
-export const ShareModal = ({documentId}: {
-	documentId: string;
-}) => {
-	const {document} = useDocument(documentId);
-
-	return <Dialog.Root>
-		<Dialog.Trigger asChild>
-			<button className='btn-primary btn-sm btn-circle btn'>
-				<ShareIcon fontSize={20}/>
-			</button>
-		</Dialog.Trigger>
-		<Dialog.Portal>
-			<Dialog.Content className='modal modal-bottom data-[state=open]:modal-open sm:modal-middle' onOpenAutoFocus={e => e.preventDefault()}>
-				<div className='modal-box'>
-					{document
-						? <ShareModalContent document={document}/>
-						: <div className='flex items-center justify-center'><span className='loading loading-ring loading-lg'></span></div>
-					}
-				</div>
-			</Dialog.Content>
-		</Dialog.Portal>
-	</Dialog.Root>;
-};
+export const ShareModal = ({document}: {
+	document: Document<SyncedDocument, DocumentMetadata> | null;
+}) => <Dialog.Root>
+	<Dialog.Trigger asChild>
+		<button className='btn-primary btn-sm btn-circle btn'>
+			<ShareIcon fontSize={20}/>
+		</button>
+	</Dialog.Trigger>
+	<Dialog.Portal>
+		<Dialog.Content className='modal modal-bottom data-[state=open]:modal-open sm:modal-middle' onOpenAutoFocus={e => e.preventDefault()}>
+			<div className='modal-box'>
+				{document
+					? <ShareModalContent document={document}/>
+					: <div className='flex items-center justify-center'><span className='loading loading-ring loading-lg'></span></div>
+				}
+			</div>
+		</Dialog.Content>
+	</Dialog.Portal>
+</Dialog.Root>;

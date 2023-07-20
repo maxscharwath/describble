@@ -27,7 +27,8 @@
     "title": "Are you absolutely sure?"
   },
   "document": {
-    "title": "Document #{{index}}"
+    "title": "Document #{{index}}",
+    "unnamed": "Unnamed document"
   },
   "embed": {
     "add": "Add this!",
@@ -55,6 +56,7 @@
   },
   "input": {
     "add_public_key": "Add Public Key",
+    "document_name": "Document name",
     "placeholder": {
       "confirm_password": "Confirm Password",
       "enter_word": "Fill word",
@@ -88,6 +90,7 @@
   "share": {
     "allowed_clients": "Allowed clients",
     "header": "Header",
+    "metadata": "Metadata",
     "owner": "Owner",
     "share_settings": "Share Settings"
   },

@@ -1,6 +1,6 @@
 import {type Layer} from '~core/layers';
 import {type Camera, type Patch, type PatchId} from '~core/types';
-import {createUseStore, deepmerge} from '~core/utils';
+import {createUseStore, deepmerge, generateWhiteboardName} from '~core/utils';
 import {createStore, type StoreApi} from 'zustand/vanilla';
 import {nanoid} from 'nanoid';
 import {type UseBoundStore} from 'zustand';
@@ -13,6 +13,10 @@ import {
 export type SyncedDocument = {
 	layers: Record<string, Layer>;
 	assets: Record<string, Asset>;
+};
+
+export type DocumentMetadata = {
+	name: string;
 };
 
 type BaseDocument = {
@@ -185,7 +189,7 @@ export class DocumentHandle {
 	private stack: Array<Command<SyncedDocument>> = [];
 	private stackIndex = -1;
 
-	constructor(documentId: string, private readonly document: Document<SyncedDocument>) {
+	constructor(documentId: string, private readonly document: Document<SyncedDocument, DocumentMetadata>) {
 		this.store = createStore(() => ({
 			id: documentId,
 			camera: {x: 0, y: 0, zoom: 1},
@@ -281,7 +285,11 @@ export class DocumentManager {
 	}
 
 	public create() {
-		const doc = this.repo.createDocument<SyncedDocument>();
+		const doc = this.repo.createDocument<SyncedDocument, DocumentMetadata>({
+			metadata: {
+				name: generateWhiteboardName(),
+			},
+		});
 		doc.change(state => {
 			state.layers = {};
 			state.assets = {};
@@ -291,7 +299,7 @@ export class DocumentManager {
 
 	public async open(id: string) {
 		await this.repo.waitForConnection();
-		const doc = await this.repo.requestDocument<SyncedDocument>(id);
+		const doc = await this.repo.requestDocument<SyncedDocument, DocumentMetadata>(id);
 		this.currentDocumentHandle = new DocumentHandle(id, doc);
 		this.currentPresence?.stop();
 		this.currentPresence = this.repo.getPresence(id);
@@ -299,7 +307,7 @@ export class DocumentManager {
 	}
 
 	public async get(id: string) {
-		return this.repo.findDocument<SyncedDocument>(id);
+		return this.repo.findDocument<SyncedDocument, DocumentMetadata>(id);
 	}
 
 	public async delete(id: string) {

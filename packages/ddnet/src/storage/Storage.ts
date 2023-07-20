@@ -3,12 +3,14 @@ import {type StorageProvider} from './StorageProvider';
 import {type Doc} from '@automerge/automerge';
 import {type DocumentId} from '../types';
 import {type Document} from '../document/Document';
+import {ConcurrencyLimiter} from '../utils';
 
 /**
  * Storage class which provides various methods to interact with the storage provider.
  */
 export class Storage {
 	private readonly changeCount = new Map<DocumentId, number>();
+	private readonly loadLimiter = new ConcurrencyLimiter();
 
 	/**
 	 * Storage constructor
@@ -18,36 +20,61 @@ export class Storage {
 
 	/**
 	 * Loads binary data for a given document id.
+	 * Tries to load the document fully first, if that fails it discards one chunk at a time from the end until successful.
+	 * If loading is successful after discarding, saves a fresh version with cleared chunks.
 	 * @param documentId The document id.
-	 * @returns Promise that resolves to a Uint8Array.
+	 * @returns Promise that resolves to a Uint8Array or throws an error if loading fails completely.
 	 */
 	public async loadBinary(documentId: DocumentId): Promise<Uint8Array> {
-		const [binary, chunks] = await Promise.all([
-			this.storageProvider.getSnapshot('ddnet', documentId),
-			this.storageProvider.getChunks('ddnet', documentId),
-		]);
+		return this.loadLimiter.execute(async () => {
+			const [binary, chunks] = await Promise.all([
+				this.storageProvider.getSnapshot('ddnet', documentId),
+				this.storageProvider.getChunks('ddnet', documentId),
+			]);
 
-		// Calculate total length
-		const length = (binary?.byteLength ?? 0) + chunks.reduce((a, b) => a + b.byteLength, 0);
-		const result = new Uint8Array(length);
-		let offset = 0;
+			// Binary data is considered as the first chunk
+			if (binary) {
+				chunks.unshift(binary);
+			}
 
-		// Add binary data if exists
-		if (binary) {
-			result.set(binary, offset);
-			offset += binary.byteLength;
-		}
+			const result = new Uint8Array(chunks.reduce((a, b) => a + b.byteLength, 0));
+			let offset = 0;
 
-		// Add chunks data
-		chunks.forEach(chunk => {
-			result.set(chunk, offset);
-			offset += chunk.byteLength;
+			// Try to load the full document first
+			chunks.forEach(chunk => {
+				result.set(chunk, offset);
+				offset += chunk.byteLength;
+			});
+
+			try {
+				A.load(result);
+				// If full load is successful, return the result
+				return result;
+			} catch (e) {
+				console.error(`Full load error for document id: ${documentId}`, e);
+			}
+
+			// If loading full document failed, try discarding one chunk at a time from the end
+			for (let i = chunks.length - 1; i >= 0; i--) {
+				offset -= chunks[i].byteLength;
+
+				try {
+					const doc = A.load(result.subarray(0, offset));
+
+					// If loading is successful after discarding, save a fresh version with cleared chunks
+					// eslint-disable-next-line no-await-in-loop
+					await this.saveTotal(documentId, doc);
+					this.changeCount.set(documentId, 0);
+
+					return result.subarray(0, offset);
+				} catch (e) {
+					console.error(`Loading error after discarding chunk for document id: ${documentId}`, e);
+				}
+			}
+
+			// If all chunks have been discarded and the document still fails to load, throw an error
+			throw new Error(`Failed to load document with id ${documentId}`);
 		});
-
-		// Track changes count
-		this.changeCount.set(documentId, chunks.length);
-
-		return result;
 	}
 
 	/**
