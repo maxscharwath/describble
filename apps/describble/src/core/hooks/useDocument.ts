@@ -13,7 +13,10 @@ export const useDocument = (documentId: string) => {
 		const fetchDocument = async () => {
 			try {
 				const doc = await app.documentManager.get(documentId);
-				setDocument(doc ?? null);
+				if (doc) {
+					setDocument(doc);
+					setHeader(doc.header);
+				}
 			} catch (cause) {
 				setError(new Error('Failed to fetch document', {cause}));
 			}

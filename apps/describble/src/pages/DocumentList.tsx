@@ -92,7 +92,8 @@ const DocumentItem = ({documentId, onDelete}: {documentId: string; onDelete: (id
 					<h2 className='card-title'>
 						{header
 							? (header.metadata.name || t('document.unnamed'))
-							: <div className='mb-4 h-3 w-48 animate-pulse rounded-full bg-gray-200 dark:bg-gray-700'/>}
+							: <div className='mb-4 h-3 w-48 animate-pulse rounded-full bg-base-content/50' />
+						}
 					</h2>
 					<div className='badge badge-neutral max-w-full'><span
 						className='overflow-hidden text-ellipsis text-xs'>{documentId}</span></div>
