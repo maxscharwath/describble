@@ -3,6 +3,7 @@
     "back": "Back",
     "back_to_home": "Back to the Drawing Board",
     "cancel": "Cancel",
+    "close": "close",
     "confirm": "Confirm",
     "copy_to_clipboard": "Copy to Clipboard",
     "delete": "Delete",
@@ -73,6 +74,10 @@
     "login": "Log In",
     "recover": "Recover",
     "register": "Register"
+  },
+  "patch_notes": {
+    "title": "Patch note",
+    "view_on_github": "View on GitHub"
   },
   "register": {
     "step": {

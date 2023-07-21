@@ -3,6 +3,7 @@
     "back": "Retour",
     "back_to_home": "Retour à la planche à dessin",
     "cancel": "Annuler",
+    "close": "fermer",
     "confirm": "Confirmer",
     "copy_to_clipboard": "Copier dans le presse-papier",
     "delete": "Supprimer",
@@ -73,6 +74,10 @@
     "login": "Connexion",
     "recover": "Récupérer",
     "register": "Inscription"
+  },
+  "patch_notes": {
+    "title": "Note de mise à jour",
+    "view_on_github": "Voir sur GitHub"
   },
   "register": {
     "step": {
