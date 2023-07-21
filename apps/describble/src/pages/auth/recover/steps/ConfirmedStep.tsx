@@ -1,17 +1,39 @@
 import React from 'react';
 import {useSteps} from '~pages/auth/useSteps';
-import {type RegisterContext} from '~pages/auth/register/Register';
 import {useTranslation} from 'react-i18next';
 import {CopyIcon} from 'ui/components/Icons';
 import {useWhiteboard} from '~core/hooks';
 import {useNavigate} from 'react-router-dom';
 import {KeyAvatar} from '~components/ui/KeyAvatar';
+import {type AuthContext} from '~pages/auth/common';
+import {generatePrivateKey, mnemonicToSeedSync} from '@describble/ddnet';
+
+function usePromise<T>(promise: () => Promise<T>) {
+	const [state, setState] = React.useState<{loading: boolean; data?: T; error?: unknown}>({loading: true});
+
+	React.useEffect(() => {
+		promise()
+			.then(data => setState({loading: false, data}))
+			.catch(error => setState({loading: false, error: error as unknown}));
+	}, [promise]);
+
+	return state;
+}
 
 export const ConfirmedStep: React.FC = () => {
 	const {t} = useTranslation();
 	const app = useWhiteboard();
 	const navigate = useNavigate();
-	const {state: {session, password}} = useSteps<RegisterContext>();
+	const {state: {phrase, password}} = useSteps<AuthContext>();
+	const {data: session} = usePromise(async () => {
+		if (!phrase || !password) {
+			return;
+		}
+
+		const seed = mnemonicToSeedSync(phrase);
+		const privateKey = generatePrivateKey(seed);
+		return app.sessionManager.register(privateKey, password, true);
+	});
 
 	if (!session) {
 		return null;

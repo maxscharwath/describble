@@ -61,7 +61,7 @@ export const Login: React.FC = () => {
 				{t('login.subtitle_select_account')}
 			</p>
 			<form onSubmit={handleLogin} className='space-y-4'>
-				<div className='rounded-box flex w-full items-center justify-center border border-base-200 py-2'>
+				<div className='rounded-box grid w-full items-center justify-center border border-base-200 py-2'>
 					<div className='carousel-center carousel space-x-2'>
 						{accounts.map((account, index) => (
 							<div className='carousel-item' key={`${index}-${account}`}>

@@ -47,14 +47,20 @@ export class KeyManager {
 	 * Encrypts and saves the private key in the database and returns the public key.
 	 * @param privateKey - The private key to save.
 	 * @param secret - The secret used to encrypt the private key.
+	 * @param force - Whether to overwrite the key if it already exists.
 	 * @returns The public key associated with the private key.
 	 */
-	public async saveKey(privateKey: Uint8Array, secret: Uint8Array | string): Promise<string> {
+	public async saveKey(privateKey: Uint8Array, secret: Uint8Array | string, force = false): Promise<string> {
 		const publicKey = getPublicKey(privateKey);
 		const encrypted = await encryptData(privateKey, secret);
 		const db = await this.db;
 		const key = base58.encode(publicKey);
-		await db.add('keys', encrypted, key);
+		if (force) {
+			await db.put('keys', encrypted, key);
+		} else {
+			await db.add('keys', encrypted, key);
+		}
+
 		return key;
 	}
 

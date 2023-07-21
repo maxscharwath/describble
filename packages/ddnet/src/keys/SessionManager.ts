@@ -74,10 +74,11 @@ export class SessionManager extends Emittery<SessionManagerEvents> {
 	 * Registers a new user with the given private key and password.
 	 * @param privateKey - The user's private key.
 	 * @param password - The user's password.
+	 * @param force - Whether to overwrite the key if it already exists.
 	 * @returns The newly created session.
 	 */
-	public async register(privateKey: Uint8Array, password: string): Promise<KeySession> {
-		await this.keyManager.saveKey(privateKey, password);
+	public async register(privateKey: Uint8Array, password: string, force = false): Promise<KeySession> {
+		await this.keyManager.saveKey(privateKey, password, force);
 		return this.createSession(privateKey);
 	}
 
