@@ -4,9 +4,8 @@ import {abbreviatedSha} from '~build/info';
 import {GithubIcon, InfoIcon} from 'ui/components/Icons';
 import {Outlet} from 'react-router-dom';
 import {useTranslation} from 'react-i18next';
-import {Close, Content, Portal, Root, Title, Trigger} from '@radix-ui/react-dialog';
-
-const githubRepo = 'maxscharwath/describble';
+import * as Dialog from '@radix-ui/react-dialog';
+import {DropdownSettings} from '~components/ui/DropdownSettings';
 
 export function BaseLayout() {
 	return (
@@ -30,9 +29,11 @@ export function BaseLayout() {
 					</div>
 				</div>
 				<div>
-					<a href={`https://github.com/${githubRepo}`} className='btn-ghost btn-circle btn'>
-						<GithubIcon className='h-6 w-6' />
-					</a>
+					<DropdownSettings>
+						<button className='btn-ghost btn-sm btn-circle btn'>
+							<InfoIcon className='h-6 w-6' />
+						</button>
+					</DropdownSettings>
 				</div>
 			</footer>
 		</div>
@@ -46,6 +47,7 @@ type CommitData = {
 };
 
 const PatchNotesModal = ({children}: React.PropsWithChildren<{}>) => {
+	const githubRepo = 'maxscharwath/describble';
 	const {t, i18n} = useTranslation();
 	const [commitIndex, setCommitIndex] = React.useState(0); // The index of the currently displayed commit
 	const [commitData, setCommitData] = React.useState<CommitData[]>([]); // The list of fetched commit data
@@ -77,13 +79,13 @@ const PatchNotesModal = ({children}: React.PropsWithChildren<{}>) => {
 	};
 
 	return (
-		<Root>
-			<Trigger asChild>{children}</Trigger>
-			<Portal>
-				<Content className='modal modal-bottom data-[state=open]:modal-open sm:modal-middle'
+		<Dialog.Root>
+			<Dialog.Trigger asChild>{children}</Dialog.Trigger>
+			<Dialog.Portal>
+				<Dialog.Content className='modal modal-bottom data-[state=open]:modal-open sm:modal-middle'
 					onOpenAutoFocus={e => e.preventDefault()}>
 					<div className='modal-box grid gap-4'>
-						<Title className='card-title'>{t('patch_notes.title')}</Title>
+						<Dialog.Title className='card-title'>{t('patch_notes.title')}</Dialog.Title>
 
 						<time className='text-right text-base-content/70' dateTime={commitData[commitIndex]?.date}>
 							{new Date(commitData[commitIndex]?.date).toLocaleDateString(i18n.language, {
@@ -106,13 +108,14 @@ const PatchNotesModal = ({children}: React.PropsWithChildren<{}>) => {
 								<button onClick={handlePrevious} className='btn-outline join-item btn'>{t('btn.previous')}</button>
 								<button onClick={handleNext} className='btn-outline join-item btn'>{t('btn.next')}</button>
 							</div>
-							<Close asChild>
+							<Dialog.Close asChild>
 								<button className='btn-ghost btn'>{t('btn.close')}</button>
-							</Close>
+							</Dialog.Close>
 						</div>
 					</div>
-				</Content>
-			</Portal>
-		</Root>
+				</Dialog.Content>
+			</Dialog.Portal>
+		</Dialog.Root>
 	);
 };
+

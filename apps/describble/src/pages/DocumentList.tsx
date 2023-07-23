@@ -45,7 +45,7 @@ export const DocumentList = () => {
 
 	return (
 		<div className='mx-auto flex w-full max-w-7xl grow flex-col items-center'>
-			<div className='navbar rounded-box sticky top-4 z-50 mb-8 bg-base-200/50 shadow-xl backdrop-blur-xl'>
+			<div className='navbar rounded-box sticky top-4 z-50 mb-8 border border-base-300 bg-base-200/50 shadow-xl backdrop-blur-xl'>
 				<div className='mr-8 flex-1 text-slate-800 dark:text-slate-100'>
 					<DescribbleLogo className='pointer-events-none absolute m-2 h-8 w-auto' textClassName='opacity-0 sm:opacity-100 transition-opacity duration-300 ease-in-out'/>
 				</div>
@@ -81,7 +81,7 @@ const DocumentItem = ({documentId, onDelete}: {documentId: string; onDelete: (id
 	return (
 		<div className='relative'>
 			<Link to={`/document/${documentId}`} className='peer absolute inset-0 outline-none' aria-label={t('btn.open')} />
-			<div className='card pointer-events-none h-full min-w-full bg-base-200 shadow-lg transition-all duration-100 ease-in-out peer-focus:shadow-xl peer-focus:ring-4 peer-focus:ring-neutral peer-active:scale-95'>
+			<div className='card pointer-events-none h-full min-w-full border border-base-300 bg-base-200 shadow-lg transition-all duration-100 ease-in-out peer-focus:shadow-xl peer-focus:ring-4 peer-focus:ring-neutral peer-active:scale-95'>
 				<figure className='z-0 h-48 w-full bg-gradient-to-b from-black/0 to-black/10 object-cover'>
 					<Thumbnail
 						documentId={documentId}

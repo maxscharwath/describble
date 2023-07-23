@@ -21,6 +21,7 @@
     "@describble/ddnet": "workspace:*",
     "@radix-ui/react-alert-dialog": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.4",
+    "@radix-ui/react-dropdown-menu": "^2.0.5",
     "@use-gesture/react": "^10.2.27",
     "clsx": "^1.2.1",
     "framer-motion": "^10.12.18",

@@ -68,7 +68,7 @@
   },
   "login": {
     "alert_demo": "Psss... Ceci est un compte de démo, utilise le mot de passe <s>{{password}}</s> pour te connecter.    ",
-    "subtitle_recovery_phrase": "Veuillez entrer votre phrase de récupération pour vous récuperer votre compte.",
+    "subtitle_recovery_phrase": "Veuillez entrer votre phrase de récupération pour vous récupérer votre compte.",
     "subtitle_select_account": "Vos dessins vous attendent ! Sélectionnez votre compte ci-dessous et reprenons le gribouillage."
   },
   "nav": {
@@ -108,5 +108,16 @@
     "border_style": "Bordure",
     "fill": "Remplissage",
     "size": "Taille"
+  },
+  "settings": {
+    "theme": "Thème",
+    "theme_light": "Clair",
+    "theme_dark": "Sombre",
+    "theme_system": "Système",
+    "language": "Langue"
+  },
+  "lang": {
+    "eng": "Anglais",
+    "fr": "Français"
   }
 }

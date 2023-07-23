@@ -69,6 +69,7 @@ export const useShortcuts = () => {
 	// Toggle dark mode
 	useHotkeys('meta+shift+d,ctrl+shift+d', e => {
 		e.preventDefault();
-		app.toggleDarkMode();
+		const {theme} = app.state.settings;
+		app.setTheme(theme === 'dark' ? 'light' : 'dark');
 	}, undefined, [app]);
 };

@@ -108,5 +108,16 @@
     "border_style": "Border Style",
     "fill": "Fill Style",
     "size": "Size"
+  },
+  "settings": {
+    "theme": "Theme",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_system": "System",
+    "language": "Language"
+  },
+  "lang": {
+    "eng": "English",
+    "fr": "French"
   }
 }

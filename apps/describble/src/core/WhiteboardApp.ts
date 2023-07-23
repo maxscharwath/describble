@@ -44,7 +44,7 @@ export enum Status {
 
 export type WhiteboardState = {
 	settings: {
-		darkMode: boolean;
+		theme: 'dark' | 'light' | 'system';
 	};
 	appState: {
 		currentDocumentId: string | null;
@@ -218,8 +218,8 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 		this.document?.redo();
 	}
 
-	public toggleDarkMode() {
-		const patch = {settings: {darkMode: !this.state.settings.darkMode}};
+	public setTheme(theme: 'dark' | 'light' | 'system') {
+		const patch = {settings: {theme}};
 		this.patchState(patch, 'toggle_dark_mode');
 		void this.persist(patch, 'toggle_dark_mode');
 		return this;
@@ -243,7 +243,7 @@ export class WhiteboardApp extends StateManager<WhiteboardState> {
 
 	static defaultState: WhiteboardState = {
 		settings: {
-			darkMode: false,
+			theme: 'system',
 		},
 		appState: {
 			status: Status.Idle,
