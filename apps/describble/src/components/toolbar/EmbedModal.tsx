@@ -80,7 +80,7 @@ const InputField = ({url, setUrl}: {url: string; setUrl: (url: string) => void})
 		<div className='form-control'>
 			<input type='text'
 				placeholder={t('embed.input')}
-				className='input-bordered input'
+				className='input input-bordered'
 				value={url}
 				onChange={e => setUrl(e.target.value)} />
 		</div>
@@ -133,11 +133,11 @@ export const EmbedModal = (props: React.PropsWithChildren<{}>) => {
 
 						<div className='flex justify-end gap-2'>
 							<Close asChild>
-								<button className='btn-ghost btn'>{t('btn.cancel')}</button>
+								<button className='btn btn-ghost'>{t('btn.cancel')}</button>
 							</Close>
 
 							<Close asChild>
-								<button className='btn-primary btn' onClick={handleSave} disabled={!embed}>
+								<button className='btn btn-primary' onClick={handleSave} disabled={!embed}>
 									{t('embed.add')}
 								</button>
 							</Close>

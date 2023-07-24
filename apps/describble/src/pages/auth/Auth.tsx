@@ -16,13 +16,13 @@ export const Auth: React.FC = () => {
 				<div className='rounded-box overflow-hidden border border-base-200 bg-base-200'>
 					<div className='tabs -mb-px bg-transparent px-2 pt-2 font-bold'>
 						<div/>
-						<NavLink to='/login' className={({isActive}) => clsx('tab-lifted tab border-0 sm:tab-lg', isActive && 'tab-active')}>
+						<NavLink to='/login' className={({isActive}) => clsx('tab tab-lifted border-0 sm:tab-lg', isActive && 'tab-active')}>
 							{t('nav.login')}
 						</NavLink>
-						<NavLink to='/recover' className={({isActive}) => clsx('tab-lifted tab border-0 sm:tab-lg', isActive && 'tab-active')}>
+						<NavLink to='/recover' className={({isActive}) => clsx('tab tab-lifted border-0 sm:tab-lg', isActive && 'tab-active')}>
 							{t('nav.recover')}
 						</NavLink>
-						<NavLink to='/register' className={({isActive}) => clsx('tab-lifted tab border-0 sm:tab-lg', isActive && 'tab-active')}>
+						<NavLink to='/register' className={({isActive}) => clsx('tab tab-lifted border-0 sm:tab-lg', isActive && 'tab-active')}>
 							{t('nav.register')}
 						</NavLink>
 						<div/>

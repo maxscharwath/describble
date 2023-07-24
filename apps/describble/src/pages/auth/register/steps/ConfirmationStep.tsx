@@ -72,8 +72,8 @@ export const ConfirmationStep: React.FC = () => {
 					))}
 				</div>
 				<div className='mt-6 flex gap-4'>
-					<button className='btn-neutral btn grow' onClick={prev}>{t('btn.back')}</button>
-					<button className='btn-neutral btn grow' onClick={handleNext} disabled={!isValid}>{t('btn.confirm')}</button>
+					<button className='btn btn-neutral grow' onClick={prev}>{t('btn.back')}</button>
+					<button className='btn btn-neutral grow' onClick={handleNext} disabled={!isValid}>{t('btn.confirm')}</button>
 				</div>
 			</div>
 		</>

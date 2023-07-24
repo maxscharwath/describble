@@ -79,7 +79,7 @@ export const Toolbar = () => {
 		<div
 			className='pointer-events-auto m-2 flex h-full flex-col items-center rounded-lg border border-gray-200 bg-gray-100/80 p-2 shadow-lg backdrop-blur dark:border-gray-600 dark:bg-gray-800/80 dark:text-gray-200 sm:flex-row'
 		>
-			<Link to='/' className='btn-ghost btn'>
+			<Link to='/' className='btn btn-ghost'>
 				<DescribbleLogo small className='h-8 w-8'/>
 			</Link>
 			<Separator/>

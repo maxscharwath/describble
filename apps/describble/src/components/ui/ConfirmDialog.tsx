@@ -33,12 +33,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 					</AlertDialog.Description>
 					<div className='modal-action'>
 						<AlertDialog.Cancel asChild>
-							<button className='btn-ghost btn'>
+							<button className='btn btn-ghost'>
 								{cancelLabel}
 							</button>
 						</AlertDialog.Cancel>
 						<AlertDialog.Action asChild>
-							<button className='btn-error btn' onClick={onAction}>
+							<button className='btn btn-error' onClick={onAction}>
 								{actionLabel}
 							</button>
 						</AlertDialog.Action>

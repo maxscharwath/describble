@@ -62,10 +62,10 @@ export const Login: React.FC = () => {
 			</p>
 			<form onSubmit={handleLogin} className='space-y-4'>
 				<div className='rounded-box grid w-full items-center justify-center border border-base-200 py-2'>
-					<div className='carousel-center carousel space-x-2'>
+					<div className='carousel carousel-center space-x-2'>
 						{accounts.map((account, index) => (
 							<div className='carousel-item' key={`${index}-${account}`}>
-								<button type='button' className={clsx(' btn-circle btn m-2 h-28 w-28', selectedPublicKey === account && 'btn-neutral')} onClick={e => handleAccountChange(e, account)}>
+								<button type='button' className={clsx(' btn btn-circle m-2 h-28 w-28', selectedPublicKey === account && 'btn-neutral')} onClick={e => handleAccountChange(e, account)}>
 									<KeyAvatar value={account} className='m-2' />
 								</button>
 							</div>
@@ -78,7 +78,7 @@ export const Login: React.FC = () => {
 							<div className='alert alert-error animate-pop-in' role='alert'>
 								<svg xmlns='http://www.w3.org/2000/svg' className='h-6 w-6 shrink-0 stroke-current' fill='none' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z' /></svg>
 								<span>{t('error.login')}</span>
-								<Link className='btn-sm btn' to='/recover'>{t('btn.recover')}</Link>
+								<Link className='btn btn-sm' to='/recover'>{t('btn.recover')}</Link>
 							</div>
 						)}
 						{selectedPublicKey === seederCredentials.key && (
@@ -103,15 +103,15 @@ export const Login: React.FC = () => {
 							<label className='label' htmlFor='username-field'>
 								<span className='label-text'>{t('input.placeholder.public_key')}</span>
 							</label>
-							<input type='text' autoComplete='username' name='username' id='username-field' readOnly className='input-bordered input' value={selectedPublicKey} placeholder={t('input.placeholder.public_key')} />
+							<input type='text' autoComplete='username' name='username' id='username-field' readOnly className='input input-bordered' value={selectedPublicKey} placeholder={t('input.placeholder.public_key')} />
 						</div>
 						<div className='form-control w-full'>
 							<label className='label' htmlFor='password-field'>
 								<span className='label-text'>{t('input.placeholder.password')}</span>
 							</label>
-							<input type='password' name='password' id='password-field' autoComplete='current-password' className='input-bordered input' placeholder={t('input.placeholder.password')} value={password} onChange={handlePasswordChange} />
+							<input type='password' name='password' id='password-field' autoComplete='current-password' className='input input-bordered' placeholder={t('input.placeholder.password')} value={password} onChange={handlePasswordChange} />
 						</div>
-						<button type='submit' className='btn-neutral btn grow' disabled={!selectedPublicKey || !password}>
+						<button type='submit' className='btn btn-neutral grow' disabled={!selectedPublicKey || !password}>
 							{t('btn.login')}
 						</button>
 					</div>

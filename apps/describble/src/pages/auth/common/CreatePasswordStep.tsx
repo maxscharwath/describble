@@ -57,7 +57,7 @@ export const CreatePasswordStep: React.FC = () => {
 					id='password-field'
 					autoComplete='new-password'
 					placeholder={t('input.placeholder.password')}
-					className={clsx('input-bordered input input-md invalid:input-error', {'input-error': error})}
+					className={clsx('input input-bordered input-md invalid:input-error', {'input-error': error})}
 					required
 					pattern={passwordRegex.source}
 					value={password ?? ''} onChange={e => setPassword(e.target.value)} />
@@ -71,14 +71,14 @@ export const CreatePasswordStep: React.FC = () => {
 					id='confirm-password-field'
 					autoComplete='new-password'
 					placeholder={t('input.placeholder.confirm_password')}
-					className={clsx('input-bordered input input-md', {'input-error': error})}
+					className={clsx('input input-bordered input-md', {'input-error': error})}
 					required
 					minLength={8}
 					value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
 			</div>
 			{error && <p className='text-red-500'>{error}</p>}
 			<div className='form-control mt-6'>
-				<button className='btn-neutral btn' disabled={!isValid}>{t('btn.next')}</button>
+				<button className='btn btn-neutral' disabled={!isValid}>{t('btn.next')}</button>
 			</div>
 		</form>
 	</>);

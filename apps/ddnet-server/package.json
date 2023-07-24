@@ -14,9 +14,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.4.2",
     "@describble/ddnet": "workspace:*",
-    "esbuild": "^0.18.12",
+    "@types/node": "^20.4.4",
+    "esbuild": "^0.18.16",
     "eslint-config-custom": "workspace:*",
     "tsconfig": "workspace:*",
     "tsx": "^3.12.7",

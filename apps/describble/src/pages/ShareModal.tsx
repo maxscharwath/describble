@@ -71,16 +71,16 @@ const ShareModalContent = ({document}: {
 						<div className='join-item flex h-full items-center justify-center bg-base-300 p-2'>
 							<KeyAvatar value={publicKey} className='w-8'/>
 						</div>
-						<input type='text' className='input-bordered input join-item w-full font-mono text-sm'
+						<input type='text' className='input join-item input-bordered w-full font-mono text-sm'
 							placeholder={t('input.add_public_key')} value={publicKey} onChange={e => setPublicKey(e.target.value)}/>
-						<button className='btn-square join-item btn' onClick={handleAddPublicKey} disabled={!isValidPublicKey}>
+						<button className='btn btn-square join-item' onClick={handleAddPublicKey} disabled={!isValidPublicKey}>
 							<KeyIcon fontSize={20}/>
 						</button>
 					</div>
 				</div>
 				<div className='form-control'>
 					<div className='join'>
-						<input type='text' className='input-bordered input w-full font-mono text-sm'
+						<input type='text' className='input input-bordered w-full font-mono text-sm'
 							value={name}
 							placeholder={t('input.document_name')}
 							onChange={e => setName(e.target.value)} />
@@ -158,7 +158,7 @@ const ShareModalContent = ({document}: {
 									<KeyAvatar value={publicKey} className='w-8'/>
 									<span className='w-full truncate font-mono text-xs'>{publicKey}</span>
 									{isOwner && (
-										<button className='btn-ghost btn-circle btn' onClick={() => handleRemovePublicKey(publicKey)}>
+										<button className='btn btn-circle btn-ghost' onClick={() => handleRemovePublicKey(publicKey)}>
 											<TrashIcon fontSize={20}/>
 										</button>
 									)}
@@ -172,11 +172,11 @@ const ShareModalContent = ({document}: {
 
 		<div className='flex justify-end gap-2'>
 			<Dialog.Close asChild>
-				<button className='btn-ghost btn'>{t('btn.cancel')}</button>
+				<button className='btn btn-ghost'>{t('btn.cancel')}</button>
 			</Dialog.Close>
 
 			<Dialog.Close asChild>
-				<button className='btn-primary btn' onClick={handleSave}>
+				<button className='btn btn-primary' onClick={handleSave}>
 					{t('btn.save')}
 				</button>
 			</Dialog.Close>
@@ -188,7 +188,7 @@ export const ShareModal = ({document}: {
 	document: Document<SyncedDocument, DocumentMetadata> | null;
 }) => <Dialog.Root>
 	<Dialog.Trigger asChild>
-		<button className='btn-primary btn-sm btn-circle btn'>
+		<button className='btn btn-circle btn-primary btn-sm'>
 			<ShareIcon fontSize={20}/>
 		</button>
 	</Dialog.Trigger>

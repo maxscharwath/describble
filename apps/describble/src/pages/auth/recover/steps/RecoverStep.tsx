@@ -66,7 +66,7 @@ export const RecoverStep: React.FC = () => {
 					))}
 				</div>
 				<div className='form-control mt-6'>
-					<button className='btn-neutral btn' disabled={!isValid} onClick={handleNext}>{t('btn.next')}</button>
+					<button className='btn btn-neutral' disabled={!isValid} onClick={handleNext}>{t('btn.next')}</button>
 				</div>
 			</div>
 		</div>

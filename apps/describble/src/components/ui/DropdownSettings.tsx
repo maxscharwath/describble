@@ -22,22 +22,22 @@ export const DropdownSettings = ({children}: React.PropsWithChildren<{}>) => {
 				<DropdownMenu.Content
 					className='rounded-box m-2 flex w-52 flex-col gap-2 border border-base-200 bg-base-100 p-4 shadow-lg'>
 					<DropdownMenu.Sub>
-						<DropdownMenu.SubTrigger className='btn-ghost btn-sm btn justify-between data-[highlighted]:btn-active'>
+						<DropdownMenu.SubTrigger className='btn btn-ghost btn-sm justify-between data-[highlighted]:btn-active'>
 							{t('settings.theme')} <ChevronRightIcon/>
 						</DropdownMenu.SubTrigger>
 						<DropdownMenu.Portal>
 							<DropdownMenu.SubContent className='rounded-box m-2 border border-base-200 bg-base-100 p-4 shadow-lg'>
 								<DropdownMenu.RadioGroup value={theme} onValueChange={changeTheme} className='flex flex-col gap-2'>
 									<DropdownMenu.RadioItem value='light'
-										className='btn-sm btn justify-between data-[state=checked]:btn-primary data-[highlighted]:btn-active'>
+										className='btn btn-sm justify-between data-[state=checked]:btn-primary data-[highlighted]:btn-active'>
 										<SunIcon className='h-4 w-4'/> {t('settings.theme_light')}
 									</DropdownMenu.RadioItem>
 									<DropdownMenu.RadioItem value='dark'
-										className='btn-sm btn justify-between data-[state=checked]:btn-primary data-[highlighted]:btn-active'>
+										className='btn btn-sm justify-between data-[state=checked]:btn-primary data-[highlighted]:btn-active'>
 										<MoonIcon className='h-4 w-4'/> {t('settings.theme_dark')}
 									</DropdownMenu.RadioItem>
 									<DropdownMenu.RadioItem value='system'
-										className='btn-sm btn justify-between data-[state=checked]:btn-primary data-[highlighted]:btn-active'>
+										className='btn btn-sm justify-between data-[state=checked]:btn-primary data-[highlighted]:btn-active'>
 										<MonitorIcon className='h-4 w-4'/> {t('settings.theme_system')}
 									</DropdownMenu.RadioItem>
 								</DropdownMenu.RadioGroup>
@@ -46,7 +46,7 @@ export const DropdownSettings = ({children}: React.PropsWithChildren<{}>) => {
 					</DropdownMenu.Sub>
 
 					<DropdownMenu.Sub>
-						<DropdownMenu.SubTrigger className='btn-ghost btn-sm btn justify-between data-[highlighted]:btn-active'>
+						<DropdownMenu.SubTrigger className='btn btn-ghost btn-sm justify-between data-[highlighted]:btn-active'>
 							{t('settings.language')} <ChevronRightIcon/>
 						</DropdownMenu.SubTrigger>
 						<DropdownMenu.Portal>
@@ -54,11 +54,11 @@ export const DropdownSettings = ({children}: React.PropsWithChildren<{}>) => {
 								<DropdownMenu.RadioGroup value={i18n.language} onValueChange={changeLanguage}
 									className='flex flex-col gap-2'>
 									<DropdownMenu.RadioItem value='en'
-										className='btn-sm btn justify-between data-[state=checked]:btn-primary data-[highlighted]:btn-active'>
+										className='btn btn-sm justify-between data-[state=checked]:btn-primary data-[highlighted]:btn-active'>
 										{t('lang.eng')}
 									</DropdownMenu.RadioItem>
 									<DropdownMenu.RadioItem value='fr'
-										className='btn-sm btn justify-between data-[state=checked]:btn-primary data-[highlighted]:btn-active'>
+										className='btn btn-sm justify-between data-[state=checked]:btn-primary data-[highlighted]:btn-active'>
 										{t('lang.fr')}
 									</DropdownMenu.RadioItem>
 								</DropdownMenu.RadioGroup>
@@ -67,7 +67,7 @@ export const DropdownSettings = ({children}: React.PropsWithChildren<{}>) => {
 					</DropdownMenu.Sub>
 					<DropdownMenu.Item asChild>
 						<a href={`https://github.com/${githubRepo}`} target='_blank' rel='noopener noreferrer'
-							className='btn-ghost btn-sm btn justify-between'>
+							className='btn btn-ghost btn-sm justify-between'>
               Github
 							<GithubIcon className='h-4 w-4'/>
 						</a>

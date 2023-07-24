@@ -50,13 +50,13 @@ export const DocumentList = () => {
 					<DescribbleLogo className='pointer-events-none absolute m-2 h-8 w-auto' textClassName='opacity-0 sm:opacity-100 transition-opacity duration-300 ease-in-out'/>
 				</div>
 				<div className='flex gap-2'>
-					<button className='btn-ghost btn' onClick={handleCreate}>
+					<button className='btn btn-ghost' onClick={handleCreate}>
 						<CloudIcon className='h-6 w-6'/>
 						<span>{t('btn.new_whiteboard')}</span>
 					</button>
 
 					{session && (
-						<button className='btn-ghost btn' onClick={() => navigate('/login')}>
+						<button className='btn btn-ghost' onClick={() => navigate('/login')}>
 							<KeyAvatar value={session.base58PublicKey} className='w-6' />
 						</button>
 					)}
@@ -107,7 +107,7 @@ const DocumentItem = ({documentId, onDelete}: {documentId: string; onDelete: (id
 							actionLabel={t('confirm_dialog.action')}
 							cancelLabel={t('confirm_dialog.cancel')}
 						>
-							<button className='btn-error btn-sm btn-circle btn'>
+							<button className='btn btn-circle btn-error btn-sm'>
 								<TrashIcon fontSize={20}/>
 							</button>
 						</ConfirmDialog>

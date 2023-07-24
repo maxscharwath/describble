@@ -17,7 +17,7 @@ export const NotFound = () => {
 					<p className='py-6 text-lg'>
 						{t('error.not_found.description')}
 					</p>
-					<Link to='/' className='btn-primary btn'>
+					<Link to='/' className='btn btn-primary'>
 						{t('btn.back_to_home')}
 					</Link>
 				</div>

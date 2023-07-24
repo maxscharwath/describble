@@ -31,7 +31,7 @@ export const ErrorBoundary = () => {
 							{stack}
 						</pre>
 					</div>
-					<Link to='/' className='btn-primary btn'>
+					<Link to='/' className='btn btn-primary'>
 						{t('error.internal.btn')}
 					</Link>
 				</div>

@@ -20,7 +20,7 @@ export const DebugBar = () => {
 				{(camera.zoom * 100).toFixed(1)}%
 			</span>
 			<DropdownSettings>
-				<button className='btn-ghost btn-sm btn-circle btn pointer-events-auto'>
+				<button className='btn btn-circle btn-ghost btn-sm pointer-events-auto'>
 					<InfoIcon className='h-6 w-6' />
 				</button>
 			</DropdownSettings>

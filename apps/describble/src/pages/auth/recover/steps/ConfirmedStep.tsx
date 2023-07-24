@@ -54,12 +54,12 @@ export const ConfirmedStep: React.FC = () => {
 					<h1 className='mt-4 text-center text-2xl font-bold'>{t('register.title_created')}</h1>
 					<p className='mt-2 text-center text-base-content text-opacity-80'>{t('register.subtitle_created')}</p>
 					<div className='join mt-4'>
-						<button className='btn-neutral join-item btn'><CopyIcon/></button>
-						<input type='text' readOnly className='input-bordered input join-item text-ellipsis text-xs' value={session.base58PublicKey} />
+						<button className='btn btn-neutral join-item'><CopyIcon/></button>
+						<input type='text' readOnly className='input join-item input-bordered text-ellipsis text-xs' value={session.base58PublicKey} />
 					</div>
 				</div>
 				<div className='mt-6 flex gap-4'>
-					<button className='btn-neutral btn grow' onClick={handleLogin}>
+					<button className='btn btn-neutral grow' onClick={handleLogin}>
 						{t('btn.login')}
 					</button>
 				</div>

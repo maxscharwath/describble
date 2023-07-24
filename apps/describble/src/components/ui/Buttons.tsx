@@ -12,7 +12,7 @@ export const Button = React.forwardRef<HTMLButtonElement, React.ComponentProps<'
 		type='button'
 		className={twMerge(
 			clsx(
-				'btn-sm btn-circle btn',
+				'btn btn-circle btn-sm',
 				active && 'btn-neutral btn-active',
 				disabled && 'btn-disabled',
 			),
