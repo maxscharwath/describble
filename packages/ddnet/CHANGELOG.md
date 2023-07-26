@@ -1,5 +1,11 @@
 # @describble/ddnet
 
+## 1.0.3
+
+### Patch Changes
+
+- Increases reliability and header modification
+
 ## 1.0.2
 
 ### Patch Changes

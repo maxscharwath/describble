@@ -1,6 +1,6 @@
 {
   "name": "@describble/ddnet",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "DDNet is a decentralized network for real-time collaborative applications.",
   "license": "Apache-2.0",
   "author": {
@@ -51,11 +51,11 @@
     "tsup": "^7.1.0",
     "tsx": "^3.12.7",
     "typescript": "^5.1.6",
-    "vite": "^4.4.6",
+    "vite": "^4.4.7",
     "vite-plugin-top-level-await": "^1.3.1",
     "vite-plugin-wasm": "^3.2.2",
     "vitest": "0.33.0",
-    "webdriverio": "^8.13.10"
+    "webdriverio": "^8.13.12"
   },
   "keywords": [
     "CRDT",

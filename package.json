@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "eslint-config-custom": "workspace:*",
-    "turbo": "^1.10.9"
+    "turbo": "^1.10.12"
   },
   "engines": {
     "node": ">=19.0.0"

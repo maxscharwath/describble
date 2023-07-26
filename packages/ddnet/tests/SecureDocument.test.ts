@@ -41,7 +41,7 @@ describe('Document', () => {
 	});
 
 	it('should correctly set allowed users', () => {
-		const header = doc.header.withAllowedClients([clientKeys2.publicKey], ownerKeys.privateKey);
+		const header = doc.header.update({allowedClientKeys: [clientKeys2.publicKey]}, ownerKeys.privateKey);
 		expect(doc.header.hasAllowedUser(clientKeys2.publicKey)).toBe(false);
 		expect(doc.header.version).toBe(1);
 		expect(header.hasAllowedUser(clientKeys2.publicKey)).toBe(true);
@@ -49,6 +49,6 @@ describe('Document', () => {
 	});
 
 	it('should throw UnauthorizedAccessError when setting allowed users with unauthorized user', () => {
-		expect(() => doc.header.withAllowedClients([clientKeys2.publicKey], clientKeys1.privateKey)).toThrow(UnauthorizedAccessError);
+		expect(() => doc.header.update({allowedClientKeys: [clientKeys2.publicKey]}, clientKeys1.privateKey)).toThrow(UnauthorizedAccessError);
 	});
 });
