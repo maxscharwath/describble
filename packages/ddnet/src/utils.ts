@@ -16,26 +16,21 @@ export function throttle<T extends (...args: any[]) => any>(func: T, limit: numb
 
 	// This function will be called when the throttle timeout ends
 	const runner = () => {
-		// If the throttled function was called during throttle timeout,
-		// call the function with the latest arguments
 		if (shouldRunOnTimeoutEnd) {
 			func(...latestArgs);
 			shouldRunOnTimeoutEnd = false;
+			timeout = setTimeout(runner, limit); // Reset the timer to handle subsequent calls
+		} else {
+			timeout = null;
 		}
-
-		timeout = null;
 	};
 
 	return ((...innerArgs: Parameters<T>): void => {
 		latestArgs = innerArgs;
-		// If no throttle timeout is set, execute the function immediately
-		// and start the throttle timeout
 		if (timeout === null) {
-			func(...innerArgs);
+			func(...latestArgs);
 			timeout = setTimeout(runner, limit);
 		} else {
-			// If the function is called during the throttle timeout,
-			// set a flag to call it when the timeout ends
 			shouldRunOnTimeoutEnd = true;
 		}
 	}) as T;
