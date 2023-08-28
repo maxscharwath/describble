@@ -1,5 +1,12 @@
 # describble
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @describble/ddnet@1.0.4
+
 ## 0.0.5
 
 ### Patch Changes
