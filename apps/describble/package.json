@@ -61,7 +61,7 @@
     "eslint-config-custom": "workspace:*",
     "fake-indexeddb": "^4.0.2",
     "jsdom": "^22.1.0",
-    "postcss": "^8.4.27",
+    "postcss": "^8.4.31",
     "sass": "^1.64.1",
     "tailwindcss": "^3.3.3",
     "tsconfig": "workspace:*",
