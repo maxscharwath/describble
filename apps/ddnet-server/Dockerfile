@@ -1,4 +1,4 @@
-FROM node:20.3.1-slim
+FROM node:bookworm-slim
 # the image comes with a node user:
 USER node
 
