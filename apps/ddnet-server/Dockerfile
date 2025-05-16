@@ -1,4 +1,4 @@
-FROM node:20.17-slim
+FROM node:20.19.2-slim
 # the image comes with a node user:
 USER node
 
